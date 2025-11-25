@@ -12,7 +12,7 @@ folder and edit it to add/remove links to the menu.
 
   <a class="navbar-brand" href="/">
     <div class="media">
-      <img class="d-flex navbar-brand-logo mx-3" src="{% static "website/images/evennia_logo.png" %}"
+      <img class="d-flex navbar-brand-logo mx-3" src="{% static "website/images/logo.png" %}"
         alt="{{game_name}} logo" />
       <div class="media-body">
         {{ game_name }}<br />
@@ -31,7 +31,7 @@ folder and edit it to add/remove links to the menu.
       {% if account %}
       <li><a class="nav-link" href="{% url 'discourse-session-sync' %}" target="_top">Forum</a></li>
       {% else %}
-      <li><a class="nav-link" href="https://forum.gel.monster" target="_top">Forum</a></li>
+      <!-- Forum link for non-logged-in users removed -->
       {% endif %}
       <li><a class="nav-link" href="{% url 'help' %}">Help</a></li>
       <!-- end game views -->
