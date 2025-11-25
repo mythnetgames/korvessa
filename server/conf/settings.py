@@ -63,7 +63,7 @@ WEBCLIENT_ENABLED = True
 
 # Use secure websocket on port 8443 (CloudFlare-proxied port)
 # CloudFlare handles SSL termination and proxies to backend port 4002
-WEBSOCKET_CLIENT_URL = "kowloon.life:4002"
+WEBSOCKET_CLIENT_URL = "wss://kowloon.life:4002"
 
 # Default exit typeclass
 DEFAULT_EXIT_TYPECLASS = "typeclasses.exits.Exit"
