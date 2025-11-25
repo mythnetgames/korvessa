@@ -27,12 +27,12 @@ class Character(ObjectParent, DefaultCharacter):
     """
     
     # New Stat System Attributes
-    # Smarts, Willpower, Edge, Reflexes, Brawn, Dexterity, Empathy, Technique
+    # Smarts, Willpower, Edge, Reflexes, Body, Dexterity, Empathy, Technique
     smrt = AttributeProperty(1, category='stat', autocreate=True)
     will = AttributeProperty(1, category='stat', autocreate=True)
     edge = AttributeProperty(1, category='stat', autocreate=True)
     ref = AttributeProperty(1, category='stat', autocreate=True)
-    brwn = AttributeProperty(1, category='stat', autocreate=True)
+    body = AttributeProperty(1, category='stat', autocreate=True)
     dex = AttributeProperty(1, category='stat', autocreate=True)
     emp = AttributeProperty(1, category='stat', autocreate=True)
     tech = AttributeProperty(1, category='stat', autocreate=True)

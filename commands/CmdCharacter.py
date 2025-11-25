@@ -551,8 +551,8 @@ class CmdStats(Command):
         else:
             chrome_block = "|RNo chrome or augmentations.|n\n\n"
 
-        # Divider line between chrome and skills
-        divider = "|w" + ("-" * 40) + "|n\n\n"
+        # No divider line between chrome and skills
+        divider = ""
 
         # Skills table header with blue background, white underlined text
 
@@ -623,13 +623,10 @@ class CmdStats(Command):
             return int(round(value))
 
         # Skill display table
-        skill_table = "|[b|w|uSkill                   Raw            Depends        Final|n\n"
+        skill_table = "|[b|w|uSkill                   Raw|n\n"
         for skill_name, dep in SKILL_DEPENDENCIES.items():
-            # RAW column: character's skill investment attribute (e.g., target.<skill_name.lower()>), fallback to 0 if not present
             raw_investment = getattr(target, skill_name.lower().replace("/", "_"), 0)
-            depends = ", ".join(dep["stats"])
-            final_val = calculate_skill_value(target, skill_name)
-            skill_table += f"{skill_name:<18}{raw_investment:>8}{depends:>22}{final_val:>10}\n"
+            skill_table += f"{skill_name:<18}{raw_investment:>8}\n"
 
         # Compose final output
         output = stat_table + chrome_block + divider + skill_table

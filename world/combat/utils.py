@@ -56,14 +56,14 @@ def get_character_stat(character, stat_name, default=1):
     
     Args:
         character: The character object
-        stat_name (str): Name of the stat (e.g., 'body', 'ref', 'dex', 'tech', 'smrt', 'will', 'edge', 'emp', 'brwn')
+        stat_name (str): Name of the stat (e.g., 'body', 'ref', 'dex', 'tech', 'smrt', 'will', 'edge', 'emp')
         default (int): Default value if stat is missing or invalid
         
     Returns:
         int: The stat value, guaranteed to be a positive integer
     """
     valid_stats = [
-        "body", "ref", "dex", "tech", "smrt", "will", "edge", "emp", "brwn"
+        "body", "ref", "dex", "tech", "smrt", "will", "edge", "emp"
     ]
     if stat_name not in valid_stats:
         return default
