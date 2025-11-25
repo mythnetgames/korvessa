@@ -32,14 +32,14 @@ from evennia.settings_default import *
 ######################################################################
 
 # This is the name of your game. Make it catchy!
-SERVERNAME = "Gelatinous Monster"
+SERVERNAME = "Kowloon"
 # Short one-sentence blurb describing your game. Shown under the title
 # on the website and could be used in online listings of your game etc.
-GAME_SLOGAN = "An abomination to behold"
+GAME_SLOGAN = "The walled city!"
 # The url address to your server, like mymudgame.com. This should be the publicly
 # visible location. This is used e.g. on the web site to show how you connect to the
 # game over telnet. Default is localhost (only on your machine).
-SERVER_HOSTNAME = "play.gel.monster"
+SERVER_HOSTNAME = "kowloon.life"
 # Lockdown mode will cut off the game from any external connections
 # and only allow connections from localhost. Requires a cold reboot.
 LOCKDOWN_MODE = False
@@ -49,13 +49,13 @@ NEW_ACCOUNT_REGISTRATION_ENABLED = True
 # Activate telnet service
 TELNET_ENABLED = True
 # A list of ports the Evennia telnet server listens on Can be one or many.
-TELNET_PORTS = [23]
+TELNET_PORTS = [4000]
 # This is a security setting protecting against host poisoning
 # attacks.  It defaults to allowing all. In production, make
 # sure to change this to your actual host addresses/IPs.
-ALLOWED_HOSTS = ["play.gel.monster", "gel.monster", "gelatinous.org", "gelatinous.monster", "96d01c0600eef9c99db924a15939abf3-578402624.us-west-2.elb.amazonaws.com", "35.165.102.12"]
+ALLOWED_HOSTS = ["kowloon.life", "kowloon.life", "3.137.218.62"]
 # This is a security setting protecting against DJANGO CSRF nonsense
-CSRF_TRUSTED_ORIGINS = ['https://gel.monster', 'https://play.gel.monster', 'https://gelatinous.monster', 'https://gelatinous.org', 'https://96d01c0600eef9c99db924a15939abf3-578402624.us-west-2.elb.amazonaws.com', 'https://35.165.102.12']
+CSRF_TRUSTED_ORIGINS = ['https://kowloon.life', 'https://3.137.218.62']
 # Start the evennia webclient. This requires the webserver to be running and
 # offers the fallback ajax-based webclient backbone for browsers not supporting
 # the websocket one.
@@ -63,7 +63,7 @@ WEBCLIENT_ENABLED = True
 
 # Use secure websocket on port 8443 (CloudFlare-proxied port)
 # CloudFlare handles SSL termination and proxies to backend port 4002
-WEBSOCKET_CLIENT_URL = "wss://gel.monster:8443"
+WEBSOCKET_CLIENT_URL = "wss://kowloon.life:8443"
 
 # Default exit typeclass
 DEFAULT_EXIT_TYPECLASS = "typeclasses.exits.Exit"
@@ -109,18 +109,6 @@ AUTHENTICATION_BACKENDS = [
 # NOTE: These should be moved to secret_settings.py in production
 TURNSTILE_SITE_KEY = ""  # Public site key (visible in HTML)
 TURNSTILE_SECRET_KEY = ""  # Secret key (server-side only)
-
-######################################################################
-# Discourse SSO (DiscourseConnect) Configuration
-######################################################################
-
-# Discourse forum URL
-DISCOURSE_URL = ""  # e.g., "https://forum.gel.monster"
-
-# SSO secret key - MUST match the discourse_connect_secret in Discourse settings
-# Generate a random secret with: python -c "import secrets; print(secrets.token_urlsafe(32))"
-# NOTE: This should be set in secret_settings.py in production
-DISCOURSE_SSO_SECRET = ""
 
 ######################################################################
 # Django web features
