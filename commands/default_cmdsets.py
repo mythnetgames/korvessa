@@ -113,6 +113,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         #
         # Add individual character commands
         self.add(CmdCharacter.CmdStats)
+        self.add(CmdCharacter.CmdSpawnChrome())
+        self.add(CmdCharacter.CmdChromeInstall())
+        self.add(CmdCharacter.CmdChromeUninstall())
         self.add(CmdCharacter.CmdThink())
         self.add(CmdCharacter.CmdSetStat())
         self.add(CmdSpawnMob())

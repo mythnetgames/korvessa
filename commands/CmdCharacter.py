@@ -2,6 +2,197 @@
 # IMPORTS
 # ===================================================================
 from evennia import Command
+# ===================================================================
+# CHROME UNINSTALL COMMAND
+# ===================================================================
+
+class CmdChromeUninstall(Command):
+    """
+    Uninstall chrome from a target character.
+
+    Usage:
+        chromeuninstall <chrome> from <person>
+
+    Example:
+        chromeuninstall mindseye from Laszlo
+    """
+    key = "chromeuninstall"
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+
+    def func(self):
+        caller = self.caller
+        args = self.args.strip().split()
+        if len(args) < 3 or args[1].lower() != "from":
+            caller.msg("Usage: chromeuninstall <chrome> from <person>")
+            return
+        chrome_name = args[0].lower()
+        target_name = " ".join(args[2:])
+        # Find target character
+        matches = search_object(target_name, exact=False)
+        if not matches:
+            caller.msg(f"Could not find character '{target_name}'.")
+            return
+        target = matches[0]
+        # Check for installed chrome attribute
+        installed = getattr(target.db, "installed_chrome", None)
+        if not installed or installed.get("chrome_shortname") != chrome_name:
+            caller.msg(f"No chrome '{chrome_name}' installed in {target.key}.")
+            return
+        # Skill check: surgery (primary), science (secondary)
+        # Builder+ always succeeds
+        if caller.locks.check_lockstring(caller, "perm(Builder)"):
+            success = True
+        else:
+            surgery = getattr(caller, 'surgery', 0)
+            science = getattr(caller, 'science', 0)
+            skill_val = surgery * 0.7 + science * 0.3
+            import random
+            roll = random.randint(1, 20)
+            success = (skill_val + roll) >= 15
+        if success:
+            # Remove installed chrome attribute and respawn item in caller's inventory
+            del target.db.installed_chrome
+            chrome_registry = {
+                "mindseye": "world.medical.chrome_mindseye.ChromeMindseye",
+                # Add more chrome here as needed
+            }
+            class_path = chrome_registry.get(chrome_name)
+            if class_path:
+                key = f"{chrome_name.title()} Chrome"
+                new_chrome = create_object(class_path, key=key, location=caller)
+                caller.msg(f"You successfully uninstall {chrome_name.title()} Chrome from {target.key} and receive it.")
+                target.msg(f"{caller.key} has uninstalled {chrome_name.title()} Chrome from you.")
+            else:
+                caller.msg(f"Uninstalled chrome, but could not respawn item (unknown shortname: {chrome_name}).")
+        else:
+            caller.msg("You fail to uninstall the chrome.")
+            target.msg(f"{caller.key} attempted to uninstall chrome from you but failed.")
+# ===================================================================
+# CHROME INSTALL COMMAND
+# ===================================================================
+
+class CmdChromeInstall(Command):
+    """
+    Install chrome into a target character.
+
+    Usage:
+        chromeinstall <chrome> in <person>
+
+    Example:
+        chromeinstall mindseye in Laszlo
+    """
+    key = "chromeinstall"
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+
+    def func(self):
+        caller = self.caller
+        args = self.args.strip().split()
+        if len(args) < 3 or args[1].lower() != "in":
+            caller.msg("Usage: chromeinstall <chrome> in <person>")
+            return
+        chrome_name = args[0].lower()
+        target_name = " ".join(args[2:])
+        # Find target character
+        matches = search_object(target_name, exact=False)
+        if not matches:
+            caller.msg(f"Could not find character '{target_name}'.")
+            return
+        target = matches[0]
+        # Find chrome item in caller's inventory or room
+        location = caller.location
+        chrome_obj = None
+        # Search caller's inventory first
+        for item in getattr(caller, 'contents', []):
+            if hasattr(item, 'db') and getattr(item.db, 'chrome_shortname', None) == chrome_name:
+                chrome_obj = item
+                break
+        # If not found, search room
+        if not chrome_obj:
+            for item in getattr(location, 'contents', []):
+                if hasattr(item, 'db') and getattr(item.db, 'chrome_shortname', None) == chrome_name:
+                    chrome_obj = item
+                    break
+        if not chrome_obj:
+            caller.msg(f"No chrome '{chrome_name}' found in your inventory or room.")
+            return
+        # Skill check: surgery (primary), science (secondary)
+        # Builder+ always succeeds
+        if caller.locks.check_lockstring(caller, "perm(Builder)"):
+            success = True
+        else:
+            surgery = getattr(caller, 'surgery', 0)
+            science = getattr(caller, 'science', 0)
+            skill_val = surgery * 0.7 + science * 0.3
+            import random
+            roll = random.randint(1, 20)
+            success = (skill_val + roll) >= 15
+        if success:
+            # Store chrome as attribute on target, delete item
+            target.db.installed_chrome = {
+                "chrome_name": getattr(chrome_obj.db, "chrome_name", ""),
+                "chrome_shortname": getattr(chrome_obj.db, "chrome_shortname", ""),
+                "chrome_buff": getattr(chrome_obj.db, "chrome_buff", ""),
+                "chrome_ability": getattr(chrome_obj.db, "chrome_ability", ""),
+                "empathy_cost": getattr(chrome_obj.db, "empathy_cost", 0),
+            }
+            chrome_obj.delete()
+            caller.msg(f"You successfully install {chrome_obj.key} into {target.key}.")
+            target.msg(f"{caller.key} has installed {chrome_obj.key} into you.")
+        else:
+            caller.msg("You fail to install the chrome.")
+            target.msg(f"{caller.key} attempted to install chrome into you but failed.")
+
+from evennia import Command
+from evennia.utils.create import create_object
+
+class CmdSpawnChrome(Command):
+    """
+    Spawn chrome by shortname and amount.
+
+    Usage:
+        spawnchrome <shortname> <amount>
+
+    Example:
+        spawnchrome mindseye 2
+    """
+    key = "spawnchrome"
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+
+    def func(self):
+        caller = self.caller
+        args = self.args.strip().split()
+        if len(args) < 2:
+            caller.msg("Usage: spawnchrome <shortname> <amount>")
+            return
+        shortname = args[0].lower()
+        try:
+            amount = int(args[1])
+        except ValueError:
+            caller.msg("Amount must be an integer.")
+            return
+        # Chrome registry: map shortname to class path
+        chrome_registry = {
+            "mindseye": "world.medical.chrome_mindseye.ChromeMindseye",
+            # Add more chrome here as needed
+        }
+        if shortname not in chrome_registry:
+            caller.msg(f"Unknown chrome shortname: {shortname}")
+            return
+        class_path = chrome_registry[shortname]
+        spawned = []
+        for _ in range(amount):
+            # Set a default key for the object to avoid NOT NULL constraint error
+            key = f"{shortname.title()} Chrome"
+            obj = create_object(class_path, key=key, location=caller.location)
+            spawned.append(obj)
+        caller.msg(f"Spawned {amount} '{shortname}' chrome in this room.")
+# ===================================================================
+# IMPORTS
+# ===================================================================
+from evennia import Command
 from evennia.comms.models import ChannelDB
 # ===================================================================
 # THINK COMMAND
@@ -302,7 +493,9 @@ class CmdStats(Command):
 
         # Calculate starting empathy as EDGE + WILLPOWER
         starting_emp = getattr(target, 'edge', 0) + getattr(target, 'will', 0)
-        # Use starting_emp for stat display
+        # Deduct empathy cost from installed chrome if present
+        chrome = getattr(target.db, 'installed_chrome', None)
+        chrome_empathy_cost = chrome.get('empathy_cost', 0) if chrome else 0
         def stat_line(label, base, current):
             color = "|g" if current >= base else "|r"
             return f"|y{label:<10}|n [ {base} / {color}{current}|n ]"
@@ -329,12 +522,12 @@ class CmdStats(Command):
             # Empathy: base is EDGE + WILL, final is base unless modified by chrome/drugs
             if right_attr == 'emp':
                 right_base = starting_emp
-                # Check for chrome/drug modification
+                # Apply chrome empathy cost
+                right_current = right_base + chrome_empathy_cost
+                # Check for additional drug modification
                 emp_mod = getattr(target, 'emp_mod', None)
                 if emp_mod is not None:
-                    right_current = right_base + emp_mod
-                else:
-                    right_current = right_base
+                    right_current += emp_mod
             else:
                 right_base = getattr(target, right_attr, 0)
                 right_current = getattr(target, right_attr, 0)
@@ -344,16 +537,19 @@ class CmdStats(Command):
         stat_table = "\n".join(stat_rows) + "\n\n"
 
         # Chrome and Augmentations section
-        chrome_name = getattr(target, "chrome_name", None)
-        chrome_buff = getattr(target, "chrome_buff", None)
-        chrome_lines = []
-        if chrome_name or chrome_buff:
-            chrome_lines.append("|bChrome and Augmentations:|n")
-            chrome_lines.append(f"|BChrome Name:|n {chrome_name or ''}")
-            chrome_lines.append(f"|BBuff/Ability:|n {chrome_buff or ''}")
+        chrome = getattr(target.db, 'installed_chrome', None)
+        if chrome:
+            # Section header
+            chrome_block = "|[B|wChrome and Augmentations:|n\n"
+            # Two-column layout: Chrome Name (yellow), Buff/Ability (green)
+            name_label = "|yChrome Name:|n"
+            buff_label = "|gBuff/Ability:|n"
+            name_val = f"{chrome.get('chrome_name', '')}"
+            buff_val = f"{chrome.get('chrome_ability', '')}"
+            # Pad columns for alignment
+            chrome_block += f"{name_label:<18}{buff_label:<18}\n{name_val:<18}{buff_val:<18}\n\n"
         else:
-            chrome_lines.append("|RNo chrome or augmentations.|n")
-        chrome_block = "\n".join(chrome_lines) + "\n\n"
+            chrome_block = "|RNo chrome or augmentations.|n\n\n"
 
         # Divider line between chrome and skills
         divider = "|w" + ("-" * 40) + "|n\n\n"
