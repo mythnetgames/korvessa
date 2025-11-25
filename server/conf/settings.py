@@ -53,7 +53,7 @@ TELNET_PORTS = [4000]
 # This is a security setting protecting against host poisoning
 # attacks.  It defaults to allowing all. In production, make
 # sure to change this to your actual host addresses/IPs.
-ALLOWED_HOSTS = ["kowloon.life", "kowloon.life", "3.137.218.62"]
+ALLOWED_HOSTS = ["kowloon.life", "3.137.218.62"]
 # This is a security setting protecting against DJANGO CSRF nonsense
 CSRF_TRUSTED_ORIGINS = ['https://kowloon.life', 'https://3.137.218.62']
 # Start the evennia webclient. This requires the webserver to be running and
