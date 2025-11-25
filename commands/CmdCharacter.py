@@ -543,11 +543,11 @@ class CmdStats(Command):
             chrome_block = "|[B|wChrome and Augmentations:|n\n"
             # Two-column layout: Chrome Name (yellow), Buff/Ability (green)
             name_label = "|yChrome Name:|n"
-            buff_label = "|gBuff/Ability:|n"
-            name_val = f"{chrome.get('chrome_name', '')}"
+            buff_label = "    |GBuff/Ability:|n"
+            name_val = f"|C{chrome.get('chrome_name', '')}|n"
             buff_val = f"{chrome.get('chrome_ability', '')}"
             # Pad columns for alignment
-            chrome_block += f"{name_label:<18}{buff_label:<18}\n{name_val:<18}{buff_val:<18}\n\n"
+            chrome_block += f"{name_label:<18}{buff_label:<18}\n{name_val:<18}{'    ' + buff_val:<18}\n\n"
         else:
             chrome_block = "|RNo chrome or augmentations.|n\n\n"
 
