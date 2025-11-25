@@ -35,7 +35,7 @@ from evennia.settings_default import *
 SERVERNAME = "Kowloon"
 # Short one-sentence blurb describing your game. Shown under the title
 # on the website and could be used in online listings of your game etc.
-GAME_SLOGAN = "The Walled city"
+GAME_SLOGAN = "The Walled City"
 # The url address to your server, like mymudgame.com. This should be the publicly
 # visible location. This is used e.g. on the web site to show how you connect to the
 # game over telnet. Default is localhost (only on your machine).
