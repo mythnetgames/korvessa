@@ -887,7 +887,7 @@ class CmdLongdesc(Command):
     """
 
     key = "@longdesc"
-    aliases = ["@desc"]
+    aliases = []
     locks = "cmd:all()"
     help_category = "Character"
 
