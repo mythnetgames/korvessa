@@ -765,7 +765,7 @@ class CmdWrest(Command):
             MSG_WREST_FAILED_CALLER, MSG_WREST_FAILED_TARGET, MSG_WREST_FAILED_ROOM,
             MSG_WREST_IN_COMBAT, MSG_WREST_NO_FREE_HANDS, MSG_WREST_TARGET_NOT_FOUND,
             MSG_WREST_OBJECT_NOT_IN_HANDS, DB_CHAR, DB_GRAPPLED_BY_DBREF,
-            STAT_GRIT, SPLATTERCAST_CHANNEL
+            STAT_BODY, SPLATTERCAST_CHANNEL
         )
         from world.combat.utils import roll_stat, roll_with_disadvantage
 
@@ -876,27 +876,27 @@ class CmdWrest(Command):
     def _execute_grit_contest(self, caller, target, target_is_grappled, roll_stat, roll_with_disadvantage):
         """Execute Grit vs Grit contest, with disadvantage for grappled targets."""
         from evennia.comms.models import ChannelDB
-        from world.combat.constants import STAT_GRIT, SPLATTERCAST_CHANNEL
-        
+        from world.combat.constants import STAT_BODY, SPLATTERCAST_CHANNEL
+
         # Caller rolls normally
-        caller_roll = roll_stat(caller, STAT_GRIT)
-        
+        caller_roll = roll_stat(caller, STAT_BODY)
+
         # Target rolls with disadvantage if grappled
         if target_is_grappled:
-            target_grit = getattr(target, STAT_GRIT, 1)
-            target_roll, _, _ = roll_with_disadvantage(target_grit)
+            target_body = getattr(target, STAT_BODY, 1)
+            target_roll, _, _ = roll_with_disadvantage(target_body)
         else:
-            target_roll = roll_stat(target, STAT_GRIT)
-        
+            target_roll = roll_stat(target, STAT_BODY)
+
         # Caller wins ties (advantage to active player)
         success = caller_roll >= target_roll
-        
+
         # Debug output for testing
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         if splattercast:
             grapple_status = " (grappled)" if target_is_grappled else ""
             splattercast.msg(f"WREST CONTEST: {caller.key} {caller_roll} vs {target.key} {target_roll}{grapple_status} - {'SUCCESS' if success else 'FAILURE'}")
-        
+
         return success
 
     def _execute_transfer(self, caller, target, target_object, caller_hand, target_hand):
