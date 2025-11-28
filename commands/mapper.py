@@ -163,13 +163,9 @@ class CmdMap(Command):
             for dx in range(-2, 3):
                 cx, cy = x + dx, y + dy
                 room_obj = coords.get((cx, cy))
-                # Fix: No spaces between squares, default to [] if no mapicon
+                # Fix: Show '@' for current room, not map_icon
                 if (cx, cy) == (x, y):
-                    icon = getattr(room_obj.db, 'map_icon', None) if room_obj else None
-                    if icon and len(icon) >= 2:
-                        row.append(icon[:2])
-                    else:
-                        row.append("[]")
+                    row.append("@ ")
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon and len(icon) >= 2:
@@ -178,8 +174,10 @@ class CmdMap(Command):
                         row.append("[]")
                 else:
                     row.append("  ")
+            # Join row and send with Evennia color parsing
             grid.append("".join(row))
-        self.caller.msg("\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}")
+        # Send the whole grid with Evennia color parsing
+        self.caller.msg("\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}", raw=False)
 
 class CmdHelpMapping(Command):
     """
