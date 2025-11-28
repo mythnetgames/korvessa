@@ -223,13 +223,8 @@ class CmdMap(Command):
             # (This is handled by the map output below)
             pass
 
-        # Prepare room name and description as a column
-        # Only show room name/description in map output if @mapon is enabled or when looking
-        show_text = getattr(self.caller.ndb, "mapper_enabled", False)
-        desc_lines = []
-        if show_text:
-            if appearance:
-                desc_lines = appearance.splitlines()
+        # Always show the map and room description together, no @mapon logic
+        desc_lines = appearance.splitlines() if appearance else [""]
 
 
         # Strict columnar layout: map (top left), text (top right)
