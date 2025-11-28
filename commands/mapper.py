@@ -271,10 +271,11 @@ class CmdMap(Command):
             combined.append(f"{m.ljust(map_width)}{d}")
 
         # Move coordinates directly under the map, and if there are more desc lines, show the next one in the right column
+        # Always pad the right column to start after the map
+        right_pad = " " * (map_width + 2)
         coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}"
         if len(desc_lines) > len(grid):
-            coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}{desc_lines[len(grid)]}"
-            # Remove the desc line that was just added to the coord line
+            coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}{right_pad}{desc_lines[len(grid)].lstrip()}"
             desc_lines.pop(len(grid))
         combined.insert(len(grid), coord_line)
 
