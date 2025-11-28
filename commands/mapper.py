@@ -224,6 +224,18 @@ class CmdMap(Command):
         map_cell_width = 2
         map_width = map_cells * map_cell_width
         indent = " " * (map_width + 2)
+        # Find the start column for 'You see...' and align all desc lines to it
+        dynamic_indent = None
+        if appearance:
+            for line in appearance.split('\n'):
+                if line.strip().startswith("You see"):
+                    # Find the index of 'Y' in 'You see...' and use that as indent
+                    idx = line.find("You see")
+                    if idx >= 0:
+                        dynamic_indent = " " * (map_width + 2 + idx)
+                    break
+        if not dynamic_indent:
+            dynamic_indent = indent
         column_width = 80
         if appearance:
             lines = appearance.split('\n')
@@ -240,14 +252,12 @@ class CmdMap(Command):
                     other_lines.append(line)
             wrapped_lines = []
             for line in other_lines:
-                # First line: main indent, subsequent lines: indent - 2 spaces
-                initial_indent = indent
-                subsequent_indent = indent[:-2] if len(indent) >= 2 else indent
-                wrapped = textwrap.fill(line, width=column_width, initial_indent=initial_indent, subsequent_indent=subsequent_indent)
+                # Use dynamic indent for all lines
+                wrapped = textwrap.fill(line, width=column_width, initial_indent=dynamic_indent, subsequent_indent=dynamic_indent)
                 wrapped_lines.extend(wrapped.split('\n'))
             desc_lines = wrapped_lines
             if exit_line:
-                wrapped = textwrap.fill(exit_line, width=column_width, initial_indent=indent, subsequent_indent=indent)
+                wrapped = textwrap.fill(exit_line, width=column_width, initial_indent=dynamic_indent, subsequent_indent=dynamic_indent)
                 desc_lines.extend(wrapped.split('\n'))
         else:
             desc_lines = [indent]
