@@ -683,25 +683,24 @@ class CmdPushCombo(Command):
     locks = "cmd:all()"
     help_category = "General"
     def func(self):
-        caller = self.caller
-        args = self.args.strip().split()
-        if len(args) < 3 or args[1] != "on":
-            caller.msg("Usage: push <combo> on <direction>")
-            return
-        combo = args[0]
-        direction = args[2].lower()
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        door_obj = getattr(exit_obj.db, "door", None) if exit_obj else None
-        keypad_obj = getattr(door_obj.db, "keypad", None) if door_obj else None
-        if not exit_obj or not door_obj or not keypad_obj:
-            caller.msg(f"No keypad found on door for exit '{direction}'.")
-            return
-        keypad_obj.enter_combo(combo, caller)
+            caller = self.caller
+            args = self.args.strip().split()
+            if len(args) < 3 or args[1] != "on":
+                caller.msg("Usage: push <combo> on <direction>")
+                return
+            combo = args[0]
+            direction = args[2].lower()
+            # Use find_door and find_keypad for alias-aware lookup
+            from commands.door import find_door, find_keypad
+            door_obj = find_door(caller.location, direction)
+            if not door_obj:
+                caller.msg(f"No door found for exit '{direction}'.")
+                return
+            keypad_obj = find_keypad(door_obj, direction)
+            if not keypad_obj:
+                caller.msg(f"No keypad found on door for exit '{direction}'.")
+                return
+            keypad_obj.enter_combo(combo, caller)
 
 class CmdUnlockExit(Command):
     """Unlock a door or keypad on an exit."""
