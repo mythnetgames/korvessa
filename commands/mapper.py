@@ -147,7 +147,7 @@ class CmdMap(Command):
     help_category = "Mapping"
 
     def convert_icon_tags(self, icon):
-        # Convert [tag]s to Evennia color codes, then apply to the first two non-tag characters
+        # Accept direct Evennia color codes and [tag]s, but do not add |n after each cell
         if not icon:
             return icon
         # Foreground colors
@@ -179,8 +179,8 @@ class CmdMap(Command):
         # Only use the first two non-tag characters as the icon
         icon_chars = "".join([c for c in rest if c not in "[]"])
         icon_final = icon_chars[:2] if len(icon_chars) >= 2 else icon_chars.ljust(2)
-        # Apply color codes to icon
-        return f"{codes}{icon_final}|n"
+        # Apply color codes to icon, but do not add |n
+        return f"{codes}{icon_final}"
 
     def func(self):
         room = self.caller.location
@@ -206,8 +206,7 @@ class CmdMap(Command):
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
                         rendered = self.convert_icon_tags(icon)
-                        # Add a color reset after each cell to avoid color bleed
-                        row.append(f"{rendered}|n")
+                        row.append(rendered)
                     else:
                         row.append("[]")
                 else:
