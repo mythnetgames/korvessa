@@ -199,12 +199,7 @@ class CmdMap(Command):
                 cx, cy = x + dx, y + dy
                 room_obj = coords.get((cx, cy))
                 if (cx, cy) == (x, y):
-                    icon = getattr(room_obj.db, 'map_icon', None) if room_obj else None
-                    if icon:
-                        rendered = self.convert_icon_tags(icon)
-                        row.append(rendered)
-                    else:
-                        row.append("@ ")
+                    row.append("@ ")
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
