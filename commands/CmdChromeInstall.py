@@ -47,7 +47,10 @@ class CmdChromeInstall(Command):
         target.ndb.installed_chrome.append(chrome)
         # Apply chrome stat bonus (example: +2 BODY)
         # You should define chrome stat effects elsewhere; here is a placeholder
-        if hasattr(chrome, "db") and hasattr(chrome.db, "stat") and hasattr(chrome.db, "bonus"):
+        if (
+            hasattr(chrome, "db") and hasattr(chrome.db, "stat") and chrome.db.stat and isinstance(chrome.db.stat, str)
+            and hasattr(chrome.db, "bonus")
+        ):
             stat = chrome.db.stat
             bonus = chrome.db.bonus
             current = getattr(target, stat, 0)
