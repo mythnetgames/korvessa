@@ -130,6 +130,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add stats command
         from commands.CmdStats import CmdStats
         self.add(CmdStats())
+        # Add setstat command (admin only)
+        from commands.CmdSetStat import CmdSetStat
+        self.add(CmdSetStat())
         # Add mapping help command
         from commands.mapper import CmdHelpMapping
         self.add(CmdHelpMapping())

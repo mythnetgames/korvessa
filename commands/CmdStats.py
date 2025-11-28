@@ -29,7 +29,7 @@ class CmdStats(Command):
         right_stats = stats[4:]
         msg = "|ystats|n\n"
         # Get stat values (current/max)
-        def stat_line(attr, name):
+        def stat_line(attr, name, abbr):
             val = getattr(char, attr, 0)
             maxval = getattr(char, f"max_{attr}", val)
             return f"|y{name:<10}|n [ |w{val}|n / |g{maxval}|n ]"
