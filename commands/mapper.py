@@ -240,7 +240,10 @@ class CmdMap(Command):
                     other_lines.append(line)
             wrapped_lines = []
             for line in other_lines:
-                wrapped = textwrap.fill(line, width=column_width, initial_indent=indent, subsequent_indent=indent)
+                # First line: indent - 2 spaces, subsequent lines: indent + 2 spaces
+                initial_indent = indent[:-2] if len(indent) >= 2 else indent
+                subsequent_indent = indent + "  "
+                wrapped = textwrap.fill(line, width=column_width, initial_indent=initial_indent, subsequent_indent=subsequent_indent)
                 wrapped_lines.extend(wrapped.split('\n'))
             desc_lines = wrapped_lines
             if exit_line:
