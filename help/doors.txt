@@ -12,7 +12,8 @@ This helpfile describes how to use doors, locks, and combination keypad locks fo
 - |cprogramkeypad <direction> <combo>|n: Set the keypad's 8-digit combination (default: 00000000).
 - |cshowcombo <direction>|n: Show the keypad combo (builder+ only).
 - |centercombo <direction> <combo>|n: Enter a combo to unlock a keypad lock.
-- Keypads lock out after 3 failed attempts; builder+ must reset.
+- |cpush <combo> on <direction>|n or |cpress <combo> on <direction>|n: Alternate ways to enter a combo on a keypad lock.
+- After 5 failed attempts, the keypad buzzes red and requires a 10-minute cooldown before further attempts.
 
 |wRemoving Components|n
 - |cremovedoor <direction>|n: Remove a door from an exit.
@@ -20,11 +21,12 @@ This helpfile describes how to use doors, locks, and combination keypad locks fo
 - |cremovekeypad <direction>|n: Remove a keypad lock from a door on an exit.
 - |cbulkremove <component> <direction1> [direction2 ...]|n: Bulk remove doors/locks/keypads from multiple exits.
 
-|wDoor State Commands|n
+|wDoor and Keypad State Commands|n
 - |copendoor <direction>|n: Open a door on an exit.
 - |cclosedoor <direction>|n: Close a door on an exit.
-- |clockdoor <direction> [key]|n: Lock a door (requires key).
-- |cunlockdoor <direction> [key]|n: Unlock a door (requires key).
+- |clock <direction> [key]|n or |clock exit|n: Lock a door (requires key) or lock a keypad.
+- |cunlock <direction> [key]|n or |cunlock exit|n: Unlock a door (requires key) or unlock a keypad.
+- |cpress lock on <direction>|n: Lock a keypad lock on an exit.
 
 |wStatus and Customization|n
 - |cdoorstatus <direction>|n: Show status of door, lock, and keypad (builder+ only).
@@ -39,7 +41,7 @@ This helpfile describes how to use doors, locks, and combination keypad locks fo
 - All attach/remove/program actions are logged to the BuilderAudit channel.
 - Bulk operations allow fast management of multiple exits.
 - Key objects must match lock key_id to unlock doors.
-- Keypads lock out after 3 failed attempts; builder+ must reset.
+- After 5 failed attempts, keypad requires a 10-minute cooldown before further attempts.
 
 |wExample|n
   attachdoor east
@@ -48,10 +50,15 @@ This helpfile describes how to use doors, locks, and combination keypad locks fo
   programkeypad east 12345678
   showcombo east
   entercombo east 12345678
+  push 12345678 on east
+  press 12345678 on east
   opendoor east
   closedoor east
-  lockdoor east mykey
-  unlockdoor east mykey
+  lock east mykey
+  unlock east mykey
+  lock east
+  unlock east
+  press lock on east
   doorstatus east
   setdoormsg east open "The heavy door swings open with a creak."
   bulkattach door north south east

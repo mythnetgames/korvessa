@@ -1,5 +1,7 @@
 from evennia import Command
 from evennia.comms.models import ChannelDB
+import time
+from evennia.utils import delay
 
 audit_channel = ChannelDB.objects.get_channel("BuilderAudit")
 
@@ -262,16 +264,24 @@ class CmdBulkRemove(Command):
                 caller.msg("Component must be one of: door, lock, keypad.")
                 return
 
-# Update KeypadLock to support lockout after 3 failed attempts
+# Update KeypadLock to support 10-minute cooldown after 5 failed attempts
 from typeclasses.doors import KeypadLock
 old_enter_combo = KeypadLock.enter_combo
 
 def new_enter_combo(self, combo, caller):
     if not hasattr(self.db, "failed_attempts"):
         self.db.failed_attempts = 0
+    if not hasattr(self.db, "cooldown_until"):
+        self.db.cooldown_until = 0
+    now = time.time()
+    if self.db.cooldown_until and now < self.db.cooldown_until:
+        remaining = int((self.db.cooldown_until - now) // 60) + 1
+        caller.msg(f"|rThe keypad buzzes red. You must wait {remaining} more minute(s) before trying again.|n")
+        return False
     if combo == self.db.combination:
         self.db.is_unlocked = True
         self.db.failed_attempts = 0
+        self.db.cooldown_until = 0
         caller.msg("Keypad unlocked.")
         audit_channel.msg(f"{caller.key} unlocked keypad on door.")
         return True
@@ -279,12 +289,149 @@ def new_enter_combo(self, combo, caller):
         self.db.failed_attempts += 1
         caller.msg("Incorrect combination.")
         audit_channel.msg(f"{caller.key} failed keypad attempt ({self.db.failed_attempts}).")
-        if self.db.failed_attempts >= 3:
-            caller.msg("Keypad is locked out after 3 failed attempts. Builder+ must reset.")
-            audit_channel.msg(f"Keypad lockout triggered by {caller.key}.")
-            self.db.is_unlocked = False
+        if self.db.failed_attempts >= 5:
+            self.db.cooldown_until = now + 600  # 10 minutes
+            self.db.failed_attempts = 0
+            caller.msg("|rThe keypad buzzes red! You must wait 10 minutes before trying again.|n")
+            audit_channel.msg(f"Keypad cooldown triggered by {caller.key} (10 min lockout).")
         return False
 KeypadLock.enter_combo = new_enter_combo
 
 # Helpfile cross-linking (add to help/doors.txt)
 # ...existing code...
+
+class CmdPushCombo(Command):
+    """Push a combo on a keypad lock for an exit."""
+    key = "push"
+    aliases = ["press"]
+    locks = "cmd:all()"
+    help_category = "General"
+    def func(self):
+        caller = self.caller
+        args = self.args.strip().split()
+        if len(args) < 3 or args[1] != "on":
+            caller.msg("Usage: push <combo> on <direction>")
+            return
+        combo = args[0]
+        direction = args[2].lower()
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
+            caller.msg(f"No keypad found on door for exit '{direction}'.")
+            return
+        keypad = exit_obj.db.door.db.keypad
+        keypad.enter_combo(combo, caller)
+
+class CmdUnlockExit(Command):
+    """Unlock a door or keypad on an exit."""
+    key = "unlock"
+    locks = "cmd:all()"
+    help_category = "General"
+    def func(self):
+        caller = self.caller
+        if not self.args:
+            caller.msg("Usage: unlock <direction> [key]")
+            return
+        args = self.args.strip().split()
+        direction = args[0].lower()
+        key_obj = None
+        if len(args) > 1:
+            key_obj = caller.search(args[1], quiet=True)
+            key_obj = key_obj[0] if key_obj else None
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door"):
+            caller.msg(f"No door found on exit '{direction}'.")
+            return
+        door = exit_obj.db.door
+        # Try to unlock lock first
+        if hasattr(door.db, "lock") and door.db.lock:
+            lock = door.db.lock
+            if not lock.db.is_locked:
+                caller.msg("The lock is already unlocked.")
+                return
+            if not key_obj or not hasattr(key_obj.db, "key_id") or key_obj.db.key_id != lock.db.key_id:
+                caller.msg("You don't have the correct key.")
+                return
+            lock.unlock(key_obj, caller)
+            door.db.is_locked = False
+            caller.msg(lock.db.unlock_msg if hasattr(lock.db, "unlock_msg") else "You unlock the door.")
+            audit_channel.msg(f"{caller.key} unlocked door on exit '{direction}'.")
+            return
+        # Try to unlock keypad
+        if hasattr(door.db, "keypad") and door.db.keypad:
+            keypad = door.db.keypad
+            if keypad.db.is_unlocked:
+                caller.msg("The keypad is already unlocked.")
+                return
+            keypad.db.is_unlocked = True
+            caller.msg("You unlock the keypad lock.")
+            audit_channel.msg(f"{caller.key} unlocked keypad on exit '{direction}'.")
+            return
+        caller.msg("No lock or keypad found to unlock on exit '{direction}'.")
+
+class CmdLockExit(Command):
+    """Lock a door or keypad on an exit."""
+    key = "lock"
+    locks = "cmd:all()"
+    help_category = "General"
+    def func(self):
+        caller = self.caller
+        if not self.args:
+            caller.msg("Usage: lock <direction> [key]")
+            return
+        args = self.args.strip().split()
+        direction = args[0].lower()
+        key_obj = None
+        if len(args) > 1:
+            key_obj = caller.search(args[1], quiet=True)
+            key_obj = key_obj[0] if key_obj else None
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door"):
+            caller.msg(f"No door found on exit '{direction}'.")
+            return
+        door = exit_obj.db.door
+        # Try to lock lock first
+        if hasattr(door.db, "lock") and door.db.lock:
+            lock = door.db.lock
+            if lock.db.is_locked:
+                caller.msg("The lock is already locked.")
+                return
+            lock.lock(caller)
+            door.db.is_locked = True
+            caller.msg(lock.db.lock_msg if hasattr(lock.db, "lock_msg") else "You lock the door.")
+            audit_channel.msg(f"{caller.key} locked door on exit '{direction}'.")
+            return
+        # Try to lock keypad
+        if hasattr(door.db, "keypad") and door.db.keypad:
+            keypad = door.db.keypad
+            if not keypad.db.is_unlocked:
+                caller.msg("The keypad is already locked.")
+                return
+            keypad.db.is_unlocked = False
+            caller.msg("You lock the keypad lock.")
+            audit_channel.msg(f"{caller.key} locked keypad on exit '{direction}'.")
+            return
+        caller.msg("No lock or keypad found to lock on exit '{direction}'.")
+
+class CmdPressLock(Command):
+    """Press lock on keypad for an exit."""
+    key = "press lock"
+    locks = "cmd:all()"
+    help_category = "General"
+    def func(self):
+        caller = self.caller
+        args = self.args.strip().split()
+        if len(args) != 2 or args[0] != "on":
+            caller.msg("Usage: press lock on <direction>")
+            return
+        direction = args[1].lower()
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
+            caller.msg(f"No keypad found on door for exit '{direction}'.")
+            return
+        keypad = exit_obj.db.door.db.keypad
+        if not keypad.db.is_unlocked:
+            caller.msg("The keypad is already locked.")
+            return
+        keypad.db.is_unlocked = False
+        caller.msg("You lock the keypad lock.")
+        audit_channel.msg(f"{caller.key} locked keypad on exit '{direction}'.")
