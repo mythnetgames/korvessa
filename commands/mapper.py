@@ -1,4 +1,3 @@
-# ...existing code...
 """
 All mapping commands removed.
 """
@@ -79,4 +78,127 @@ class CmdMapOff(Command):
     def func(self):
         self.caller.ndb.mapper_enabled = False
         self.caller.msg("Mapper disabled.")
+
+class CmdMapIcon(Command):
+    """
+    Set the map icon for the current room.
+    Usage: @mapicon <icon> [options]
+    Example: @mapicon [black][bg_cyan]OD
+    """
+    key = "@mapicon"
+    locks = "cmd:perm(Builder)"
+    help_category = "Mapping"
+
+    def func(self):
+        args = self.args.strip()
+        if not args:
+            self.caller.msg("Usage: @mapicon <icon> [options]")
+            return
+        room = self.caller.location
+        room.db.map_icon = args
+        self.caller.msg(f"Map icon for this room set to '{args}'.")
+
+class CmdAreaIcon(Command):
+    """
+    Set the area background icon for the current area.
+    Usage: @areaicon <icon> [options]
+    """
+    key = "@areaicon"
+    locks = "cmd:perm(Builder)"
+    help_category = "Mapping"
+
+    def func(self):
+        args = self.args.strip()
+        if not args:
+            self.caller.msg("Usage: @areaicon <icon> [options]")
+            return
+        room = self.caller.location
+        room.db.area_icon = args
+        self.caller.msg(f"Area icon for this area set to '{args}'.")
+
+class CmdMapIconHelp(Command):
+    """
+    Show help for map icon settings.
+    Usage: mapicon help
+    """
+    key = "mapicon help"
+    locks = "cmd:perm(Builder)"
+    help_category = "Mapping"
+
+    def func(self):
+        help_text = (
+            "[bold_on]/[bold_off] - Bolds a color, making it brighter. "
+            "[underline_on]/[underline_off] - Underlines the characters. "
+            "[strikethrough_on]/[strikethrough_off] - Strike through. "
+            "[color] - Changes the color. Valid: black,white,red,blue,yellow,green,purple,cyan. "
+            "[bg_color] - Background color. Valid: black,white,red,blue,yellow,green,purple,cyan. "
+            "Icons must be two characters long. Example: mapicon [black][bg_cyan]OD"
+        )
+        self.caller.msg(help_text)
+
+class CmdMap(Command):
+    """
+    Show a 5x5 map centered on your current room, using 2-character icons per room.
+    Usage: map
+    """
+    key = "map"
+    locks = "cmd:perm(Builder)"
+    help_category = "Mapping"
+
+    def func(self):
+        room = self.caller.location
+        x = getattr(room.db, "x", None)
+        y = getattr(room.db, "y", None)
+        z = getattr(room.db, "z", None)
+        if x is None or y is None or z is None:
+            self.caller.msg("This room does not have valid coordinates. The map cannot be displayed.")
+            return
+        from evennia.objects.models import ObjectDB
+        rooms = ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room", db_z=z)
+        coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
+        grid = []
+        for dy in range(2, -3, -1):
+            row = []
+            for dx in range(-2, 3):
+                cx, cy = x + dx, y + dy
+                room_obj = coords.get((cx, cy))
+                if (cx, cy) == (x, y):
+                    icon = getattr(room_obj, 'db', {}).get('map_icon', None) if room_obj else None
+                    row.append(icon if icon and len(icon) == 2 else "Me")
+                elif room_obj:
+                    icon = getattr(room_obj, 'db', {}).get('map_icon', None)
+                    row.append(icon if icon and len(icon) == 2 else "[]")
+                else:
+                    row.append("  ")
+            grid.append(" ".join(row))
+        self.caller.msg("\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}")
+
+class CmdHelpMapping(Command):
+    """
+    Show help for mapping commands and icon customization (builder+).
+    Usage: help mapping
+    """
+    key = "help mapping"
+    locks = "cmd:perm(Builder)"
+    help_category = "Mapping"
+
+    def func(self):
+        help_text = (
+            "Mapping System Help (Builder+)\n"
+            "--------------------------------\n"
+            "- Use @mapon/@mapoff to toggle automatic map display on movement.\n"
+            "- Use 'map' to view the map centered on your current room.\n"
+            "- Each room is shown as a 2-character icon.\n"
+            "- Set a room's icon with: @mapicon <icon> [options]\n"
+            "- Set area background icon with: @areaicon <icon> [options]\n"
+            "- Icons must be exactly two characters.\n"
+            "- Icon options: [bold_on]/[bold_off], [underline_on]/[underline_off], [strikethrough_on]/[strikethrough_off], [color], [bg_color]\n"
+            "  Valid colors: black, white, red, blue, yellow, green, purple, cyan\n"
+            "- Example: @mapicon [black][bg_cyan]OD\n"
+            "- For icon customization help, use: mapicon help\n"
+            "- Coordinates are set with: @maproom x y z\n"
+            "- Map color for brackets: @mapcolor <colorcode>\n"
+            "- Only builder+ can use these commands.\n"
+        )
+        self.caller.msg(help_text)
 
