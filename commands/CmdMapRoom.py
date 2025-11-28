@@ -14,15 +14,17 @@ class CmdMapRoom(Command):
         caller = self.caller
         room = caller.location
         args = self.args.strip().split()
-        if len(args) != 2:
-            caller.msg("Usage: @maproom <x> <y>")
+        if len(args) < 2 or len(args) > 3:
+            caller.msg("Usage: @maproom <x> <y> [z]")
             return
         try:
             x = int(args[0])
             y = int(args[1])
+            z = int(args[2]) if len(args) == 3 else 0
         except ValueError:
-            caller.msg("Both x and y must be integers.")
+            caller.msg("x, y, and z must be integers.")
             return
         room.db.x = x
         room.db.y = y
-        caller.msg(f"Room '{room.key}' mapped to coordinates x={x}, y={y}.")
+        room.db.z = z
+        caller.msg(f"Room '{room.key}' mapped to coordinates x={x}, y={y}, z={z}.")
