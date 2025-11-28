@@ -270,7 +270,7 @@ class CmdMap(Command):
         for m, d in zip(map_lines, desc_lines):
             combined.append(f"{m.ljust(map_width)}{d}")
 
-        # Move coordinates directly under the map
+        # Move coordinates directly under the map, with no right column
         combined.insert(len(grid), f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}")
 
         # Suppress all other room output when @mapon is active
