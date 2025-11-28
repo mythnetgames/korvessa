@@ -78,9 +78,17 @@ class CmdChromeUninstall(Command):
         if not target:
             self.caller.msg(f"Target '{person}' not found.")
             return
-        # Find chrome in target's installed chrome list
-        chrome_list = getattr(target.ndb, "installed_chrome", [])
-        chrome = next((obj for obj in chrome_list if obj.key == shortname), None)
+        # Find chrome in target's installed chrome list (handle NoneType and match by shortname)
+        chrome_list = getattr(target.ndb, "installed_chrome", None)
+        if not chrome_list or not isinstance(chrome_list, list):
+            self.caller.msg(f"{target.key} does not have any chrome installed.")
+            return
+        chrome = None
+        for obj in chrome_list:
+            obj_shortname = getattr(obj.db, "shortname", None)
+            if obj_shortname and obj_shortname.lower() == shortname.lower():
+                chrome = obj
+                break
         if not chrome:
             self.caller.msg(f"{target.key} does not have '{shortname}' installed.")
             return
