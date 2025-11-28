@@ -177,7 +177,8 @@ class CmdMap(Command):
             # Join row and send with Evennia color parsing
             grid.append("".join(row))
         # Send the whole grid with Evennia color parsing
-        self.caller.msg("\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}", raw=False)
+        map_output = "\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}"
+        self.caller.msg(map_output, raw=True)
 
 class CmdHelpMapping(Command):
     """
