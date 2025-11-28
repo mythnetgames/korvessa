@@ -127,6 +127,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdAreaIcon())
         self.add(CmdMapIconHelp())
         self.add(CmdMap())
+        # Add stats command
+        from commands.CmdStats import CmdStats
+        self.add(CmdStats())
         # Add mapping help command
         from commands.mapper import CmdHelpMapping
         self.add(CmdHelpMapping())
