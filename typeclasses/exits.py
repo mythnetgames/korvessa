@@ -51,6 +51,15 @@ class Exit(DefaultExit):
                     cs.add(self)
             self.cmdset.add(ExitCmdSet, permanent=True)
 
+    def at_init(self):
+        # Ensure exit is registered as a command every time it's loaded
+        from evennia import CmdSet
+        class ExitCmdSet(CmdSet):
+            key = "ExitCmdSet"
+            def at_cmdset_creation(cs):
+                cs.add(self)
+        self.cmdset.add(ExitCmdSet, permanent=True)
+
     def return_appearance(self, looker, **kwargs):
         """
         This is called when someone does 'look w' - show the sophisticated exit examination.
