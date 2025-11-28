@@ -303,12 +303,6 @@ class CmdHelpMapping(Command):
             "--------------------------------\n"
             "- Use @mapon/@mapoff to toggle automatic map display on movement.\n"
             "- Use 'map' to view the map centered on your current room.\n"
-                        self.caller.msg("\n".join(combined), parse=True)
-                        # Show room name and description (default Evennia behavior)
-                        if appearance:
-                            self.caller.msg(appearance, parse=True)
-                        else:
-                            self.caller.msg("", parse=True)
             "- Set a room's icon with: @mapicon <icon> [options]\n"
             "- Set area background icon with: @areaicon <icon> [options]\n"
             "- Icons must be exactly two characters.\n"
