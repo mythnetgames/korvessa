@@ -25,9 +25,12 @@ def get_room_exits(room):
 def propagate_coordinates(start_room):
     from collections import deque
     visited = set()
+    assigned_coords = set()
     queue = deque()
     queue.append(start_room)
     visited.add(start_room.id)
+    # Add initial room's coordinates
+    assigned_coords.add((start_room.db.x, start_room.db.y, start_room.db.z))
 
     while queue:
         room = queue.popleft()
@@ -46,14 +49,22 @@ def propagate_coordinates(start_room):
                     if alias_dir in DIRECTIONS:
                         dx, dy, dz = DIRECTIONS[alias_dir]
                         break
-            # Assign coordinates if dest is missing or zero
-            if (getattr(dest.db, "x", None) in (None, 0) or
-                getattr(dest.db, "y", None) in (None, 0) or
-                getattr(dest.db, "z", None) in (None, 0)):
-                dest.db.x = x + dx
-                dest.db.y = y + dy
-                dest.db.z = z + dz
-                print(f"Set coordinates for {dest.key}: x={dest.db.x}, y={dest.db.y}, z={dest.db.z}")
+            # Proposed new coordinates
+            new_x = x + dx
+            new_y = y + dy
+            new_z = z + dz
+            # Assign coordinates if dest is missing or zero, and not already assigned
+            if ((getattr(dest.db, "x", None) in (None, 0) or
+                 getattr(dest.db, "y", None) in (None, 0) or
+                 getattr(dest.db, "z", None) in (None, 0))):
+                if (new_x, new_y, new_z) in assigned_coords:
+                    print(f"WARNING: Coordinates ({new_x}, {new_y}, {new_z}) already assigned. Skipping {dest.key}.")
+                else:
+                    dest.db.x = new_x
+                    dest.db.y = new_y
+                    dest.db.z = new_z
+                    assigned_coords.add((new_x, new_y, new_z))
+                    print(f"Set coordinates for {dest.key}: x={dest.db.x}, y={dest.db.y}, z={dest.db.z}")
             queue.append(dest)
             visited.add(dest.id)
 

@@ -17,7 +17,7 @@ from .objects import ObjectParent
 class Room(ObjectParent, DefaultRoom):
     def at_after_move(self, mover, source_location):
         """
-        After moving, assign coordinates to unmapped destination rooms if mapper is enabled, then show map.
+        After moving, assign coordinates to unmapped destination rooms if mapper is enabled, then show map. Prevent coordinate conflicts.
         """
         super().at_after_move(mover, source_location)
         # Only for builder+ with mapper enabled
@@ -47,36 +47,32 @@ class Room(ObjectParent, DefaultRoom):
                         break
             # If any coordinate is missing, assign all three
             if x is None or y is None or z is None:
+                # Calculate proposed coordinates
                 if direction == "north":
-                    self.db.x = sx
-                    self.db.y = sy + 1
-                    self.db.z = sz
+                    px, py, pz = sx, sy + 1, sz
                 elif direction == "south":
-                    self.db.x = sx
-                    self.db.y = sy - 1
-                    self.db.z = sz
+                    px, py, pz = sx, sy - 1, sz
                 elif direction == "east":
-                    self.db.x = sx + 1
-                    self.db.y = sy
-                    self.db.z = sz
+                    px, py, pz = sx + 1, sy, sz
                 elif direction == "west":
-                    self.db.x = sx - 1
-                    self.db.y = sy
-                    self.db.z = sz
+                    px, py, pz = sx - 1, sy, sz
                 elif direction == "up":
-                    self.db.x = sx
-                    self.db.y = sy
-                    self.db.z = sz + 1
+                    px, py, pz = sx, sy, sz + 1
                 elif direction == "down":
-                    self.db.x = sx
-                    self.db.y = sy
-                    self.db.z = sz - 1
+                    px, py, pz = sx, sy, sz - 1
                 else:
                     # Fallback: copy source coordinates
-                    self.db.x = sx
-                    self.db.y = sy
-                    self.db.z = sz
-                mover.msg(f"|yMapper: Coordinates assigned to this room: x={self.db.x}, y={self.db.y}, z={self.db.z}|n")
+                    px, py, pz = sx, sy, sz
+                # Check for coordinate conflict
+                from evennia.objects.models import ObjectDB
+                conflict = ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room", db_x=px, db_y=py, db_z=pz).exclude(id=self.id).first()
+                if conflict:
+                    mover.msg(f"|rMapper: Coordinate conflict detected with room '{conflict.key}' at ({px},{py},{pz}). Assignment skipped.|n")
+                else:
+                    self.db.x = px
+                    self.db.y = py
+                    self.db.z = pz
+                    mover.msg(f"|yMapper: Coordinates assigned to this room: x={self.db.x}, y={self.db.y}, z={self.db.z}|n")
         else:
             mover.msg("|rMapper: Source room is not mapped. Use @maproom x y z to set initial coordinates before moving.|n")
         # Show 5x5 map if coordinates are now valid
