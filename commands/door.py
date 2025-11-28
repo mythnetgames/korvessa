@@ -690,7 +690,12 @@ class CmdPushCombo(Command):
             return
         combo = args[0]
         direction = args[2].lower()
-        exit_obj = caller.location.exits.get(direction)
+        exit_obj = None
+        for ex in getattr(caller.location, "exits", []):
+            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
+            if ex.key.lower() == direction or direction in aliases:
+                exit_obj = ex
+                break
         if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
             caller.msg(f"No keypad found on door for exit '{direction}'.")
             return
