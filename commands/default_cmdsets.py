@@ -96,19 +96,24 @@ class DeathCmdSet(CmdSet):
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
-            # Add individual attach/remove/program/show commands for doors/locks/keypads
-            from commands.door import (
-                CmdAttachDoor, CmdAttachLock, CmdAttachKeypad, CmdRemoveDoor, CmdRemoveLock, CmdRemoveKeypad,
-                CmdProgramKeypad, CmdShowCombo
-            )
-            self.add(CmdAttachDoor())
-            self.add(CmdAttachLock())
-            self.add(CmdAttachKeypad())
-            self.add(CmdRemoveDoor())
-            self.add(CmdRemoveLock())
-            self.add(CmdRemoveKeypad())
-            self.add(CmdProgramKeypad())
-            self.add(CmdShowCombo())
+    def at_cmdset_creation(self):
+        """
+        Populates the cmdset
+        """
+        super().at_cmdset_creation()
+        # Add individual attach/remove/program/show commands for doors/locks/keypads
+        from commands.door import (
+            CmdAttachDoor, CmdAttachLock, CmdAttachKeypad, CmdRemoveDoor, CmdRemoveLock, CmdRemoveKeypad,
+            CmdProgramKeypad, CmdShowCombo
+        )
+        self.add(CmdAttachDoor())
+        self.add(CmdAttachLock())
+        self.add(CmdAttachKeypad())
+        self.add(CmdRemoveDoor())
+        self.add(CmdRemoveLock())
+        self.add(CmdRemoveKeypad())
+        self.add(CmdProgramKeypad())
+        self.add(CmdShowCombo())
     """
     The `CharacterCmdSet` contains general in-game commands like `look`,
     `get`, etc available on in-game Character objects. It is merged with
