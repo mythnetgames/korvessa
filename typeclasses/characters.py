@@ -16,6 +16,14 @@ from .objects import ObjectParent
 
 
 class Character(ObjectParent, DefaultCharacter):
+
+        def at_server_start(self):
+            """
+            Called on every character at server reboot. Force mapper enabled for continuity.
+            """
+            if self.account and hasattr(self.account, 'db'):
+                self.account.db.mapper_enabled = True
+            self.ndb.mapper_enabled = True
     """
     The Character just re-implements some of the Object's methods and hooks
     to represent a Character entity in-game.
