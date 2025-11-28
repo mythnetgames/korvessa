@@ -45,8 +45,14 @@ class Door(DefaultObject):
         return True
 
     def close(self, caller):
+        if not self.db.is_open:
+            caller.msg("The door is already closed.")
+            return False
         self.db.is_open = False
         caller.msg("You close the door.")
+        # Echo to room
+        if caller.location:
+            caller.location.msg_contents(f"{caller.key} closes the door to {getattr(self.db, 'exit_direction', 'an exit')}.", exclude=[caller])
         return True
 
     def attach_lock(self, lock):
