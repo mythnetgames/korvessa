@@ -11,7 +11,7 @@ class CmdMapColor(Command):
     Example: @mapcolor |r
     """
     key = "@mapcolor"
-    locks = "cmd:perm(Builder)"
+    locks = "cmd:all()"
     help_category = "Mapping"
 
     def func(self):
@@ -31,7 +31,7 @@ class CmdMapRoom(Command):
     Usage: @maproom x y z
     """
     key = "@maproom"
-    locks = "cmd:perm(Builder)"
+    locks = "cmd:all()"
     help_category = "Mapping"
 
     def func(self):
@@ -56,7 +56,7 @@ class CmdMapOn(Command):
     Usage: @mapon
     """
     key = "@mapon"
-    locks = "cmd:perm(Builder)"
+    locks = "cmd:all()"
     help_category = "Mapping"
 
     def func(self):
@@ -77,7 +77,7 @@ class CmdMapOff(Command):
     Usage: @mapoff
     """
     key = "@mapoff"
-    locks = "cmd:perm(Builder)"
+    locks = "cmd:all()"
     help_category = "Mapping"
 
     def func(self):
@@ -95,7 +95,7 @@ class CmdMapIcon(Command):
     Example: @mapicon [black][bg_cyan]OD
     """
     key = "@mapicon"
-    locks = "cmd:perm(Builder)"
+    locks = "cmd:all()"
     help_category = "Mapping"
 
     def func(self):
@@ -113,7 +113,7 @@ class CmdAreaIcon(Command):
     Usage: @areaicon <icon> [options]
     """
     key = "@areaicon"
-    locks = "cmd:perm(Builder)"
+    locks = "cmd:all()"
     help_category = "Mapping"
 
     def func(self):
@@ -130,7 +130,7 @@ class CmdMapIconHelp(Command):
     Usage: mapicon help
     """
     key = "mapicon help"
-    locks = "cmd:perm(Builder)"
+    locks = "cmd:all()"
     help_category = "Mapping"
 
     def func(self):
@@ -150,7 +150,7 @@ class CmdMap(Command):
     Usage: map
     """
     key = "map"
-    locks = "cmd:perm(Builder)"
+    locks = "cmd:all()"
     help_category = "Mapping"
 
     def func(self):
@@ -270,7 +270,7 @@ class CmdHelpMapping(Command):
     Usage: help mapping
     """
     key = "help mapping"
-    locks = "cmd:perm(Builder)"
+    locks = "cmd:all()"
     help_category = "Mapping"
 
     def func(self):
