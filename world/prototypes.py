@@ -1,3 +1,18 @@
+# =============================================================================
+# CHROME/CYBERWARE PROTOTYPES
+# =============================================================================
+
+MINDS_EYE_CHROME = {
+    "prototype_key": "mindseye",
+    "key": "Mindseye Chrome",
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A small neural implant behind the ear, rumored to let you hear thoughts.",
+    "shortname": "mindseye",
+    "empathy_cost": -0.25,
+    "abilities": "Hear thoughts.",
+    "buffs": "No buffs",
+    "tags": [("chrome", "cyberware")],
+}
 """
 Prototypes
 
