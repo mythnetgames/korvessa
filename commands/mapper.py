@@ -224,18 +224,8 @@ class CmdMap(Command):
         map_cell_width = 2
         map_width = map_cells * map_cell_width
         indent = " " * (map_width + 2)
-        # Find the start column for 'You see...' and align all desc lines to it
-        dynamic_indent = None
-        if appearance:
-            for line in appearance.split('\n'):
-                if line.strip().startswith("You see"):
-                    # Find the index of 'Y' in 'You see...' and use that as indent
-                    idx = line.find("You see")
-                    if idx >= 0:
-                        dynamic_indent = " " * (map_width + 2 + idx)
-                    break
-        if not dynamic_indent:
-            dynamic_indent = indent
+        # Always use the same indent for all description lines for perfect alignment
+        dynamic_indent = indent
         column_width = 80
         if appearance:
             lines = appearance.split('\n')
