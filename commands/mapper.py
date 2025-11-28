@@ -291,21 +291,8 @@ class CmdMap(Command):
         self.caller.msg("\n".join(combined), parse=True)
 
 class CmdHelpMapping(Command):
-    # ...existing code...
-# Register mapping commands for inclusion in command sets (must be after all command classes are defined)
-mapping_cmds = [
-    CmdMapColor,
-    CmdMapRoom,
-    CmdMapOn,
-    CmdMapOff,
-    CmdMapIcon,
-    CmdAreaIcon,
-    CmdMapIconHelp,
-    CmdMap,
-    CmdHelpMapping,
-]
 
-        )
+    # ...existing code...
 
 # Register mapping commands for inclusion in command sets (must be after all command classes are defined)
 mapping_cmds = [
