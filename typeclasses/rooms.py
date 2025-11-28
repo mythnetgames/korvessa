@@ -36,9 +36,12 @@ class Room(ObjectParent, DefaultRoom):
                 self.db.y = None
             if not hasattr(self.db, "z"):
                 self.db.z = None
-            # If z is None, set to 0
+            # Always assign z if missing
             if self.db.z is None:
-                self.db.z = 0
+                if sz is not None:
+                    self.db.z = sz
+                else:
+                    self.db.z = 0
             x = self.db.x
             y = self.db.y
             z = self.db.z
