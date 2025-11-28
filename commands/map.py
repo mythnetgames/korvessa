@@ -25,20 +25,20 @@ class CmdMap(Command):
                 target_room = room_lookup.get((rx, ry))
                 if target_room:
                     if target_room == room:
-                        cell = "[x]"
+                        cell = '[x]'
                     else:
-                        cell = "[]"
+                        cell = '[] '
                 else:
-                    cell = "   "
+                    cell = '   '
                 row.append(cell)
                 # Add horizontal connection to the right
                 if dx < 2:
                     east_room = room_lookup.get((rx+1, ry))
                     if target_room and east_room:
-                        row.append("--")
+                        row.append('-- ')
                     else:
-                        row.append("  ")
-            grid.append("".join(row))
+                        row.append('   ')
+            grid.append(''.join(row))
             # Add vertical connection row below
             if dy < 2:
                 vconn_row = []
@@ -47,13 +47,13 @@ class CmdMap(Command):
                     target_room = room_lookup.get((rx, ry))
                     south_room = room_lookup.get((rx, ry+1))
                     if target_room and south_room:
-                        vconn_row.append(" | ")
+                        vconn_row.append(' | ')
                     else:
-                        vconn_row.append("   ")
+                        vconn_row.append('   ')
                     # Add space for horizontal connection
                     if dx < 2:
-                        vconn_row.append("  ")
-                grid.append("".join(vconn_row))
+                        vconn_row.append('   ')
+                grid.append(''.join(vconn_row))
         map_str = "\n".join(grid)
         coord_str = f"Current coordinates: x={x0}, y={y0}"
         caller.msg(f"{map_str}\n|c{coord_str}|n")
