@@ -223,29 +223,30 @@ class CmdMap(Command):
             # (This is handled by the map output below)
             pass
 
-        # Indent room text five spaces to the right of the map
-        desc_lines = ["     " + line for line in appearance.splitlines()] if appearance else [""]
+        # Prepare room name and description as a column
+        # Only show the room name and description once, in the right column
+        # If appearance already includes the room name, do not prepend it
+        if appearance and appearance.strip().startswith(room.key):
+            desc_lines = appearance.splitlines()
+        else:
+            desc_lines = [room.key] + appearance.splitlines() if appearance else [room.key]
 
-        # Calculate map width for padding (each cell is 2 chars, 5 cells per row)
-        map_width = 2 * 5
+        # Strict columnar layout: map (top left), text (top right)
+        map_width = 2 * 5 + 2  # 5 cells * 2 chars + 2 spaces for margin
+        text_pad = " " * map_width
 
-        # Pad map or desc so both have same number of lines
+        # Pad map and text so both have same number of lines
         max_lines = max(len(grid), len(desc_lines))
         map_lines = grid + ["  " * 5] * (max_lines - len(grid))
         desc_lines += [""] * (max_lines - len(desc_lines))
 
-        # Combine side by side, ensuring desc always starts after map
+        # Render as two columns, never overlapping
         combined = []
         for m, d in zip(map_lines, desc_lines):
             combined.append(f"{m.ljust(map_width)}{d}")
 
-        # If there are extra description lines, show them below the map
-        if len(desc_lines) > len(map_lines):
-            for d in desc_lines[len(map_lines):]:
-                combined.append("     " + d)
-
-        # Add coordinates at the bottom
-        combined.append(f"x={x}, y={y}, z={z}")
+        # Add coordinates at the bottom, right column only
+        combined.append(f"{' ' * map_width}x={x}, y={y}, z={z}")
 
         # Only show this output, suppressing any other room description
         self.caller.msg("\n".join(combined), parse=True)
