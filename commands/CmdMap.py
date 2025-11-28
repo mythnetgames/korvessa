@@ -19,8 +19,8 @@ class CmdMap(Command):
             return
         # Find all rooms with coordinates on this z level
         from evennia.objects.models import ObjectDB
-        rooms = ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room", db_z=z)
-        coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
+        rooms = ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room")
+        coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None and r.db.z == z}
         # Build 5x5 grid
         grid = []
         for dy in range(2, -3, -1):
