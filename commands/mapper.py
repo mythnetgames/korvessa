@@ -228,15 +228,8 @@ class CmdMap(Command):
         show_text = getattr(self.caller.ndb, "mapper_enabled", False)
         desc_lines = []
         if show_text:
-            # Only show the room description once, never prepend the room name if present
             if appearance:
-                # Remove duplicate room name if present at start of description
-                lines = appearance.splitlines()
-                if lines and (lines[0].strip() == room.key or lines[0].strip() == room.get_display_name(self.caller)):
-                    desc_lines = lines
-                else:
-                    desc_lines = lines
-            # If no description, show nothing
+                desc_lines = appearance.splitlines()
 
 
         # Strict columnar layout: map (top left), text (top right)
