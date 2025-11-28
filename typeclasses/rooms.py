@@ -104,12 +104,18 @@ class Room(ObjectParent, DefaultRoom):
         # Guarantee assignment if any coordinate is missing and source has valid coordinates
         if (x0 is not None and y0 is not None and z0 is not None) and (dx is None or dy is None or dz is None):
             direction = None
-            if source_location and hasattr(source_location, "exits"):
+            # Try to get direction from mover's last command
+            if hasattr(mover, "ndb") and hasattr(mover.ndb, "last_cmd"):
+                direction = str(mover.ndb.last_cmd).lower()
+            # Fallback: use first exit from source_location
+            if not direction and source_location and hasattr(source_location, "exits"):
                 for exit_obj in source_location.exits:
                     if getattr(exit_obj, "destination", None) == self:
                         direction = exit_obj.key.lower()
                         break
-            # Assign coordinates based on exit key
+                if not direction and source_location.exits:
+                    direction = source_location.exits[0].key.lower()
+            # Assign coordinates based on direction
             if direction == "north":
                 self.db.x = x0
                 self.db.y = y0 + 1
@@ -140,7 +146,7 @@ class Room(ObjectParent, DefaultRoom):
                 self.db.y = y0
                 self.db.z = z0
                 send_debug(f"ROOM_COORD_DEBUG: {self.key} fallback assigned coords ({self.db.x},{self.db.y},{self.db.z}) from ({x0},{y0},{z0})")
-            send_debug(f"ROOM_COORD_DEBUG: {self.key} AUTO-MAPPED coords ({self.db.x},{self.db.y},{self.db.z}) via {direction or 'fallback'} from ({x0},{y0},{z0})")
+            send_debug(f"ROOM_COORD_DEBUG: {self.key} NEW-APPROACH coords ({self.db.x},{self.db.y},{self.db.z}) via {direction or 'fallback'} from ({x0},{y0},{z0})")
         else:
             send_debug(f"ROOM_COORD_DEBUG: {self.key} kept coords ({dx},{dy},{dz})")
         # Existing logic: assign coordinates if 0 and has exits
