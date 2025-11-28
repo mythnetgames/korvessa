@@ -146,53 +146,6 @@ class CmdMap(Command):
     locks = "cmd:perm(Builder)"
     help_category = "Mapping"
 
-    def convert_icon_tags(self, icon):
-        # Accept direct Evennia color codes and [tag]s, convert [tag]s to Evennia codes
-        if not icon:
-            return icon
-        # Foreground colors
-        color_map = {
-            "black": "|x", "white": "|w", "red": "|r", "blue": "|b", "yellow": "|y", "green": "|g", "purple": "|m", "cyan": "|c"
-        }
-        # Background colors
-        bg_map = {
-            "bg_black": "|[x", "bg_white": "|[w", "bg_red": "|[r", "bg_blue": "|[b", "bg_yellow": "|[y", "bg_green": "|[g", "bg_purple": "|[m", "bg_cyan": "|[c"
-        }
-        # Effects
-        effect_map = {
-            "bold_on": "|h", "bold_off": "|n", "underline_on": "|u", "underline_off": "|n", "strikethrough_on": "|s", "strikethrough_off": "|n"
-        }
-        # Replace all [tag]s in the icon string
-        def tag_replacer(match):
-            tag = match.group(1).lower()
-            if tag in color_map:
-                return color_map[tag]
-            if tag in bg_map:
-                return bg_map[tag]
-            if tag in effect_map:
-                return effect_map[tag]
-            return ""
-        # Replace [tag]s with Evennia codes
-        icon = re.sub(r"\[(\w+)]", tag_replacer, icon)
-        # Only use the first two visible characters (not color codes)
-        visible = ""
-        i = 0
-        while len(visible) < 2 and i < len(icon):
-            if icon[i] == "|":
-                # Skip color code
-                while i < len(icon) and icon[i] not in "AD[]@ ":
-                    i += 1
-            else:
-                visible += icon[i]
-                i += 1
-        # If not enough, pad with space
-        visible = visible.ljust(2)
-        # Prepend color codes
-        codes = ""
-        for m in re.finditer(r"\|[xwrcbygmc\[xwrcbygmcuhsn]", icon):
-            codes += m.group(0)
-        return codes + visible + "|n"
-
     def func(self):
         room = self.caller.location
         x = getattr(room.db, "x", None)
@@ -204,25 +157,38 @@ class CmdMap(Command):
         from evennia.objects.models import ObjectDB
         rooms = [r for r in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room") if getattr(r.db, "z", None) == z]
         coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
-        # Build grid as a list of lists, then join each row and send with parse=True
         grid = []
         for dy in range(2, -3, -1):
             row = []
             for dx in range(-2, 3):
                 cx, cy = x + dx, y + dy
                 room_obj = coords.get((cx, cy))
+                # Current room always '@'
                 if (cx, cy) == (x, y):
-                    icon = getattr(room_obj.db, 'map_icon', None)
-                    if icon:
-                        rendered = self.convert_icon_tags(icon)
-                        row.append(rendered)
-                    else:
-                        row.append("@ ")
+                    row.append("@ ")
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
-                        rendered = self.convert_icon_tags(icon)
-                        row.append(rendered)
+                        # If icon contains Evennia color codes, just use it as-is
+                        # Only use first two non-tag characters
+                        # Remove any [tag]s, but keep |color codes
+                        import re
+                        icon_clean = re.sub(r"\[(\w+)]", "", icon)
+                        # Find first two visible chars
+                        visible = ""
+                        i = 0
+                        while len(visible) < 2 and i < len(icon_clean):
+                            if icon_clean[i] == "|":
+                                # Skip color code
+                                while i < len(icon_clean) and icon_clean[i] not in "AD[]@ ":
+                                    i += 1
+                            else:
+                                visible += icon_clean[i]
+                                i += 1
+                        visible = visible.ljust(2)
+                        # Prepend color codes at the start
+                        color_codes = "".join(re.findall(r"\|[xwrcbygmc\[xwrcbygmcuhsn]", icon_clean))
+                        row.append(f"{color_codes}{visible}|n")
                     else:
                         row.append("[]")
                 else:
