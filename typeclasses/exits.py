@@ -403,7 +403,7 @@ class Exit(DefaultExit):
         
         # Check for rigged grenades after successful movement
         from commands.CmdThrow import check_rigged_grenade, check_auto_defuse
-        check_rigged_grenade(trTraversing_object, self)
+        check_rigged_grenade(traversing_object, self)
         
         # Check for auto-defuse opportunities after entering new room
         check_auto_defuse(traversing_object)
