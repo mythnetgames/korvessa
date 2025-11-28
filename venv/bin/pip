@@ -1,4 +1,4 @@
-#!/home/drcrow/kowloon-gel/venv/bin/python3
+#!/home/drcrow/kowloon/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys

@@ -1,4 +1,4 @@
-#!/home/drcrow/kowloon-gel/venv/bin/python3
+#!/home/drcrow/kowloon/venv/bin/python
 import sys
 from isort.main import identify_imports_main
 if __name__ == '__main__':

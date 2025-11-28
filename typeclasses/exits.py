@@ -81,15 +81,15 @@ class Exit(DefaultExit):
         current_room_is_sky = getattr(traversing_object.location.db, "is_sky_room", False)
         target_room_is_sky = getattr(target_location.db, "is_sky_room", False)
         is_jump_movement = getattr(traversing_object.ndb, "jump_movement_allowed", False)
-        
-        if (current_room_is_s
+
+        # Only block if not a jump movement
+        if not is_jump_movement and (current_room_is_sky or target_room_is_sky):
             if current_room_is_sky and target_room_is_sky:
                 traversing_object.msg(f"|rYou cannot traverse between sky rooms! Sky rooms are transit-only spaces.|n")
             elif current_room_is_sky:
                 traversing_object.msg(f"|rYou cannot leave sky rooms through normal movement! You are falling - wait for gravity to take effect.|n")
             elif target_room_is_sky:
                 traversing_object.msg(f"|rYou cannot enter sky rooms through normal movement! Use jump commands to access aerial transit.|n")
-            
             splattercast.msg(f"SKY_ROOM_BLOCK: {traversing_object.key} attempted normal traversal from {traversing_object.location.key} (sky={current_room_is_sky}) to {target_location.key} (sky={target_room_is_sky}). Blocked.")
             return  # Block traversal
         # --- END SKY ROOM RESTRICTION CHECK ---
@@ -582,18 +582,16 @@ class Exit(DefaultExit):
             current_weather = weather_system.get_current_weather()
             
             # Simple weather context phrases
-                
+            weather_contexts = {
                 # Storm variants
                 'dry_thunderstorm': "Under the ominous storm clouds",
                 'flashstorm': "Through the violent storm",
                 'sandstorm': "Through the swirling sand",
-                
                 # Atmospheric conditions
                 'overcast': "Under the overcast sky",
                 'windy': "Against the strong wind",
                 'gray_pall': "Through the gray pall"
             }
-            
             return weather_contexts.get(current_weather, "")
             
         except ImportError as e:
@@ -604,17 +602,8 @@ class Exit(DefaultExit):
             return ""
         
     def _get_directional_atmospheric(self, looker):
-        """
-        Generate atmospheric descriptions based on cardinal direction.
-        Provides noir-aesthetic defaults matching the game's atmosphere.
-                    weather_contexts = {
-                        'dry_thunderstorm': "Under the ominous storm clouds",
-                        'flashstorm': "Through the violent storm",
-                        'sandstorm': "Through the swirling sand",
-                        'overcast': "Under the overcast sky",
-                        'windy': "Against the strong wind",
-                        'gray_pall': "Through the gray pall"
-                    }
+        # Generate atmospheric descriptions based on cardinal direction.
+        # Provides noir-aesthetic defaults matching the game's atmosphere.
         directional_themes = {
             'north': "Northward lies deeper shadow, where the city's forgotten corners harbor their secrets.",
             'south': "To the south, urban decay spreads like a stain across crumbling infrastructure.",
@@ -633,17 +622,13 @@ class Exit(DefaultExit):
         return directional_themes.get(direction, "")
         
     def _get_exit_character_display(self, looker):
-        """
-        Get character display from destination room (where the exit leads to).
-        Shows characters in the destination location following standard appearance patterns.
-        Uses crowd-aware formatting for more immersive descriptions.
-        
-        Args:
-            looker: Character examining the exit
-            
-        Returns:
-            str: Character display string or empty string
-        """
+        # Get character display from destination room (where the exit leads to).
+        # Shows characters in the destination location following standard appearance patterns.
+        # Uses crowd-aware formatting for more immersive descriptions.
+        # Args:
+        #   looker: Character examining the exit
+        # Returns:
+        #   str: Character display string or empty string
         destination_room = self.destination
         if not destination_room:
             return ""
@@ -708,13 +693,10 @@ class Exit(DefaultExit):
                 return f"{direction_phrase} you see {all_but_last}, and {char_names[-1]}."
 
     def _clear_aim_override_place_on_move(self, mover, target):
-        """
-        Clear override_place for aiming when someone moves, handling mutual showdown cleanup.
-        
-        Args:
-            mover: The character who is moving (and stopping their aim)
-            target: The character they were aiming at
-        """
+        # Clear override_place for aiming when someone moves, handling mutual showdown cleanup.
+        # Args:
+        #   mover: The character who is moving (and stopping their aim)
+        #   target: The character they were aiming at
         # Check if they were in a mutual showdown
         if (hasattr(mover, 'override_place') and hasattr(target, 'override_place') and
             mover.override_place == "locked in a deadly showdown." and 

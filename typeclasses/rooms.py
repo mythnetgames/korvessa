@@ -83,12 +83,40 @@ class Room(ObjectParent, DefaultRoom):
         Called after an object moves into this room. If this room has exits, assign coordinates automatically.
         """
         super().at_after_move(mover, source_location)
-        # Only assign coordinates if this is a room and has exits
+        # Auto-map unmapped rooms when entered
+        if (not hasattr(self.db, "x") or self.db.x is None) or (not hasattr(self.db, "y") or self.db.y is None):
+            # Try to infer coordinates from source_location and movement direction
+            direction = None
+            if source_location and hasattr(source_location, "exits"):
+                # Find which exit leads to this room
+                for exit_obj in source_location.exits:
+                    if getattr(exit_obj, "destination", None) == self:
+                        direction = exit_obj.key.lower()
+                        break
+            x0 = getattr(source_location.db, "x", 0) if source_location else 0
+            y0 = getattr(source_location.db, "y", 0) if source_location else 0
+            # Assign coordinates based on direction
+            if direction == "north":
+                self.db.x = x0
+                self.db.y = y0 + 1
+            elif direction == "south":
+                self.db.x = x0
+                self.db.y = y0 - 1
+            elif direction == "east":
+                self.db.x = x0 + 1
+                self.db.y = y0
+            elif direction == "west":
+                self.db.x = x0 - 1
+                self.db.y = y0
+            else:
+                # Fallback: assign default coordinates if direction is unknown
+                self.db.x = x0
+                self.db.y = y0
+        # Existing logic: assign coordinates if 0 and has exits
         if hasattr(self, "exits") and self.exits:
             for exit_obj in self.exits:
                 dest = getattr(exit_obj, "destination", None)
                 if dest and hasattr(dest.db, "x") and hasattr(dest.db, "y"):
-                    # Assign coordinates based on direction if not set
                     if self.db.x == 0 and self.db.y == 0:
                         direction = exit_obj.key.lower()
                         if direction == "north":
@@ -103,7 +131,6 @@ class Room(ObjectParent, DefaultRoom):
                         elif direction == "west":
                             self.db.x = dest.db.x - 1
                             self.db.y = dest.db.y
-                        # Add more directions as needed
                         break
     
     def at_object_receive(self, moved_obj, source_location, **kwargs):
