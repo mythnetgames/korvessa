@@ -155,69 +155,47 @@ class Room(ObjectParent, DefaultRoom):
 
     def return_appearance(self, looker, **kwargs):
         """
-        This formats a description. It is the hook a 'look' command
-        should call.
-
-        Enhanced to show flying objects during throw mechanics and 
-        integrate @integrate objects and weather into the room description.
-        
-        Also supports aiming system: When looker is aiming in a direction,
-        shows the complete appearance of the aimed room instead of current room.
+        Only return room display if explicitly instructed (by look command or @mapon).
+        Suppress automatic firing unless 'force_display' is set in kwargs or looker.ndb.mapper_enabled is True.
         """
-        # Check if looker is aiming in a direction - if so, show aimed room appearance
+        force_display = kwargs.get('force_display', False)
+        mapper_enabled = getattr(looker.ndb, 'mapper_enabled', False)
+        if not force_display and not mapper_enabled:
+            return ""  # Suppress automatic room display
+
+        # ...existing code for aiming, integrated content, weather, etc...
         aiming_direction = getattr(looker.ndb, "aiming_direction", None) if hasattr(looker, 'ndb') else None
-        
         if aiming_direction:
-            # Find the exit for the aimed direction
             exit_obj = None
             for ex in self.exits:
                 current_exit_aliases_lower = [alias.lower() for alias in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in currentExit_aliases_lower:
+                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in current_exit_aliases_lower:
                     exit_obj = ex
                     break
-            
-            # If we found the exit and it has a destination, return that room's appearance
             if exit_obj and exit_obj.destination:
                 aimed_room = exit_obj.destination
-                # Call the parent's return_appearance directly to avoid aiming recursion
                 return super(Room, aimed_room).return_appearance(looker, **kwargs)
-        
-        # Normal room appearance (not aiming)
-        # Get the base description from the parent class
+
         appearance = super().return_appearance(looker, **kwargs)
-        
-        # Process @integrate objects and flying objects - append to room description
         integrated_content = self.get_integrated_objects_content(looker)
-        
-        # Get weather contributions for outdoor rooms
         weather_desc = weather_system.get_weather_contributions(self, looker)
-        
-        # Combine integrated content and weather
         all_integrated_content = []
         if integrated_content:
             all_integrated_content.append(integrated_content)
         if weather_desc:
             all_integrated_content.append(weather_desc)
-        
         if all_integrated_content:
             combined_content = " ".join(all_integrated_content)
-            # Simple approach: find room description and append integrated content
             lines = appearance.split('\n')
             room_name_found = False
-            
             for i, line in enumerate(lines):
-                # Skip until we find the room name
                 if not room_name_found and line.startswith('|c') and line.endswith('|n'):
                     room_name_found = True
                     continue
-                
-                # After room name, find first non-empty line (room description) and append
                 if room_name_found and line.strip() and not line.startswith('Characters:') and not line.startswith('You see:') and not line.startswith('Exits:'):
                     lines[i] += f" {combined_content}"
                     break
-            
             appearance = '\n'.join(lines)
-        
         return appearance
 
     def search_for_target(self, looker, searchdata, return_candidates_only=False, **kwargs):
@@ -247,7 +225,7 @@ class Room(ObjectParent, DefaultRoom):
             exit_obj = None
             for ex in self.exits:
                 current_exit_aliases_lower = [alias.lower() for alias in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in currentExit_aliases_lower:
+                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in current_exit_aliases_lower:
                     exit_obj = ex
                     break
             
