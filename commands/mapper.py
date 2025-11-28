@@ -223,7 +223,8 @@ class CmdMap(Command):
 
         # Split map and description into lines
         map_lines = grid
-        desc_lines = ["   " + line for line in appearance.splitlines()] if appearance else [""] * len(map_lines)
+        # Always indent room text three spaces to the right of the map
+        desc_lines = ["   " + line for line in appearance.splitlines()] if appearance else [""]
 
         # Pad map or desc so both have same number of lines
         max_lines = max(len(map_lines), len(desc_lines))
@@ -234,6 +235,11 @@ class CmdMap(Command):
         combined = []
         for m, d in zip(map_lines, desc_lines):
             combined.append(f"{m}{d}")
+
+        # If there are extra description lines, show them below the map
+        if len(desc_lines) > len(map_lines):
+            for d in desc_lines[len(map_lines):]:
+                combined.append("   " + d)
 
         # Add coordinates at the bottom
         combined.append(f"x={x}, y={y}, z={z}")
