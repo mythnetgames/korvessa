@@ -228,6 +228,8 @@ class CmdMap(Command):
         # Indent every line, including blank lines, five spaces to the right of the map
         # Indent every linebreak and line, so all lines are aligned
         # Move 'There are exits...' to the bottom of the right column
+        import textwrap
+        column_width = 70  # Adjust as needed for your display
         if appearance:
             lines = appearance.split('\n')
             exit_line = None
@@ -237,9 +239,15 @@ class CmdMap(Command):
                     exit_line = line
                 else:
                     other_lines.append(line)
-            desc_lines = ["     " + line for line in other_lines]
+            # Wrap each line and indent
+            wrapped_lines = []
+            for line in other_lines:
+                for wrapped in textwrap.wrap(line, width=column_width):
+                    wrapped_lines.append("     " + wrapped)
+            desc_lines = wrapped_lines
             if exit_line:
-                desc_lines.append("     " + exit_line)
+                for wrapped in textwrap.wrap(exit_line, width=column_width):
+                    desc_lines.append("     " + wrapped)
         else:
             desc_lines = ["     "]
 
