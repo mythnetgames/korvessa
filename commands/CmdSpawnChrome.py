@@ -34,9 +34,10 @@ class CmdSpawnChrome(Command):
         from evennia.prototypes.spawner import spawn
         for _ in range(number):
             # Use prototype_key matching chromeshortname
-            results = spawn(chromeshortname, location=self.caller)
+            results = spawn(chromeshortname)
             if results:
                 chrome = results[0]
+                chrome.location = self.caller  # Explicitly put in caller's inventory
                 self.caller.msg(f"Spawned chrome: {chrome.key}")
             else:
                 self.caller.msg(f"No chrome prototype found for '{chromeshortname}'.")
