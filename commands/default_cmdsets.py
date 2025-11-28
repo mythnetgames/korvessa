@@ -25,6 +25,7 @@ from commands import CmdConsumption
 from commands import CmdMedicalItems
 from commands.CmdSpawnMob import CmdSpawnMob
 from commands.CmdBug import CmdBug
+from commands.CmdMapRoom import CmdMapRoom
 from commands.CmdAdmin import CmdHeal, CmdPeace, CmdTestDeathCurtain, CmdWeather, CmdResetMedical, CmdMedicalAudit, CmdTestDeath, CmdTestUnconscious
 from commands.CmdFixCharacterOwnership import CmdFixCharacterOwnership
 from commands.combat.cmdset_combat import CombatCmdSet
@@ -130,6 +131,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         
         # Add bug reporting command
         self.add(CmdBug())
+        self.add(CmdMapRoom())
         
         # Add aim command for ranged combat preparation
         self.add(CmdAim())
