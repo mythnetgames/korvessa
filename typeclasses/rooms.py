@@ -94,61 +94,52 @@ class Room(ObjectParent, DefaultRoom):
         x0 = getattr(source_location.db, "x", None) if source_location else None
         y0 = getattr(source_location.db, "y", None) if source_location else None
         z0 = getattr(source_location.db, "z", None) if source_location else None
-        # Only assign if source has valid coordinates
-        if x0 is not None and y0 is not None and z0 is not None:
-            dx = getattr(self.db, "x", None)
-            dy = getattr(self.db, "y", None)
-            dz = getattr(self.db, "z", None)
-            # Always assign if any are missing
-            if dx is None or dy is None or dz is None:
-                # Always detect the exit used for movement
-                direction = None
-                if source_location and hasattr(source_location, "exits"):
-                    for exit_obj in source_location.exits:
-                        if getattr(exit_obj, "destination", None) == self:
-                            direction = exit_obj.key.lower()
-                            break
-                # Assign coordinates based on exit key
-                if direction == "north":
-                    self.db.x = x0
-                    self.db.y = y0 + 1
-                    self.db.z = z0
-                elif direction == "south":
-                    self.db.x = x0
-                    self.db.y = y0 - 1
-                    self.db.z = z0
-                elif direction == "east":
-                    self.db.x = x0 + 1
-                    self.db.y = y0
-                    self.db.z = z0
-                elif direction == "west":
-                    self.db.x = x0 - 1
-                    self.db.y = y0
-                    self.db.z = z0
-                elif direction == "up":
-                    self.db.x = x0
-                    self.db.y = y0
-                    self.db.z = z0 + 1
-                elif direction == "down":
-                    self.db.x = x0
-                    self.db.y = y0
-                    self.db.z = z0 - 1
-                else:
-                    # fallback: assign source coordinates (guaranteed assignment)
-                    self.db.x = x0
-                    self.db.y = y0
-                    self.db.z = z0
-                    send_debug(f"ROOM_COORD_DEBUG: {self.key} fallback assigned coords ({self.db.x},{self.db.y},{self.db.z}) from ({x0},{y0},{z0})")
-                send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via {direction or 'fallback'} from ({x0},{y0},{z0})")
+        dx = getattr(self.db, "x", None)
+        dy = getattr(self.db, "y", None)
+        dz = getattr(self.db, "z", None)
+        send_debug(f"ROOM_COORD_DEBUG: at_after_move called for {self.key} (current: x={dx}, y={dy}, z={dz}) from ({x0},{y0},{z0})")
+        # Force assignment if any coordinate is missing and source has valid coordinates
+        if (dx is None or dy is None or dz is None) and (x0 is not None and y0 is not None and z0 is not None):
+            direction = None
+            if source_location and hasattr(source_location, "exits"):
+                for exit_obj in source_location.exits:
+                    if getattr(exit_obj, "destination", None) == self:
+                        direction = exit_obj.key.lower()
+                        break
+            # Assign coordinates based on exit key
+            if direction == "north":
+                self.db.x = x0
+                self.db.y = y0 + 1
+                self.db.z = z0
+            elif direction == "south":
+                self.db.x = x0
+                self.db.y = y0 - 1
+                self.db.z = z0
+            elif direction == "east":
+                self.db.x = x0 + 1
+                self.db.y = y0
+                self.db.z = z0
+            elif direction == "west":
+                self.db.x = x0 - 1
+                self.db.y = y0
+                self.db.z = z0
+            elif direction == "up":
+                self.db.x = x0
+                self.db.y = y0
+                self.db.z = z0 + 1
+            elif direction == "down":
+                self.db.x = x0
+                self.db.y = y0
+                self.db.z = z0 - 1
             else:
-                # Already has coordinates, no change
-                send_debug(f"ROOM_COORD_DEBUG: {self.key} kept coords ({self.db.x},{self.db.y},{self.db.z})")
+                # fallback: assign source coordinates (guaranteed assignment)
+                self.db.x = x0
+                self.db.y = y0
+                self.db.z = z0
+                send_debug(f"ROOM_COORD_DEBUG: {self.key} fallback assigned coords ({self.db.x},{self.db.y},{self.db.z}) from ({x0},{y0},{z0})")
+            send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via {direction or 'fallback'} from ({x0},{y0},{z0})")
         else:
-            # If source has no valid coordinates, assign default based on dbref
-            self.db.x = int(self.dbref) % 1000
-            self.db.y = int(self.dbref) // 1000
-            self.db.z = 0
-            send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned default coords ({self.db.x},{self.db.y},{self.db.z}) from dbref {self.dbref}")
+            send_debug(f"ROOM_COORD_DEBUG: {self.key} kept coords ({dx},{dy},{dz})")
         # Existing logic: assign coordinates if 0 and has exits
         if hasattr(self, "exits") and self.exits:
             for exit_obj in self.exits:
