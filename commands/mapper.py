@@ -153,139 +153,115 @@ class CmdMap(Command):
         if x is None or y is None or z is None:
             self.caller.msg("This room does not have valid coordinates. The map cannot be displayed.")
             return
-        from evennia.objects.models import ObjectDB
-        rooms = [r for r in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room") if getattr(r.db, "z", None) == z]
-        coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
-        grid = []
-        for dy in range(2, -3, -1):
-            row = []
-            for dx in range(-2, 3):
-                cx, cy = x + dx, y + dy
-                room_obj = coords.get((cx, cy))
-                # Current room always '@'
-                if (cx, cy) == (x, y):
-                    row.append("@ ")
-                elif room_obj:
-                    icon = getattr(room_obj.db, 'map_icon', None)
-                    if icon:
-                        import re
-                        # Remove [tag]s, keep |color codes
-                        icon_clean = re.sub(r"\[(\w+)]", "", icon)
-                        # Extract all Evennia codes at the start (|c, |[c, |h, etc.)
-                        codes = ""
-                        i = 0
-                        while i < len(icon_clean):
-                            if icon_clean[i] == '|':
-                                codes += icon_clean[i]
-                                i += 1
-                                if i < len(icon_clean) and icon_clean[i] == '[':
-                                    codes += icon_clean[i]
-                                    i += 1
-                                if i < len(icon_clean):
-                                    codes += icon_clean[i]
-                                    i += 1
-                            else:
-                                break
-                        # Now extract two visible chars, skipping any | codes
-                        visible = ""
-                        j = i
-                        while len(visible) < 2 and j < len(icon_clean):
-                            if icon_clean[j] == '|':
-                                j += 1
-                                if j < len(icon_clean) and icon_clean[j] == '[':
-                                    j += 1
-                                if j < len(icon_clean):
-                                    j += 1
-                            else:
-                                visible += icon_clean[j]
-                                j += 1
-                        visible = visible.ljust(2)
-                        row.append(f"{codes}{visible}|n")
-                    else:
-                        row.append("[]")
-                else:
-                    row.append("  ")
-            grid.append("".join(row))
-
         # Get room description (appearance)
-        appearance = ""
-        # Always get room description, but only display it to the right of the map when @mapon is enabled
         try:
             appearance = room.return_appearance(self.caller)
         except Exception as e:
             appearance = f"[Error getting room description: {e}]"
 
-        # If @mapon is enabled, suppress the default room description and name elsewhere
-        suppress_room_text = getattr(self.caller.ndb, "mapper_enabled", False)
-        if suppress_room_text:
-            # Only show the room text to the right of the map, not in the default output
-            # (This is handled by the map output below)
-            pass
+        show_map = getattr(self.caller.ndb, "mapper_enabled", False)
+        if show_map:
+            from evennia.objects.models import ObjectDB
+            rooms = [r for r in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room") if getattr(r.db, "z", None) == z]
+            coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
+            grid = []
+            for dy in range(2, -3, -1):
+                row = []
+                for dx in range(-2, 3):
+                    cx, cy = x + dx, y + dy
+                    room_obj = coords.get((cx, cy))
+                    # Current room always '@'
+                    if (cx, cy) == (x, y):
+                        row.append("@ ")
+                    elif room_obj:
+                        icon = getattr(room_obj.db, 'map_icon', None)
+                        if icon:
+                            import re
+                            icon_clean = re.sub(r"\[(\w+)]", "", icon)
+                            codes = ""
+                            i = 0
+                            while i < len(icon_clean):
+                                if icon_clean[i] == '|':
+                                    codes += icon_clean[i]
+                                    i += 1
+                                    if i < len(icon_clean) and icon_clean[i] == '[':
+                                        codes += icon_clean[i]
+                                        i += 1
+                                    if i < len(icon_clean):
+                                        codes += icon_clean[i]
+                                        i += 1
+                                else:
+                                    break
+                            visible = ""
+                            j = i
+                            while len(visible) < 2 and j < len(icon_clean):
+                                if icon_clean[j] == '|':
+                                    j += 1
+                                    if j < len(icon_clean) and icon_clean[j] == '[':
+                                        j += 1
+                                    if j < len(icon_clean):
+                                        j += 1
+                                else:
+                                    visible += icon_clean[j]
+                                    j += 1
+                            visible = visible.ljust(2)
+                            row.append(f"{codes}{visible}|n")
+                        else:
+                            row.append("[]")
+                    else:
+                        row.append("  ")
+                grid.append("".join(row))
 
-        # Always show the map and room description together, no @mapon logic
-        # Indent room description so it never runs over the map (five spaces to the right)
-        # Indent every line, including blank lines, five spaces to the right of the map
-        # Indent every linebreak and line, so all lines are aligned
-        # Move 'There are exits...' to the bottom of the right column
-        import textwrap
-        # Calculate map width dynamically for perfect alignment
-        map_cells = 5
-        map_cell_width = 2
-        map_width = map_cells * map_cell_width
-        # Dynamic indentation for perfect straightness, exactly two spaces to the right of the map
-        indent = " " * (map_width + 2)
-        column_width = 80  # Increased wrap width for longer lines
-        if appearance:
-            lines = appearance.split('\n')
-            exit_line = None
-            other_lines = []
-            seen = set()
-            for line in lines:
-                # Remove duplicate lines
-                if line in seen:
-                    continue
-                seen.add(line)
-                if line.strip().lower().startswith("there are exits"):
-                    exit_line = line
-                else:
-                    other_lines.append(line)
-            # Wrap each line and indent all wrapped lines
-            wrapped_lines = []
-            for line in other_lines:
-                wrapped = textwrap.fill(line, width=column_width, initial_indent=indent, subsequent_indent=indent)
-                wrapped_lines.extend(wrapped.split('\n'))
-            desc_lines = wrapped_lines
-            if exit_line:
-                wrapped = textwrap.fill(exit_line, width=column_width, initial_indent=indent, subsequent_indent=indent)
-                desc_lines.extend(wrapped.split('\n'))
+            import textwrap
+            map_cells = 5
+            map_cell_width = 2
+            map_width = map_cells * map_cell_width
+            indent = " " * (map_width + 2)
+            column_width = 80
+            if appearance:
+                lines = appearance.split('\n')
+                exit_line = None
+                other_lines = []
+                seen = set()
+                for line in lines:
+                    if line in seen:
+                        continue
+                    seen.add(line)
+                    if line.strip().lower().startswith("there are exits"):
+                        exit_line = line
+                    else:
+                        other_lines.append(line)
+                wrapped_lines = []
+                for line in other_lines:
+                    wrapped = textwrap.fill(line, width=column_width, initial_indent=indent, subsequent_indent=indent)
+                    wrapped_lines.extend(wrapped.split('\n'))
+                desc_lines = wrapped_lines
+                if exit_line:
+                    wrapped = textwrap.fill(exit_line, width=column_width, initial_indent=indent, subsequent_indent=indent)
+                    desc_lines.extend(wrapped.split('\n'))
+            else:
+                desc_lines = [indent]
+
+            map_width = 2 * 5 + 2
+            max_lines = max(len(grid), len(desc_lines))
+            map_lines = grid + ["  " * 5] * (max_lines - len(grid))
+            desc_lines += [""] * (max_lines - len(desc_lines))
+            combined = []
+            for m, d in zip(map_lines, desc_lines):
+                combined.append(f"{m.ljust(map_width)}{d}")
+            right_pad = indent
+            coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}"
+            if len(desc_lines) > len(grid):
+                coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}{right_pad}{desc_lines[len(grid)].lstrip()}"
+                desc_lines.pop(len(grid))
+            combined.insert(len(grid), coord_line)
+            self.caller.msg("\n".join(combined), parse=True)
         else:
-            desc_lines = [indent]
-
-
-        # Strict columnar layout: map (top left), text (top right)
-        map_width = 2 * 5 + 2  # 5 cells * 2 chars + 2 spaces for margin
-
-        # Pad map and text so both have same number of lines
-        max_lines = max(len(grid), len(desc_lines))
-        map_lines = grid + ["  " * 5] * (max_lines - len(grid))
-        desc_lines += [""] * (max_lines - len(desc_lines))
-
-        # Render as two columns, never overlapping
-        combined = []
-        for m, d in zip(map_lines, desc_lines):
-            combined.append(f"{m.ljust(map_width)}{d}")
-
-        # Move coordinates directly under the map, and if there are more desc lines, show the next one in the right column
-        # Always pad the right column to start after the map
-        right_pad = indent
-        coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}"
-        if len(desc_lines) > len(grid):
-            coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}{right_pad}{desc_lines[len(grid)].lstrip()}"
-            desc_lines.pop(len(grid))
-        combined.insert(len(grid), coord_line)
-
-        # Suppress all other room output when @mapon is active
-        self.caller.msg("\n".join(combined), parse=True)
+            # Show only room name and description, no map
+            if appearance:
+                self.caller.msg(appearance, parse=True)
+            else:
+                self.caller.msg("", parse=True)
 
 class CmdHelpMapping(Command):
     """
