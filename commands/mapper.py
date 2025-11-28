@@ -202,8 +202,8 @@ class CmdMap(Command):
                     row.append("@ ")
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
-                    if icon and len(icon) >= 2:
-                        row.append(self.convert_icon_tags(icon[:2]))
+                    if icon:
+                        row.append(self.convert_icon_tags(icon))
                     else:
                         row.append("[]")
                 else:
