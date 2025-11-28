@@ -15,20 +15,24 @@ class CmdMap(Command):
             caller.msg("This room does not have valid x/y coordinates. The map cannot be displayed.")
             return
         grid = []
-        # Only consider rooms in the 5x5 grid
         found_rooms = []
+        # Try to get all rooms by typeclass (if available)
+        try:
+            from evennia.utils.search import search_object
+            all_rooms = [obj for obj in search_object("typeclasses.rooms.Room")]
+        except Exception:
+            all_rooms = [room]  # fallback: only current room
+        # Always include current room
+        if room not in all_rooms:
+            all_rooms.append(room)
+        room_lookup = {(r.db.x, r.db.y): r for r in all_rooms if hasattr(r, "db") and getattr(r.db, "x", None) is not None and getattr(r.db, "y", None) is not None}
         for dy in range(-2, 3):
             row = []
             for dx in range(-2, 3):
                 rx, ry = x0 + dx, y0 + dy
-                # Search for a room at (rx, ry)
-                target_room = None
-                for obj in search_object("*"):
-                    if hasattr(obj, "db") and getattr(obj.db, "x", None) == rx and getattr(obj.db, "y", None) == ry:
-                        target_room = obj
-                        found_rooms.append(f"Found room: {obj.key} at ({rx},{ry})")
-                        break
+                target_room = room_lookup.get((rx, ry))
                 if target_room:
+                    found_rooms.append(f"Found room: {target_room.key} at ({rx},{ry})")
                     if target_room == room:
                         row.append('[x]')
                     else:
@@ -36,8 +40,10 @@ class CmdMap(Command):
                 else:
                     row.append('   ')
             grid.append(''.join(row))
-        # Debug output for found rooms
-        caller.msg("\n".join(found_rooms))
+        if not found_rooms:
+            caller.msg("No rooms found in this area. Check room typeclass and coordinates.")
+        else:
+            caller.msg("\n".join(found_rooms))
         map_str = "\n".join(grid)
         coord_str = f"Current coordinates: x={x0}, y={y0}"
         caller.msg(f"{map_str}\n|c{coord_str}|n")
