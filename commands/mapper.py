@@ -305,7 +305,17 @@ mapping_cmds = [
     CmdHelpMapping,
 ]
 
-# Register mapping commands for inclusion in command sets (must be after all command classes are defined)
-            "- Only builder+ can use these commands.\n"
-
         )
+
+# Register mapping commands for inclusion in command sets (must be after all command classes are defined)
+mapping_cmds = [
+    CmdMapColor,
+    CmdMapRoom,
+    CmdMapOn,
+    CmdMapOff,
+    CmdMapIcon,
+    CmdAreaIcon,
+    CmdMapIconHelp,
+    CmdMap,
+    CmdHelpMapping,
+]
