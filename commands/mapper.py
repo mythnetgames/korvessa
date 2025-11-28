@@ -226,7 +226,22 @@ class CmdMap(Command):
         # Always show the map and room description together, no @mapon logic
         # Indent room description so it never runs over the map (five spaces to the right)
         # Indent every line, including blank lines, five spaces to the right of the map
-        desc_lines = ["     " + (line if line.strip() != "" else "") for line in appearance.splitlines()] if appearance else ["     "]
+        # Indent every linebreak and line, so all lines are aligned
+        # Move 'There are exits...' to the bottom of the right column
+        if appearance:
+            lines = appearance.split('\n')
+            exit_line = None
+            other_lines = []
+            for line in lines:
+                if line.strip().lower().startswith("there are exits"):
+                    exit_line = line
+                else:
+                    other_lines.append(line)
+            desc_lines = ["     " + line for line in other_lines]
+            if exit_line:
+                desc_lines.append("     " + exit_line)
+        else:
+            desc_lines = ["     "]
 
 
         # Strict columnar layout: map (top left), text (top right)
