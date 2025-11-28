@@ -1,6 +1,7 @@
 # Automatically enable mapper for all accounts on server start
-STARTUP_SCRIPTS = getattr(globals(), 'STARTUP_SCRIPTS', [])
-STARTUP_SCRIPTS.append('scripts.map_enable_script.MapEnableScript')
+STARTUP_SCRIPTS = [
+    "scripts.map_enable_script.MapEnableScript",
+]
 r"""
 Evennia settings file.
 
