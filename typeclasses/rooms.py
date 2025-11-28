@@ -89,8 +89,11 @@ class Room(ObjectParent, DefaultRoom):
         def send_debug(msg):
             if zotnet:
                 zotnet.msg(msg)
-            else:
-                self.msg(f"[DEBUG] {msg}")
+            if mover:
+                try:
+                    mover.msg(f"[DEBUG] {msg}")
+                except Exception:
+                    pass
         x0 = getattr(source_location.db, "x", None) if source_location else None
         y0 = getattr(source_location.db, "y", None) if source_location else None
         z0 = getattr(source_location.db, "z", None) if source_location else None
