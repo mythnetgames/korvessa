@@ -206,18 +206,16 @@ class CmdMap(Command):
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
                         rendered = self.convert_icon_tags(icon)
-                        # Each cell is a separate string for Evennia parsing
-                        row.append(rendered)
+                        # Add a color reset after each cell to avoid color bleed
+                        row.append(f"{rendered}|n")
                     else:
                         row.append("[]")
                 else:
                     row.append("  ")
-            # Join each cell with '', not spaces, to avoid breaking color codes
             grid.append("".join(row))
-        # Send each row separately to ensure color parsing
-        for line in grid:
-            self.caller.msg(line, parse=True)
-        self.caller.msg(f"Current coordinates: x={x}, y={y}, z={z}")
+        # Send the whole grid as one message with parse=True
+        map_output = "\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}"
+        self.caller.msg(map_output, parse=True)
 
 class CmdHelpMapping(Command):
     """
