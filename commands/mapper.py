@@ -2,6 +2,7 @@
 All mapping commands removed.
 """
 from evennia import Command
+import re
 
 class CmdMapColor(Command):
     """
@@ -145,6 +146,36 @@ class CmdMap(Command):
     locks = "cmd:perm(Builder)"
     help_category = "Mapping"
 
+    def convert_icon_tags(self, icon):
+        # Convert [black] to |x, [bg_cyan] to |[c, etc.
+        if not icon:
+            return icon
+        # Foreground colors
+        color_map = {
+            "black": "|x", "white": "|w", "red": "|r", "blue": "|b", "yellow": "|y", "green": "|g", "purple": "|m", "cyan": "|c"
+        }
+        # Background colors
+        bg_map = {
+            "bg_black": "|[x", "bg_white": "|[w", "bg_red": "|[r", "bg_blue": "|[b", "bg_yellow": "|[y", "bg_green": "|[g", "bg_purple": "|[m", "bg_cyan": "|[c"
+        }
+        # Effects
+        effect_map = {
+            "bold_on": "|h", "bold_off": "|n", "underline_on": "|u", "underline_off": "|n", "strikethrough_on": "|s", "strikethrough_off": "|n"
+        }
+        # Replace tags
+        def tag_replacer(match):
+            tag = match.group(1).lower()
+            if tag in color_map:
+                return color_map[tag]
+            if tag in bg_map:
+                return bg_map[tag]
+            if tag in effect_map:
+                return effect_map[tag]
+            return ""
+        # Replace [tag] with Evennia code
+        icon = re.sub(r"\[(\w+)]", tag_replacer, icon)
+        return icon
+
     def func(self):
         room = self.caller.location
         x = getattr(room.db, "x", None)
@@ -154,7 +185,6 @@ class CmdMap(Command):
             self.caller.msg("This room does not have valid coordinates. The map cannot be displayed.")
             return
         from evennia.objects.models import ObjectDB
-        # Fix: Use attribute filter for db.z
         rooms = [r for r in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room") if getattr(r.db, "z", None) == z]
         coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
         grid = []
@@ -163,22 +193,20 @@ class CmdMap(Command):
             for dx in range(-2, 3):
                 cx, cy = x + dx, y + dy
                 room_obj = coords.get((cx, cy))
-                # Fix: Show '@' for current room, not map_icon
                 if (cx, cy) == (x, y):
                     row.append("@ ")
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon and len(icon) >= 2:
-                        row.append(icon[:2])
+                        row.append(self.convert_icon_tags(icon[:2]))
                     else:
                         row.append("[]")
                 else:
                     row.append("  ")
-            # Join row and send with Evennia color parsing
             grid.append("".join(row))
-        # Send the whole grid with Evennia color parsing
         map_output = "\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}"
-        self.caller.msg(map_output)
+        # Ensure Evennia parses color codes
+        self.caller.msg(map_output, parse=True)
 
 class CmdHelpMapping(Command):
     """
