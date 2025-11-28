@@ -19,41 +19,37 @@ class CmdMap(Command):
         room_lookup = {(r.db.x, r.db.y): r for r in all_rooms}
         for dy in range(-2, 3):
             # Room row
-            row = []
+            room_row = []
             for dx in range(-2, 3):
                 rx, ry = x0 + dx, y0 + dy
                 target_room = room_lookup.get((rx, ry))
                 if target_room:
                     if target_room == room:
-                        cell = '[x]'
+                        room_row.append('[x]')
                     else:
-                        cell = '[] '
+                        room_row.append('[ ]')
                 else:
-                    cell = '   '
-                row.append(cell)
-                # Add horizontal connection to the right
-                if dx < 2:
-                    east_room = room_lookup.get((rx+1, ry))
-                    if target_room and east_room:
-                        row.append('-- ')
-                    else:
-                        row.append('   ')
-            grid.append(''.join(row))
-            # Add vertical connection row below
+                    room_row.append('   ')
+            grid.append(''.join(room_row))
+            # Connector row (between this and next room row)
             if dy < 2:
-                vconn_row = []
+                conn_row = []
                 for dx in range(-2, 3):
                     rx, ry = x0 + dx, y0 + dy
-                    target_room = room_lookup.get((rx, ry))
-                    south_room = room_lookup.get((rx, ry+1))
-                    if target_room and south_room:
-                        vconn_row.append(' | ')
+                    # East/west connector
+                    right_room = room_lookup.get((rx+1, ry))
+                    this_room = room_lookup.get((rx, ry))
+                    if this_room and right_room:
+                        conn_row.append('--')
                     else:
-                        vconn_row.append('   ')
-                    # Add space for horizontal connection
-                    if dx < 2:
-                        vconn_row.append('   ')
-                grid.append(''.join(vconn_row))
+                        conn_row.append('  ')
+                    # Vertical connector
+                    down_room = room_lookup.get((rx, ry+1))
+                    if this_room and down_room:
+                        conn_row.append('| ')
+                    else:
+                        conn_row.append('  ')
+                grid.append(''.join(conn_row))
         map_str = "\n".join(grid)
         coord_str = f"Current coordinates: x={x0}, y={y0}"
         caller.msg(f"{map_str}\n|c{coord_str}|n")
