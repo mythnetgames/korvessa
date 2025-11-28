@@ -122,10 +122,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdWipeCoords())
         # Add mapper commands
         from commands.mapper import CmdMapRoom, CmdMapOn, CmdMapOff
-        self.add(CmdMapRoom())
-        self.add(CmdMapOn())
-        self.add(CmdMapOff())
-        self.add(CmdMapColor())
+        # Mapping commands removed
         self.add(CmdResetMedical())
         self.add(CmdMedicalAudit())
         # ...existing code for other commands...

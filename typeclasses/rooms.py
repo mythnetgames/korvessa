@@ -168,6 +168,8 @@ class Room(ObjectParent, DefaultRoom):
                         conn_row.append("  ")
                     grid.append("".join(conn_row))
             caller.msg("\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}")
+
+        # ...existing code...
     """
     Rooms are like any Object, except their location is None
     (which is default). They also use basetype_setup() to

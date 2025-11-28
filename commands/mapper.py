@@ -1,3 +1,7 @@
+# ...existing code...
+"""
+All mapping commands removed.
+"""
 from evennia import Command
 
 class CmdMapColor(Command):
