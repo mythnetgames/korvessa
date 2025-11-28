@@ -17,12 +17,14 @@ class CmdMap(Command):
         grid = []
         all_rooms = [obj for obj in search_object("*") if hasattr(obj, "db") and getattr(obj.db, "x", None) is not None and getattr(obj.db, "y", None) is not None]
         room_lookup = {(r.db.x, r.db.y): r for r in all_rooms}
+        # Build grid with vertical and horizontal connections
         for dy in range(-2, 3):
             row = []
             conn_row = []
             for dx in range(-2, 3):
                 rx, ry = x0 + dx, y0 + dy
                 target_room = room_lookup.get((rx, ry))
+                # Room box
                 if target_room:
                     if target_room == room:
                         cell = "[x]"
@@ -39,8 +41,21 @@ class CmdMap(Command):
                     else:
                         conn_row.append("  ")
             grid.append("".join(row))
+            # Vertical connections (to south)
             if dy < 2:
-                grid.append("".join(["   "] + conn_row))
+                vconn_row = []
+                for dx in range(-2, 3):
+                    rx, ry = x0 + dx, y0 + dy
+                    target_room = room_lookup.get((rx, ry))
+                    south_room = room_lookup.get((rx, ry+1))
+                    if target_room and south_room:
+                        vconn_row.append(" | ")
+                    else:
+                        vconn_row.append("   ")
+                grid.append("".join(vconn_row))
+            # Add horizontal connections after each row
+            if dy < 2:
+                grid.append("   " + "".join(conn_row))
         map_str = "\n".join(grid)
         coord_str = f"Current coordinates: x={x0}, y={y0}"
         caller.msg(f"{map_str}\n|c{coord_str}|n")
