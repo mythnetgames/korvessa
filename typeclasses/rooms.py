@@ -85,33 +85,36 @@ class Room(ObjectParent, DefaultRoom):
         super().at_after_move(mover, source_location)
         # Auto-map unmapped rooms when entered
         if (not hasattr(self.db, "x") or self.db.x is None) or (not hasattr(self.db, "y") or self.db.y is None):
-            # Try to infer coordinates from source_location and movement direction
             direction = None
             if source_location and hasattr(source_location, "exits"):
-                # Find which exit leads to this room
                 for exit_obj in source_location.exits:
                     if getattr(exit_obj, "destination", None) == self:
                         direction = exit_obj.key.lower()
                         break
-            x0 = getattr(source_location.db, "x", 0) if source_location else 0
-            y0 = getattr(source_location.db, "y", 0) if source_location else 0
-            # Assign coordinates based on direction
-            if direction == "north":
-                self.db.x = x0
-                self.db.y = y0 + 1
-            elif direction == "south":
-                self.db.x = x0
-                self.db.y = y0 - 1
-            elif direction == "east":
-                self.db.x = x0 + 1
-                self.db.y = y0
-            elif direction == "west":
-                self.db.x = x0 - 1
-                self.db.y = y0
+            x0 = getattr(source_location.db, "x", None) if source_location else None
+            y0 = getattr(source_location.db, "y", None) if source_location else None
+            # Assign coordinates based on direction if possible
+            if x0 is not None and y0 is not None:
+                if direction == "north":
+                    self.db.x = x0
+                    self.db.y = y0 + 1
+                elif direction == "south":
+                    self.db.x = x0
+                    self.db.y = y0 - 1
+                elif direction == "east":
+                    self.db.x = x0 + 1
+                    self.db.y = y0
+                elif direction == "west":
+                    self.db.x = x0 - 1
+                    self.db.y = y0
+                else:
+                    # Fallback: assign coordinates near source
+                    self.db.x = x0
+                    self.db.y = y0
             else:
-                # Fallback: assign default coordinates if direction is unknown
-                self.db.x = x0
-                self.db.y = y0
+                # If no source coordinates, assign a unique default based on dbref
+                self.db.x = int(self.dbref) % 1000
+                self.db.y = int(self.dbref) // 1000
         # Existing logic: assign coordinates if 0 and has exits
         if hasattr(self, "exits") and self.exits:
             for exit_obj in self.exits:
