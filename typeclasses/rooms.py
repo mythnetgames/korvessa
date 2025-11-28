@@ -27,8 +27,8 @@ class Room(ObjectParent, DefaultRoom):
         sx = getattr(source_location.db, "x", None)
         sy = getattr(source_location.db, "y", None)
         sz = getattr(source_location.db, "z", None)
-        # Only proceed if source has valid coordinates
-        if sx is not None and sy is not None and sz is not None:
+        # Only proceed if source has valid, non-zero coordinates
+        if sx not in (None, 0) or sy not in (None, 0) or sz not in (None, 0):
             # Ensure destination coordinates exist
             if not hasattr(self.db, "x"):
                 self.db.x = None
@@ -77,6 +77,8 @@ class Room(ObjectParent, DefaultRoom):
                     self.db.y = sy
                     self.db.z = sz
                 mover.msg(f"|yMapper: Coordinates assigned to this room: x={self.db.x}, y={self.db.y}, z={self.db.z}|n")
+        else:
+            mover.msg("|rMapper: Source room is not mapped. Use @maproom x y z to set initial coordinates before moving.|n")
         # Show 5x5 map if coordinates are now valid
         x = getattr(self.db, "x", None)
         y = getattr(self.db, "y", None)
