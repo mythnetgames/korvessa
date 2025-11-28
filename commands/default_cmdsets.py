@@ -111,17 +111,12 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
-        # Add map command
-        from commands.CmdMap import CmdMap
-        self.add(CmdMap())
         # Add fix room typeclass admin command
         from commands.CmdFixRoomTypeclass import CmdFixRoomTypeclass
         self.add(CmdFixRoomTypeclass())
         # Add wipe coords admin command
         from commands.CmdWipeCoords import CmdWipeCoords
         self.add(CmdWipeCoords())
-        # Add mapper commands
-        from commands.mapper import CmdMapRoom, CmdMapOn, CmdMapOff
         # Mapping commands removed
         self.add(CmdResetMedical())
         self.add(CmdMedicalAudit())
