@@ -1,3 +1,8 @@
+"""
+Kowloon Door/Lock/Keypad Command Module
+Last updated: 2025-11-28
+"""
+from evennia import Command
 from evennia import Command
 from evennia.comms.models import ChannelDB
 
