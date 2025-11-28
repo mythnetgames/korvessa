@@ -108,7 +108,7 @@ class Room(ObjectParent, DefaultRoom):
 
         def show_map(self, caller):
             """
-            Display a 5x5 map centered on caller's current room, with only room cells.
+            Display a 5x5 map centered on caller's current room, with exit indicators.
             """
             x = getattr(self.db, "x", None)
             y = getattr(self.db, "y", None)
@@ -119,18 +119,51 @@ class Room(ObjectParent, DefaultRoom):
             from evennia.objects.models import ObjectDB
             rooms = ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room", db_z=z)
             coords = {(room.db.x, room.db.y): room for room in rooms if room.db.x is not None and room.db.y is not None}
+            # Build grid with exit indicators
             grid = []
             for dy in range(2, -3, -1):
                 row = []
                 for dx in range(-2, 3):
                     cx, cy = x + dx, y + dy
+                    cell = "   "
                     if (cx, cy) == (x, y):
-                        row.append("[x]")
+                        cell = "[x]"
                     elif (cx, cy) in coords:
-                        row.append("[ ]")
+                        cell = "[ ]"
+                    row.append(cell)
+                    # East exit indicator
+                    if cell.strip() in ("[x]", "[ ]"):
+                        room = coords.get((cx, cy))
+                        has_east = False
+                        if room:
+                            for ex in getattr(room, "exits", []):
+                                if ex.key.lower() == "east":
+                                    has_east = True
+                                    break
+                        row.append("-") if has_east else row.append(" ")
                     else:
-                        row.append("   ")
-                grid.append(" ".join(row))
+                        row.append(" ")
+                grid.append("".join(row))
+                # South exit indicator row (except after last row)
+                if dy > -2:
+                    conn_row = []
+                    for dx in range(-2, 3):
+                        cx, cy = x + dx, y + dy
+                        cell = "   "
+                        if (cx, cy) in coords:
+                            cell = "[ ]"
+                        if (cx, cy) == (x, y):
+                            cell = "[x]"
+                        has_south = False
+                        room = coords.get((cx, cy))
+                        if room:
+                            for ex in getattr(room, "exits", []):
+                                if ex.key.lower() == "south":
+                                    has_south = True
+                                    break
+                        conn_row.append(" |" if has_south and cell.strip() in ("[x]", "[ ]") else "  ")
+                        conn_row.append("  ")
+                    grid.append("".join(conn_row))
             caller.msg("\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}")
     """
     Rooms are like any Object, except their location is None
