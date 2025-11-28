@@ -52,6 +52,27 @@ class Exit(DefaultExit):
 
     def at_traverse(self, traversing_object, target_location):
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        # Autopopulate coordinates for target room if missing
+        src_room = traversing_object.location
+        dest_room = target_location
+        direction = self.key.lower()
+        if hasattr(src_room, "db") and hasattr(dest_room, "db"):
+            x0 = getattr(src_room.db, "x", None)
+            y0 = getattr(src_room.db, "y", None)
+            dx, dy = 0, 0
+            if direction == "north":
+                dx, dy = 0, 1
+            elif direction == "south":
+                dx, dy = 0, -1
+            elif direction == "east":
+                dx, dy = 1, 0
+            elif direction == "west":
+                dx, dy = -1, 0
+            # Add more directions as needed
+            if x0 is not None and y0 is not None:
+                if getattr(dest_room.db, "x", None) is None or getattr(dest_room.db, "y", None) is None:
+                    dest_room.db.x = x0 + dx
+                    dest_room.db.y = y0 + dy
         
         # --- SKY ROOM RESTRICTION CHECK ---
         # Block normal traversal to/from sky rooms - these are transit-only spaces
@@ -60,7 +81,7 @@ class Exit(DefaultExit):
         target_room_is_sky = getattr(target_location.db, "is_sky_room", False)
         is_jump_movement = getattr(traversing_object.ndb, "jump_movement_allowed", False)
         
-        if (current_room_is_sky or target_room_is_sky) and not is_jump_movement:
+        if (current_room_is_s
             if current_room_is_sky and target_room_is_sky:
                 traversing_object.msg(f"|rYou cannot traverse between sky rooms! Sky rooms are transit-only spaces.|n")
             elif current_room_is_sky:
@@ -559,28 +580,7 @@ class Exit(DefaultExit):
             # Get current weather status
             current_weather = weather_system.get_current_weather()
             
-            # Simple weather context phrases for exit descriptions
-            weather_contexts = {
-                # Clear/mild weather
-                'clear': "",  # No weather context needed for clear conditions
-                
-                # Rain variants
-                'rain': "Through the steady rain",
-                'light_rain': "Through the gentle rain", 
-                'torrential_rain': "Through the torrential downpour",
-                'foggy_rain': "Through the misty rain",
-                'rainy_thunderstorm': "Through the thunderous downpour",
-                'tox_rain': "Through the toxic rainfall",
-                
-                # Fog variants
-                'fog': "Through the thick fog",
-                'heavy_fog': "Through the impenetrable fog",
-                'blind_fog': "Through the blinding fog",
-                
-                # Snow variants
-                'soft_snow': "Through the gentle snowfall",
-                'hard_snow': "Through the driving snow",
-                'blizzard': "Through the raging blizzard",
+            # Simple weather context phrases
                 
                 # Storm variants
                 'dry_thunderstorm': "Under the ominous storm clouds",
