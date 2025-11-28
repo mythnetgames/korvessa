@@ -142,7 +142,7 @@ class Room(ObjectParent, DefaultRoom):
                     self.db.y = y0
                     self.db.z = z0 - 1
                 else:
-                    # fallback: keep previous coordinates or assign source
+                    # fallback: assign source coordinates (guaranteed assignment)
                     self.db.x = x0
                     self.db.y = y0
                     self.db.z = z0
