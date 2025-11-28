@@ -1,9 +1,15 @@
 from evennia import Command
 from evennia.comms.models import ChannelDB
-import time
-from evennia.utils import delay
 
 audit_channel = ChannelDB.objects.get_channel("BuilderAudit")
+
+def find_door(room, direction):
+    """Find a door object in the room matching the given direction."""
+    direction = direction.lower()
+    for obj in room.contents:
+        if obj.is_typeclass("typeclasses.doors.Door") and getattr(obj.db, "exit_direction", "").lower() == direction:
+            return obj
+    return None
 
 class CmdAttachDoor(Command):
     """Attach a door to an exit."""
@@ -25,11 +31,13 @@ class CmdAttachDoor(Command):
         if not exit_obj:
             caller.msg(f"No exit found in direction '{direction}'.")
             return
+        if find_door(caller.location, direction):
+            caller.msg(f"A door already exists for exit '{direction}'.")
+            return
         from typeclasses.doors import Door
         door = Door()
         door.db.exit_direction = direction
         door.location = caller.location
-        exit_obj.db.door = door
         caller.msg(f"Door attached to exit '{direction}'.")
         audit_channel.msg(f"{caller.key} attached door to exit '{direction}'.")
 
@@ -44,19 +52,14 @@ class CmdAttachLock(Command):
             caller.msg("Usage: attachlock <direction>")
             return
         direction = self.args.strip().lower()
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door"):
-            caller.msg(f"No door found on exit '{direction}'.")
+        door = find_door(caller.location, direction)
+        if not door:
+            caller.msg(f"No door found for exit '{direction}'.")
             return
         from typeclasses.doors import Lock
         lock = Lock()
-        exit_obj.db.door.attach_lock(lock)
-        caller.msg(f"Lock attached to door on exit '{direction}'.")
+        door.attach_lock(lock)
+        caller.msg(f"Lock attached to door for exit '{direction}'.")
         audit_channel.msg(f"{caller.key} attached lock to exit '{direction}'.")
 
 class CmdAttachKeypad(Command):
@@ -70,19 +73,14 @@ class CmdAttachKeypad(Command):
             caller.msg("Usage: attachkeypad <direction>")
             return
         direction = self.args.strip().lower()
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door"):
-            caller.msg(f"No door found on exit '{direction}'.")
+        door = find_door(caller.location, direction)
+        if not door:
+            caller.msg(f"No door found for exit '{direction}'.")
             return
         from typeclasses.doors import KeypadLock
         keypad = KeypadLock()
-        exit_obj.db.door.attach_keypad(keypad)
-        caller.msg(f"Keypad lock attached to door on exit '{direction}'.")
+        door.attach_keypad(keypad)
+        caller.msg(f"Keypad lock attached to door for exit '{direction}'.")
         audit_channel.msg(f"{caller.key} attached keypad to exit '{direction}'.")
 
 class CmdRemoveDoor(Command):
@@ -96,17 +94,11 @@ class CmdRemoveDoor(Command):
             caller.msg("Usage: removedoor <direction>")
             return
         direction = self.args.strip().lower()
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door"):
-            caller.msg(f"No door found on exit '{direction}'.")
+        door = find_door(caller.location, direction)
+        if not door:
+            caller.msg(f"No door found for exit '{direction}'.")
             return
-        exit_obj.db.door.delete()
-        exit_obj.db.door = None
+        door.delete()
         caller.msg(f"Door removed from exit '{direction}'.")
         audit_channel.msg(f"{caller.key} removed door from exit '{direction}'.")
 
@@ -121,18 +113,13 @@ class CmdRemoveLock(Command):
             caller.msg("Usage: removelock <direction>")
             return
         direction = self.args.strip().lower()
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.lock:
+        door = find_door(caller.location, direction)
+        if not door or not door.db.lock:
             caller.msg(f"No lock found on door for exit '{direction}'.")
             return
-        exit_obj.db.door.db.lock.delete()
-        exit_obj.db.door.db.lock = None
-        caller.msg(f"Lock removed from door on exit '{direction}'.")
+        door.db.lock.delete()
+        door.db.lock = None
+        caller.msg(f"Lock removed from door for exit '{direction}'.")
         audit_channel.msg(f"{caller.key} removed lock from exit '{direction}'.")
 
 class CmdRemoveKeypad(Command):
@@ -146,18 +133,13 @@ class CmdRemoveKeypad(Command):
             caller.msg("Usage: removekeypad <direction>")
             return
         direction = self.args.strip().lower()
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
+        door = find_door(caller.location, direction)
+        if not door or not door.db.keypad:
             caller.msg(f"No keypad found on door for exit '{direction}'.")
             return
-        exit_obj.db.door.db.keypad.delete()
-        exit_obj.db.door.db.keypad = None
-        caller.msg(f"Keypad lock removed from door on exit '{direction}'.")
+        door.db.keypad.delete()
+        door.db.keypad = None
+        caller.msg(f"Keypad lock removed from door for exit '{direction}'.")
         audit_channel.msg(f"{caller.key} removed keypad from exit '{direction}'.")
 
 class CmdProgramKeypad(Command):
@@ -173,17 +155,14 @@ class CmdProgramKeypad(Command):
             return
         direction, combo = args
         direction = direction.strip().lower()
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
+        door = find_door(caller.location, direction)
+        if not door or not door.db.keypad:
             caller.msg(f"No keypad found on door for exit '{direction}'.")
             return
-        keypad = exit_obj.db.door.db.keypad
-        keypad.db.combination = combo
+        if len(combo) != 8 or not combo.isdigit():
+            caller.msg("Combination must be 8 digits.")
+            return
+        door.db.keypad.db.combination = combo
         caller.msg(f"Keypad combo for exit '{direction}' set to {combo}.")
         audit_channel.msg(f"{caller.key} programmed keypad combo for exit '{direction}' to {combo}.")
 
@@ -198,17 +177,11 @@ class CmdShowCombo(Command):
             caller.msg("Usage: showcombo <direction>")
             return
         direction = self.args.strip().lower()
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
+        door = find_door(caller.location, direction)
+        if not door or not door.db.keypad:
             caller.msg(f"No keypad found on door for exit '{direction}'.")
             return
-        keypad = exit_obj.db.door.db.keypad
-        caller.msg(f"Keypad combo for exit '{direction}': {keypad.db.combination}")
+        caller.msg(f"Keypad combo for exit '{direction}': {door.db.keypad.db.combination}")
 
 class CmdOpenDoor(Command):
     """Open a door on an exit."""
@@ -221,16 +194,10 @@ class CmdOpenDoor(Command):
             caller.msg("Usage: opendoor <direction>")
             return
         direction = self.args.strip().lower()
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door"):
-            caller.msg(f"No door found on exit '{direction}'.")
+        door = find_door(caller.location, direction)
+        if not door:
+            caller.msg(f"No door found for exit '{direction}'.")
             return
-        door = exit_obj.db.door
         if door.db.is_open:
             caller.msg("The door is already open.")
             return
@@ -252,16 +219,10 @@ class CmdCloseDoor(Command):
             caller.msg("Usage: closedoor <direction>")
             return
         direction = self.args.strip().lower()
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door"):
-            caller.msg(f"No door found on exit '{direction}'.")
+        door = find_door(caller.location, direction)
+        if not door:
+            caller.msg(f"No door found for exit '{direction}'.")
             return
-        door = exit_obj.db.door
         if not door.db.is_open:
             caller.msg("The door is already closed.")
             return
@@ -285,21 +246,16 @@ class CmdLockDoor(Command):
         if len(args) > 1:
             key_obj = caller.search(args[1], quiet=True)
             key_obj = key_obj[0] if key_obj else None
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.lock:
+        door = find_door(caller.location, direction)
+        if not door or not door.db.lock:
             caller.msg(f"No lock found on door for exit '{direction}'.")
             return
-        lock = exit_obj.db.door.db.lock
+        lock = door.db.lock
         if lock.db.is_locked:
             caller.msg("The lock is already locked.")
             return
         lock.lock(caller)
-        exit_obj.db.door.db.is_locked = True
+        door.db.is_locked = True
         caller.msg(lock.db.lock_msg if hasattr(lock.db, "lock_msg") else "You lock the door.")
         audit_channel.msg(f"{caller.key} locked door on exit '{direction}'.")
 
@@ -319,16 +275,11 @@ class CmdUnlockDoor(Command):
         if len(args) > 1:
             key_obj = caller.search(args[1], quiet=True)
             key_obj = key_obj[0] if key_obj else None
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.lock:
+        door = find_door(caller.location, direction)
+        if not door or not door.db.lock:
             caller.msg(f"No lock found on door for exit '{direction}'.")
             return
-        lock = exit_obj.db.door.db.lock
+        lock = door.db.lock
         if not lock.db.is_locked:
             caller.msg("The lock is already unlocked.")
             return
@@ -336,7 +287,7 @@ class CmdUnlockDoor(Command):
             caller.msg("You don't have the correct key.")
             return
         lock.unlock(key_obj, caller)
-        exit_obj.db.door.db.is_locked = False
+        door.db.is_locked = False
         caller.msg(lock.db.unlock_msg if hasattr(lock.db, "unlock_msg") else "You unlock the door.")
         audit_channel.msg(f"{caller.key} unlocked door on exit '{direction}'.")
 
@@ -562,11 +513,10 @@ class CmdUnlockExit(Command):
         if len(args) > 1:
             key_obj = caller.search(args[1], quiet=True)
             key_obj = key_obj[0] if key_obj else None
-        exit_obj = caller.location.exits.get(direction)
-        if not exit_obj or not hasattr(exit_obj.db, "door"):
-            caller.msg(f"No door found on exit '{direction}'.")
+        door = find_door(caller.location, direction)
+        if not door:
+            caller.msg(f"No door found for exit '{direction}'.")
             return
-        door = exit_obj.db.door
         # Try to unlock lock first
         if hasattr(door.db, "lock") and door.db.lock:
             lock = door.db.lock
@@ -609,11 +559,10 @@ class CmdLockExit(Command):
         if len(args) > 1:
             key_obj = caller.search(args[1], quiet=True)
             key_obj = key_obj[0] if key_obj else None
-        exit_obj = caller.location.exits.get(direction)
-        if not exit_obj or not hasattr(exit_obj.db, "door"):
-            caller.msg(f"No door found on exit '{direction}'.")
+        door = find_door(caller.location, direction)
+        if not door:
+            caller.msg(f"No door found for exit '{direction}'.")
             return
-        door = exit_obj.db.door
         # Try to lock lock first
         if hasattr(door.db, "lock") and door.db.lock:
             lock = door.db.lock
