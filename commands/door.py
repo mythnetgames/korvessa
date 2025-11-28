@@ -531,7 +531,12 @@ class CmdDoorStatus(Command):
             caller.msg("Usage: doorstatus <direction>")
             return
         direction = self.args.strip().lower()
-        exit_obj = caller.location.exits.get(direction)
+        exit_obj = None
+        for ex in getattr(caller.location, "exits", []):
+            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
+            if ex.key.lower() == direction or direction in aliases:
+                exit_obj = ex
+                break
         if not exit_obj:
             caller.msg(f"No exit found in direction '{direction}'.")
             return
