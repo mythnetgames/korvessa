@@ -257,11 +257,8 @@ class CmdMap(Command):
             combined.insert(len(grid), coord_line)
             self.caller.msg("\n".join(combined), parse=True)
         else:
-            # Show only room name and description, no map
-            if appearance:
-                self.caller.msg(appearance, parse=True)
-            else:
-                self.caller.msg("", parse=True)
+            # Do not override LOOK output; CmdMap only displays map when called
+            pass
 
 class CmdHelpMapping(Command):
     """
