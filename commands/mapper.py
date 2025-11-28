@@ -147,7 +147,7 @@ class CmdMap(Command):
     help_category = "Mapping"
 
     def convert_icon_tags(self, icon):
-        # Strictly follow instructions: process all [tag]s at the start, apply codes, then use the next two non-tag characters as the icon
+        # Process all [tag]s at the start, apply codes, then use the next two non-tag characters as the icon
         if not icon:
             return icon
         # Foreground colors
@@ -176,9 +176,9 @@ class CmdMap(Command):
                 elif tag in effect_map:
                     codes += effect_map[tag]
             rest = tag_match.group(4)
-        # Only use the last two non-tag characters as the icon
+        # Only use the first two non-tag characters as the icon
         icon_chars = "".join([c for c in rest if c not in "[]"])
-        icon_final = icon_chars[-2:] if len(icon_chars) >= 2 else icon_chars.rjust(2)
+        icon_final = icon_chars[:2] if len(icon_chars) >= 2 else icon_chars.ljust(2)
         return codes + icon_final
 
     def func(self):
