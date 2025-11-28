@@ -1,0 +1,63 @@
+|cDoors, Locks, and Keypads (Builder+)|n
+
+This helpfile describes how to use doors, locks, and combination keypad locks for exits.
+
+|wAttaching Components|n
+- |cattachdoor <direction>|n: Attach a door to an exit.
+- |cattachlock <direction>|n: Attach a lock to a door on an exit.
+- |cattachkeypad <direction>|n: Attach a keypad lock to a door on an exit.
+- |cbulkattach <component> <direction1> [direction2 ...]|n: Bulk attach doors/locks/keypads to multiple exits.
+
+|wProgramming Keypads|n
+- |cprogramkeypad <direction> <combo>|n: Set the keypad's 8-digit combination (default: 00000000).
+- |cshowcombo <direction>|n: Show the keypad combo (builder+ only).
+- |centercombo <direction> <combo>|n: Enter a combo to unlock a keypad lock.
+- Keypads lock out after 3 failed attempts; builder+ must reset.
+
+|wRemoving Components|n
+- |cremovedoor <direction>|n: Remove a door from an exit.
+- |cremovelock <direction>|n: Remove a lock from a door on an exit.
+- |cremovekeypad <direction>|n: Remove a keypad lock from a door on an exit.
+- |cbulkremove <component> <direction1> [direction2 ...]|n: Bulk remove doors/locks/keypads from multiple exits.
+
+|wDoor State Commands|n
+- |copendoor <direction>|n: Open a door on an exit.
+- |cclosedoor <direction>|n: Close a door on an exit.
+- |clockdoor <direction> [key]|n: Lock a door (requires key).
+- |cunlockdoor <direction> [key]|n: Unlock a door (requires key).
+
+|wStatus and Customization|n
+- |cdoorstatus <direction>|n: Show status of door, lock, and keypad (builder+ only).
+- |csetdoormsg <direction> <type> <message>|n: Set custom open/close/lock/unlock messages for a door (builder+ only).
+
+|wUsage Notes|n
+- Only builder+ can attach/remove doors, locks, and keypads, or view/program keypad combos.
+- Keypads are programmable to any 8-digit code; default is 00000000.
+- All components can be attached/removed at any time by builder+.
+- Future hooks exist for electronic hacking of keypads.
+- Exits with closed/locked/keypad-locked doors will block movement until unlocked/opened.
+- All attach/remove/program actions are logged to the BuilderAudit channel.
+- Bulk operations allow fast management of multiple exits.
+- Key objects must match lock key_id to unlock doors.
+- Keypads lock out after 3 failed attempts; builder+ must reset.
+
+|wExample|n
+  attachdoor east
+  attachlock east
+  attachkeypad east
+  programkeypad east 12345678
+  showcombo east
+  entercombo east 12345678
+  opendoor east
+  closedoor east
+  lockdoor east mykey
+  unlockdoor east mykey
+  doorstatus east
+  setdoormsg east open "The heavy door swings open with a creak."
+  bulkattach door north south east
+  bulkremove lock north south east
+  removedoor east
+  removelock east
+  removekeypad east
+
+See also: help building, help exits, help locks, help keys
