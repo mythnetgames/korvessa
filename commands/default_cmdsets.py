@@ -26,7 +26,6 @@ from commands import CmdConsumption
 from commands import CmdMedicalItems
 from commands.CmdSpawnMob import CmdSpawnMob
 from commands.CmdBug import CmdBug
-# ...existing code...
 from commands.CmdAdmin import CmdHeal, CmdPeace, CmdTestDeathCurtain, CmdWeather, CmdResetMedical, CmdMedicalAudit, CmdTestDeath, CmdTestUnconscious
 from commands.CmdFixCharacterOwnership import CmdFixCharacterOwnership
 from commands.combat.cmdset_combat import CombatCmdSet
@@ -39,7 +38,6 @@ from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.shop import CmdBuy
-# ...existing code...
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -117,7 +115,21 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add wipe coords admin command
         from commands.CmdWipeCoords import CmdWipeCoords
         self.add(CmdWipeCoords())
-        # Mapping commands removed
+        # Add mapping commands
+        from commands.mapper import (
+            CmdMapOn, CmdMapOff, CmdMapRoom, CmdMapColor, CmdMapIcon, CmdAreaIcon, CmdMapIconHelp, CmdMap
+        )
+        self.add(CmdMapOn())
+        self.add(CmdMapOff())
+        self.add(CmdMapRoom())
+        self.add(CmdMapColor())
+        self.add(CmdMapIcon())
+        self.add(CmdAreaIcon())
+        self.add(CmdMapIconHelp())
+        self.add(CmdMap())
+        # Add mapping help command
+        from commands.mapper import CmdHelpMapping
+        self.add(CmdHelpMapping())
         self.add(CmdResetMedical())
         self.add(CmdMedicalAudit())
         # ...existing code for other commands...
