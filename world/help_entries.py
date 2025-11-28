@@ -128,3 +128,9 @@ def create_doors_help():
         entrytext=text,
         locks="view:perm(Builder)"
     )
+
+# Autoload the doors help entry when this module is imported
+try:
+    create_doors_help()
+except Exception as e:
+    print(f"Error creating doors help entry: {e}")
