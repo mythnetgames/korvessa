@@ -36,6 +36,9 @@ class Room(ObjectParent, DefaultRoom):
                 self.db.y = None
             if not hasattr(self.db, "z"):
                 self.db.z = None
+            # If z is None, set to 0
+            if self.db.z is None:
+                self.db.z = 0
             x = self.db.x
             y = self.db.y
             z = self.db.z
@@ -132,13 +135,13 @@ class Room(ObjectParent, DefaultRoom):
                 # Room row
                 room_row = []
                 for col_idx in range(5):
-                    room_row.append(cell_grid[row_idx][col_idx])
+                    cell = cell_grid[row_idx][col_idx]
+                    room_row.append(cell)
                     # East-west connection
                     if col_idx < 4:
-                        cx = x + col_idx - 2
-                        cy = y + 2 - row_idx
-                        next_cx = cx + 1
-                        if ((cx, cy) in coords and (next_cx, cy) in coords):
+                        next_cell = cell_grid[row_idx][col_idx + 1]
+                        # Only show '-' if both current and next cell are rooms
+                        if (cell.strip() in ("[x]", "[ ]") and next_cell.strip() in ("[x]", "[ ]")):
                             room_row.append("-")
                         else:
                             room_row.append(" ")
@@ -147,10 +150,10 @@ class Room(ObjectParent, DefaultRoom):
                 if row_idx < 4:
                     conn_row = []
                     for col_idx in range(5):
-                        cx = x + col_idx - 2
-                        cy = y + 2 - row_idx
-                        next_cy = cy - 1
-                        if ((cx, cy) in coords and (cx, next_cy) in coords):
+                        cell = cell_grid[row_idx][col_idx]
+                        next_cell = cell_grid[row_idx + 1][col_idx]
+                        # Only show '|' if both current and next cell are rooms
+                        if (cell.strip() in ("[x]", "[ ]") and next_cell.strip() in ("[x]", "[ ]")):
                             conn_row.append("  |")
                         else:
                             conn_row.append("   ")
