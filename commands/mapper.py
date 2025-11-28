@@ -199,25 +199,17 @@ class CmdMap(Command):
                 cx, cy = x + dx, y + dy
                 room_obj = coords.get((cx, cy))
                 if (cx, cy) == (x, y):
-                    # Show colored icon for current room if set, otherwise '@ '
                     icon = getattr(room_obj.db, 'map_icon', None) if room_obj else None
                     if icon:
                         rendered = self.convert_icon_tags(icon)
-                        # Strip color codes for length, then prepend codes
-                        color_codes = re.match(r'^(\|[\w]+)*', rendered)
-                        codes = color_codes.group(0) if color_codes else ''
-                        chars = re.sub(r'\|[\w]+', '', rendered)
-                        row.append(codes + chars[:2].ljust(2))
+                        row.append(rendered)
                     else:
                         row.append("@ ")
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
                         rendered = self.convert_icon_tags(icon)
-                        color_codes = re.match(r'^(\|[\w]+)*', rendered)
-                        codes = color_codes.group(0) if color_codes else ''
-                        chars = re.sub(r'\|[\w]+', '', rendered)
-                        row.append(codes + chars[:2].ljust(2))
+                        row.append(rendered)
                     else:
                         row.append("[]")
                 else:
