@@ -29,40 +29,53 @@ class Room(ObjectParent, DefaultRoom):
         sz = getattr(source_location.db, "z", None)
         # Only proceed if source has valid coordinates
         if sx is not None and sy is not None and sz is not None:
-            # Get destination coordinates
-            x = getattr(self.db, "x", None)
-            y = getattr(self.db, "y", None)
-            z = getattr(self.db, "z", None)
+            # Ensure destination coordinates exist
+            if not hasattr(self.db, "x"):
+                self.db.x = None
+            if not hasattr(self.db, "y"):
+                self.db.y = None
+            if not hasattr(self.db, "z"):
+                self.db.z = None
+            x = self.db.x
+            y = self.db.y
+            z = self.db.z
             direction = None
             if hasattr(source_location, "exits"):
                 for exit_obj in source_location.exits:
                     if getattr(exit_obj, "destination", None) == self:
                         direction = exit_obj.key.lower()
                         break
-            assigned = False
-            # Assign any missing coordinate based on direction
-            if direction:
-                if x is None:
-                    if direction in ["east", "west"]:
-                        self.db.x = sx + 1 if direction == "east" else sx - 1
-                    else:
-                        self.db.x = sx
-                    assigned = True
-                if y is None:
-                    if direction in ["north", "south"]:
-                        self.db.y = sy + 1 if direction == "north" else sy - 1
-                    else:
-                        self.db.y = sy
-                    assigned = True
-                if z is None:
-                    if direction == "up":
-                        self.db.z = sz + 1
-                    elif direction == "down":
-                        self.db.z = sz - 1
-                    else:
-                        self.db.z = sz
-                    assigned = True
-            if assigned:
+            # If any coordinate is missing, assign all three
+            if x is None or y is None or z is None:
+                if direction == "north":
+                    self.db.x = sx
+                    self.db.y = sy + 1
+                    self.db.z = sz
+                elif direction == "south":
+                    self.db.x = sx
+                    self.db.y = sy - 1
+                    self.db.z = sz
+                elif direction == "east":
+                    self.db.x = sx + 1
+                    self.db.y = sy
+                    self.db.z = sz
+                elif direction == "west":
+                    self.db.x = sx - 1
+                    self.db.y = sy
+                    self.db.z = sz
+                elif direction == "up":
+                    self.db.x = sx
+                    self.db.y = sy
+                    self.db.z = sz + 1
+                elif direction == "down":
+                    self.db.x = sx
+                    self.db.y = sy
+                    self.db.z = sz - 1
+                else:
+                    # Fallback: copy source coordinates
+                    self.db.x = sx
+                    self.db.y = sy
+                    self.db.z = sz
                 mover.msg(f"|yMapper: Coordinates assigned to this room: x={self.db.x}, y={self.db.y}, z={self.db.z}|n")
         # Show 5x5 map if coordinates are now valid
         x = getattr(self.db, "x", None)
