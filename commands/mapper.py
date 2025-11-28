@@ -235,6 +235,7 @@ class CmdMap(Command):
         map_width = map_cells * map_cell_width
         # Dynamic indentation for perfect straightness
         indent = " " * (map_width + 2)
+        indent = " " * (map_width + 2 - (map_width))  # Only two spaces to the right of the map
         column_width = 80  # Increased wrap width for longer lines
         if appearance:
             lines = appearance.split('\n')
