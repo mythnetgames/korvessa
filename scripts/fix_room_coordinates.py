@@ -36,9 +36,20 @@ def propagate_coordinates(start_room):
             dest = exit_obj.destination
             if dest.id in visited:
                 continue
-            dx, dy, dz = DIRECTIONS.get(exit_obj.key.lower(), (0, 0, 0))
-            # Only assign if dest has missing coordinates
-            if getattr(dest.db, "x", None) is None or getattr(dest.db, "y", None) is None or getattr(dest.db, "z", None) is None:
+            # Try to match direction using key or aliases
+            direction = exit_obj.key.lower()
+            dx, dy, dz = DIRECTIONS.get(direction, (0, 0, 0))
+            # Also check aliases for direction
+            if dx == dy == dz == 0 and hasattr(exit_obj, "aliases"):
+                for alias in exit_obj.aliases.all():
+                    alias_dir = alias.lower()
+                    if alias_dir in DIRECTIONS:
+                        dx, dy, dz = DIRECTIONS[alias_dir]
+                        break
+            # Assign coordinates if dest is missing or zero
+            if (getattr(dest.db, "x", None) in (None, 0) or
+                getattr(dest.db, "y", None) in (None, 0) or
+                getattr(dest.db, "z", None) in (None, 0)):
                 dest.db.x = x + dx
                 dest.db.y = y + dy
                 dest.db.z = z + dz
