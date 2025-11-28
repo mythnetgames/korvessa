@@ -1,5 +1,26 @@
 from evennia import Command
 
+class CmdMapColor(Command):
+    """
+    Set the color of the map brackets for this room.
+    Usage: @mapcolor <colorcode>
+    Example: @mapcolor |r
+    """
+    key = "@mapcolor"
+    locks = "cmd:perm(Builder)"
+    help_category = "Mapping"
+
+    def func(self):
+        caller = self.caller
+        color = self.args.strip()
+        if not color:
+            caller.msg("Usage: @mapcolor <colorcode> (e.g. |r, |g, |b, |y, |c, |m, |w)")
+            return
+        room = caller.location
+        room.db.map_color = color
+        caller.msg(f"Map color for this room set to '{color}'.")
+from evennia import Command
+
 class CmdMapRoom(Command):
     """
     Set coordinates for the current room.

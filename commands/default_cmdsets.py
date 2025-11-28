@@ -1,3 +1,4 @@
+from commands.mapper import CmdMapColor
 """
 Command sets
 
@@ -124,6 +125,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdMapRoom())
         self.add(CmdMapOn())
         self.add(CmdMapOff())
+        self.add(CmdMapColor())
         self.add(CmdResetMedical())
         self.add(CmdMedicalAudit())
         # ...existing code for other commands...

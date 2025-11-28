@@ -126,14 +126,17 @@ class Room(ObjectParent, DefaultRoom):
                 for dx in range(-2, 3):
                     cx, cy = x + dx, y + dy
                     cell = "   "
+                    color = "|w"  # default white
+                    room = coords.get((cx, cy))
+                    if room and hasattr(room.db, "map_color") and room.db.map_color:
+                        color = room.db.map_color
                     if (cx, cy) == (x, y):
-                        cell = "[x]"
+                        cell = f"{color}[x]|n"
                     elif (cx, cy) in coords:
-                        cell = "[ ]"
+                        cell = f"{color}[ ]|n"
                     row.append(cell)
                     # East exit indicator
-                    if cell.strip() in ("[x]", "[ ]"):
-                        room = coords.get((cx, cy))
+                    if cell.strip("|w|n|r|g|b|y|c|m") in ("[x]", "[ ]"):
                         has_east = False
                         if room:
                             for ex in getattr(room, "exits", []):
