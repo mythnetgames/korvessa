@@ -147,7 +147,7 @@ class CmdMap(Command):
     help_category = "Mapping"
 
     def convert_icon_tags(self, icon):
-        # Process all [tag]s at the start, apply codes, then use the next two non-tag characters as the icon
+        # Convert [tag]s to Evennia color codes, then apply to the first two non-tag characters
         if not icon:
             return icon
         # Foreground colors
@@ -179,7 +179,8 @@ class CmdMap(Command):
         # Only use the first two non-tag characters as the icon
         icon_chars = "".join([c for c in rest if c not in "[]"])
         icon_final = icon_chars[:2] if len(icon_chars) >= 2 else icon_chars.ljust(2)
-        return codes + icon_final
+        # Apply color codes to icon
+        return f"{codes}{icon_final}|n"
 
     def func(self):
         room = self.caller.location
