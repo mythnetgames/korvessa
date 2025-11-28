@@ -36,6 +36,7 @@ class CmdAttachDoor(Command):
             return
         from typeclasses.doors import Door
         door = Door()
+        door.save()  # Ensure DB id exists before setting attributes
         door.db.exit_direction = direction
         door.location = caller.location
         caller.msg(f"Door attached to exit '{direction}'.")
@@ -58,6 +59,7 @@ class CmdAttachLock(Command):
             return
         from typeclasses.doors import Lock
         lock = Lock()
+        lock.save()  # Ensure DB id exists before setting attributes
         door.attach_lock(lock)
         caller.msg(f"Lock attached to door for exit '{direction}'.")
         audit_channel.msg(f"{caller.key} attached lock to exit '{direction}'.")
@@ -79,6 +81,7 @@ class CmdAttachKeypad(Command):
             return
         from typeclasses.doors import KeypadLock
         keypad = KeypadLock()
+        keypad.save()  # Ensure DB id exists before setting attributes
         door.attach_keypad(keypad)
         caller.msg(f"Keypad lock attached to door for exit '{direction}'.")
         audit_channel.msg(f"{caller.key} attached keypad to exit '{direction}'.")
@@ -367,6 +370,7 @@ class CmdBulkAttach(Command):
             if component == "door":
                 from typeclasses.doors import Door
                 door = Door()
+                door.save()  # Ensure DB id exists before setting attributes
                 door.db.exit_direction = direction
                 door.location = caller.location
                 exit_obj.db.door = door
@@ -378,6 +382,7 @@ class CmdBulkAttach(Command):
                     caller.msg(f"No door found on exit '{direction}' for lock attachment.")
                     continue
                 lock = Lock()
+                lock.save()  # Ensure DB id exists before setting attributes
                 exit_obj.db.door.attach_lock(lock)
                 caller.msg(f"Lock attached to door on exit '{direction}'.")
                 audit_channel.msg(f"{caller.key} bulk-attached lock to exit '{direction}'.")
@@ -387,6 +392,7 @@ class CmdBulkAttach(Command):
                     caller.msg(f"No door found on exit '{direction}' for keypad attachment.")
                     continue
                 keypad = KeypadLock()
+                keypad.save()  # Ensure DB id exists before setting attributes
                 exit_obj.db.door.attach_keypad(keypad)
                 caller.msg(f"Keypad lock attached to door on exit '{direction}'.")
                 audit_channel.msg(f"{caller.key} bulk-attached keypad to exit '{direction}'.")
