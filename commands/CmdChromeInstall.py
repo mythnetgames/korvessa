@@ -42,7 +42,7 @@ class CmdChromeInstall(Command):
         # Remove chrome from installer's inventory
         chrome.location = None
         # Install chrome: add to target's installed chrome list (ndb)
-        if not hasattr(target.ndb, "installed_chrome"):
+        if not hasattr(target.ndb, "installed_chrome") or target.ndb.installed_chrome is None:
             target.ndb.installed_chrome = []
         target.ndb.installed_chrome.append(chrome)
         # Apply chrome stat bonus (example: +2 BODY)
