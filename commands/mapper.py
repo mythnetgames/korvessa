@@ -163,16 +163,22 @@ class CmdMap(Command):
             for dx in range(-2, 3):
                 cx, cy = x + dx, y + dy
                 room_obj = coords.get((cx, cy))
-                # Fix: getattr(room_obj.db, 'map_icon', None) instead of getattr(room_obj, 'db', {}).get(...)
+                # Fix: No spaces between squares, default to [] if no mapicon
                 if (cx, cy) == (x, y):
                     icon = getattr(room_obj.db, 'map_icon', None) if room_obj else None
-                    row.append(icon if icon and len(icon) == 2 else "Me")
+                    if icon and len(icon) >= 2:
+                        row.append(icon[:2])
+                    else:
+                        row.append("[]")
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
-                    row.append(icon if icon and len(icon) == 2 else "[]")
+                    if icon and len(icon) >= 2:
+                        row.append(icon[:2])
+                    else:
+                        row.append("[]")
                 else:
                     row.append("  ")
-            grid.append(" ".join(row))
+            grid.append("".join(row))
         self.caller.msg("\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}")
 
 class CmdHelpMapping(Command):
