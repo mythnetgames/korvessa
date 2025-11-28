@@ -101,8 +101,8 @@ class Room(ObjectParent, DefaultRoom):
             dz = getattr(self.db, "z", None)
             # Always assign if any are missing
             if dx is None or dy is None or dz is None:
-                # Try to detect direction from exit key if possible
                 direction = None
+                # Try to detect direction from exit key if possible
                 if source_location and hasattr(source_location, "exits"):
                     for exit_obj in source_location.exits:
                         if getattr(exit_obj, "destination", None) == self:
@@ -110,12 +110,7 @@ class Room(ObjectParent, DefaultRoom):
                             break
                 # If direction not found, fallback to coordinate comparison
                 if not direction:
-                    if dx is not None and dx != x0:
-                        direction = "east" if dx > x0 else "west"
-                    elif dy is not None and dy != y0:
-                        direction = "north" if dy > y0 else "south"
-                    elif dz is not None and dz != z0:
-                        direction = "up" if dz > z0 else "down"
+                    direction = None
                 # Assign coordinates based on direction
                 if direction == "north":
                     self.db.x = x0
@@ -146,6 +141,7 @@ class Room(ObjectParent, DefaultRoom):
                     self.db.x = x0
                     self.db.y = y0
                     self.db.z = z0
+                    send_debug(f"ROOM_COORD_DEBUG: {self.key} fallback assigned coords ({self.db.x},{self.db.y},{self.db.z}) from ({x0},{y0},{z0})")
                 send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via {direction or 'fallback'} from ({x0},{y0},{z0})")
             else:
                 # Already has coordinates, no change
