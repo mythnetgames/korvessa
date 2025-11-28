@@ -139,10 +139,27 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add chrome install/uninstall commands (builder and up)
         from commands.CmdChromeInstall import CmdChromeInstall, CmdChromeUninstall
         self.add(CmdChromeInstall())
+        self.add(CmdChromeUninstall())
         # Add think command
         from commands.CmdThink import CmdThink
         self.add(CmdThink())
-        self.add(CmdChromeUninstall())
+        # Add door/lock/keypad commands
+        from commands.door import (
+            CmdOpenDoor, CmdCloseDoor, CmdLockDoor, CmdUnlockDoor, CmdDoorStatus, CmdSetDoorMsg,
+            CmdBulkAttach, CmdBulkRemove, CmdPushCombo, CmdUnlockExit, CmdLockExit, CmdPressLock
+        )
+        self.add(CmdOpenDoor())
+        self.add(CmdCloseDoor())
+        self.add(CmdLockDoor())
+        self.add(CmdUnlockDoor())
+        self.add(CmdDoorStatus())
+        self.add(CmdSetDoorMsg())
+        self.add(CmdBulkAttach())
+        self.add(CmdBulkRemove())
+        self.add(CmdPushCombo())
+        self.add(CmdUnlockExit())
+        self.add(CmdLockExit())
+        self.add(CmdPressLock())
         # Add mapping help command
         from commands.mapper import CmdHelpMapping
         self.add(CmdHelpMapping())
