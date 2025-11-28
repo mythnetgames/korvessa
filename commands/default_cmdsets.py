@@ -112,7 +112,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add individual attach/remove/program/show commands for doors/locks/keypads
         from commands.door import (
             CmdAttachDoor, CmdAttachLock, CmdAttachKeypad, CmdRemoveDoor, CmdRemoveLock, CmdRemoveKeypad,
-            CmdProgramKeypad, CmdShowCombo
+            CmdProgramKeypad, CmdShowCombo, CmdSetDoorDesc, CmdSetDoorShortDesc
         )
         self.add(CmdAttachDoor())
         self.add(CmdAttachLock())
@@ -122,6 +122,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRemoveKeypad())
         self.add(CmdProgramKeypad())
         self.add(CmdShowCombo())
+        self.add(CmdSetDoorDesc())
+        self.add(CmdSetDoorShortDesc())
         # Add fix room typeclass admin command
         from commands.CmdFixRoomTypeclass import CmdFixRoomTypeclass
         self.add(CmdFixRoomTypeclass())

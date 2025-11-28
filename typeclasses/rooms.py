@@ -170,7 +170,7 @@ class Room(ObjectParent, DefaultRoom):
             exit_obj = None
             for ex in self.exits:
                 current_exit_aliases_lower = [alias.lower() for alias in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in current_exit_aliases_lower:
+                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in currentExit_aliases_lower:
                     exit_obj = ex
                     break
             if exit_obj and exit_obj.destination:
@@ -497,9 +497,7 @@ class Room(ObjectParent, DefaultRoom):
         """
         Override things display to exclude @integrate objects and use natural language formatting
         with stacking for identical items.
-        
-        @integrate objects are woven into the room description and
-        should not appear in the traditional object listing.
+        Now includes doors in the display.
         """
         import random
         from collections import defaultdict
@@ -529,7 +527,8 @@ class Room(ObjectParent, DefaultRoom):
             if not obj.access(looker, "view"):
                 continue
             
-            display_name = obj.get_display_name(looker)
+            # Always include doors
+            display_name = obj.get_display_name(looker) if hasattr(obj, "get_display_name") else obj.key
             item_counts[display_name] += 1
         
         if not item_counts:

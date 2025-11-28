@@ -7,12 +7,30 @@ class Door(DefaultObject):
         self.db.is_locked = False
         self.db.keypad = None  # Reference to attached keypad lock
         self.db.lock = None    # Reference to attached lock
+        self.db.desc = "A sturdy door blocks the way here."
+        self.db.shortdesc = "a sturdy door"
+        self.locks.add("traverse:closed()")  # Only allow traverse if open
+
+    def get_display_name(self, looker):
+        direction = getattr(self.db, "exit_direction", None)
+        if direction:
+            return f"door ({direction})"
+        return "door"
+
+    def at_before_traverse(self, traverser, exit_obj):
+        if not self.db.is_open:
+            traverser.msg("The door is closed.")
+            return False
+        if self.db.is_locked:
+            traverser.msg("The door is locked.")
+            return False
+        return True
 
     def open(self, caller):
         if self.db.is_locked:
             caller.msg("The door is locked.")
             return False
-        if self.db.keypad and not self.db.keypad.is_unlocked:
+        if self.db.keypad and not self.db.keypad.db.is_unlocked:
             caller.msg("The keypad is locked.")
             return False
         self.db.is_open = True
@@ -29,6 +47,20 @@ class Door(DefaultObject):
 
     def attach_keypad(self, keypad):
         self.db.keypad = keypad
+
+    def set_custom_desc(self, desc, caller):
+        if caller.check_permstring("Builder"):
+            self.db.desc = desc
+            caller.msg("Custom door description set.")
+        else:
+            caller.msg("You lack permission to set door description.")
+
+    def set_custom_shortdesc(self, shortdesc, caller):
+        if caller.check_permstring("Builder"):
+            self.db.shortdesc = shortdesc
+            caller.msg("Custom door shortdesc set.")
+        else:
+            caller.msg("You lack permission to set door shortdesc.")
 
 class Lock(DefaultObject):
     """A simple lock object for doors."""
