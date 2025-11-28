@@ -223,29 +223,31 @@ class CmdMap(Command):
             # (This is handled by the map output below)
             pass
 
-        # Split map and description into lines
-        map_lines = grid
-        # Always indent room text three spaces to the right of the map
-        desc_lines = ["   " + line for line in appearance.splitlines()] if appearance else [""]
+        # Indent room text five spaces to the right of the map
+        desc_lines = ["     " + line for line in appearance.splitlines()] if appearance else [""]
+
+        # Calculate map width for padding (each cell is 2 chars, 5 cells per row)
+        map_width = 2 * 5
 
         # Pad map or desc so both have same number of lines
-        max_lines = max(len(map_lines), len(desc_lines))
-        map_lines += ["  " * 5] * (max_lines - len(map_lines))
+        max_lines = max(len(grid), len(desc_lines))
+        map_lines = grid + ["  " * 5] * (max_lines - len(grid))
         desc_lines += [""] * (max_lines - len(desc_lines))
 
-        # Combine side by side
+        # Combine side by side, ensuring desc always starts after map
         combined = []
         for m, d in zip(map_lines, desc_lines):
-            combined.append(f"{m}{d}")
+            combined.append(f"{m.ljust(map_width)}{d}")
 
         # If there are extra description lines, show them below the map
         if len(desc_lines) > len(map_lines):
             for d in desc_lines[len(map_lines):]:
-                combined.append("   " + d)
+                combined.append("     " + d)
 
         # Add coordinates at the bottom
         combined.append(f"x={x}, y={y}, z={z}")
 
+        # Only show this output, suppressing any other room description
         self.caller.msg("\n".join(combined), parse=True)
 
 class CmdHelpMapping(Command):
