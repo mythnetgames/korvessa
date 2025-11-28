@@ -97,8 +97,6 @@ class DeathCmdSet(CmdSet):
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
-        from commands.CmdFixRoomTypeclass import CmdFixRoomTypeclass
-        self.add(CmdFixRoomTypeclass())
     """
     The `CharacterCmdSet` contains general in-game commands like `look`,
     `get`, etc available on in-game Character objects. It is merged with
@@ -112,96 +110,13 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
-        #
-        # any commands you add below will overload the default ones.
-        #
-        # Add individual character commands
-        self.add(CmdCharacter.CmdStats)
-        self.add(CmdCharacter.CmdSpawnChrome())
-        self.add(CmdCharacter.CmdChromeInstall())
-        self.add(CmdCharacter.CmdChromeUninstall())
-        self.add(CmdCharacter.CmdThink())
-        self.add(CmdCharacter.CmdSetStat())
-        self.add(CmdSpawnMob())
-        self.add(CmdAdmin.CmdHeal())
-        self.add(CmdAdmin.CmdPeace())
-        self.add(CmdAdmin.CmdTestDeathCurtain())
-        self.add(CmdWeather())
+        # Add fix room typeclass admin command
+        from commands.CmdFixRoomTypeclass import CmdFixRoomTypeclass
+        self.add(CmdFixRoomTypeclass())
         # Add wipe coords admin command
         from commands.CmdWipeCoords import CmdWipeCoords
         self.add(CmdWipeCoords())
-        
-        # Add character ownership fix command
-        self.add(CmdFixCharacterOwnership())
-        
-        # Add bug reporting command
-        self.add(CmdBug())
-        self.add(CmdMapRoom())
-        
-        # Add aim command for ranged combat preparation
-        self.add(CmdAim())
-        
-        # Add grapple command for initiating grappling combat
-        self.add(CmdGrapple())
-        
-        # Add the entire combat command set
-        self.add(CombatCmdSet)
-        
-        # Add inventory commands
-        self.add(CmdInventory.CmdWield())
-        self.add(CmdInventory.CmdUnwield())
-        self.add(CmdInventory.CmdFreeHands())
-        self.add(CmdInventory.CmdInventory())
-        self.add(CmdInventory.CmdDrop())
-        self.add(CmdInventory.CmdGet())
-        self.add(CmdInventory.CmdGive())
-        
-        # Add wrest command (non-combat item snatching)
-        self.add(CmdInventory.CmdWrest())
-        
-        # Add frisk command (search characters/corpses)
-        self.add(CmdInventory.CmdFrisk())
-        
-        # Add throw/grenade system commands
-        self.add(CmdThrow())
-        self.add(CmdPull())
-        self.add(CmdCatch())
-        self.add(CmdRig())
-        self.add(CmdDefuse())
-        
-        # Add remote detonator commands
-        self.add(CmdScan())
-        self.add(CmdDetonate())
-        self.add(CmdDetonateList())
-        self.add(CmdClearDetonator())
-        
-        # Add character placement commands
-        self.add(CmdCharacter.CmdLookPlace())
-        self.add(CmdCharacter.CmdTempPlace())
-        
-        # Add graffiti system commands
-        self.add(CmdGraffiti())
-        self.add(CmdPress())
-        
-        # Add longdesc system command
-        self.add(CmdLongdesc())
-        
-        # Add skintone system command
-        self.add(CmdSkintone())
-        
-        # Add clothing system commands
-        self.add(CmdClothing.CmdWear())
-        self.add(CmdClothing.CmdRemove())
-        self.add(CmdClothing.CmdRollUp())
-        
-        # Add armor system commands
-        self.add(CmdArmor())
-        self.add(CmdArmorRepair())
-        self.add(CmdSlot())
-        self.add(CmdUnslot())
-        
-        # Add medical system commands
-        self.add(CmdMedical.CmdMedical())
+        # ...existing code for other commands...
         self.add(CmdMedical.CmdDamageTest())
         self.add(CmdMedical.CmdMedicalInfo())
         
