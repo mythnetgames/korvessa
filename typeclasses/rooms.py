@@ -91,17 +91,36 @@ class Room(ObjectParent, DefaultRoom):
                 zotnet.msg(msg)
             else:
                 self.msg(f"[DEBUG] {msg}")
-        direction = None
-        if source_location and hasattr(source_location, "exits"):
-            for exit_obj in source_location.exits:
-                if getattr(exit_obj, "destination", None) == self:
-                    direction = exit_obj.key.lower()
-                    break
         x0 = getattr(source_location.db, "x", None) if source_location else None
         y0 = getattr(source_location.db, "y", None) if source_location else None
         z0 = getattr(source_location.db, "z", None) if source_location else None
-        # Always update coordinates based on direction if possible
+        # Detect movement direction by comparing coordinates
         if x0 is not None and y0 is not None and z0 is not None:
+            dx = getattr(self.db, "x", None)
+            dy = getattr(self.db, "y", None)
+            dz = getattr(self.db, "z", None)
+            # If destination room has no coordinates, assign them
+            if dx is None or dy is None or dz is None:
+                dx, dy, dz = x0, y0, z0
+            # Compute direction
+            if x0 != dx:
+                if dx > x0:
+                    direction = "east"
+                else:
+                    direction = "west"
+            elif y0 != dy:
+                if dy > y0:
+                    direction = "north"
+                else:
+                    direction = "south"
+            elif z0 != dz:
+                if dz > z0:
+                    direction = "up"
+                else:
+                    direction = "down"
+            else:
+                direction = None
+            # Update coordinates based on direction
             if direction == "north":
                 self.db.x = x0
                 self.db.y = y0 + 1
