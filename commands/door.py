@@ -696,11 +696,12 @@ class CmdPushCombo(Command):
             if ex.key.lower() == direction or direction in aliases:
                 exit_obj = ex
                 break
-        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
+        door_obj = getattr(exit_obj.db, "door", None) if exit_obj else None
+        keypad_obj = getattr(door_obj.db, "keypad", None) if door_obj else None
+        if not exit_obj or not door_obj or not keypad_obj:
             caller.msg(f"No keypad found on door for exit '{direction}'.")
             return
-        keypad = exit_obj.db.door.db.keypad
-        keypad.enter_combo(combo, caller)
+        keypad_obj.enter_combo(combo, caller)
 
 class CmdUnlockExit(Command):
     """Unlock a door or keypad on an exit."""
