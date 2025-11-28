@@ -163,11 +163,12 @@ class CmdMap(Command):
             for dx in range(-2, 3):
                 cx, cy = x + dx, y + dy
                 room_obj = coords.get((cx, cy))
+                # Fix: getattr(room_obj.db, 'map_icon', None) instead of getattr(room_obj, 'db', {}).get(...)
                 if (cx, cy) == (x, y):
-                    icon = getattr(room_obj, 'db', {}).get('map_icon', None) if room_obj else None
+                    icon = getattr(room_obj.db, 'map_icon', None) if room_obj else None
                     row.append(icon if icon and len(icon) == 2 else "Me")
                 elif room_obj:
-                    icon = getattr(room_obj, 'db', {}).get('map_icon', None)
+                    icon = getattr(room_obj.db, 'map_icon', None)
                     row.append(icon if icon and len(icon) == 2 else "[]")
                 else:
                     row.append("  ")
