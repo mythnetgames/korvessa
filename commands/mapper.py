@@ -224,16 +224,19 @@ class CmdMap(Command):
             pass
 
         # Prepare room name and description as a column
-        # Only show the room name and description once, in the right column
-        # If appearance already includes the room name, do not prepend it
-        if appearance and appearance.strip().startswith(room.key):
-            desc_lines = appearance.splitlines()
+        # Only show room name/description in map output if @mapon is enabled or when looking
+        show_text = getattr(self.caller.ndb, "mapper_enabled", False)
+        if show_text:
+            # If appearance already includes the room name, do not prepend it
+            if appearance and appearance.strip().startswith(room.key):
+                desc_lines = appearance.splitlines()
+            else:
+                desc_lines = [room.key] + appearance.splitlines() if appearance else [room.key]
         else:
-            desc_lines = [room.key] + appearance.splitlines() if appearance else [room.key]
+            desc_lines = []
 
         # Strict columnar layout: map (top left), text (top right)
         map_width = 2 * 5 + 2  # 5 cells * 2 chars + 2 spaces for margin
-        text_pad = " " * map_width
 
         # Pad map and text so both have same number of lines
         max_lines = max(len(grid), len(desc_lines))
@@ -245,8 +248,8 @@ class CmdMap(Command):
         for m, d in zip(map_lines, desc_lines):
             combined.append(f"{m.ljust(map_width)}{d}")
 
-        # Add coordinates at the bottom, right column only
-        combined.append(f"{' ' * map_width}x={x}, y={y}, z={z}")
+        # Move coordinates directly under the map
+        combined.insert(len(grid), f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}")
 
         # Only show this output, suppressing any other room description
         self.caller.msg("\n".join(combined), parse=True)
