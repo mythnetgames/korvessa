@@ -1,4 +1,4 @@
-from evennia import Command
+from evennia import Command, search_object
 
 class CmdMap(Command):
     """Show a 5x5 grid map of rooms and exits around you."""
@@ -14,8 +14,8 @@ class CmdMap(Command):
             return
         x0, y0 = room.db.x, room.db.y
         grid = []
-        # Find all rooms in the current zone/location
-        all_rooms = [obj for obj in room.location.contents if hasattr(obj, "db") and hasattr(obj.db, "x") and hasattr(obj.db, "y")]
+        # Get all rooms in the game with x and y attributes
+        all_rooms = [obj for obj in search_object("*") if hasattr(obj, "db") and hasattr(obj.db, "x") and hasattr(obj.db, "y")]
         for dy in range(-2, 3):
             row = []
             for dx in range(-2, 3):
