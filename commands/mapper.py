@@ -169,25 +169,30 @@ class CmdMap(Command):
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
-                        # If icon contains Evennia color codes, just use it as-is
-                        # Only use first two non-tag characters
-                        # Remove any [tag]s, but keep |color codes
+                        # Remove [tag]s, keep |color codes
                         import re
                         icon_clean = re.sub(r"\[(\w+)]", "", icon)
+                        # Find color codes at the start
+                        color_codes = ""
+                        i = 0
+                        while i < len(icon_clean) and icon_clean[i] == '|':
+                            color_codes += icon_clean[i]
+                            i += 1
+                            # Get the next char (color code letter)
+                            if i < len(icon_clean):
+                                color_codes += icon_clean[i]
+                                i += 1
                         # Find first two visible chars
                         visible = ""
-                        i = 0
-                        while len(visible) < 2 and i < len(icon_clean):
-                            if icon_clean[i] == "|":
+                        j = i
+                        while len(visible) < 2 and j < len(icon_clean):
+                            if icon_clean[j] == '|':
                                 # Skip color code
-                                while i < len(icon_clean) and icon_clean[i] not in "AD[]@ ":
-                                    i += 1
+                                j += 2
                             else:
-                                visible += icon_clean[i]
-                                i += 1
+                                visible += icon_clean[j]
+                                j += 1
                         visible = visible.ljust(2)
-                        # Prepend color codes at the start
-                        color_codes = "".join(re.findall(r"\|[xwrcbygmc\[xwrcbygmcuhsn]", icon_clean))
                         row.append(f"{color_codes}{visible}|n")
                     else:
                         row.append("[]")
