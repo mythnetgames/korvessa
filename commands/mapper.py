@@ -117,6 +117,18 @@ class CmdAreaIcon(Command):
         room.db.area_icon = args
         self.caller.msg(f"Area icon for this area set to '{args}'.")
 
+    # Register mapping commands for inclusion in command sets
+    mapping_cmds = [
+        CmdMapColor,
+        CmdMapRoom,
+        CmdMapOn,
+        CmdMapOff,
+        CmdMapIcon,
+        CmdAreaIcon,
+        CmdMapIconHelp,
+        CmdMap,
+        CmdHelpMapping,
+    ]
 class CmdMapIconHelp(Command):
     """
     Show help for map icon settings.
