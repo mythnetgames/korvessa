@@ -44,6 +44,8 @@ def find_keypad(door, direction):
     keypad = getattr(door.db, "keypad", None)
     if keypad:
         aliases = getattr(keypad.db, "exit_aliases", [])
+        if aliases is None:
+            aliases = []
         exit_direction = getattr(keypad.db, "exit_direction", None)
         if exit_direction:
             exit_direction = exit_direction.lower()
