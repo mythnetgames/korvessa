@@ -176,9 +176,9 @@ class CmdMap(Command):
                 elif tag in effect_map:
                     codes += effect_map[tag]
             rest = tag_match.group(4)
-        # Only use the first two non-tag characters as the icon
+        # Only use the last two non-tag characters as the icon
         icon_chars = "".join([c for c in rest if c not in "[]"])
-        icon_final = icon_chars[:2] if len(icon_chars) >= 2 else icon_chars.ljust(2)
+        icon_final = icon_chars[-2:] if len(icon_chars) >= 2 else icon_chars.rjust(2)
         return codes + icon_final
 
     def func(self):
@@ -199,13 +199,21 @@ class CmdMap(Command):
                 cx, cy = x + dx, y + dy
                 room_obj = coords.get((cx, cy))
                 if (cx, cy) == (x, y):
-                    row.append("@ ")
+                    # Show colored icon for current room if set, otherwise '@ '
+                    icon = getattr(room_obj.db, 'map_icon', None) if room_obj else None
+                    if icon:
+                        rendered = self.convert_icon_tags(icon)
+                        # Strip color codes for length, then prepend codes
+                        color_codes = re.match(r'^(\|[\w]+)*', rendered)
+                        codes = color_codes.group(0) if color_codes else ''
+                        chars = re.sub(r'\|[\w]+', '', rendered)
+                        row.append(codes + chars[:2].ljust(2))
+                    else:
+                        row.append("@ ")
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
-                        # Fix: Always show two characters, even if color code is present
                         rendered = self.convert_icon_tags(icon)
-                        # Strip color codes for length, then prepend codes
                         color_codes = re.match(r'^(\|[\w]+)*', rendered)
                         codes = color_codes.group(0) if color_codes else ''
                         chars = re.sub(r'\|[\w]+', '', rendered)
