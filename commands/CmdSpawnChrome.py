@@ -31,8 +31,7 @@ class CmdSpawnChrome(Command):
             self.caller.msg("Number must be at least 1.")
             return
         # Replace this with your actual chrome prototype lookup/creation logic
+        from evennia import create_object
         for _ in range(number):
-            # Example: create chrome item using Evennia's create_object
-            # You may want to use prototypes or a chrome factory here
-            chrome = self.caller.create_object("typeclasses.items.Item", key=chromeshortname)
+            chrome = create_object("typeclasses.items.Item", key=chromeshortname, location=self.caller)
             self.caller.msg(f"Spawned chrome: {chrome.key}")
