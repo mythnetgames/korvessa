@@ -147,7 +147,7 @@ class CmdMap(Command):
     help_category = "Mapping"
 
     def convert_icon_tags(self, icon):
-        # Convert [black] to |x, [bg_cyan] to |[c, etc. and apply to the whole icon string
+        # New approach: Only process tags at the start, then apply codes to the rest of the string
         if not icon:
             return icon
         # Foreground colors
@@ -162,21 +162,21 @@ class CmdMap(Command):
         effect_map = {
             "bold_on": "|h", "bold_off": "|n", "underline_on": "|u", "underline_off": "|n", "strikethrough_on": "|s", "strikethrough_off": "|n"
         }
-        # Replace tags and accumulate codes
+        # Find all tags at the start
         codes = ""
-        # Only match tags at the start of the string
-        tag_pattern = r"^(\[(\w+)])+"
-        tag_matches = re.findall(r"\[(\w+)]", icon)
-        for tag in tag_matches:
-            if tag in color_map:
-                codes += color_map[tag]
-            elif tag in bg_map:
-                codes += bg_map[tag]
-            elif tag in effect_map:
-                codes += effect_map[tag]
-        # Remove all tags from icon
-        icon_clean = re.sub(r"(\[(\w+)])", "", icon)
-        return codes + icon_clean
+        rest = icon
+        tag_match = re.match(r"((\[(\w+)])+)(.*)", icon)
+        if tag_match:
+            tags = re.findall(r"\[(\w+)]", tag_match.group(1))
+            for tag in tags:
+                if tag in color_map:
+                    codes += color_map[tag]
+                elif tag in bg_map:
+                    codes += bg_map[tag]
+                elif tag in effect_map:
+                    codes += effect_map[tag]
+            rest = tag_match.group(4)
+        return codes + rest
 
     def func(self):
         room = self.caller.location
