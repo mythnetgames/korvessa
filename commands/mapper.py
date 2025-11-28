@@ -181,36 +181,15 @@ class CmdMap(Command):
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
+                        # Use icon string as-is, so hex color codes work
+                        # Only enforce two visible characters after color codes
                         import re
-                        icon_clean = re.sub(r"\[(\w+)]", "", icon)
-                        codes = ""
-                        i = 0
-                        while i < len(icon_clean):
-                            if icon_clean[i] == '|':
-                                codes += icon_clean[i]
-                                i += 1
-                                if i < len(icon_clean) and icon_clean[i] == '[':
-                                    codes += icon_clean[i]
-                                    i += 1
-                                if i < len(icon_clean):
-                                    codes += icon_clean[i]
-                                    i += 1
-                            else:
-                                break
-                        visible = ""
-                        j = i
-                        while len(visible) < 2 and j < len(icon_clean):
-                            if icon_clean[j] == '|':
-                                j += 1
-                                if j < len(icon_clean) and icon_clean[j] == '[':
-                                    j += 1
-                                if j < len(icon_clean):
-                                    j += 1
-                            else:
-                                visible += icon_clean[j]
-                                j += 1
-                        visible = visible.ljust(2)
-                        row.append(f"{codes}{visible}|n")
+                        # Find all color codes at the start
+                        color_match = re.match(r'^(\|[#a-zA-Z0-9_\[\]]+)*', icon)
+                        color_codes = color_match.group(0) if color_match else ''
+                        # Remove color codes from icon to get visible part
+                        visible = icon[len(color_codes):][:2]
+                        row.append(f"{color_codes}{visible}|n")
                     else:
                         row.append("[]")
                 else:
