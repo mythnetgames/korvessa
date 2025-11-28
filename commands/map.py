@@ -15,13 +15,19 @@ class CmdMap(Command):
             caller.msg("This room does not have valid x/y coordinates. The map cannot be displayed.")
             return
         grid = []
-        all_rooms = [obj for obj in search_object("*") if hasattr(obj, "db") and getattr(obj.db, "x", None) is not None and getattr(obj.db, "y", None) is not None]
-        room_lookup = {(r.db.x, r.db.y): r for r in all_rooms}
+        # Only consider rooms in the 5x5 grid
+        found_rooms = []
         for dy in range(-2, 3):
             row = []
             for dx in range(-2, 3):
                 rx, ry = x0 + dx, y0 + dy
-                target_room = room_lookup.get((rx, ry))
+                # Search for a room at (rx, ry)
+                target_room = None
+                for obj in search_object("*"):
+                    if hasattr(obj, "db") and getattr(obj.db, "x", None) == rx and getattr(obj.db, "y", None) == ry:
+                        target_room = obj
+                        found_rooms.append(f"Found room: {obj.key} at ({rx},{ry})")
+                        break
                 if target_room:
                     if target_room == room:
                         row.append('[x]')
@@ -30,6 +36,8 @@ class CmdMap(Command):
                 else:
                     row.append('   ')
             grid.append(''.join(row))
+        # Debug output for found rooms
+        caller.msg("\n".join(found_rooms))
         map_str = "\n".join(grid)
         coord_str = f"Current coordinates: x={x0}, y={y0}"
         caller.msg(f"{map_str}\n|c{coord_str}|n")
