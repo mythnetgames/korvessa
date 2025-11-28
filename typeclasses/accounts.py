@@ -212,8 +212,11 @@ class Account(DefaultAccount):
         # Force map display ON for every account and session on login
         self.db.mapper_enabled = True
         self.ndb.mapper_enabled = True
+        self.db.show_room_desc = True
+        self.ndb.show_room_desc = True
         if session:
             session.ndb.mapper_enabled = True
+            session.ndb.show_room_desc = True
         # Use Evennia's account.characters (the _playable_characters list) - this is the authoritative source
         all_characters = self.characters.all()
         
