@@ -384,7 +384,25 @@ class CmdOpenDoor(Command):
             caller.msg("Usage: opendoor <direction>")
             return
         direction = self.args.strip().lower()
+        # Try all aliases for this direction
         door = find_door(caller.location, direction)
+        if not door:
+            # Try to find exit by alias
+            exit_obj = None
+            for ex in getattr(caller.location, "exits", []):
+                aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
+                if direction == ex.key.lower() or direction in aliases:
+                    exit_obj = ex
+                    break
+            if exit_obj:
+                # Try all aliases for this exit
+                all_aliases = [exit_obj.key.lower()]
+                if hasattr(exit_obj.aliases, "all"):
+                    all_aliases += [a.lower() for a in exit_obj.aliases.all()]
+                for alias in all_aliases:
+                    door = find_door(caller.location, alias)
+                    if door:
+                        break
         if not door:
             caller.msg(f"No door found for exit '{direction}'.")
             return
@@ -405,7 +423,25 @@ class CmdCloseDoor(Command):
             caller.msg("Usage: closedoor <direction>")
             return
         direction = self.args.strip().lower()
+        # Try all aliases for this direction
         door = find_door(caller.location, direction)
+        if not door:
+            # Try to find exit by alias
+            exit_obj = None
+            for ex in getattr(caller.location, "exits", []):
+                aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
+                if direction == ex.key.lower() or direction in aliases:
+                    exit_obj = ex
+                    break
+            if exit_obj:
+                # Try all aliases for this exit
+                all_aliases = [exit_obj.key.lower()]
+                if hasattr(exit_obj.aliases, "all"):
+                    all_aliases += [a.lower() for a in exit_obj.aliases.all()]
+                for alias in all_aliases:
+                    door = find_door(caller.location, alias)
+                    if door:
+                        break
         if not door:
             caller.msg(f"No door found for exit '{direction}'.")
             return
