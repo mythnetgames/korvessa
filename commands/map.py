@@ -15,21 +15,32 @@ class CmdMap(Command):
             caller.msg("This room does not have valid x/y coordinates. The map cannot be displayed.")
             return
         grid = []
-        # Get all rooms in the game with x and y attributes
         all_rooms = [obj for obj in search_object("*") if hasattr(obj, "db") and getattr(obj.db, "x", None) is not None and getattr(obj.db, "y", None) is not None]
+        room_lookup = {(r.db.x, r.db.y): r for r in all_rooms}
         for dy in range(-2, 3):
             row = []
+            conn_row = []
             for dx in range(-2, 3):
                 rx, ry = x0 + dx, y0 + dy
-                target_room = next((r for r in all_rooms if r.db.x == rx and r.db.y == ry), None)
+                target_room = room_lookup.get((rx, ry))
                 if target_room:
                     if target_room == room:
-                        cell = "|c@|n"  # Player's current room
+                        cell = "[x]"
                     else:
-                        cell = "|wO|n"  # Other room
+                        cell = "[]"
                 else:
-                    cell = "|x.|n"  # No room
+                    cell = "   "
                 row.append(cell)
-            grid.append(" ".join(row))
+                # Horizontal connection (to east)
+                if dx < 2:
+                    east_room = room_lookup.get((rx+1, ry))
+                    if target_room and east_room:
+                        conn_row.append("--")
+                    else:
+                        conn_row.append("  ")
+            grid.append("".join(row))
+            if dy < 2:
+                grid.append("".join(["   "] + conn_row))
         map_str = "\n".join(grid)
-        caller.msg("|wMap (5x5 grid):|n\n" + map_str)
+        coord_str = f"Current coordinates: x={x0}, y={y0}"
+        caller.msg(f"{map_str}\n|c{coord_str}|n")
