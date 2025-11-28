@@ -39,6 +39,7 @@ from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.shop import CmdBuy
 from commands.window import CmdWindowCoord
+from commands.attachwindow import CmdAttachWindow
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -185,6 +186,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdBuy())
         # Add windowcoord command
         self.add(CmdWindowCoord())
+        # Add attachwindow command
+        self.add(CmdAttachWindow())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
