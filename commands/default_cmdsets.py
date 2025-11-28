@@ -97,11 +97,6 @@ class DeathCmdSet(CmdSet):
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
-        # Add mapper commands
-        from commands.mapper import CmdMapRoom, CmdMapOn, CmdMapOff
-        self.add(CmdMapRoom())
-        self.add(CmdMapOn())
-        self.add(CmdMapOff())
     """
     The `CharacterCmdSet` contains general in-game commands like `look`,
     `get`, etc available on in-game Character objects. It is merged with
@@ -122,32 +117,13 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         from commands.CmdWipeCoords import CmdWipeCoords
         self.add(CmdWipeCoords())
         # Add mapper commands
+        from commands.mapper import CmdMapRoom, CmdMapOn, CmdMapOff
         self.add(CmdMapRoom())
         self.add(CmdMapOn())
         self.add(CmdMapOff())
         self.add(CmdResetMedical())
         self.add(CmdMedicalAudit())
-        
-        # Add medical state testing commands (using real medical system)
-        self.add(CmdTestDeath())
-        self.add(CmdTestUnconscious())
-        
-        # Add consumption method commands
-        self.add(CmdConsumption.CmdInject())
-        self.add(CmdConsumption.CmdApply())
-        self.add(CmdConsumption.CmdBandage())
-        self.add(CmdConsumption.CmdEat())
-        self.add(CmdConsumption.CmdDrink())
-        self.add(CmdConsumption.CmdInhale())
-        self.add(CmdConsumption.CmdSmoke())
-        
-        # Add medical item management commands
-        self.add(CmdMedicalItems.CmdListMedItems())
-        self.add(CmdMedicalItems.CmdMedItemInfo())
-        self.add(CmdMedicalItems.CmdRefillMedItem())
-        
-        self.add(CmdClothing.CmdZip())
-        
+        # ...existing code for other commands...
         # Add shop commands
         self.add(CmdBuy())
         # ...existing code...
