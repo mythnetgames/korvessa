@@ -86,7 +86,12 @@ class Room(ObjectParent, DefaultRoom):
         # Auto-map unmapped rooms when entered
         if (not hasattr(self.db, "x") or self.db.x is None) or (not hasattr(self.db, "y") or self.db.y is None):
             from evennia.comms.models import ChannelDB
-            splattercast = ChannelDB.objects.get_channel("Splattercast")
+            zotnet = ChannelDB.objects.get_channel("Zotnet")
+            def send_debug(msg):
+                if zotnet:
+                    zotnet.msg(msg)
+                else:
+                    self.msg(f"[DEBUG] {msg}")
             direction = None
             if source_location and hasattr(source_location, "exits"):
                 for exit_obj in source_location.exits:
@@ -100,27 +105,27 @@ class Room(ObjectParent, DefaultRoom):
                 if direction == "north":
                     self.db.x = x0
                     self.db.y = y0 + 1
-                    splattercast.msg(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y}) via north from ({x0},{y0})")
+                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y}) via north from ({x0},{y0})")
                 elif direction == "south":
                     self.db.x = x0
                     self.db.y = y0 - 1
-                    splattercast.msg(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y}) via south from ({x0},{y0})")
+                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y}) via south from ({x0},{y0})")
                 elif direction == "east":
                     self.db.x = x0 + 1
                     self.db.y = y0
-                    splattercast.msg(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y}) via east from ({x0},{y0})")
+                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y}) via east from ({x0},{y0})")
                 elif direction == "west":
                     self.db.x = x0 - 1
                     self.db.y = y0
-                    splattercast.msg(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y}) via west from ({x0},{y0})")
+                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y}) via west from ({x0},{y0})")
                 else:
                     self.db.x = x0
                     self.db.y = y0
-                    splattercast.msg(f"ROOM_COORD_DEBUG: {self.key} assigned fallback coords ({self.db.x},{self.db.y}) from ({x0},{y0})")
+                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned fallback coords ({self.db.x},{self.db.y}) from ({x0},{y0})")
             else:
                 self.db.x = int(self.dbref) % 1000
                 self.db.y = int(self.dbref) // 1000
-                splattercast.msg(f"ROOM_COORD_DEBUG: {self.key} assigned default coords ({self.db.x},{self.db.y}) from dbref {self.dbref}")
+                send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned default coords ({self.db.x},{self.db.y}) from dbref {self.dbref}")
         # Existing logic: assign coordinates if 0 and has exits
         if hasattr(self, "exits") and self.exits:
             for exit_obj in self.exits:
