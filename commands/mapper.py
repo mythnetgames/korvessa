@@ -233,9 +233,8 @@ class CmdMap(Command):
         map_cells = 5
         map_cell_width = 2
         map_width = map_cells * map_cell_width
-        # Dynamic indentation for perfect straightness
+        # Dynamic indentation for perfect straightness, exactly two spaces to the right of the map
         indent = " " * (map_width + 2)
-        indent = " " * (map_width + 2 - (map_width))  # Only two spaces to the right of the map
         column_width = 80  # Increased wrap width for longer lines
         if appearance:
             lines = appearance.split('\n')
@@ -304,7 +303,12 @@ class CmdHelpMapping(Command):
             "--------------------------------\n"
             "- Use @mapon/@mapoff to toggle automatic map display on movement.\n"
             "- Use 'map' to view the map centered on your current room.\n"
-            "- Each room is shown as a 2-character icon.\n"
+                        self.caller.msg("\n".join(combined), parse=True)
+                        # Show room name and description (default Evennia behavior)
+                        if appearance:
+                            self.caller.msg(appearance, parse=True)
+                        else:
+                            self.caller.msg("", parse=True)
             "- Set a room's icon with: @mapicon <icon> [options]\n"
             "- Set area background icon with: @areaicon <icon> [options]\n"
             "- Icons must be exactly two characters.\n"
