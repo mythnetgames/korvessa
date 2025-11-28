@@ -52,6 +52,19 @@ class Exit(DefaultExit):
         return self.get_display_desc(looker, **kwargs)
 
     def at_traverse(self, traversing_object, target_location):
+        # --- DOOR BLOCKING CHECK ---
+        direction = self.key.lower()
+        room = traversing_object.location
+        # Import find_door from commands.door
+        try:
+            from commands.door import find_door
+        except ImportError:
+            find_door = None
+        door = find_door(room, direction) if find_door else None
+        if door and not getattr(door.db, "is_open", True):
+            traversing_object.msg("The door to the %s is closed." % self.key)
+            return
+        # --- END DOOR BLOCKING CHECK ---
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         # Autopopulate coordinates for target room if missing
         src_room = traversing_object.location
