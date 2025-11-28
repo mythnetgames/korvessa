@@ -8,14 +8,15 @@ class CmdMap(Command):
     def func(self):
         caller = self.caller
         room = caller.location
-        # Assume rooms have db.x and db.y attributes
-        if not hasattr(room.db, "x") or not hasattr(room.db, "y"):
-            caller.msg("Rooms must have x and y coordinates to use the map.")
+        # Check for valid x and y coordinates
+        x0 = getattr(room.db, "x", None)
+        y0 = getattr(room.db, "y", None)
+        if x0 is None or y0 is None:
+            caller.msg("This room does not have valid x/y coordinates. The map cannot be displayed.")
             return
-        x0, y0 = room.db.x, room.db.y
         grid = []
         # Get all rooms in the game with x and y attributes
-        all_rooms = [obj for obj in search_object("*") if hasattr(obj, "db") and hasattr(obj.db, "x") and hasattr(obj.db, "y")]
+        all_rooms = [obj for obj in search_object("*") if hasattr(obj, "db") and getattr(obj.db, "x", None) is not None and getattr(obj.db, "y", None) is not None]
         for dy in range(-2, 3):
             row = []
             for dx in range(-2, 3):

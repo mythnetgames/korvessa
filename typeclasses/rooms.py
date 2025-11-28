@@ -71,6 +71,40 @@ class Room(ObjectParent, DefaultRoom):
             self.desc = ""
         if not hasattr(self, 'crowd_base_level'):
             self.crowd_base_level = 0
+
+        # Coordinate system for mapping
+        if not hasattr(self.db, "x") or self.db.x is None:
+            self.db.x = 0
+        if not hasattr(self.db, "y") or self.db.y is None:
+            self.db.y = 0
+
+    def at_after_move(self, mover, source_location):
+        """
+        Called after an object moves into this room. If this room has exits, assign coordinates automatically.
+        """
+        super().at_after_move(mover, source_location)
+        # Only assign coordinates if this is a room and has exits
+        if hasattr(self, "exits") and self.exits:
+            for exit_obj in self.exits:
+                dest = getattr(exit_obj, "destination", None)
+                if dest and hasattr(dest.db, "x") and hasattr(dest.db, "y"):
+                    # Assign coordinates based on direction if not set
+                    if self.db.x == 0 and self.db.y == 0:
+                        direction = exit_obj.key.lower()
+                        if direction == "north":
+                            self.db.x = dest.db.x
+                            self.db.y = dest.db.y + 1
+                        elif direction == "south":
+                            self.db.x = dest.db.x
+                            self.db.y = dest.db.y - 1
+                        elif direction == "east":
+                            self.db.x = dest.db.x + 1
+                            self.db.y = dest.db.y
+                        elif direction == "west":
+                            self.db.x = dest.db.x - 1
+                            self.db.y = dest.db.y
+                        # Add more directions as needed
+                        break
     
     def at_object_receive(self, moved_obj, source_location, **kwargs):
         """
@@ -143,7 +177,7 @@ class Room(ObjectParent, DefaultRoom):
             exit_obj = None
             for ex in self.exits:
                 current_exit_aliases_lower = [alias.lower() for alias in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in current_exit_aliases_lower:
+                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in currentExit_aliases_lower:
                     exit_obj = ex
                     break
             
@@ -218,7 +252,7 @@ class Room(ObjectParent, DefaultRoom):
             exit_obj = None
             for ex in self.exits:
                 current_exit_aliases_lower = [alias.lower() for alias in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in current_exit_aliases_lower:
+                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in currentExit_aliases_lower:
                     exit_obj = ex
                     break
             
