@@ -17,7 +17,7 @@ from .objects import ObjectParent
 class Room(ObjectParent, DefaultRoom):
     def at_after_move(self, mover, source_location):
         """
-        After moving, assign coordinates to unmapped destination rooms if mapper is enabled, then show map. Prevent coordinate conflicts.
+        After moving, assign coordinates to unmapped destination rooms if mapper is enabled, using mover's last_exit_direction. Prevent coordinate conflicts.
         """
         super().at_after_move(mover, source_location)
         # Only for builder+ with mapper enabled
@@ -39,15 +39,11 @@ class Room(ObjectParent, DefaultRoom):
             x = self.db.x
             y = self.db.y
             z = self.db.z
-            direction = None
-            if hasattr(source_location, "exits"):
-                for exit_obj in source_location.exits:
-                    if getattr(exit_obj, "destination", None) == self:
-                        direction = exit_obj.key.lower()
-                        break
+            # Use mover.ndb.last_exit_direction if available
+            direction = getattr(mover.ndb, "last_exit_direction", None)
             # If any coordinate is missing, assign all three
-            if x is None or y is None or z is None:
-                # Calculate proposed coordinates
+            if (x is None or y is None or z is None) and direction:
+                direction = direction.lower()
                 if direction == "north":
                     px, py, pz = sx, sy + 1, sz
                 elif direction == "south":
@@ -61,7 +57,7 @@ class Room(ObjectParent, DefaultRoom):
                 elif direction == "down":
                     px, py, pz = sx, sy, sz - 1
                 else:
-                    # Fallback: copy source coordinates
+                    # If direction is unknown, inherit z from source
                     px, py, pz = sx, sy, sz
                 # Check for coordinate conflict
                 from evennia.objects.models import ObjectDB
@@ -73,6 +69,8 @@ class Room(ObjectParent, DefaultRoom):
                     self.db.y = py
                     self.db.z = pz
                     mover.msg(f"|yMapper: Coordinates assigned to this room: x={self.db.x}, y={self.db.y}, z={self.db.z}|n")
+            elif (x is None or y is None or z is None):
+                mover.msg("|rMapper: Could not determine movement direction. Use @maproom x y z to set coordinates manually.|n")
         else:
             mover.msg("|rMapper: Source room is not mapped. Use @maproom x y z to set initial coordinates before moving.|n")
         # Show 5x5 map if coordinates are now valid
