@@ -179,6 +179,7 @@ class CmdAttachKeypad(Command):
                 break
         keypad.db.exit_aliases = list(set(exit_aliases))
         door.attach_keypad(keypad)
+        keypad.location = door
         caller.msg(f"Keypad lock attached to door for exit '{direction}'.")
         audit_channel = get_audit_channel()
         if audit_channel:
