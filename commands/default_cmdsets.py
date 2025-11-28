@@ -38,6 +38,7 @@ from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.shop import CmdBuy
+from commands.window import CmdWindowCoord
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -180,10 +181,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdHelpMapping())
         self.add(CmdResetMedical())
         self.add(CmdMedicalAudit())
-        # ...existing code for other commands...
         # Add shop commands
         self.add(CmdBuy())
-        # ...existing code...
+        # Add windowcoord command
+        self.add(CmdWindowCoord())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
