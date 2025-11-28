@@ -177,7 +177,6 @@ class CmdMap(Command):
                         i = 0
                         while i < len(icon_clean):
                             if icon_clean[i] == '|':
-                                # Handle |[x (background) or |x (foreground/effect)
                                 codes += icon_clean[i]
                                 i += 1
                                 if i < len(icon_clean) and icon_clean[i] == '[':
@@ -193,7 +192,6 @@ class CmdMap(Command):
                         j = i
                         while len(visible) < 2 and j < len(icon_clean):
                             if icon_clean[j] == '|':
-                                # Skip code: |x or |[x
                                 j += 1
                                 if j < len(icon_clean) and icon_clean[j] == '[':
                                     j += 1
@@ -209,8 +207,33 @@ class CmdMap(Command):
                 else:
                     row.append("  ")
             grid.append("".join(row))
-        map_output = "\n".join(grid) + f"\nx={x}, y={y}, z={z}"
-        self.caller.msg(map_output, parse=True)
+
+        # Get room description (appearance)
+        appearance = ""
+        try:
+            # Use Evennia's return_appearance hook for full room text
+            appearance = room.return_appearance(self.caller)
+        except Exception as e:
+            appearance = f"[Error getting room description: {e}]"
+
+        # Split map and description into lines
+        map_lines = grid
+        desc_lines = appearance.splitlines()
+
+        # Pad map or desc so both have same number of lines
+        max_lines = max(len(map_lines), len(desc_lines))
+        map_lines += ["  " * 5] * (max_lines - len(map_lines))
+        desc_lines += [""] * (max_lines - len(desc_lines))
+
+        # Combine side by side
+        combined = []
+        for m, d in zip(map_lines, desc_lines):
+            combined.append(f"{m}  {d}")
+
+        # Add coordinates at the bottom
+        combined.append(f"x={x}, y={y}, z={z}")
+
+        self.caller.msg("\n".join(combined), parse=True)
 
 class CmdHelpMapping(Command):
     """
