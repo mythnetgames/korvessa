@@ -130,9 +130,16 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add stats command
         from commands.CmdStats import CmdStats
         self.add(CmdStats())
-        # Add setstat command (admin only)
+        # Add setstat command (builder and up)
         from commands.CmdSetStat import CmdSetStat
         self.add(CmdSetStat())
+        # Add spawnchrome command (builder and up)
+        from commands.CmdSpawnChrome import CmdSpawnChrome
+        self.add(CmdSpawnChrome())
+        # Add chrome install/uninstall commands (builder and up)
+        from commands.CmdChromeInstall import CmdChromeInstall, CmdChromeUninstall
+        self.add(CmdChromeInstall())
+        self.add(CmdChromeUninstall())
         # Add mapping help command
         from commands.mapper import CmdHelpMapping
         self.add(CmdHelpMapping())

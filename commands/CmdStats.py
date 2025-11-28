@@ -41,7 +41,7 @@ class CmdStats(Command):
             else:
                 val = getattr(char, attr, 0)
                 maxval = getattr(char, f"max_{attr}", val)
-            return f"|y{name:<10}|n [ |w{val}|n / |g{maxval}|n ]"
+            return f"|#dfdf00{name:<10}|n [ |w{val}|n / |g{maxval}|n ]"
         # Build two columns
         for i in range(4):
             left = left_stats[i]
