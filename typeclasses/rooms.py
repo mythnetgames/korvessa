@@ -101,8 +101,8 @@ class Room(ObjectParent, DefaultRoom):
         dy = getattr(self.db, "y", None)
         dz = getattr(self.db, "z", None)
         send_debug(f"ROOM_COORD_DEBUG: at_after_move called for {self.key} (current: x={dx}, y={dy}, z={dz}) from ({x0},{y0},{z0})")
-        # Force assignment if any coordinate is missing and source has valid coordinates
-        if (dx is None or dy is None or dz is None) and (x0 is not None and y0 is not None and z0 is not None):
+        # Guarantee assignment if any coordinate is missing and source has valid coordinates
+        if (x0 is not None and y0 is not None and z0 is not None) and (dx is None or dy is None or dz is None):
             direction = None
             if source_location and hasattr(source_location, "exits"):
                 for exit_obj in source_location.exits:
@@ -140,7 +140,7 @@ class Room(ObjectParent, DefaultRoom):
                 self.db.y = y0
                 self.db.z = z0
                 send_debug(f"ROOM_COORD_DEBUG: {self.key} fallback assigned coords ({self.db.x},{self.db.y},{self.db.z}) from ({x0},{y0},{z0})")
-            send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via {direction or 'fallback'} from ({x0},{y0},{z0})")
+            send_debug(f"ROOM_COORD_DEBUG: {self.key} AUTO-MAPPED coords ({self.db.x},{self.db.y},{self.db.z}) via {direction or 'fallback'} from ({x0},{y0},{z0})")
         else:
             send_debug(f"ROOM_COORD_DEBUG: {self.key} kept coords ({dx},{dy},{dz})")
         # Existing logic: assign coordinates if 0 and has exits
