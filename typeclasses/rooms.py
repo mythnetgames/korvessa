@@ -15,6 +15,89 @@ from .objects import ObjectParent
 
 
 class Room(ObjectParent, DefaultRoom):
+        def at_after_move(self, mover, source_location):
+            """
+            After moving, update coordinates if possible and show map if enabled.
+            """
+            super().at_after_move(mover, source_location)
+            # Only for builder+ with mapper enabled
+            if not getattr(mover.ndb, "mapper_enabled", False):
+                return
+            # Only update if current room has coordinates
+            x = getattr(self.db, "x", None)
+            y = getattr(self.db, "y", None)
+            z = getattr(self.db, "z", None)
+            if x is None or y is None or z is None:
+                return
+            # Try to update coordinates for destination room if missing
+            sx = getattr(source_location.db, "x", None)
+            sy = getattr(source_location.db, "y", None)
+            sz = getattr(source_location.db, "z", None)
+            if sx is not None and sy is not None and sz is not None:
+                # Determine direction
+                direction = None
+                if hasattr(source_location, "exits"):
+                    for exit_obj in source_location.exits:
+                        if getattr(exit_obj, "destination", None) == self:
+                            direction = exit_obj.key.lower()
+                            break
+                # Assign coordinates if missing
+                if x is None or y is None or z is None:
+                    if direction == "north":
+                        self.db.x = sx
+                        self.db.y = sy + 1
+                        self.db.z = sz
+                    elif direction == "south":
+                        self.db.x = sx
+                        self.db.y = sy - 1
+                        self.db.z = sz
+                    elif direction == "east":
+                        self.db.x = sx + 1
+                        self.db.y = sy
+                        self.db.z = sz
+                    elif direction == "west":
+                        self.db.x = sx - 1
+                        self.db.y = sy
+                        self.db.z = sz
+                    elif direction == "up":
+                        self.db.x = sx
+                        self.db.y = sy
+                        self.db.z = sz + 1
+                    elif direction == "down":
+                        self.db.x = sx
+                        self.db.y = sy
+                        self.db.z = sz - 1
+            # Show 5x5 map
+            self.show_map(mover)
+
+        def show_map(self, caller):
+            """
+            Display a 5x5 map centered on caller's current room.
+            """
+            x = getattr(self.db, "x", None)
+            y = getattr(self.db, "y", None)
+            z = getattr(self.db, "z", None)
+            if x is None or y is None or z is None:
+                caller.msg("This room does not have valid coordinates. The map cannot be displayed.")
+                return
+            # Find all rooms with coordinates on this z level
+            from evennia.objects.models import ObjectDB
+            rooms = ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room", db_z=z)
+            coords = {(room.db.x, room.db.y): room for room in rooms if room.db.x is not None and room.db.y is not None}
+            # Build 5x5 grid
+            grid = []
+            for dy in range(2, -3, -1):
+                row = []
+                for dx in range(-2, 3):
+                    cx, cy = x + dx, y + dy
+                    if (cx, cy) == (x, y):
+                        row.append("[x]")
+                    elif (cx, cy) in coords:
+                        row.append("[ ]")
+                    else:
+                        row.append("   ")
+                grid.append(" ".join(row))
+            caller.msg("\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}")
     """
     Rooms are like any Object, except their location is None
     (which is default). They also use basetype_setup() to
