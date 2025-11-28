@@ -108,7 +108,7 @@ class Room(ObjectParent, DefaultRoom):
 
         def show_map(self, caller):
             """
-            Display a 5x5 map centered on caller's current room, with correct connections.
+            Display a 5x5 map centered on caller's current room, with only room cells.
             """
             x = getattr(self.db, "x", None)
             y = getattr(self.db, "y", None)
@@ -119,8 +119,7 @@ class Room(ObjectParent, DefaultRoom):
             from evennia.objects.models import ObjectDB
             rooms = ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room", db_z=z)
             coords = {(room.db.x, room.db.y): room for room in rooms if room.db.x is not None and room.db.y is not None}
-            # First pass: build cell matrix
-            cell_grid = []
+            grid = []
             for dy in range(2, -3, -1):
                 row = []
                 for dx in range(-2, 3):
@@ -131,39 +130,7 @@ class Room(ObjectParent, DefaultRoom):
                         row.append("[ ]")
                     else:
                         row.append("   ")
-                cell_grid.append(row)
-            # Second pass: add connections
-            grid = []
-            for row_idx in range(5):
-                # Room row
-                room_row = []
-                for col_idx in range(5):
-                    cell = cell_grid[row_idx][col_idx]
-                    room_row.append(cell)
-                    # East-west connection
-                    if col_idx < 4:
-                        next_cell = cell_grid[row_idx][col_idx + 1]
-                        # Only show '-' if both current and next cell are rooms
-                        if (cell.strip() in ("[x]", "[ ]") and next_cell.strip() in ("[x]", "[ ]")):
-                            room_row.append("-")
-                        else:
-                            room_row.append(" ")
-                grid.append("".join(room_row))
-                # North-south connection row (except after last row)
-                if row_idx < 4:
-                    conn_row = []
-                    for col_idx in range(5):
-                        cell = cell_grid[row_idx][col_idx]
-                        next_cell = cell_grid[row_idx + 1][col_idx]
-                        # Only show '|' if both current and next cell are rooms
-                        if (cell.strip() in ("[x]", "[ ]") and next_cell.strip() in ("[x]", "[ ]")):
-                            conn_row.append("  |")
-                        else:
-                            conn_row.append("   ")
-                        # Add space for east-west connection
-                        if col_idx < 4:
-                            conn_row.append("  ")
-                    grid.append("".join(conn_row))
+                grid.append(" ".join(row))
             caller.msg("\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}")
     """
     Rooms are like any Object, except their location is None
