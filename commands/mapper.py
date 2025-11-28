@@ -251,16 +251,17 @@ class CmdMap(Command):
 
         map_width = 2 * 5 + 2
         max_lines = max(len(grid), len(desc_lines))
-        map_lines = grid + ["  " * 5] * (max_lines - len(grid))
-        desc_lines += [""] * (max_lines - len(desc_lines))
-        combined = []
-        for m, d in zip(map_lines, desc_lines):
-            combined.append(f"{m.ljust(map_width)}{d}")
-        right_pad = indent
-        # Insert coordinate line as a dedicated line after the map block
-        coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}"
-        combined.insert(len(grid), coord_line)
-        self.caller.msg("\n".join(combined), parse=True)
+        # Build output: left column is map, right column is desc
+        map_lines = grid + ["  " * 5] * (max(len(grid), 5) - len(grid))
+        # Insert coordinate line ONLY in left column, not as a paired line
+        map_lines.append(f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}")
+        # Right column: desc_lines, no blank line for coordinates
+        output = []
+        for i in range(max(len(map_lines), len(desc_lines))):
+            left = map_lines[i] if i < len(map_lines) else " " * map_width
+            right = desc_lines[i] if i < len(desc_lines) else ""
+            output.append(f"{left.ljust(map_width)}{right}")
+        self.caller.msg("\n".join(output), parse=True)
 
 class CmdHelpMapping(Command):
     """
