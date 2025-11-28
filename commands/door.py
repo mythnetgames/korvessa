@@ -1,3 +1,4 @@
+from evennia import Command
 class CmdAttachDoor(Command):
     """Attach a door to an exit."""
     key = "attachdoor"
