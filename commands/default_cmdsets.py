@@ -97,9 +97,6 @@ class DeathCmdSet(CmdSet):
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
-        # Add map command
-        from commands.CmdMap import CmdMap
-        self.add(CmdMap())
     """
     The `CharacterCmdSet` contains general in-game commands like `look`,
     `get`, etc available on in-game Character objects. It is merged with
@@ -113,6 +110,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
+        # Add map command
+        from commands.CmdMap import CmdMap
+        self.add(CmdMap())
         # Add fix room typeclass admin command
         from commands.CmdFixRoomTypeclass import CmdFixRoomTypeclass
         self.add(CmdFixRoomTypeclass())
