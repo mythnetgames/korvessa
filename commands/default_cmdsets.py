@@ -116,6 +116,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add wipe coords admin command
         from commands.CmdWipeCoords import CmdWipeCoords
         self.add(CmdWipeCoords())
+        # Add maproom manual mapping command
+        from commands.CmdMapRoom import CmdMapRoom
+        self.add(CmdMapRoom())
         # ...existing code for other commands...
         self.add(CmdMedical.CmdDamageTest())
         self.add(CmdMedical.CmdMedicalInfo())
