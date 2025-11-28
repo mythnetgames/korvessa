@@ -42,6 +42,14 @@ class Exit(DefaultExit):
         alias = cardinal_aliases.get(self.key.lower())
         if alias and alias not in self.aliases.all():
             self.aliases.add(alias)
+        # Ensure exit is registered as a command
+        if not hasattr(self, "cmdset_storage") or not self.cmdset_storage:
+            from evennia import CmdSet
+            class ExitCmdSet(CmdSet):
+                key = "ExitCmdSet"
+                def at_cmdset_creation(cs):
+                    cs.add(self)
+            self.cmdset.add(ExitCmdSet, permanent=True)
 
     def return_appearance(self, looker, **kwargs):
         """
@@ -402,7 +410,7 @@ class Exit(DefaultExit):
         
         # Check for rigged grenades after successful movement
         from commands.CmdThrow import check_rigged_grenade, check_auto_defuse
-        check_rigged_grenade(traversing_object, self)
+        check_rigged_grenade(trTraversing_object, self)
         
         # Check for auto-defuse opportunities after entering new room
         check_auto_defuse(traversing_object)
