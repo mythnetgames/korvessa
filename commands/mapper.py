@@ -203,8 +203,13 @@ class CmdMap(Command):
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
-                        # Only use first two non-tag characters for adjacent rooms
-                        row.append(self.convert_icon_tags(icon)[:2])
+                        # Fix: Always show two characters, even if color code is present
+                        rendered = self.convert_icon_tags(icon)
+                        # Strip color codes for length, then prepend codes
+                        color_codes = re.match(r'^(\|[\w]+)*', rendered)
+                        codes = color_codes.group(0) if color_codes else ''
+                        chars = re.sub(r'\|[\w]+', '', rendered)
+                        row.append(codes + chars[:2].ljust(2))
                     else:
                         row.append("[]")
                 else:
