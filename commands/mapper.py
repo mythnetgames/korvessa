@@ -147,7 +147,7 @@ class CmdMap(Command):
     help_category = "Mapping"
 
     def convert_icon_tags(self, icon):
-        # Convert [black] to |x, [bg_cyan] to |[c, etc.
+        # Convert [black] to |x, [bg_cyan] to |[c, etc. and apply to the whole icon string
         if not icon:
             return icon
         # Foreground colors
@@ -162,19 +162,21 @@ class CmdMap(Command):
         effect_map = {
             "bold_on": "|h", "bold_off": "|n", "underline_on": "|u", "underline_off": "|n", "strikethrough_on": "|s", "strikethrough_off": "|n"
         }
-        # Replace tags
-        def tag_replacer(match):
-            tag = match.group(1).lower()
+        # Replace tags and accumulate codes
+        codes = ""
+        # Only match tags at the start of the string
+        tag_pattern = r"^(\[(\w+)])+"
+        tag_matches = re.findall(r"\[(\w+)]", icon)
+        for tag in tag_matches:
             if tag in color_map:
-                return color_map[tag]
-            if tag in bg_map:
-                return bg_map[tag]
-            if tag in effect_map:
-                return effect_map[tag]
-            return ""
-        # Replace [tag] with Evennia code
-        icon = re.sub(r"\[(\w+)]", tag_replacer, icon)
-        return icon
+                codes += color_map[tag]
+            elif tag in bg_map:
+                codes += bg_map[tag]
+            elif tag in effect_map:
+                codes += effect_map[tag]
+        # Remove all tags from icon
+        icon_clean = re.sub(r"(\[(\w+)])", "", icon)
+        return codes + icon_clean
 
     def func(self):
         room = self.caller.location
@@ -205,8 +207,7 @@ class CmdMap(Command):
                     row.append("  ")
             grid.append("".join(row))
         map_output = "\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}"
-        # Ensure Evennia parses color codes
-        self.caller.msg(map_output, parse=True)
+        self.caller.msg(map_output)
 
 class CmdHelpMapping(Command):
     """
