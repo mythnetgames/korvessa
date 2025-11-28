@@ -270,8 +270,13 @@ class CmdMap(Command):
         for m, d in zip(map_lines, desc_lines):
             combined.append(f"{m.ljust(map_width)}{d}")
 
-        # Move coordinates directly under the map, with no right column
-        combined.insert(len(grid), f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}")
+        # Move coordinates directly under the map, and if there are more desc lines, show the next one in the right column
+        coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}"
+        if len(desc_lines) > len(grid):
+            coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}{desc_lines[len(grid)]}"
+            # Remove the desc line that was just added to the coord line
+            desc_lines.pop(len(grid))
+        combined.insert(len(grid), coord_line)
 
         # Suppress all other room output when @mapon is active
         self.caller.msg("\n".join(combined), parse=True)
