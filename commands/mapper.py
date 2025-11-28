@@ -135,12 +135,12 @@ class CmdMapIconHelp(Command):
 
     def func(self):
         help_text = (
-            "Map icons use Evennia color codes. Example: '|b' for blue, '|r' for red, '|y' for yellow, '|g' for green, '|c' for cyan, '|m' for magenta, '|w' for white, '|x' for black. "
+            "Map icons use Evennia color codes. Example: '|b' (blue), '|r' (red), '|y' (yellow), '|g' (green), '|c' (cyan), '|m' (magenta), '|w' (white), '|x' (black). "
             "You can combine codes, e.g. '|b|[bg_y]' for blue text on yellow background. "
             "Icons must be exactly two characters long. Example: mapicon |bOD sets icon to blue 'OD'. "
             "See Evennia color documentation for full code list: https://www.evennia.com/docs/latest/Color.html"
         )
-        self.caller.msg(help_text)
+        self.caller.msg(help_text, parse=False)
 
 class CmdMap(Command):
     """
