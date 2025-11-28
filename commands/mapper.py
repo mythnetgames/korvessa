@@ -147,7 +147,7 @@ class CmdMap(Command):
     help_category = "Mapping"
 
     def convert_icon_tags(self, icon):
-        # Accept direct Evennia color codes and [tag]s, but do not add |n after each cell
+        # Accept direct Evennia color codes and [tag]s, convert [tag]s to Evennia codes
         if not icon:
             return icon
         # Foreground colors
@@ -162,25 +162,36 @@ class CmdMap(Command):
         effect_map = {
             "bold_on": "|h", "bold_off": "|n", "underline_on": "|u", "underline_off": "|n", "strikethrough_on": "|s", "strikethrough_off": "|n"
         }
-        # Accumulate codes from tags at the start
+        # Replace all [tag]s in the icon string
+        def tag_replacer(match):
+            tag = match.group(1).lower()
+            if tag in color_map:
+                return color_map[tag]
+            if tag in bg_map:
+                return bg_map[tag]
+            if tag in effect_map:
+                return effect_map[tag]
+            return ""
+        # Replace [tag]s with Evennia codes
+        icon = re.sub(r"\[(\w+)]", tag_replacer, icon)
+        # Only use the first two visible characters (not color codes)
+        visible = ""
+        i = 0
+        while len(visible) < 2 and i < len(icon):
+            if icon[i] == "|":
+                # Skip color code
+                while i < len(icon) and icon[i] not in "AD[]@ ":
+                    i += 1
+            else:
+                visible += icon[i]
+                i += 1
+        # If not enough, pad with space
+        visible = visible.ljust(2)
+        # Prepend color codes
         codes = ""
-        rest = icon
-        tag_match = re.match(r"((\[(\w+)])+)(.*)", icon)
-        if tag_match:
-            tags = re.findall(r"\[(\w+)]", tag_match.group(1))
-            for tag in tags:
-                if tag in color_map:
-                    codes += color_map[tag]
-                elif tag in bg_map:
-                    codes += bg_map[tag]
-                elif tag in effect_map:
-                    codes += effect_map[tag]
-            rest = tag_match.group(4)
-        # Only use the first two non-tag characters as the icon
-        icon_chars = "".join([c for c in rest if c not in "[]"])
-        icon_final = icon_chars[:2] if len(icon_chars) >= 2 else icon_chars.ljust(2)
-        # Apply color codes to icon, but do not add |n
-        return f"{codes}{icon_final}"
+        for m in re.finditer(r"\|[xwrcbygmc\[xwrcbygmcuhsn]", icon):
+            codes += m.group(0)
+        return codes + visible + "|n"
 
     def func(self):
         room = self.caller.location
@@ -204,18 +215,18 @@ class CmdMap(Command):
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
                         rendered = self.convert_icon_tags(icon)
-                        row.append(f"{rendered}|n")
+                        row.append(rendered)
                     else:
-                        row.append("@|n")
+                        row.append("@ ")
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
                         rendered = self.convert_icon_tags(icon)
-                        row.append(f"{rendered}|n")
+                        row.append(rendered)
                     else:
-                        row.append("[]|n")
+                        row.append("[]")
                 else:
-                    row.append("  |n")
+                    row.append("  ")
             grid.append("".join(row))
         map_output = "\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}"
         self.caller.msg(map_output, parse=True)
