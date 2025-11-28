@@ -201,16 +201,16 @@ class CmdMap(Command):
                 cx, cy = x + dx, y + dy
                 room_obj = coords.get((cx, cy))
                 if (cx, cy) == (x, y):
-                    row.append("@ ")
+                    row.append("@|n")  # Always reset color after '@'
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
                         rendered = self.convert_icon_tags(icon)
-                        row.append(rendered)
+                        row.append(f"{rendered}|n")  # Reset color after each icon
                     else:
-                        row.append("[]")
+                        row.append("[]|n")
                 else:
-                    row.append("  ")
+                    row.append("  |n")
             grid.append("".join(row))
         # Send the whole grid as one message with parse=True
         map_output = "\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}"
