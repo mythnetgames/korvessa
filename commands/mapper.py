@@ -230,6 +230,7 @@ class CmdMap(Command):
         # Move 'There are exits...' to the bottom of the right column
         import textwrap
         column_width = 70  # Adjust as needed for your display
+        indent = "     "
         if appearance:
             lines = appearance.split('\n')
             exit_line = None
@@ -239,17 +240,17 @@ class CmdMap(Command):
                     exit_line = line
                 else:
                     other_lines.append(line)
-            # Wrap each line and indent
+            # Wrap each line and indent all wrapped lines
             wrapped_lines = []
             for line in other_lines:
-                for wrapped in textwrap.wrap(line, width=column_width):
-                    wrapped_lines.append("     " + wrapped)
+                wrapped = textwrap.fill(line, width=column_width, initial_indent=indent, subsequent_indent=indent)
+                wrapped_lines.extend(wrapped.split('\n'))
             desc_lines = wrapped_lines
             if exit_line:
-                for wrapped in textwrap.wrap(exit_line, width=column_width):
-                    desc_lines.append("     " + wrapped)
+                wrapped = textwrap.fill(exit_line, width=column_width, initial_indent=indent, subsequent_indent=indent)
+                desc_lines.extend(wrapped.split('\n'))
         else:
-            desc_lines = ["     "]
+            desc_lines = [indent]
 
 
         # Strict columnar layout: map (top left), text (top right)
