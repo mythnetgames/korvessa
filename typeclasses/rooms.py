@@ -101,17 +101,14 @@ class Room(ObjectParent, DefaultRoom):
             dz = getattr(self.db, "z", None)
             # Always assign if any are missing
             if dx is None or dy is None or dz is None:
+                # Always detect the exit used for movement
                 direction = None
-                # Try to detect direction from exit key if possible
                 if source_location and hasattr(source_location, "exits"):
                     for exit_obj in source_location.exits:
                         if getattr(exit_obj, "destination", None) == self:
                             direction = exit_obj.key.lower()
                             break
-                # If direction not found, fallback to coordinate comparison
-                if not direction:
-                    direction = None
-                # Assign coordinates based on direction
+                # Assign coordinates based on exit key
                 if direction == "north":
                     self.db.x = x0
                     self.db.y = y0 + 1
@@ -147,6 +144,7 @@ class Room(ObjectParent, DefaultRoom):
                 # Already has coordinates, no change
                 send_debug(f"ROOM_COORD_DEBUG: {self.key} kept coords ({self.db.x},{self.db.y},{self.db.z})")
         else:
+            # If source has no valid coordinates, assign default based on dbref
             self.db.x = int(self.dbref) % 1000
             self.db.y = int(self.dbref) // 1000
             self.db.z = 0
