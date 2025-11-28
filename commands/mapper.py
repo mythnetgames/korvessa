@@ -193,6 +193,7 @@ class CmdMap(Command):
         from evennia.objects.models import ObjectDB
         rooms = [r for r in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room") if getattr(r.db, "z", None) == z]
         coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
+        # Build grid as a list of lists, then join each row and send with parse=True
         grid = []
         for dy in range(2, -3, -1):
             row = []
@@ -205,15 +206,18 @@ class CmdMap(Command):
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
                         rendered = self.convert_icon_tags(icon)
+                        # Each cell is a separate string for Evennia parsing
                         row.append(rendered)
                     else:
                         row.append("[]")
                 else:
                     row.append("  ")
+            # Join each cell with '', not spaces, to avoid breaking color codes
             grid.append("".join(row))
-        map_output = "\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}"
-        # Force Evennia to parse color codes in map icons
-        self.caller.msg(map_output, parse=True)
+        # Send each row separately to ensure color parsing
+        for line in grid:
+            self.caller.msg(line, parse=True)
+        self.caller.msg(f"Current coordinates: x={x}, y={y}, z={z}")
 
 class CmdHelpMapping(Command):
     """
