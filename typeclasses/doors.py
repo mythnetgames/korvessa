@@ -30,11 +30,18 @@ class Door(DefaultObject):
         if self.db.is_locked:
             caller.msg("The door is locked.")
             return False
-        if self.db.keypad and not self.db.keypad.db.is_unlocked:
-            caller.msg("The keypad is locked.")
+        if self.db.keypad:
+            if not self.db.keypad.db.is_unlocked:
+                caller.msg("The keypad is locked. Enter the correct code to unlock.")
+                return False
+        if self.db.is_open:
+            caller.msg("The door is already open.")
             return False
         self.db.is_open = True
         caller.msg("You open the door.")
+        # Echo to room
+        if caller.location:
+            caller.location.msg_contents(f"{caller.key} opens the door to {getattr(self.db, 'exit_direction', 'an exit')}.", exclude=[caller])
         return True
 
     def close(self, caller):
