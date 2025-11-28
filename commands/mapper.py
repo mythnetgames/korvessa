@@ -229,7 +229,7 @@ class CmdMap(Command):
         # Indent every linebreak and line, so all lines are aligned
         # Move 'There are exits...' to the bottom of the right column
         import textwrap
-        column_width = 70  # Adjust as needed for your display
+        column_width = 55  # Reduce width to prevent encroachment
         indent = "     "
         if appearance:
             lines = appearance.split('\n')
