@@ -210,16 +210,18 @@ class CmdMap(Command):
 
         # Get room description (appearance)
         appearance = ""
-        # Only show room description if @mapon is not enabled
-        show_room_text = not getattr(self.caller.ndb, "mapper_enabled", False)
-        if show_room_text:
-            try:
-                appearance = room.return_appearance(self.caller)
-            except Exception as e:
-                appearance = f"[Error getting room description: {e}]"
-        else:
-            # When @mapon is enabled, only show map view, not duplicate room text
-            appearance = ""
+        # Always get room description, but only display it to the right of the map when @mapon is enabled
+        try:
+            appearance = room.return_appearance(self.caller)
+        except Exception as e:
+            appearance = f"[Error getting room description: {e}]"
+
+        # If @mapon is enabled, suppress the default room description and name elsewhere
+        suppress_room_text = getattr(self.caller.ndb, "mapper_enabled", False)
+        if suppress_room_text:
+            # Only show the room text to the right of the map, not in the default output
+            # (This is handled by the map output below)
+            pass
 
         # Split map and description into lines
         map_lines = grid
