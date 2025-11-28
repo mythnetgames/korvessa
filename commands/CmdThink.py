@@ -23,3 +23,13 @@ class CmdThink(Command):
             channel.msg(f"{self.caller.key}: {thought}")
         else:
             self.caller.msg("Thoughts channel not found.")
+
+        # Send thought directly to anyone in room with Mind's Eye chrome installed
+        location = self.caller.location
+        if location:
+            for obj in location.contents:
+                if obj == self.caller or not hasattr(obj, 'ndb'):
+                    continue
+                installed = getattr(obj.ndb, 'installed_chrome', [])
+                if any(getattr(chrome, 'db', None) and getattr(chrome.db, 'shortname', None) == 'mindseye' for chrome in installed):
+                    obj.msg(f"You overhear {self.caller.key}'s thoughts: {thought}")
