@@ -42,23 +42,7 @@ class Exit(DefaultExit):
         alias = cardinal_aliases.get(self.key.lower())
         if alias and alias not in self.aliases.all():
             self.aliases.add(alias)
-        # Ensure exit is registered as a command
-        if not hasattr(self, "cmdset_storage") or not self.cmdset_storage:
-            from evennia import CmdSet
-            class ExitCmdSet(CmdSet):
-                key = "ExitCmdSet"
-                def at_cmdset_creation(cs):
-                    cs.add(self)
-            self.cmdset.add(ExitCmdSet, permanent=True)
-
-    def at_init(self):
-        # Ensure exit is registered as a command every time it's loaded
-        from evennia import CmdSet
-        class ExitCmdSet(CmdSet):
-            key = "ExitCmdSet"
-            def at_cmdset_creation(cs):
-                cs.add(self)
-        self.cmdset.add(ExitCmdSet, permanent=True)
+        # Remove custom command registration
 
     def return_appearance(self, looker, **kwargs):
         """
