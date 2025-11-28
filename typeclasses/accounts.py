@@ -210,6 +210,7 @@ class Account(DefaultAccount):
         - Handling archived characters
         """
         # Force map display ON for every account and session on login
+        # Force @mapon logic on login, but do not echo any output
         self.db.mapper_enabled = True
         self.ndb.mapper_enabled = True
         self.db.show_room_desc = True
