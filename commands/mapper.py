@@ -229,8 +229,12 @@ class CmdMap(Command):
         # Indent every linebreak and line, so all lines are aligned
         # Move 'There are exits...' to the bottom of the right column
         import textwrap
+        # Calculate map width dynamically for perfect alignment
+        map_cells = 5
+        map_cell_width = 2
+        map_width = map_cells * map_cell_width
         column_width = 55  # Reduce width to prevent encroachment
-        indent = "     "
+        indent = " " * (map_width + 2)  # Pad to start after map
         if appearance:
             lines = appearance.split('\n')
             exit_line = None
