@@ -226,14 +226,18 @@ class CmdMap(Command):
         # Prepare room name and description as a column
         # Only show room name/description in map output if @mapon is enabled or when looking
         show_text = getattr(self.caller.ndb, "mapper_enabled", False)
+        desc_lines = []
         if show_text:
-            # If appearance already includes the room name, do not prepend it
-            if appearance and appearance.strip().startswith(room.key):
-                desc_lines = appearance.splitlines()
-            else:
-                desc_lines = [room.key] + appearance.splitlines() if appearance else [room.key]
-        else:
-            desc_lines = []
+            # Only show the room description once, never prepend the room name if present
+            if appearance:
+                # Remove duplicate room name if present at start of description
+                lines = appearance.splitlines()
+                if lines and (lines[0].strip() == room.key or lines[0].strip() == room.get_display_name(self.caller)):
+                    desc_lines = lines
+                else:
+                    desc_lines = lines
+            # If no description, show nothing
+
 
         # Strict columnar layout: map (top left), text (top right)
         map_width = 2 * 5 + 2  # 5 cells * 2 chars + 2 spaces for margin
@@ -251,7 +255,7 @@ class CmdMap(Command):
         # Move coordinates directly under the map
         combined.insert(len(grid), f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}")
 
-        # Only show this output, suppressing any other room description
+        # Suppress all other room output when @mapon is active
         self.caller.msg("\n".join(combined), parse=True)
 
 class CmdHelpMapping(Command):
