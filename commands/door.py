@@ -1,3 +1,166 @@
+class CmdAttachDoor(Command):
+    """Attach a door to an exit."""
+    key = "attachdoor"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    def func(self):
+        caller = self.caller
+        if not self.args:
+            caller.msg("Usage: attachdoor <direction>")
+            return
+        direction = self.args.strip().lower()
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj:
+            caller.msg(f"No exit found in direction '{direction}'.")
+            return
+        from typeclasses.doors import Door
+        door = Door()
+        door.db.exit_direction = direction
+        door.location = caller.location
+        exit_obj.db.door = door
+        caller.msg(f"Door attached to exit '{direction}'.")
+        audit_channel.msg(f"{caller.key} attached door to exit '{direction}'.")
+
+class CmdAttachLock(Command):
+    """Attach a lock to a door on an exit."""
+    key = "attachlock"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    def func(self):
+        caller = self.caller
+        if not self.args:
+            caller.msg("Usage: attachlock <direction>")
+            return
+        direction = self.args.strip().lower()
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door"):
+            caller.msg(f"No door found on exit '{direction}'.")
+            return
+        from typeclasses.doors import Lock
+        lock = Lock()
+        exit_obj.db.door.attach_lock(lock)
+        caller.msg(f"Lock attached to door on exit '{direction}'.")
+        audit_channel.msg(f"{caller.key} attached lock to exit '{direction}'.")
+
+class CmdAttachKeypad(Command):
+    """Attach a keypad lock to a door on an exit."""
+    key = "attachkeypad"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    def func(self):
+        caller = self.caller
+        if not self.args:
+            caller.msg("Usage: attachkeypad <direction>")
+            return
+        direction = self.args.strip().lower()
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door"):
+            caller.msg(f"No door found on exit '{direction}'.")
+            return
+        from typeclasses.doors import KeypadLock
+        keypad = KeypadLock()
+        exit_obj.db.door.attach_keypad(keypad)
+        caller.msg(f"Keypad lock attached to door on exit '{direction}'.")
+        audit_channel.msg(f"{caller.key} attached keypad to exit '{direction}'.")
+
+class CmdRemoveDoor(Command):
+    """Remove a door from an exit."""
+    key = "removedoor"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    def func(self):
+        caller = self.caller
+        if not self.args:
+            caller.msg("Usage: removedoor <direction>")
+            return
+        direction = self.args.strip().lower()
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door"):
+            caller.msg(f"No door found on exit '{direction}'.")
+            return
+        exit_obj.db.door.delete()
+        exit_obj.db.door = None
+        caller.msg(f"Door removed from exit '{direction}'.")
+        audit_channel.msg(f"{caller.key} removed door from exit '{direction}'.")
+
+class CmdRemoveLock(Command):
+    """Remove a lock from a door on an exit."""
+    key = "removelock"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    def func(self):
+        caller = self.caller
+        if not self.args:
+            caller.msg("Usage: removelock <direction>")
+            return
+        direction = self.args.strip().lower()
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.lock:
+            caller.msg(f"No lock found on door for exit '{direction}'.")
+            return
+        exit_obj.db.door.db.lock.delete()
+        exit_obj.db.door.db.lock = None
+        caller.msg(f"Lock removed from door on exit '{direction}'.")
+        audit_channel.msg(f"{caller.key} removed lock from exit '{direction}'.")
+
+class CmdRemoveKeypad(Command):
+    """Remove a keypad lock from a door on an exit."""
+    key = "removekeypad"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    def func(self):
+        caller = self.caller
+        if not self.args:
+            caller.msg("Usage: removekeypad <direction>")
+            return
+        direction = self.args.strip().lower()
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
+            caller.msg(f"No keypad found on door for exit '{direction}'.")
+            return
+        exit_obj.db.door.db.keypad.delete()
+        exit_obj.db.door.db.keypad = None
+        caller.msg(f"Keypad lock removed from door on exit '{direction}'.")
+        audit_channel.msg(f"{caller.key} removed keypad from exit '{direction}'.")
+
+class CmdProgramKeypad(Command):
+    """Set the keypad's 8-digit combination."""
+    key = "programkeypad"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    def func(self):
+        caller = self.caller
+        args = self.args.strip().split()
+        if len(args) != 2:
+            caller.msg("Usage: programkeypad <direction> <combo>")
+            return
+        direction, combo = args
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
+            caller.msg(f"No keypad found on door for exit '{direction}'.")
+            return
+        keypad = exit_obj.db.door.db.keypad
+        keypad.db.combination = combo
+        caller.msg(f"Keypad combo for exit '{direction}' set to {combo}.")
+        audit_channel.msg(f"{caller.key} programmed keypad combo for exit '{direction}' to {combo}.")
+
+class CmdShowCombo(Command):
+    """Show the keypad combo (builder+ only)."""
+    key = "showcombo"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    def func(self):
+        caller = self.caller
+        if not self.args:
+            caller.msg("Usage: showcombo <direction>")
+            return
+        direction = self.args.strip().lower()
+        exit_obj = caller.location.exits.get(direction)
+        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
+            caller.msg(f"No keypad found on door for exit '{direction}'.")
+            return
+        keypad = exit_obj.db.door.db.keypad
+        caller.msg(f"Keypad combo for exit '{direction}': {keypad.db.combination}")
 from evennia import Command
 from evennia.comms.models import ChannelDB
 import time
