@@ -17,6 +17,14 @@ from .objects import ObjectParent
 
 class Character(ObjectParent, DefaultCharacter):
 
+    def at_post_login(self, session=None, **kwargs):
+        """
+        Called every time a player logs in. Force mapper enabled for continuity.
+        """
+        if self.account and hasattr(self.account, 'db'):
+            self.account.db.mapper_enabled = True
+        self.ndb.mapper_enabled = True
+
         def at_server_start(self):
             """
             Called on every character at server reboot. Force mapper enabled for continuity.
