@@ -9,7 +9,7 @@ class Door(DefaultObject):
         self.db.lock = None    # Reference to attached lock
         self.db.desc = "A sturdy door blocks the way here."
         self.db.shortdesc = "a sturdy door"
-        self.locks.add("traverse:closed()")  # Only allow traverse if open
+        self.locks.add("traverse:all()")  # Allow traverse, actual blocking is handled in at_before_traverse
 
     def get_display_name(self, looker):
         direction = getattr(self.db, "exit_direction", None)

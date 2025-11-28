@@ -11,12 +11,35 @@ def get_audit_channel():
     return ChannelDB.objects.get_channel("BuilderAudit")
 
 def find_door(room, direction):
-    """Find a door object in the room matching the given direction."""
+    """Find a door object in the room matching the given direction or any alias."""
     direction = direction.lower()
     for obj in room.contents:
-        if obj.is_typeclass("typeclasses.doors.Door") and getattr(obj.db, "exit_direction", "").lower() == direction:
-            return obj
+        if obj.is_typeclass("typeclasses.doors.Door"):
+            # Match direction or any alias
+            aliases = getattr(obj.db, "exit_aliases", [])
+            if direction == getattr(obj.db, "exit_direction", "").lower() or direction in aliases:
+                return obj
     return None
+
+def find_lock(door, direction):
+    """Find a lock on the door matching the given direction or any alias."""
+    direction = direction.lower()
+    lock = getattr(door.db, "lock", None)
+    if lock:
+        aliases = getattr(lock.db, "exit_aliases", [])
+        if direction == getattr(lock.db, "exit_direction", "").lower() or direction in aliases:
+            return lock
+    return lock if lock else None
+
+def find_keypad(door, direction):
+    """Find a keypad on the door matching the given direction or any alias."""
+    direction = direction.lower()
+    keypad = getattr(door.db, "keypad", None)
+    if keypad:
+        aliases = getattr(keypad.db, "exit_aliases", [])
+        if direction == getattr(keypad.db, "exit_direction", "").lower() or direction in aliases:
+            return keypad
+    return keypad if keypad else None
 
 class CmdAttachDoor(Command):
     """Attach a door to an exit, and automatically create a matching door in the destination room."""
@@ -46,6 +69,11 @@ class CmdAttachDoor(Command):
         door = Door()
         door.save()
         door.db.exit_direction = direction
+        # Store all aliases for this exit (including key)
+        exit_aliases = [exit_obj.key.lower()]
+        if hasattr(exit_obj.aliases, "all"):
+            exit_aliases += [a.lower() for a in exit_obj.aliases.all()]
+        door.db.exit_aliases = list(set(exit_aliases))
         door.location = caller.location
         caller.msg(f"Door attached to exit '{direction}'.")
         audit_channel = get_audit_channel()
@@ -94,6 +122,15 @@ class CmdAttachLock(Command):
         from typeclasses.doors import Lock
         lock = Lock()
         lock.save()  # Ensure DB id exists before setting attributes
+        # Store all aliases for this exit (including key)
+        exit_aliases = [direction]
+        for ex in getattr(caller.location, "exits", []):
+            if ex.key.lower() == direction or direction in [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]:
+                exit_aliases = [ex.key.lower()]
+                if hasattr(ex.aliases, "all"):
+                    exit_aliases += [a.lower() for a in ex.aliases.all()]
+                break
+        lock.db.exit_aliases = list(set(exit_aliases))
         door.attach_lock(lock)
         caller.msg(f"Lock attached to door for exit '{direction}'.")
         audit_channel = get_audit_channel()
@@ -118,6 +155,15 @@ class CmdAttachKeypad(Command):
         from typeclasses.doors import KeypadLock
         keypad = KeypadLock()
         keypad.save()
+        # Store all aliases for this exit (including key)
+        exit_aliases = [direction]
+        for ex in getattr(caller.location, "exits", []):
+            if ex.key.lower() == direction or direction in [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]:
+                exit_aliases = [ex.key.lower()]
+                if hasattr(ex.aliases, "all"):
+                    exit_aliases += [a.lower() for a in ex.aliases.all()]
+                break
+        keypad.db.exit_aliases = list(set(exit_aliases))
         door.attach_keypad(keypad)
         caller.msg(f"Keypad lock attached to door for exit '{direction}'.")
         audit_channel = get_audit_channel()
