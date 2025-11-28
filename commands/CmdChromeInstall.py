@@ -23,10 +23,21 @@ class CmdChromeInstall(Command):
         if not target:
             self.caller.msg(f"Target '{person}' not found.")
             return
-        # Find chrome in installer's inventory
-        chrome = next((obj for obj in self.caller.contents if obj.key == shortname), None)
+        # Find chrome in installer's inventory by shortname (from chrometable)
+        from world.chrometable import CHROME_TABLE
+        chrome_entry = next((c for c in CHROME_TABLE if c["shortname"].lower() == shortname.lower()), None)
+        if not chrome_entry:
+            self.caller.msg(f"No chrome definition found for '{shortname}'.")
+            return
+        # Match inventory item by prototype shortname
+        chrome = None
+        for obj in self.caller.contents:
+            obj_shortname = getattr(obj.db, "shortname", None)
+            if obj_shortname and obj_shortname.lower() == shortname.lower():
+                chrome = obj
+                break
         if not chrome:
-            self.caller.msg(f"You do not have '{shortname}' in your inventory.")
+            self.caller.msg(f"You do not have '{chrome_entry['name']}' in your inventory.")
             return
         # Remove chrome from installer's inventory
         chrome.location = None
