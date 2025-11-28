@@ -160,7 +160,8 @@ class Room(ObjectParent, DefaultRoom):
         """
         force_display = kwargs.get('force_display', False)
         mapper_enabled = getattr(looker.ndb, 'mapper_enabled', False)
-        if not force_display and not mapper_enabled:
+        show_room_desc = getattr(looker.ndb, 'show_room_desc', False)
+        if not force_display and not (mapper_enabled or show_room_desc):
             return ""  # Suppress automatic room display
 
         # ...existing code for aiming, integrated content, weather, etc...
