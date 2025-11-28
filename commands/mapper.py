@@ -116,9 +116,6 @@ class CmdAreaIcon(Command):
         room = self.caller.location
         room.db.area_icon = args
         self.caller.msg(f"Area icon for this area set to '{args}'.")
-
-
-    # ...existing code...
 class CmdMapIconHelp(Command):
     """
     Show help for map icon settings.
@@ -291,8 +288,34 @@ class CmdMap(Command):
         self.caller.msg("\n".join(combined), parse=True)
 
 class CmdHelpMapping(Command):
+    """
+    Show help for mapping commands and icon customization (builder+).
+    Usage: help mapping
+    """
+    key = "help mapping"
+    locks = "cmd:perm(Builder)"
+    help_category = "Mapping"
 
-    # ...existing code...
+    def func(self):
+        help_text = (
+            "Mapping System Help (Builder+)\n"
+            "--------------------------------\n"
+            "- Use @mapon/@mapoff to toggle automatic map display on movement.\n"
+            "- Use 'map' to view the map centered on your current room.\n"
+            "- Set a room's icon with: @mapicon <icon> [options]\n"
+            "- Set area background icon with: @areaicon <icon> [options]\n"
+            "- Icons must be exactly two characters.\n"
+            "- Icon options: [bold_on]/[bold_off], [underline_on]/[underline_off], [strikethrough_on]/[strikethrough_off], [color], [bg_color]\n"
+            "  Valid colors: black, white, red, blue, yellow, green, purple, cyan\n"
+            "  Effects: bold_on (|h), underline_on (|u), strikethrough_on (|s), bold_off/underline_off/strikethrough_off (|n)\n"
+            "  You can also use Evennia codes directly: |c (cyan), |[c (cyan background), |h (bold), |u (underline), |s (strikethrough), |n (reset)\n"
+            "- Example: @mapicon |x|[c|hOD|n\n"
+            "- For icon customization help, use: mapicon help\n"
+            "- Coordinates are set with: @maproom x y z\n"
+            "- Map color for brackets: @mapcolor <colorcode>\n"
+            "- Only builder+ can use these commands.\n"
+        )
+        self.caller.msg(help_text)
 
 # Register mapping commands for inclusion in command sets (must be after all command classes are defined)
 mapping_cmds = [
