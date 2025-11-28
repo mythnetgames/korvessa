@@ -106,18 +106,14 @@ class Character(ObjectParent, DefaultCharacter):
     def at_post_move(self, source_location, **kwargs):
         """
         Called after the character moves to a new location.
-        Only show room output if @mapon is enabled. Otherwise, suppress all automatic room display on movement.
+        Suppress default room output and only show the map+description column output.
         """
-        super().at_post_move(source_location, **kwargs)
-        if hasattr(self.ndb, "mapper_enabled") and self.ndb.mapper_enabled:
-            self.ndb.suppress_room_output = True
-            from commands.mapper import CmdMap
-            cmd = CmdMap()
-            cmd.caller = self
-            cmd.args = ""
-            cmd.func()
-        else:
-            self.ndb.suppress_room_output = True  # Always suppress unless @mapon or look
+        self.ndb.suppress_room_output = True
+        from commands.mapper import CmdMap
+        cmd = CmdMap()
+        cmd.caller = self
+        cmd.args = ""
+        cmd.func()
 
     def _initialize_medical_state(self):
         """Initialize the character's medical state."""
