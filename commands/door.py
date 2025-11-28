@@ -378,6 +378,7 @@ class CmdShowCombo(Command):
 class CmdOpenDoor(Command):
     """Open a door on an exit."""
     key = "opendoor"
+    aliases = ["open door"]
     locks = "cmd:all()"
     help_category = "General"
     def func(self):
@@ -417,6 +418,7 @@ class CmdOpenDoor(Command):
 class CmdCloseDoor(Command):
     """Close a door on an exit."""
     key = "closedoor"
+    aliases = ["close door"]
     locks = "cmd:all()"
     help_category = "General"
     def func(self):
