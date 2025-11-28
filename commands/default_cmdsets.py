@@ -37,6 +37,7 @@ from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.shop import CmdBuy
+from commands.map import CmdMap
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -223,6 +224,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         
         # Add shop commands
         self.add(CmdBuy())
+        self.add(CmdMap())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
