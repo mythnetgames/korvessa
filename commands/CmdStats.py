@@ -30,8 +30,17 @@ class CmdStats(Command):
         msg = "|ystats|n\n"
         # Get stat values (current/max)
         def stat_line(attr, name, abbr):
-            val = getattr(char, attr, 0)
-            maxval = getattr(char, f"max_{attr}", val)
+            # Special calculation for Empathy stat
+            if attr == "emp":
+                # Empathy = 33% SMRT + 33% EDGE + 34% EMP
+                smrt = getattr(char, "smrt", 0)
+                edge = getattr(char, "edge", 0)
+                emp = getattr(char, "emp", 0)
+                val = int(0.33 * smrt + 0.33 * edge + 0.34 * emp)
+                maxval = int(0.33 * getattr(char, "max_smrt", smrt) + 0.33 * getattr(char, "max_edge", edge) + 0.34 * getattr(char, "max_emp", emp))
+            else:
+                val = getattr(char, attr, 0)
+                maxval = getattr(char, f"max_{attr}", val)
             return f"|y{name:<10}|n [ |w{val}|n / |g{maxval}|n ]"
         # Build two columns
         for i in range(4):
@@ -44,8 +53,10 @@ class CmdStats(Command):
         skills = [
             "Chemical", "Modern Medicine", "Holistic Medicine", "Surgery", "Science", "Dodge", "Blades", "Pistols", "Rifles", "Melee", "Brawling", "Martial Arts", "Grappling", "Snooping", "Stealing", "Hiding", "Sneaking", "Disguise", "Tailoring", "Tinkering", "Manufacturing", "Cooking", "Forensics", "Decking", "Electronics", "Mercantile", "Streetwise", "Paint/Draw/Sculpt", "Instrument"
         ]
-        msg += "\n|[bg_b]|wSkill        Raw|n\n"
+        # Underlined header, 'Raw' aligned to column 21
+        msg += "|wSkill           Raw|n\n"
+        msg += "|w-----------------------|n\n"
         for skill in skills:
             raw = getattr(char, skill.lower().replace("/", "_"), 0)
-            msg += f"{skill:<20}{raw}\n"
+            msg += f"{skill:<20}{raw:>3}\n"
         char.msg(msg)
