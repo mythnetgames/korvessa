@@ -233,8 +233,9 @@ class CmdMap(Command):
         map_cells = 5
         map_cell_width = 2
         map_width = map_cells * map_cell_width
-        column_width = 55  # Reduce width to prevent encroachment
-        indent = " " * (map_width + 2)  # Pad to start after map
+        # Dynamic indentation for perfect straightness
+        indent = " " * (map_width + 2)
+        column_width = 80  # Increased wrap width for longer lines
         if appearance:
             lines = appearance.split('\n')
             exit_line = None
@@ -247,6 +248,7 @@ class CmdMap(Command):
             # Wrap each line and indent all wrapped lines
             wrapped_lines = []
             for line in other_lines:
+                # Use dynamic indentation for all wrapped lines
                 wrapped = textwrap.fill(line, width=column_width, initial_indent=indent, subsequent_indent=indent)
                 wrapped_lines.extend(wrapped.split('\n'))
             desc_lines = wrapped_lines
@@ -272,7 +274,7 @@ class CmdMap(Command):
 
         # Move coordinates directly under the map, and if there are more desc lines, show the next one in the right column
         # Always pad the right column to start after the map
-        right_pad = " " * (map_width + 2)
+        right_pad = indent
         coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}"
         if len(desc_lines) > len(grid):
             coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}{right_pad}{desc_lines[len(grid)].lstrip()}"
