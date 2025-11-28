@@ -64,6 +64,10 @@ class CmdMapOn(Command):
         if not (hasattr(room.db, "x") and hasattr(room.db, "y") and hasattr(room.db, "z")):
             self.caller.msg("You must be in a coordinate-assigned room to enable the mapper.")
             return
+        # Set per-account variable for persistent toggle
+        if self.caller.account and hasattr(self.caller.account, 'db'):
+            self.caller.account.db.mapper_enabled = True
+        # Also set session ndb for immediate effect
         self.caller.ndb.mapper_enabled = True
         self.caller.msg("Mapper enabled. Move to see the map.")
 
@@ -77,8 +81,12 @@ class CmdMapOff(Command):
     help_category = "Mapping"
 
     def func(self):
+        # Set per-account variable for persistent toggle
+        if self.caller.account and hasattr(self.caller.account, 'db'):
+            self.caller.account.db.mapper_enabled = False
+        # Also set session ndb for immediate effect
         self.caller.ndb.mapper_enabled = False
-        self.caller.msg("Mapper disabled.")
+        self.caller.msg("Mapper disabled. Room name and description will always be shown.")
 
 class CmdMapIcon(Command):
     """
@@ -159,106 +167,102 @@ class CmdMap(Command):
         except Exception as e:
             appearance = f"[Error getting room description: {e}]"
 
-        show_map = getattr(self.caller.ndb, "mapper_enabled", False)
-        if show_map:
-            from evennia.objects.models import ObjectDB
-            rooms = [r for r in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room") if getattr(r.db, "z", None) == z]
-            coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
-            grid = []
-            for dy in range(2, -3, -1):
-                row = []
-                for dx in range(-2, 3):
-                    cx, cy = x + dx, y + dy
-                    room_obj = coords.get((cx, cy))
-                    # Current room always '@'
-                    if (cx, cy) == (x, y):
-                        row.append("@ ")
-                    elif room_obj:
-                        icon = getattr(room_obj.db, 'map_icon', None)
-                        if icon:
-                            import re
-                            icon_clean = re.sub(r"\[(\w+)]", "", icon)
-                            codes = ""
-                            i = 0
-                            while i < len(icon_clean):
-                                if icon_clean[i] == '|':
+        # Always show the map when called, regardless of toggle
+        from evennia.objects.models import ObjectDB
+        rooms = [r for r in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room") if getattr(r.db, "z", None) == z]
+        coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
+        grid = []
+        for dy in range(2, -3, -1):
+            row = []
+            for dx in range(-2, 3):
+                cx, cy = x + dx, y + dy
+                room_obj = coords.get((cx, cy))
+                # Current room always '@'
+                if (cx, cy) == (x, y):
+                    row.append("@ ")
+                elif room_obj:
+                    icon = getattr(room_obj.db, 'map_icon', None)
+                    if icon:
+                        import re
+                        icon_clean = re.sub(r"\[(\w+)]", "", icon)
+                        codes = ""
+                        i = 0
+                        while i < len(icon_clean):
+                            if icon_clean[i] == '|':
+                                codes += icon_clean[i]
+                                i += 1
+                                if i < len(icon_clean) and icon_clean[i] == '[':
                                     codes += icon_clean[i]
                                     i += 1
-                                    if i < len(icon_clean) and icon_clean[i] == '[':
-                                        codes += icon_clean[i]
-                                        i += 1
-                                    if i < len(icon_clean):
-                                        codes += icon_clean[i]
-                                        i += 1
-                                else:
-                                    break
-                            visible = ""
-                            j = i
-                            while len(visible) < 2 and j < len(icon_clean):
-                                if icon_clean[j] == '|':
+                                if i < len(icon_clean):
+                                    codes += icon_clean[i]
+                                    i += 1
+                            else:
+                                break
+                        visible = ""
+                        j = i
+                        while len(visible) < 2 and j < len(icon_clean):
+                            if icon_clean[j] == '|':
+                                j += 1
+                                if j < len(icon_clean) and icon_clean[j] == '[':
                                     j += 1
-                                    if j < len(icon_clean) and icon_clean[j] == '[':
-                                        j += 1
-                                    if j < len(icon_clean):
-                                        j += 1
-                                else:
-                                    visible += icon_clean[j]
+                                if j < len(icon_clean):
                                     j += 1
-                            visible = visible.ljust(2)
-                            row.append(f"{codes}{visible}|n")
-                        else:
-                            row.append("[]")
+                            else:
+                                visible += icon_clean[j]
+                                j += 1
+                        visible = visible.ljust(2)
+                        row.append(f"{codes}{visible}|n")
                     else:
-                        row.append("  ")
-                grid.append("".join(row))
+                        row.append("[]")
+                else:
+                    row.append("  ")
+            grid.append("".join(row))
 
-            import textwrap
-            map_cells = 5
-            map_cell_width = 2
-            map_width = map_cells * map_cell_width
-            indent = " " * (map_width + 2)
-            column_width = 80
-            if appearance:
-                lines = appearance.split('\n')
-                exit_line = None
-                other_lines = []
-                seen = set()
-                for line in lines:
-                    if line in seen:
-                        continue
-                    seen.add(line)
-                    if line.strip().lower().startswith("there are exits"):
-                        exit_line = line
-                    else:
-                        other_lines.append(line)
-                wrapped_lines = []
-                for line in other_lines:
-                    wrapped = textwrap.fill(line, width=column_width, initial_indent=indent, subsequent_indent=indent)
-                    wrapped_lines.extend(wrapped.split('\n'))
-                desc_lines = wrapped_lines
-                if exit_line:
-                    wrapped = textwrap.fill(exit_line, width=column_width, initial_indent=indent, subsequent_indent=indent)
-                    desc_lines.extend(wrapped.split('\n'))
-            else:
-                desc_lines = [indent]
-
-            map_width = 2 * 5 + 2
-            max_lines = max(len(grid), len(desc_lines))
-            map_lines = grid + ["  " * 5] * (max_lines - len(grid))
-            desc_lines += [""] * (max_lines - len(desc_lines))
-            combined = []
-            for m, d in zip(map_lines, desc_lines):
-                combined.append(f"{m.ljust(map_width)}{d}")
-            right_pad = indent
-            coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}"
-            if len(desc_lines) > len(grid):
-                coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}{right_pad}{desc_lines[len(grid)].lstrip()}"
-                desc_lines.pop(len(grid))
-            combined.insert(len(grid), coord_line)
-            self.caller.msg("\n".join(combined), parse=True)
+        import textwrap
+        map_cells = 5
+        map_cell_width = 2
+        map_width = map_cells * map_cell_width
+        indent = " " * (map_width + 2)
+        column_width = 80
+        if appearance:
+            lines = appearance.split('\n')
+            exit_line = None
+            other_lines = []
+            seen = set()
+            for line in lines:
+                if line in seen:
+                    continue
+                seen.add(line)
+                if line.strip().lower().startswith("there are exits"):
+                    exit_line = line
+                else:
+                    other_lines.append(line)
+            wrapped_lines = []
+            for line in other_lines:
+                wrapped = textwrap.fill(line, width=column_width, initial_indent=indent, subsequent_indent=indent)
+                wrapped_lines.extend(wrapped.split('\n'))
+            desc_lines = wrapped_lines
+            if exit_line:
+                wrapped = textwrap.fill(exit_line, width=column_width, initial_indent=indent, subsequent_indent=indent)
+                desc_lines.extend(wrapped.split('\n'))
         else:
-            # Do not override LOOK output; CmdMap only displays map when called
-            pass
+            desc_lines = [indent]
+
+        map_width = 2 * 5 + 2
+        max_lines = max(len(grid), len(desc_lines))
+        map_lines = grid + ["  " * 5] * (max_lines - len(grid))
+        desc_lines += [""] * (max_lines - len(desc_lines))
+        combined = []
+        for m, d in zip(map_lines, desc_lines):
+            combined.append(f"{m.ljust(map_width)}{d}")
+        right_pad = indent
+        coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}"
+        if len(desc_lines) > len(grid):
+            coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}{right_pad}{desc_lines[len(grid)].lstrip()}"
+            desc_lines.pop(len(grid))
+        combined.insert(len(grid), coord_line)
+        self.caller.msg("\n".join(combined), parse=True)
 
 class CmdHelpMapping(Command):
     """

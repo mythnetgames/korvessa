@@ -106,14 +106,29 @@ class Character(ObjectParent, DefaultCharacter):
     def at_post_move(self, source_location, **kwargs):
         """
         Called after the character moves to a new location.
-        Suppress default room output and only show the map+description column output.
+        Shows map+room description if mapper_enabled, else just room name/desc.
         """
-        self.ndb.suppress_room_output = True
-        from commands.mapper import CmdMap
-        cmd = CmdMap()
-        cmd.caller = self
-        cmd.args = ""
-        cmd.func()
+        show_map = False
+        # Per-account map toggle: check Account.db.mapper_enabled if present
+        if self.account and hasattr(self.account, 'db') and hasattr(self.account.db, 'mapper_enabled'):
+            show_map = bool(self.account.db.mapper_enabled)
+        # Fallback to character ndb for session-based toggle
+        elif hasattr(self.ndb, 'mapper_enabled'):
+            show_map = bool(self.ndb.mapper_enabled)
+        if show_map:
+            from commands.mapper import CmdMap
+            cmd = CmdMap()
+            cmd.caller = self
+            cmd.args = ""
+            cmd.func()
+        else:
+            # Always show room name and description
+            if self.location:
+                try:
+                    appearance = self.location.return_appearance(self)
+                except Exception as e:
+                    appearance = f"[Error getting room description: {e}]"
+                self.msg(appearance)
 
     def _initialize_medical_state(self):
         """Initialize the character's medical state."""
