@@ -607,16 +607,14 @@ class Exit(DefaultExit):
         """
         Generate atmospheric descriptions based on cardinal direction.
         Provides noir-aesthetic defaults matching the game's atmosphere.
-        
-        Args:
-            looker: Character examining the exit
-            
-        Returns:
-            str: Directional atmospheric description
-        """
-        direction = self.key.lower()
-        
-        # Directional atmospheric themes (noir/urban decay aesthetic)
+                    weather_contexts = {
+                        'dry_thunderstorm': "Under the ominous storm clouds",
+                        'flashstorm': "Through the violent storm",
+                        'sandstorm': "Through the swirling sand",
+                        'overcast': "Under the overcast sky",
+                        'windy': "Against the strong wind",
+                        'gray_pall': "Through the gray pall"
+                    }
         directional_themes = {
             'north': "Northward lies deeper shadow, where the city's forgotten corners harbor their secrets.",
             'south': "To the south, urban decay spreads like a stain across crumbling infrastructure.",
