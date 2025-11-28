@@ -125,6 +125,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdAdmin.CmdPeace())
         self.add(CmdAdmin.CmdTestDeathCurtain())
         self.add(CmdWeather())
+        # Add wipe coords admin command
+        from commands.CmdWipeCoords import CmdWipeCoords
+        self.add(CmdWipeCoords())
         
         # Add character ownership fix command
         self.add(CmdFixCharacterOwnership())
