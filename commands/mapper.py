@@ -118,22 +118,7 @@ class CmdAreaIcon(Command):
         self.caller.msg(f"Area icon for this area set to '{args}'.")
 
 
-    # Register mapping commands for inclusion in command sets
-    # (must be after all command classes are defined)
-
     # ...existing code...
-
-    mapping_cmds = [
-        CmdMapColor,
-        CmdMapRoom,
-        CmdMapOn,
-        CmdMapOff,
-        CmdMapIcon,
-        CmdAreaIcon,
-        CmdMapIconHelp,
-        CmdMap,
-        CmdHelpMapping,
-    ]
 class CmdMapIconHelp(Command):
     """
     Show help for map icon settings.
@@ -306,6 +291,20 @@ class CmdMap(Command):
         self.caller.msg("\n".join(combined), parse=True)
 
 class CmdHelpMapping(Command):
+        # ...existing code...
+
+    # Register mapping commands for inclusion in command sets (must be after all command classes are defined)
+    mapping_cmds = [
+        CmdMapColor,
+        CmdMapRoom,
+        CmdMapOn,
+        CmdMapOff,
+        CmdMapIcon,
+        CmdAreaIcon,
+        CmdMapIconHelp,
+        CmdMap,
+        CmdHelpMapping,
+    ]
     """
     Show help for mapping commands and icon customization (builder+).
     Usage: help mapping
