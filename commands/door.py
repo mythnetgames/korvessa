@@ -753,6 +753,102 @@ class CmdLockExit(Command):
             audit_channel = get_audit_channel()
             if audit_channel:
                 audit_channel.msg(f"{caller.key} locked keypad on exit '{direction}'.")
+
+    class CmdSetDoorDesc(Command):
+            """Set custom description for a door (builder+ only, bidirectional)."""
+            key = "setdoordesc"
+            locks = "cmd:perm(Builder)"
+            help_category = "Building"
+            def func(self):
+                caller = self.caller
+                args = self.args.strip().split(None, 1)
+                if len(args) != 2:
+                    caller.msg("Usage: setdoordesc <direction> <description>")
+                    return
+                direction, desc = args
+                direction = direction.strip().lower()
+                door = find_door(caller.location, direction)
+                if not door:
+                    caller.msg(f"No door found for exit '{direction}'.")
+                    return
+                door.set_custom_desc(desc, caller)
+                audit_channel = get_audit_channel()
+                if audit_channel:
+                    audit_channel.msg(f"{caller.key} set custom desc for door on exit '{direction}'.")
+                # Bidirectional: update paired door in destination room
+                exit_obj = None
+                for ex in getattr(caller.location, "exits", []):
+                    aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
+                    if ex.key.lower() == direction or direction in aliases:
+                        exit_obj = ex
+                        break
+                dest_room = getattr(exit_obj, "destination", None) if exit_obj else None
+                if dest_room:
+                    reverse_dir = None
+                    reverse_map = {
+                        "north": "south", "south": "north", "east": "west", "west": "east",
+                        "northeast": "southwest", "southwest": "northeast", "northwest": "southeast", "southeast": "northwest",
+                        "up": "down", "down": "up", "in": "out", "out": "in"
+                    }
+                    reverse_dir = reverse_map.get(direction, None)
+                    if not reverse_dir:
+                        for ex in getattr(dest_room, "exits", []):
+                            if getattr(ex, "destination", None) == caller.location:
+                                reverse_dir = ex.key.lower()
+                                break
+                    rev_door = find_door(dest_room, reverse_dir) if reverse_dir else None
+                    if rev_door:
+                        rev_door.set_custom_desc(desc, caller)
+                        if audit_channel:
+                            audit_channel.msg(f"Auto-set custom desc for paired door '{reverse_dir}' in {dest_room.key}.")
+
+    class CmdSetDoorShortDesc(Command):
+            """Set custom short description for a door (builder+ only, bidirectional)."""
+            key = "setdoorshortdesc"
+            locks = "cmd:perm(Builder)"
+            help_category = "Building"
+            def func(self):
+                caller = self.caller
+                args = self.args.strip().split(None, 1)
+                if len(args) != 2:
+                    caller.msg("Usage: setdoorshortdesc <direction> <shortdesc>")
+                    return
+                direction, shortdesc = args
+                direction = direction.strip().lower()
+                door = find_door(caller.location, direction)
+                if not door:
+                    caller.msg(f"No door found for exit '{direction}'.")
+                    return
+                door.set_custom_shortdesc(shortdesc, caller)
+                audit_channel = get_audit_channel()
+                if audit_channel:
+                    audit_channel.msg(f"{caller.key} set custom shortdesc for door on exit '{direction}'.")
+                # Bidirectional: update paired door in destination room
+                exit_obj = None
+                for ex in getattr(caller.location, "exits", []):
+                    aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
+                    if ex.key.lower() == direction or direction in aliases:
+                        exit_obj = ex
+                        break
+                dest_room = getattr(exit_obj, "destination", None) if exit_obj else None
+                if dest_room:
+                    reverse_dir = None
+                    reverse_map = {
+                        "north": "south", "south": "north", "east": "west", "west": "east",
+                        "northeast": "southwest", "southwest": "northeast", "northwest": "southeast", "southeast": "northwest",
+                        "up": "down", "down": "up", "in": "out", "out": "in"
+                    }
+                    reverse_dir = reverse_map.get(direction, None)
+                    if not reverse_dir:
+                        for ex in getattr(dest_room, "exits", []):
+                            if getattr(ex, "destination", None) == caller.location:
+                                reverse_dir = ex.key.lower()
+                                break
+                    rev_door = find_door(dest_room, reverse_dir) if reverse_dir else None
+                    if rev_door:
+                        rev_door.set_custom_shortdesc(shortdesc, caller)
+                        if audit_channel:
+                            audit_channel.msg(f"Auto-set custom shortdesc for paired door '{reverse_dir}' in {dest_room.key}.")
             return
         caller.msg("No lock or keypad found to lock on exit '{direction}'.")
 
