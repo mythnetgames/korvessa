@@ -84,65 +84,62 @@ class Room(ObjectParent, DefaultRoom):
         """
         super().at_after_move(mover, source_location)
         # Auto-map unmapped rooms when entered
-        if (not hasattr(self.db, "x") or self.db.x is None) or (not hasattr(self.db, "y") or self.db.y is None) or (not hasattr(self.db, "z") or self.db.z is None):
-            from evennia.comms.models import ChannelDB
-            zotnet = ChannelDB.objects.get_channel("Zotnet")
-            def send_debug(msg):
-                if zotnet:
-                    zotnet.msg(msg)
-                else:
-                    self.msg(f"[DEBUG] {msg}")
-            direction = None
-            if source_location and hasattr(source_location, "exits"):
-                for exit_obj in source_location.exits:
-                    if getattr(exit_obj, "destination", None) == self:
-                        direction = exit_obj.key.lower()
-                        break
-            x0 = getattr(source_location.db, "x", None) if source_location else None
-            y0 = getattr(source_location.db, "y", None) if source_location else None
-            z0 = getattr(source_location.db, "z", None) if source_location else None
-            # Assign coordinates based on direction if possible
-            if x0 is not None and y0 is not None and z0 is not None:
-                if direction == "north":
-                    self.db.x = x0
-                    self.db.y = y0 + 1
-                    self.db.z = z0
-                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via north from ({x0},{y0},{z0})")
-                elif direction == "south":
-                    self.db.x = x0
-                    self.db.y = y0 - 1
-                    self.db.z = z0
-                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via south from ({x0},{y0},{z0})")
-                elif direction == "east":
-                    self.db.x = x0 + 1
-                    self.db.y = y0
-                    self.db.z = z0
-                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via east from ({x0},{y0},{z0})")
-                elif direction == "west":
-                    self.db.x = x0 - 1
-                    self.db.y = y0
-                    self.db.z = z0
-                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via west from ({x0},{y0},{z0})")
-                elif direction == "up":
-                    self.db.x = x0
-                    self.db.y = y0
-                    self.db.z = z0 + 1
-                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via up from ({x0},{y0},{z0})")
-                elif direction == "down":
-                    self.db.x = x0
-                    self.db.y = y0
-                    self.db.z = z0 - 1
-                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via down from ({x0},{y0},{z0})")
-                else:
-                    self.db.x = x0
-                    self.db.y = y0
-                    self.db.z = z0
-                    send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned fallback coords ({self.db.x},{self.db.y},{self.db.z}) from ({x0},{y0},{z0})")
+        from evennia.comms.models import ChannelDB
+        zotnet = ChannelDB.objects.get_channel("Zotnet")
+        def send_debug(msg):
+            if zotnet:
+                zotnet.msg(msg)
             else:
-                self.db.x = int(self.dbref) % 1000
-                self.db.y = int(self.dbref) // 1000
-                self.db.z = 0
-                send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned default coords ({self.db.x},{self.db.y},{self.db.z}) from dbref {self.dbref}")
+                self.msg(f"[DEBUG] {msg}")
+        direction = None
+        if source_location and hasattr(source_location, "exits"):
+            for exit_obj in source_location.exits:
+                if getattr(exit_obj, "destination", None) == self:
+                    direction = exit_obj.key.lower()
+                    break
+        x0 = getattr(source_location.db, "x", None) if source_location else None
+        y0 = getattr(source_location.db, "y", None) if source_location else None
+        z0 = getattr(source_location.db, "z", None) if source_location else None
+        # Always update coordinates based on direction if possible
+        if x0 is not None and y0 is not None and z0 is not None:
+            if direction == "north":
+                self.db.x = x0
+                self.db.y = y0 + 1
+                self.db.z = z0
+                send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via north from ({x0},{y0},{z0})")
+            elif direction == "south":
+                self.db.x = x0
+                self.db.y = y0 - 1
+                self.db.z = z0
+                send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via south from ({x0},{y0},{z0})")
+            elif direction == "east":
+                self.db.x = x0 + 1
+                self.db.y = y0
+                self.db.z = z0
+                send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via east from ({x0},{y0},{z0})")
+            elif direction == "west":
+                self.db.x = x0 - 1
+                self.db.y = y0
+                self.db.z = z0
+                send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via west from ({x0},{y0},{z0})")
+            elif direction == "up":
+                self.db.x = x0
+                self.db.y = y0
+                self.db.z = z0 + 1
+                send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via up from ({x0},{y0},{z0})")
+            elif direction == "down":
+                self.db.x = x0
+                self.db.y = y0
+                self.db.z = z0 - 1
+                send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned coords ({self.db.x},{self.db.y},{self.db.z}) via down from ({x0},{y0},{z0})")
+            else:
+                # fallback: keep previous coordinates
+                send_debug(f"ROOM_COORD_DEBUG: {self.key} kept coords ({self.db.x},{self.db.y},{self.db.z}) direction unknown from ({x0},{y0},{z0})")
+        else:
+            self.db.x = int(self.dbref) % 1000
+            self.db.y = int(self.dbref) // 1000
+            self.db.z = 0
+            send_debug(f"ROOM_COORD_DEBUG: {self.key} assigned default coords ({self.db.x},{self.db.y},{self.db.z}) from dbref {self.dbref}")
         # Existing logic: assign coordinates if 0 and has exits
         if hasattr(self, "exits") and self.exits:
             for exit_obj in self.exits:
