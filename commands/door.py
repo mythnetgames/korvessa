@@ -17,7 +17,14 @@ def find_door(room, direction):
         if obj.is_typeclass("typeclasses.doors.Door"):
             # Match direction or any alias
             aliases = getattr(obj.db, "exit_aliases", [])
-            if direction == getattr(obj.db, "exit_direction", "").lower() or direction in aliases:
+            if aliases is None:
+                aliases = []
+            exit_direction = getattr(obj.db, "exit_direction", None)
+            if exit_direction:
+                exit_direction = exit_direction.lower()
+            else:
+                exit_direction = ""
+            if direction == exit_direction or direction in aliases:
                 return obj
     return None
 
