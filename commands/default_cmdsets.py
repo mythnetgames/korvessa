@@ -188,6 +188,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdWindowCoord())
         # Add attachwindow command
         self.add(CmdAttachWindow())
+        from commands.removewindow import CmdRemoveWindow
+        self.add(CmdRemoveWindow())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
