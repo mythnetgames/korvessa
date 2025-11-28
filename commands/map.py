@@ -17,14 +17,12 @@ class CmdMap(Command):
         grid = []
         all_rooms = [obj for obj in search_object("*") if hasattr(obj, "db") and getattr(obj.db, "x", None) is not None and getattr(obj.db, "y", None) is not None]
         room_lookup = {(r.db.x, r.db.y): r for r in all_rooms}
-        # Build grid with vertical and horizontal connections
         for dy in range(-2, 3):
+            # Room row
             row = []
-            conn_row = []
             for dx in range(-2, 3):
                 rx, ry = x0 + dx, y0 + dy
                 target_room = room_lookup.get((rx, ry))
-                # Room box
                 if target_room:
                     if target_room == room:
                         cell = "[x]"
@@ -33,15 +31,15 @@ class CmdMap(Command):
                 else:
                     cell = "   "
                 row.append(cell)
-                # Horizontal connection (to east)
+                # Add horizontal connection to the right
                 if dx < 2:
                     east_room = room_lookup.get((rx+1, ry))
                     if target_room and east_room:
-                        conn_row.append("--")
+                        row.append("--")
                     else:
-                        conn_row.append("  ")
+                        row.append("  ")
             grid.append("".join(row))
-            # Vertical connections (to south)
+            # Add vertical connection row below
             if dy < 2:
                 vconn_row = []
                 for dx in range(-2, 3):
@@ -52,10 +50,10 @@ class CmdMap(Command):
                         vconn_row.append(" | ")
                     else:
                         vconn_row.append("   ")
+                    # Add space for horizontal connection
+                    if dx < 2:
+                        vconn_row.append("  ")
                 grid.append("".join(vconn_row))
-            # Add horizontal connections after each row
-            if dy < 2:
-                grid.append("   " + "".join(conn_row))
         map_str = "\n".join(grid)
         coord_str = f"Current coordinates: x={x0}, y={y0}"
         caller.msg(f"{map_str}\n|c{coord_str}|n")
