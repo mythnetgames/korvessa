@@ -99,21 +99,22 @@ class Character(ObjectParent, DefaultCharacter):
         from world.combat.constants import DEFAULT_LONGDESC_LOCATIONS
         if not self.longdesc:
             self.longdesc = DEFAULT_LONGDESC_LOCATIONS.copy()
-        def at_post_move(self, source_location, **kwargs):
-            """
-            Called after the character moves to a new location.
-            If mapper is enabled, show the map automatically.
-            """
-            super().at_post_move(source_location, **kwargs)
-            if hasattr(self.ndb, "mapper_enabled") and self.ndb.mapper_enabled:
-                from commands.mapper import CmdMap
-                cmd = CmdMap()
-                cmd.caller = self
-                cmd.args = ""
-                cmd.func()
 
         # Initialize medical system - replaces legacy HP system
         self._initialize_medical_state()
+
+    def at_post_move(self, source_location, **kwargs):
+        """
+        Called after the character moves to a new location.
+        If mapper is enabled, show the map automatically.
+        """
+        super().at_post_move(source_location, **kwargs)
+        if hasattr(self.ndb, "mapper_enabled") and self.ndb.mapper_enabled:
+            from commands.mapper import CmdMap
+            cmd = CmdMap()
+            cmd.caller = self
+            cmd.args = ""
+            cmd.func()
 
     def _initialize_medical_state(self):
         """Initialize the character's medical state."""

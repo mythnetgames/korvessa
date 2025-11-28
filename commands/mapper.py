@@ -169,39 +169,47 @@ class CmdMap(Command):
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
-                        # Remove [tag]s, keep |color codes
                         import re
+                        # Remove [tag]s, keep |color codes
                         icon_clean = re.sub(r"\[(\w+)]", "", icon)
-                        # Find color/effect codes at the start
+                        # Extract all Evennia codes at the start (|c, |[c, |h, etc.)
                         codes = ""
                         i = 0
-                        while i < len(icon_clean) and icon_clean[i] == '|':
-                            codes += icon_clean[i]
-                            i += 1
-                            if i < len(icon_clean):
+                        while i < len(icon_clean):
+                            if icon_clean[i] == '|':
+                                # Handle |[x (background) or |x (foreground/effect)
                                 codes += icon_clean[i]
                                 i += 1
-                        # Find first two visible chars
+                                if i < len(icon_clean) and icon_clean[i] == '[':
+                                    codes += icon_clean[i]
+                                    i += 1
+                                if i < len(icon_clean):
+                                    codes += icon_clean[i]
+                                    i += 1
+                            else:
+                                break
+                        # Now extract two visible chars, skipping any | codes
                         visible = ""
                         j = i
                         while len(visible) < 2 and j < len(icon_clean):
                             if icon_clean[j] == '|':
-                                # Skip color code
-                                j += 2
+                                # Skip code: |x or |[x
+                                j += 1
+                                if j < len(icon_clean) and icon_clean[j] == '[':
+                                    j += 1
+                                if j < len(icon_clean):
+                                    j += 1
                             else:
                                 visible += icon_clean[j]
                                 j += 1
                         visible = visible.ljust(2)
-                        # Apply codes to visible chars
                         row.append(f"{codes}{visible}|n")
-                        # DEBUG: Show codes for troubleshooting
-                        # self.caller.msg(f"DEBUG: codes={codes} visible={visible}")
                     else:
                         row.append("[]")
                 else:
                     row.append("  ")
             grid.append("".join(row))
-        map_output = "\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}"
+        map_output = "\n".join(grid) + f"\nx={x}, y={y}, z={z}"
         self.caller.msg(map_output, parse=True)
 
 class CmdHelpMapping(Command):
