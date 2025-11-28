@@ -15,59 +15,62 @@ from .objects import ObjectParent
 
 
 class Room(ObjectParent, DefaultRoom):
-        def at_after_move(self, mover, source_location):
-            """
-            After moving, update coordinates if possible and show map if enabled.
-            """
-            super().at_after_move(mover, source_location)
-            # Only for builder+ with mapper enabled
-            if not getattr(mover.ndb, "mapper_enabled", False):
-                return
-            # Only update if current room has coordinates
+    def at_after_move(self, mover, source_location):
+        """
+        After moving, assign coordinates to unmapped destination rooms if mapper is enabled, then show map.
+        """
+        super().at_after_move(mover, source_location)
+        # Only for builder+ with mapper enabled
+        if not getattr(mover.ndb, "mapper_enabled", False):
+            return
+        # Get source coordinates
+        sx = getattr(source_location.db, "x", None)
+        sy = getattr(source_location.db, "y", None)
+        sz = getattr(source_location.db, "z", None)
+        # Only proceed if source has valid coordinates
+        if sx is not None and sy is not None and sz is not None:
+            # Get destination coordinates
             x = getattr(self.db, "x", None)
             y = getattr(self.db, "y", None)
             z = getattr(self.db, "z", None)
+            # If any coordinate is missing, assign based on direction
             if x is None or y is None or z is None:
-                return
-            # Try to update coordinates for destination room if missing
-            sx = getattr(source_location.db, "x", None)
-            sy = getattr(source_location.db, "y", None)
-            sz = getattr(source_location.db, "z", None)
-            if sx is not None and sy is not None and sz is not None:
-                # Determine direction
                 direction = None
                 if hasattr(source_location, "exits"):
                     for exit_obj in source_location.exits:
                         if getattr(exit_obj, "destination", None) == self:
                             direction = exit_obj.key.lower()
                             break
-                # Assign coordinates if missing
-                if x is None or y is None or z is None:
-                    if direction == "north":
-                        self.db.x = sx
-                        self.db.y = sy + 1
-                        self.db.z = sz
-                    elif direction == "south":
-                        self.db.x = sx
-                        self.db.y = sy - 1
-                        self.db.z = sz
-                    elif direction == "east":
-                        self.db.x = sx + 1
-                        self.db.y = sy
-                        self.db.z = sz
-                    elif direction == "west":
-                        self.db.x = sx - 1
-                        self.db.y = sy
-                        self.db.z = sz
-                    elif direction == "up":
-                        self.db.x = sx
-                        self.db.y = sy
-                        self.db.z = sz + 1
-                    elif direction == "down":
-                        self.db.x = sx
-                        self.db.y = sy
-                        self.db.z = sz - 1
-            # Show 5x5 map
+                # Assign coordinates based on direction
+                if direction == "north":
+                    self.db.x = sx
+                    self.db.y = sy + 1
+                    self.db.z = sz
+                elif direction == "south":
+                    self.db.x = sx
+                    self.db.y = sy - 1
+                    self.db.z = sz
+                elif direction == "east":
+                    self.db.x = sx + 1
+                    self.db.y = sy
+                    self.db.z = sz
+                elif direction == "west":
+                    self.db.x = sx - 1
+                    self.db.y = sy
+                    self.db.z = sz
+                elif direction == "up":
+                    self.db.x = sx
+                    self.db.y = sy
+                    self.db.z = sz + 1
+                elif direction == "down":
+                    self.db.x = sx
+                    self.db.y = sy
+                    self.db.z = sz - 1
+        # Show 5x5 map if coordinates are now valid
+        x = getattr(self.db, "x", None)
+        y = getattr(self.db, "y", None)
+        z = getattr(self.db, "z", None)
+        if x is not None and y is not None and z is not None:
             self.show_map(mover)
 
         def show_map(self, caller):
