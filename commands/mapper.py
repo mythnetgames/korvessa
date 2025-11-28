@@ -300,11 +300,6 @@ class CmdHelpMapping(Command):
         CmdMapOn,
         CmdMapOff,
         CmdMapIcon,
-        CmdAreaIcon,
-        CmdMapIconHelp,
-        CmdMap,
-        CmdHelpMapping,
-    ]
     """
     Show help for mapping commands and icon customization (builder+).
     Usage: help mapping
@@ -334,3 +329,7 @@ class CmdHelpMapping(Command):
         )
         self.caller.msg(help_text)
 
+# Register mapping commands for inclusion in command sets (must be after all command classes are defined)
+            "- Only builder+ can use these commands.\n"
+
+        )
