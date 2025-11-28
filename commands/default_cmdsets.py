@@ -155,6 +155,10 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
+        # Add map toggling commands to account cmdset
+        from commands.mapper import CmdMapOn, CmdMapOff
+        self.add(CmdMapOn())
+        self.add(CmdMapOff())
 
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
@@ -195,4 +199,8 @@ class SessionCmdSet(default_cmds.SessionCmdSet):
         #
         # any commands you add below will overload the default ones.
         #
+        # Add map toggling commands to session cmdset
+        from commands.mapper import CmdMapOn, CmdMapOff
+        self.add(CmdMapOn())
+        self.add(CmdMapOff())
 
