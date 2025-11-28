@@ -212,7 +212,8 @@ class CmdMap(Command):
                     row.append("  ")
             grid.append("".join(row))
         map_output = "\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}"
-        self.caller.msg(map_output)
+        # Force Evennia to parse color codes in map icons
+        self.caller.msg(map_output, parse=True)
 
 class CmdHelpMapping(Command):
     """
