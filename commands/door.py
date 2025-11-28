@@ -1,7 +1,8 @@
 from evennia import Command
 from evennia.comms.models import ChannelDB
 
-audit_channel = ChannelDB.objects.get_channel("BuilderAudit")
+def get_audit_channel():
+    return ChannelDB.objects.get_channel("BuilderAudit")
 
 def find_door(room, direction):
     """Find a door object in the room matching the given direction."""
@@ -40,7 +41,9 @@ class CmdAttachDoor(Command):
         door.db.exit_direction = direction
         door.location = caller.location
         caller.msg(f"Door attached to exit '{direction}'.")
-        audit_channel.msg(f"{caller.key} attached door to exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} attached door to exit '{direction}'.")
 
 class CmdAttachLock(Command):
     """Attach a lock to a door on an exit."""
@@ -62,7 +65,9 @@ class CmdAttachLock(Command):
         lock.save()  # Ensure DB id exists before setting attributes
         door.attach_lock(lock)
         caller.msg(f"Lock attached to door for exit '{direction}'.")
-        audit_channel.msg(f"{caller.key} attached lock to exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} attached lock to exit '{direction}'.")
 
 class CmdAttachKeypad(Command):
     """Attach a keypad lock to a door on an exit."""
@@ -84,7 +89,9 @@ class CmdAttachKeypad(Command):
         keypad.save()  # Ensure DB id exists before setting attributes
         door.attach_keypad(keypad)
         caller.msg(f"Keypad lock attached to door for exit '{direction}'.")
-        audit_channel.msg(f"{caller.key} attached keypad to exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} attached keypad to exit '{direction}'.")
 
 class CmdRemoveDoor(Command):
     """Remove a door from an exit."""
@@ -103,7 +110,9 @@ class CmdRemoveDoor(Command):
             return
         door.delete()
         caller.msg(f"Door removed from exit '{direction}'.")
-        audit_channel.msg(f"{caller.key} removed door from exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} removed door from exit '{direction}'.")
 
 class CmdRemoveLock(Command):
     """Remove a lock from a door on an exit."""
@@ -123,7 +132,9 @@ class CmdRemoveLock(Command):
         door.db.lock.delete()
         door.db.lock = None
         caller.msg(f"Lock removed from door for exit '{direction}'.")
-        audit_channel.msg(f"{caller.key} removed lock from exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} removed lock from exit '{direction}'.")
 
 class CmdRemoveKeypad(Command):
     """Remove a keypad lock from a door on an exit."""
@@ -143,7 +154,9 @@ class CmdRemoveKeypad(Command):
         door.db.keypad.delete()
         door.db.keypad = None
         caller.msg(f"Keypad lock removed from door for exit '{direction}'.")
-        audit_channel.msg(f"{caller.key} removed keypad from exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} removed keypad from exit '{direction}'.")
 
 class CmdProgramKeypad(Command):
     """Set the keypad's 8-digit combination."""
@@ -167,7 +180,9 @@ class CmdProgramKeypad(Command):
             return
         door.db.keypad.db.combination = combo
         caller.msg(f"Keypad combo for exit '{direction}' set to {combo}.")
-        audit_channel.msg(f"{caller.key} programmed keypad combo for exit '{direction}' to {combo}.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} programmed keypad combo for exit '{direction}' to {combo}.")
 
 class CmdShowCombo(Command):
     """Show the keypad combo (builder+ only)."""
@@ -209,7 +224,9 @@ class CmdOpenDoor(Command):
             return
         door.db.is_open = True
         caller.msg(door.db.open_msg if hasattr(door.db, "open_msg") else "You open the door.")
-        audit_channel.msg(f"{caller.key} opened door on exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} opened door on exit '{direction}'.")
 
 class CmdCloseDoor(Command):
     """Close a door on an exit."""
@@ -231,7 +248,9 @@ class CmdCloseDoor(Command):
             return
         door.db.is_open = False
         caller.msg(door.db.close_msg if hasattr(door.db, "close_msg") else "You close the door.")
-        audit_channel.msg(f"{caller.key} closed door on exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} closed door on exit '{direction}'.")
 
 class CmdLockDoor(Command):
     """Lock a door on an exit (if you have the key)."""
@@ -260,7 +279,9 @@ class CmdLockDoor(Command):
         lock.lock(caller)
         door.db.is_locked = True
         caller.msg(lock.db.lock_msg if hasattr(lock.db, "lock_msg") else "You lock the door.")
-        audit_channel.msg(f"{caller.key} locked door on exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} locked door on exit '{direction}'.")
 
 class CmdUnlockDoor(Command):
     """Unlock a door on an exit (if you have the key)."""
@@ -292,7 +313,9 @@ class CmdUnlockDoor(Command):
         lock.unlock(key_obj, caller)
         door.db.is_locked = False
         caller.msg(lock.db.unlock_msg if hasattr(lock.db, "unlock_msg") else "You unlock the door.")
-        audit_channel.msg(f"{caller.key} unlocked door on exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} unlocked door on exit '{direction}'.")
 
 class CmdDoorStatus(Command):
     """Show status of door, lock, and keypad on an exit (builder+ only)."""
@@ -347,7 +370,9 @@ class CmdSetDoorMsg(Command):
             return
         setattr(door.db, f"{msgtype}_msg", message)
         caller.msg(f"Custom {msgtype} message set for door on exit '{direction}'.")
-        audit_channel.msg(f"{caller.key} set custom {msgtype} message for door on exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} set custom {msgtype} message for door on exit '{direction}'.")
 
 class CmdBulkAttach(Command):
     """Bulk attach doors/locks/keypads to multiple exits (builder+ only)."""
@@ -375,7 +400,9 @@ class CmdBulkAttach(Command):
                 door.location = caller.location
                 exit_obj.db.door = door
                 caller.msg(f"Door attached to exit '{direction}'.")
-                audit_channel.msg(f"{caller.key} bulk-attached door to exit '{direction}'.")
+                audit_channel = get_audit_channel()
+                if audit_channel:
+                    audit_channel.msg(f"{caller.key} bulk-attached door to exit '{direction}'.")
             elif component == "lock":
                 from typeclasses.doors import Lock
                 if not hasattr(exit_obj.db, "door"):
@@ -385,7 +412,9 @@ class CmdBulkAttach(Command):
                 lock.save()  # Ensure DB id exists before setting attributes
                 exit_obj.db.door.attach_lock(lock)
                 caller.msg(f"Lock attached to door on exit '{direction}'.")
-                audit_channel.msg(f"{caller.key} bulk-attached lock to exit '{direction}'.")
+                audit_channel = get_audit_channel()
+                if audit_channel:
+                    audit_channel.msg(f"{caller.key} bulk-attached lock to exit '{direction}'.")
             elif component == "keypad":
                 from typeclasses.doors import KeypadLock
                 if not hasattr(exit_obj.db, "door"):
@@ -395,7 +424,9 @@ class CmdBulkAttach(Command):
                 keypad.save()  # Ensure DB id exists before setting attributes
                 exit_obj.db.door.attach_keypad(keypad)
                 caller.msg(f"Keypad lock attached to door on exit '{direction}'.")
-                audit_channel.msg(f"{caller.key} bulk-attached keypad to exit '{direction}'.")
+                audit_channel = get_audit_channel()
+                if audit_channel:
+                    audit_channel.msg(f"{caller.key} bulk-attached keypad to exit '{direction}'.")
             else:
                 caller.msg("Component must be one of: door, lock, keypad.")
                 return
@@ -425,7 +456,9 @@ class CmdBulkRemove(Command):
                 exit_obj.db.door.delete()
                 exit_obj.db.door = None
                 caller.msg(f"Door removed from exit '{direction}'.")
-                audit_channel.msg(f"{caller.key} bulk-removed door from exit '{direction}'.")
+                audit_channel = get_audit_channel()
+                if audit_channel:
+                    audit_channel.msg(f"{caller.key} bulk-removed door from exit '{direction}'.")
             elif component == "lock":
                 if not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.lock:
                     caller.msg(f"No lock found on door for exit '{direction}'.")
@@ -433,7 +466,9 @@ class CmdBulkRemove(Command):
                 exit_obj.db.door.db.lock.delete()
                 exit_obj.db.door.db.lock = None
                 caller.msg(f"Lock removed from door on exit '{direction}'.")
-                audit_channel.msg(f"{caller.key} bulk-removed lock from exit '{direction}'.")
+                audit_channel = get_audit_channel()
+                if audit_channel:
+                    audit_channel.msg(f"{caller.key} bulk-removed lock from exit '{direction}'.")
             elif component == "keypad":
                 if not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
                     caller.msg(f"No keypad found on door for exit '{direction}'.")
@@ -441,7 +476,9 @@ class CmdBulkRemove(Command):
                 exit_obj.db.door.db.keypad.delete()
                 exit_obj.db.door.db.keypad = None
                 caller.msg(f"Keypad lock removed from door on exit '{direction}'.")
-                audit_channel.msg(f"{caller.key} bulk-removed keypad from exit '{direction}'.")
+                audit_channel = get_audit_channel()
+                if audit_channel:
+                    audit_channel.msg(f"{caller.key} bulk-removed keypad from exit '{direction}'.")
             else:
                 caller.msg("Component must be one of: door, lock, keypad.")
                 return
@@ -465,17 +502,23 @@ def new_enter_combo(self, combo, caller):
         self.db.failed_attempts = 0
         self.db.cooldown_until = 0
         caller.msg("Keypad unlocked.")
-        audit_channel.msg(f"{caller.key} unlocked keypad on door.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} unlocked keypad on door.")
         return True
     else:
         self.db.failed_attempts += 1
         caller.msg("Incorrect combination.")
-        audit_channel.msg(f"{caller.key} failed keypad attempt ({self.db.failed_attempts}).")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} failed keypad attempt ({self.db.failed_attempts}).")
         if self.db.failed_attempts >= 5:
             self.db.cooldown_until = now + 600  # 10 minutes
             self.db.failed_attempts = 0
             caller.msg("|rThe keypad buzzes red! You must wait 10 minutes before trying again.|n")
-            audit_channel.msg(f"Keypad cooldown triggered by {caller.key} (10 min lockout).")
+            audit_channel = get_audit_channel()
+            if audit_channel:
+                audit_channel.msg(f"Keypad cooldown triggered by {caller.key} (10 min lockout).")
         return False
 KeypadLock.enter_combo = new_enter_combo
 
@@ -535,7 +578,9 @@ class CmdUnlockExit(Command):
             lock.unlock(key_obj, caller)
             door.db.is_locked = False
             caller.msg(lock.db.unlock_msg if hasattr(lock.db, "unlock_msg") else "You unlock the door.")
-            audit_channel.msg(f"{caller.key} unlocked door on exit '{direction}'.")
+            audit_channel = get_audit_channel()
+            if audit_channel:
+                audit_channel.msg(f"{caller.key} unlocked door on exit '{direction}'.")
             return
         # Try to unlock keypad
         if hasattr(door.db, "keypad") and door.db.keypad:
@@ -545,7 +590,9 @@ class CmdUnlockExit(Command):
                 return
             keypad.db.is_unlocked = True
             caller.msg("You unlock the keypad lock.")
-            audit_channel.msg(f"{caller.key} unlocked keypad on exit '{direction}'.")
+            audit_channel = get_audit_channel()
+            if audit_channel:
+                audit_channel.msg(f"{caller.key} unlocked keypad on exit '{direction}'.")
             return
         caller.msg("No lock or keypad found to unlock on exit '{direction}'.")
 
@@ -578,7 +625,9 @@ class CmdLockExit(Command):
             lock.lock(caller)
             door.db.is_locked = True
             caller.msg(lock.db.lock_msg if hasattr(lock.db, "lock_msg") else "You lock the door.")
-            audit_channel.msg(f"{caller.key} locked door on exit '{direction}'.")
+            audit_channel = get_audit_channel()
+            if audit_channel:
+                audit_channel.msg(f"{caller.key} locked door on exit '{direction}'.")
             return
         # Try to lock keypad
         if hasattr(door.db, "keypad") and door.db.keypad:
@@ -588,7 +637,9 @@ class CmdLockExit(Command):
                 return
             keypad.db.is_unlocked = False
             caller.msg("You lock the keypad lock.")
-            audit_channel.msg(f"{caller.key} locked keypad on exit '{direction}'.")
+            audit_channel = get_audit_channel()
+            if audit_channel:
+                audit_channel.msg(f"{caller.key} locked keypad on exit '{direction}'.")
             return
         caller.msg("No lock or keypad found to lock on exit '{direction}'.")
 
@@ -614,4 +665,6 @@ class CmdPressLock(Command):
             return
         keypad.db.is_unlocked = False
         caller.msg("You lock the keypad lock.")
-        audit_channel.msg(f"{caller.key} locked keypad on exit '{direction}'.")
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} locked keypad on exit '{direction}'.")
