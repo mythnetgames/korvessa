@@ -376,17 +376,11 @@ class CmdOpenDoor(Command):
         if not door:
             caller.msg(f"No door found for exit '{direction}'.")
             return
-        if door.db.is_open:
-            caller.msg("The door is already open.")
-            return
-        if door.db.is_locked:
-            caller.msg("The door is locked.")
-            return
-        door.db.is_open = True
-        caller.msg(door.db.open_msg if hasattr(door.db, "open_msg") else "You open the door.")
-        audit_channel = get_audit_channel()
-        if audit_channel:
-            audit_channel.msg(f"{caller.key} opened door on exit '{direction}'.")
+        result = door.open(caller)
+        if result:
+            audit_channel = get_audit_channel()
+            if audit_channel:
+                audit_channel.msg(f"{caller.key} opened door on exit '{direction}'.")
 
 class CmdCloseDoor(Command):
     """Close a door on an exit."""
@@ -403,14 +397,11 @@ class CmdCloseDoor(Command):
         if not door:
             caller.msg(f"No door found for exit '{direction}'.")
             return
-        if not door.db.is_open:
-            caller.msg("The door is already closed.")
-            return
-        door.db.is_open = False
-        caller.msg(door.db.close_msg if hasattr(door.db, "close_msg") else "You close the door.")
-        audit_channel = get_audit_channel()
-        if audit_channel:
-            audit_channel.msg(f"{caller.key} closed door on exit '{direction}'.")
+        result = door.close(caller)
+        if result:
+            audit_channel = get_audit_channel()
+            if audit_channel:
+                audit_channel.msg(f"{caller.key} closed door on exit '{direction}'.")
 
 class CmdLockDoor(Command):
     """Lock a door on an exit (if you have the key)."""
