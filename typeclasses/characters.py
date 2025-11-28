@@ -19,19 +19,17 @@ class Character(ObjectParent, DefaultCharacter):
 
     def at_post_login(self, session=None, **kwargs):
         """
-        Called every time a player logs in. Force mapper enabled for continuity.
+        Called every time a player logs in. Force mapper enabled for continuity and show map immediately.
         """
         if self.account and hasattr(self.account, 'db'):
             self.account.db.mapper_enabled = True
         self.ndb.mapper_enabled = True
-        # Force map display regardless of room coordinates
-        try:
-            from commands.mapper import CmdMapOn
-            cmd = CmdMapOn()
-            cmd.caller = self
-            cmd.func()
-        except Exception as e:
-            self.msg(f"Map enabling failed: {e}")
+        # Show map and room description immediately
+        from commands.mapper import CmdMap
+        cmd = CmdMap()
+        cmd.caller = self
+        cmd.args = ""
+        cmd.func()
 
         def at_server_start(self):
             """
