@@ -24,6 +24,14 @@ class Character(ObjectParent, DefaultCharacter):
         if self.account and hasattr(self.account, 'db'):
             self.account.db.mapper_enabled = True
         self.ndb.mapper_enabled = True
+        # Force map display regardless of room coordinates
+        try:
+            from commands.mapper import CmdMapOn
+            cmd = CmdMapOn()
+            cmd.caller = self
+            cmd.func()
+        except Exception as e:
+            self.msg(f"Map enabling failed: {e}")
 
         def at_server_start(self):
             """
@@ -32,6 +40,14 @@ class Character(ObjectParent, DefaultCharacter):
             if self.account and hasattr(self.account, 'db'):
                 self.account.db.mapper_enabled = True
             self.ndb.mapper_enabled = True
+            # Force map display regardless of room coordinates
+            try:
+                from commands.mapper import CmdMapOn
+                cmd = CmdMapOn()
+                cmd.caller = self
+                cmd.func()
+            except Exception as e:
+                self.msg(f"Map enabling failed on reboot: {e}")
     """
     The Character just re-implements some of the Object's methods and hooks
     to represent a Character entity in-game.
