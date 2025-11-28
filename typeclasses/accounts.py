@@ -26,6 +26,22 @@ from evennia.accounts.accounts import DefaultAccount, DefaultGuest
 
 
 class Account(DefaultAccount):
+        def puppet_object(self, session, obj):
+            """
+            Called when this Account puppets a Character (obj) on a session.
+            We override to force @mapon logic silently when 'You become ...' is echoed.
+            """
+            # Call the original Evennia logic
+            super().puppet_object(session, obj)
+            # Force @mapon logic silently
+            if hasattr(self, 'db'):
+                self.db.mapper_enabled = True
+            if hasattr(self, 'ndb'):
+                self.ndb.mapper_enabled = True
+            if session:
+                session.ndb.mapper_enabled = True
+            if hasattr(obj, 'ndb'):
+                obj.ndb.mapper_enabled = True
     """
     An Account is the actual OOC player entity. It doesn't exist in the game,
     but puppets characters.
