@@ -209,8 +209,11 @@ class Account(DefaultAccount):
         - Starting character creation for new accounts
         - Handling archived characters
         """
-        # Force map display ON for every account on login
+        # Force map display ON for every account and session on login
         self.db.mapper_enabled = True
+        self.ndb.mapper_enabled = True
+        if session:
+            session.ndb.mapper_enabled = True
         # Use Evennia's account.characters (the _playable_characters list) - this is the authoritative source
         all_characters = self.characters.all()
         
