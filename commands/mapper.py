@@ -172,15 +172,14 @@ class CmdMap(Command):
                         # Remove [tag]s, keep |color codes
                         import re
                         icon_clean = re.sub(r"\[(\w+)]", "", icon)
-                        # Find color codes at the start
-                        color_codes = ""
+                        # Find color/effect codes at the start
+                        codes = ""
                         i = 0
                         while i < len(icon_clean) and icon_clean[i] == '|':
-                            color_codes += icon_clean[i]
+                            codes += icon_clean[i]
                             i += 1
-                            # Get the next char (color code letter)
                             if i < len(icon_clean):
-                                color_codes += icon_clean[i]
+                                codes += icon_clean[i]
                                 i += 1
                         # Find first two visible chars
                         visible = ""
@@ -193,7 +192,10 @@ class CmdMap(Command):
                                 visible += icon_clean[j]
                                 j += 1
                         visible = visible.ljust(2)
-                        row.append(f"{color_codes}{visible}|n")
+                        # Apply codes to visible chars
+                        row.append(f"{codes}{visible}|n")
+                        # DEBUG: Show codes for troubleshooting
+                        # self.caller.msg(f"DEBUG: codes={codes} visible={visible}")
                     else:
                         row.append("[]")
                 else:
@@ -223,7 +225,9 @@ class CmdHelpMapping(Command):
             "- Icons must be exactly two characters.\n"
             "- Icon options: [bold_on]/[bold_off], [underline_on]/[underline_off], [strikethrough_on]/[strikethrough_off], [color], [bg_color]\n"
             "  Valid colors: black, white, red, blue, yellow, green, purple, cyan\n"
-            "- Example: @mapicon [black][bg_cyan]OD\n"
+            "  Effects: bold_on (|h), underline_on (|u), strikethrough_on (|s), bold_off/underline_off/strikethrough_off (|n)\n"
+            "  You can also use Evennia codes directly: |c (cyan), |[c (cyan background), |h (bold), |u (underline), |s (strikethrough), |n (reset)\n"
+            "- Example: @mapicon |x|[c|hOD|n\n"
             "- For icon customization help, use: mapicon help\n"
             "- Coordinates are set with: @maproom x y z\n"
             "- Map color for brackets: @mapcolor <colorcode>\n"
