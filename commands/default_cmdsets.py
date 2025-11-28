@@ -96,6 +96,14 @@ class DeathCmdSet(CmdSet):
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
+    """
+    The `CharacterCmdSet` contains general in-game commands like `look`,
+    `get`, etc available on in-game Character objects. It is merged with
+    the `AccountCmdSet` when an Account puppets a Character.
+    """
+
+    key = "DefaultCharacter"
+
     def at_cmdset_creation(self):
         """
         Populates the cmdset
@@ -114,19 +122,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRemoveKeypad())
         self.add(CmdProgramKeypad())
         self.add(CmdShowCombo())
-    """
-    The `CharacterCmdSet` contains general in-game commands like `look`,
-    `get`, etc available on in-game Character objects. It is merged with
-    the `AccountCmdSet` when an Account puppets a Character.
-    """
-
-    key = "DefaultCharacter"
-
-    def at_cmdset_creation(self):
-        """
-        Populates the cmdset
-        """
-        super().at_cmdset_creation()
         # Add fix room typeclass admin command
         from commands.CmdFixRoomTypeclass import CmdFixRoomTypeclass
         self.add(CmdFixRoomTypeclass())
