@@ -258,9 +258,7 @@ class CmdMap(Command):
             combined.append(f"{m.ljust(map_width)}{d}")
         right_pad = indent
         coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}"
-        if len(desc_lines) > len(grid):
-            coord_line = f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}{right_pad}{desc_lines[len(grid)].lstrip()}"
-            desc_lines.pop(len(grid))
+        # Always insert coordinate line after map, do not consume a description line
         combined.insert(len(grid), coord_line)
         self.caller.msg("\n".join(combined), parse=True)
 
