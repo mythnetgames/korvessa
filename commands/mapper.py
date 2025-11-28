@@ -210,15 +210,20 @@ class CmdMap(Command):
 
         # Get room description (appearance)
         appearance = ""
-        try:
-            # Use Evennia's return_appearance hook for full room text
-            appearance = room.return_appearance(self.caller)
-        except Exception as e:
-            appearance = f"[Error getting room description: {e}]"
+        # Only show room description if @mapon is not enabled
+        show_room_text = not getattr(self.caller.ndb, "mapper_enabled", False)
+        if show_room_text:
+            try:
+                appearance = room.return_appearance(self.caller)
+            except Exception as e:
+                appearance = f"[Error getting room description: {e}]"
+        else:
+            # When @mapon is enabled, only show map view, not duplicate room text
+            appearance = ""
 
         # Split map and description into lines
         map_lines = grid
-        desc_lines = appearance.splitlines()
+        desc_lines = ["   " + line for line in appearance.splitlines()] if appearance else [""] * len(map_lines)
 
         # Pad map or desc so both have same number of lines
         max_lines = max(len(map_lines), len(desc_lines))
@@ -228,7 +233,7 @@ class CmdMap(Command):
         # Combine side by side
         combined = []
         for m, d in zip(map_lines, desc_lines):
-            combined.append(f"{m}  {d}")
+            combined.append(f"{m}{d}")
 
         # Add coordinates at the bottom
         combined.append(f"x={x}, y={y}, z={z}")
