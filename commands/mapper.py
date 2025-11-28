@@ -224,7 +224,9 @@ class CmdMap(Command):
             pass
 
         # Always show the map and room description together, no @mapon logic
-        desc_lines = appearance.splitlines() if appearance else [""]
+        # Indent room description so it never runs over the map (five spaces to the right)
+        # Indent every line, including blank lines, five spaces to the right of the map
+        desc_lines = ["     " + (line if line.strip() != "" else "") for line in appearance.splitlines()] if appearance else ["     "]
 
 
         # Strict columnar layout: map (top left), text (top right)
