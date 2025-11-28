@@ -41,34 +41,54 @@ class Room(ObjectParent, DefaultRoom):
             z = self.db.z
             # Use mover.ndb.last_exit_direction if available
             direction = getattr(mover.ndb, "last_exit_direction", None)
-            # If any coordinate is missing, assign all three
-            if (x is None or y is None or z is None) and direction:
-                direction = direction.lower()
-                if direction == "north":
-                    px, py, pz = sx, sy + 1, sz
-                elif direction == "south":
-                    px, py, pz = sx, sy - 1, sz
-                elif direction == "east":
-                    px, py, pz = sx + 1, sy, sz
-                elif direction == "west":
-                    px, py, pz = sx - 1, sy, sz
-                elif direction == "up":
-                    px, py, pz = sx, sy, sz + 1
-                elif direction == "down":
-                    px, py, pz = sx, sy, sz - 1
-                else:
-                    # If direction is unknown, inherit z from source
-                    px, py, pz = sx, sy, sz
-                # Check for coordinate conflict
-                from evennia.objects.models import ObjectDB
-                conflict = ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room", db_x=px, db_y=py, db_z=pz).exclude(id=self.id).first()
-                if conflict:
-                    mover.msg(f"|rMapper: Coordinate conflict detected with room '{conflict.key}' at ({px},{py},{pz}). Assignment skipped.|n")
-                else:
-                    self.db.x = px
-                    self.db.y = py
-                    self.db.z = pz
-                    mover.msg(f"|yMapper: Coordinates assigned to this room: x={self.db.x}, y={self.db.y}, z={self.db.z}|n")
+            # Assign missing coordinates individually
+            assigned = False
+            direction = direction.lower() if direction else None
+            px, py, pz = x, y, z
+            if direction:
+                if x is None:
+                    if direction == "north":
+                        px = sx
+                    elif direction == "south":
+                        px = sx
+                    elif direction == "east":
+                        px = sx + 1
+                    elif direction == "west":
+                        px = sx - 1
+                    else:
+                        px = sx
+                    assigned = True
+                if y is None:
+                    if direction == "north":
+                        py = sy + 1
+                    elif direction == "south":
+                        py = sy - 1
+                    elif direction == "east":
+                        py = sy
+                    elif direction == "west":
+                        py = sy
+                    else:
+                        py = sy
+                    assigned = True
+                if z is None:
+                    if direction == "up":
+                        pz = sz + 1
+                    elif direction == "down":
+                        pz = sz - 1
+                    else:
+                        pz = sz
+                    assigned = True
+                # Only assign if any coordinate was missing
+                if assigned:
+                    from evennia.objects.models import ObjectDB
+                    conflict = ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room", db_x=px, db_y=py, db_z=pz).exclude(id=self.id).first()
+                    if conflict:
+                        mover.msg(f"|rMapper: Coordinate conflict detected with room '{conflict.key}' at ({px},{py},{pz}). Assignment skipped.|n")
+                    else:
+                        self.db.x = px
+                        self.db.y = py
+                        self.db.z = pz
+                        mover.msg(f"|yMapper: Coordinates assigned to this room: x={self.db.x}, y={self.db.y}, z={self.db.z}|n")
             elif (x is None or y is None or z is None):
                 mover.msg("|rMapper: Could not determine movement direction. Use @maproom x y z to set coordinates manually.|n")
         else:
@@ -82,7 +102,7 @@ class Room(ObjectParent, DefaultRoom):
 
         def show_map(self, caller):
             """
-            Display a 5x5 map centered on caller's current room, with connections.
+            Display a 5x5 map centered on caller's current room, with correct connections.
             """
             x = getattr(self.db, "x", None)
             y = getattr(self.db, "y", None)
@@ -93,8 +113,8 @@ class Room(ObjectParent, DefaultRoom):
             from evennia.objects.models import ObjectDB
             rooms = ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room", db_z=z)
             coords = {(room.db.x, room.db.y): room for room in rooms if room.db.x is not None and room.db.y is not None}
-            # Build 5x5 grid with connections
-            grid = []
+            # First pass: build cell matrix
+            cell_grid = []
             for dy in range(2, -3, -1):
                 row = []
                 for dx in range(-2, 3):
@@ -105,26 +125,37 @@ class Room(ObjectParent, DefaultRoom):
                         row.append("[ ]")
                     else:
                         row.append("   ")
-                    # Add east-west connection
-                    if dx < 2:
+                cell_grid.append(row)
+            # Second pass: add connections
+            grid = []
+            for row_idx in range(5):
+                # Room row
+                room_row = []
+                for col_idx in range(5):
+                    room_row.append(cell_grid[row_idx][col_idx])
+                    # East-west connection
+                    if col_idx < 4:
+                        cx = x + col_idx - 2
+                        cy = y + 2 - row_idx
                         next_cx = cx + 1
                         if ((cx, cy) in coords and (next_cx, cy) in coords):
-                            row.append("-")
+                            room_row.append("-")
                         else:
-                            row.append(" ")
-                grid.append("".join(row))
-                # Add north-south connection row (except after last row)
-                if dy > -2:
+                            room_row.append(" ")
+                grid.append("".join(room_row))
+                # North-south connection row (except after last row)
+                if row_idx < 4:
                     conn_row = []
-                    for dx in range(-2, 3):
-                        cx, cy = x + dx, y + dy
+                    for col_idx in range(5):
+                        cx = x + col_idx - 2
+                        cy = y + 2 - row_idx
                         next_cy = cy - 1
                         if ((cx, cy) in coords and (cx, next_cy) in coords):
                             conn_row.append("  |")
                         else:
                             conn_row.append("   ")
                         # Add space for east-west connection
-                        if dx < 2:
+                        if col_idx < 4:
                             conn_row.append("  ")
                     grid.append("".join(conn_row))
             caller.msg("\n".join(grid) + f"\nCurrent coordinates: x={x}, y={y}, z={z}")
