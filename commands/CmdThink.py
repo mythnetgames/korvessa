@@ -30,6 +30,8 @@ class CmdThink(Command):
             for obj in location.contents:
                 if obj == self.caller or not hasattr(obj, 'ndb'):
                     continue
-                installed = getattr(obj.ndb, 'installed_chrome', [])
+                installed = getattr(obj.ndb, 'installed_chrome', None)
+                if not installed or not isinstance(installed, list):
+                    continue
                 if any(getattr(chrome, 'db', None) and getattr(chrome.db, 'shortname', None) == 'mindseye' for chrome in installed):
                     obj.msg(f"You overhear {self.caller.key}'s thoughts: {thought}")
