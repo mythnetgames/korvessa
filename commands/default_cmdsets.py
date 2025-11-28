@@ -139,6 +139,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add chrome install/uninstall commands (builder and up)
         from commands.CmdChromeInstall import CmdChromeInstall, CmdChromeUninstall
         self.add(CmdChromeInstall())
+        # Add think command
+        from commands.CmdThink import CmdThink
+        self.add(CmdThink())
         self.add(CmdChromeUninstall())
         # Add mapping help command
         from commands.mapper import CmdHelpMapping
