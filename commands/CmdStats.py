@@ -48,14 +48,13 @@ class CmdStats(Command):
             right = right_stats[i]
             msg += f"{stat_line(*left):<25}{stat_line(*right):<25}\n"
         # Chrome/augmentations section
-        msg += "\n|rNo chrome or augmentations.|n\n"
+        msg += "\n|#870000No chrome or augmentations.|n\n"
         # Skill table
         skills = [
             "Chemical", "Modern Medicine", "Holistic Medicine", "Surgery", "Science", "Dodge", "Blades", "Pistols", "Rifles", "Melee", "Brawling", "Martial Arts", "Grappling", "Snooping", "Stealing", "Hiding", "Sneaking", "Disguise", "Tailoring", "Tinkering", "Manufacturing", "Cooking", "Forensics", "Decking", "Electronics", "Mercantile", "Streetwise", "Paint/Draw/Sculpt", "Instrument"
         ]
         # Underlined header, 'Raw' aligned to column 21
-        msg += "|wSkill           Raw|n\n"
-        msg += "|w-----------------------|n\n"
+        msg += "\n|y|uSkill                Raw|n"
         for skill in skills:
             raw = getattr(char, skill.lower().replace("/", "_"), 0)
             msg += f"{skill:<20}{raw:>3}\n"
