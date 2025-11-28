@@ -147,7 +147,7 @@ class CmdMap(Command):
     help_category = "Mapping"
 
     def convert_icon_tags(self, icon):
-        # New approach: Only process tags at the start, then apply codes to the rest of the string
+        # Strictly follow instructions: process all [tag]s at the start, apply codes, then use the next two non-tag characters as the icon
         if not icon:
             return icon
         # Foreground colors
@@ -162,7 +162,7 @@ class CmdMap(Command):
         effect_map = {
             "bold_on": "|h", "bold_off": "|n", "underline_on": "|u", "underline_off": "|n", "strikethrough_on": "|s", "strikethrough_off": "|n"
         }
-        # Find all tags at the start
+        # Accumulate codes from tags at the start
         codes = ""
         rest = icon
         tag_match = re.match(r"((\[(\w+)])+)(.*)", icon)
@@ -176,7 +176,10 @@ class CmdMap(Command):
                 elif tag in effect_map:
                     codes += effect_map[tag]
             rest = tag_match.group(4)
-        return codes + rest
+        # Only use the first two non-tag characters as the icon
+        icon_chars = "".join([c for c in rest if c not in "[]"])
+        icon_final = icon_chars[:2] if len(icon_chars) >= 2 else icon_chars.ljust(2)
+        return codes + icon_final
 
     def func(self):
         room = self.caller.location
