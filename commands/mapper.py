@@ -240,7 +240,12 @@ class CmdMap(Command):
             lines = appearance.split('\n')
             exit_line = None
             other_lines = []
+            seen = set()
             for line in lines:
+                # Remove duplicate lines
+                if line in seen:
+                    continue
+                seen.add(line)
                 if line.strip().lower().startswith("there are exits"):
                     exit_line = line
                 else:
@@ -248,7 +253,6 @@ class CmdMap(Command):
             # Wrap each line and indent all wrapped lines
             wrapped_lines = []
             for line in other_lines:
-                # Use dynamic indentation for all wrapped lines
                 wrapped = textwrap.fill(line, width=column_width, initial_indent=indent, subsequent_indent=indent)
                 wrapped_lines.extend(wrapped.split('\n'))
             desc_lines = wrapped_lines
