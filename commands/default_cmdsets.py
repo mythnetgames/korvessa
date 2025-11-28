@@ -25,7 +25,7 @@ from commands import CmdConsumption
 from commands import CmdMedicalItems
 from commands.CmdSpawnMob import CmdSpawnMob
 from commands.CmdBug import CmdBug
-from commands.CmdMapRoom import CmdMapRoom
+# ...existing code...
 from commands.CmdAdmin import CmdHeal, CmdPeace, CmdTestDeathCurtain, CmdWeather, CmdResetMedical, CmdMedicalAudit, CmdTestDeath, CmdTestUnconscious
 from commands.CmdFixCharacterOwnership import CmdFixCharacterOwnership
 from commands.combat.cmdset_combat import CombatCmdSet
@@ -38,7 +38,7 @@ from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.shop import CmdBuy
-from commands.map import CmdMap
+# ...existing code...
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -118,8 +118,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdWipeCoords())
         # Add maproom manual mapping command
         from commands.CmdMapRoom import CmdMapRoom
-        self.add(CmdMapRoom())
-        # ...existing code for other commands...
+            # ...existing code...
         self.add(CmdMedical.CmdDamageTest())
         self.add(CmdMedical.CmdMedicalInfo())
         
@@ -149,7 +148,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         
         # Add shop commands
         self.add(CmdBuy())
-        self.add(CmdMap())
+        # ...existing code...
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
