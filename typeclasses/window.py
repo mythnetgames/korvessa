@@ -12,26 +12,26 @@ class Window(DefaultObject):
             caller.msg("You lack permission to set window coordinates.")
             return False
         self.db.target_coords = (x, y, z)
-            # Find the target room by coordinates
-            from evennia.objects.models import ObjectDB
-            target_room = None
-            for obj in ObjectDB.objects.filter(db_typeclass_path__endswith="Room"):
-                rx = getattr(obj.db, "x", None)
-                ry = getattr(obj.db, "y", None)
-                rz = getattr(obj.db, "z", None)
-                if rx == x and ry == y and rz == z:
-                    target_room = obj
-                    break
-            if not target_room:
-                caller.msg(f"No room found at ({x}, {y}, {z}). Window will not show movement until a room exists at those coordinates.")
-                self.db.target_room_dbref = None
-            else:
-                self.db.target_room_dbref = target_room.dbref
-                # Register window with target room
-                if not hasattr(target_room.db, "window_list") or target_room.db.window_list is None:
-                    target_room.db.window_list = []
-                if self.dbref not in target_room.db.window_list:
-                    target_room.db.window_list.append(self.dbref)
+        # Find the target room by coordinates
+        from evennia.objects.models import ObjectDB
+        target_room = None
+        for obj in ObjectDB.objects.filter(db_typeclass_path__endswith="Room"):
+            rx = getattr(obj.db, "x", None)
+            ry = getattr(obj.db, "y", None)
+            rz = getattr(obj.db, "z", None)
+            if rx == x and ry == y and rz == z:
+                target_room = obj
+                break
+        if not target_room:
+            caller.msg(f"No room found at ({x}, {y}, {z}). Window will not show movement until a room exists at those coordinates.")
+            self.db.target_room_dbref = None
+        else:
+            self.db.target_room_dbref = target_room.dbref
+            # Register window with target room
+            if not hasattr(target_room.db, "window_list") or target_room.db.window_list is None:
+                target_room.db.window_list = []
+            if self.dbref not in target_room.db.window_list:
+                target_room.db.window_list.append(self.dbref)
         caller.msg(f"Window now shows movements in room at ({x}, {y}, {z}).")
         return True
 
