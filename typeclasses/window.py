@@ -1,6 +1,9 @@
 from evennia import DefaultObject
 
 class Window(DefaultObject):
+        def get_display_name(self, looker=None):
+            """Return a plain string name for display in room items."""
+            return str(self.key)
     """
     A window object that watches a target room by coordinates (x, y, z).
     When someone enters or leaves the watched room, this window relays a message
