@@ -14,8 +14,8 @@ class CmdDebugWindows(Command):
             caller.msg(f"Window '{win.key}' targets room at {coords}.")
 from evennia import Command
 from evennia.utils import create
-from evennia.utils import create
 
+## All imports must be at the top before any class definitions
 class CmdAttachWindow(Command):
     """Attach a new window to this room, watching a target room by coordinates."""
     key = "attachwindow"
