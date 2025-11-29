@@ -70,7 +70,7 @@ class CmdCreateRelay(Command):
         if not room_obj.typeclass_path.endswith("rooms.Room"):
             caller.msg("Target is not a valid room object.")
             return
-        relay = create_object("typeclasses.relay.RelayNode", key="relay", location=caller.location)
+        relay = create_object("typeclasses.relay.RelayNode", key="relay", location=caller.location, typeclass="typeclasses.relay.RelayNode")
         relay.set_remote_room(room_obj)
         caller.msg(f"Relay created in this room, transmitting from {room_obj.key}.")
 
@@ -93,7 +93,7 @@ class CmdCreateViewer(Command):
         if not relay or not inherits_from(relay[0], "typeclasses.relay.RelayNode"):
             caller.msg("Relay not found or not a valid relay node.")
             return
-        viewer = create_object("typeclasses.relay.RelayViewer", key="viewer", location=caller.location)
+        viewer = create_object("typeclasses.relay.RelayViewer", key="viewer", location=caller.location, typeclass="typeclasses.relay.RelayViewer")
         viewer.set_relay(relay[0])
         caller.msg(f"Viewer created in this room, linked to relay {relay[0].key}.")
 
