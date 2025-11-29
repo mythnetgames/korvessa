@@ -197,7 +197,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRemoveWindow())
         # Add debug windows command
         self.add(CmdDebugWindows())
-        from commands.debugwindows import CmdDebugWindows
+        # from commands.debugwindows import CmdDebugWindows
         self.add(CmdDebugWindows())
         # Add debug room coords command
         self.add(CmdDebugRoomCoords())
