@@ -48,6 +48,7 @@ class UnconsciousCmdSet(CmdSet):
     """
     Command set for unconscious characters.
     Only allows minimal OOC commands - no perception, movement, or actions.
+from commands.debugsensors import CmdDebugSensors
     """
     key = "unconscious_cmdset"
     priority = 0  # Same as normal CharacterCmdSet since this replaces it entirely
@@ -202,6 +203,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
     """
     This is the cmdset available to the Account at all times. It is
     combined with the `CharacterCmdSet` when the Account puppets a
+        self.add(CmdDebugSensors())
     Character. It holds game-account-specific commands, channel
     commands, etc.
     """
