@@ -40,6 +40,7 @@ from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.shop import CmdBuy
 from commands.window import CmdWindowCoord
 from commands.attachwindow import CmdAttachWindow
+from commands.debugwindows import CmdDebugWindows
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -190,6 +191,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdAttachWindow())
         from commands.removewindow import CmdRemoveWindow
         self.add(CmdRemoveWindow())
+        # Add debug windows command
+        from commands.debugwindows import CmdDebugWindows
+        self.add(CmdDebugWindows())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """

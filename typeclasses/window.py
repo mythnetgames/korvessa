@@ -18,4 +18,4 @@ class Window(DefaultObject):
     def echo_movement(self, msg):
         # Called by movement event in target room
         if self.location:
-            self.location.msg_contents(f"Through the window: {msg}")
+            self.location.msg_contents(f"|cWINDOW DEBUG|n: {msg}")
