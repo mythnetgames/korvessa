@@ -110,11 +110,14 @@ class Room(ObjectParent, DefaultRoom):
         # Notify registered windows for this room
         window_dbrefs = getattr(self.db, "window_list", []) or []
         from evennia.objects.models import ObjectDB
+        from evennia.comms.models import ChannelDB
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
         for dbref in window_dbrefs:
             win_obj = ObjectDB.objects.get(dbref=dbref)
             if win_obj:
                 win_obj.echo_movement(f"{moved_obj.key} enters the room at ({getattr(self.db, 'x', None)}, {getattr(self.db, 'y', None)}, {getattr(self.db, 'z', None)}).")
-                print(f"|gDEBUG|n: Notified window {dbref} of entry to room '{self.key}'")
+                if splattercast:
+                    splattercast.msg(f"|gDEBUG|n: Notified window {dbref} of entry to room '{self.key}'")
         # When a character (PC or NPC) enters, check all corpses in room for decay
         from typeclasses.characters import Character
         if isinstance(moved_obj, Character):
@@ -126,11 +129,14 @@ class Room(ObjectParent, DefaultRoom):
         # Notify registered windows for this room
         window_dbrefs = getattr(self.db, "window_list", []) or []
         from evennia.objects.models import ObjectDB
+        from evennia.comms.models import ChannelDB
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
         for dbref in window_dbrefs:
             win_obj = ObjectDB.objects.get(dbref=dbref)
             if win_obj:
                 win_obj.echo_movement(f"{moved_obj.key} leaves the room at ({getattr(self.db, 'x', None)}, {getattr(self.db, 'y', None)}, {getattr(self.db, 'z', None)}).")
-                print(f"|gDEBUG|n: Notified window {dbref} of exit from room '{self.key}'")
+                if splattercast:
+                    splattercast.msg(f"|gDEBUG|n: Notified window {dbref} of exit from room '{self.key}'")
     
     def _check_corpse_decay(self):
         """Check all corpses in room and remove those that have fully decayed."""
