@@ -42,3 +42,16 @@ class Window(DefaultObject):
         # Called by movement event in target room
         if self.location:
             self.location.msg_contents(f"|cWINDOW DEBUG|n: {msg}")
+        # Fallback debug: also print to Splattercast and to all builders in the room
+        try:
+            from evennia.comms.models import ChannelDB
+            splattercast = ChannelDB.objects.get_channel("Splattercast")
+            if splattercast:
+                splattercast.msg(f"|cWINDOW DEBUG|n: {msg}")
+        except Exception as e:
+            pass
+        # Directly notify all builders in the room
+        if self.location:
+            for obj in self.location.contents:
+                if hasattr(obj, "check_permstring") and obj.check_permstring("Builder"):
+                    obj.msg(f"|cWINDOW DEBUG|n: {msg}")
