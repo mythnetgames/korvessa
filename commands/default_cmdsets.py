@@ -189,6 +189,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdMedicalAudit())
         # Add shop commands
         self.add(CmdBuy())
+            # Add relay system builder/admin commands
+            from commands.relay_cmdset import BuilderRelayCmdSet
+            self.add(BuilderRelayCmdSet())
         # Add attachwindow command
         self.add(CmdAttachWindow())
         # Add windowcoord command
