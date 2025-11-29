@@ -442,14 +442,15 @@ class Room(ObjectParent, DefaultRoom):
         # Generate natural language descriptions
         descriptions = []
         for placement, char_names in placement_groups.items():
-            if len(char_names) == 1:
-                descriptions.append(f"{char_names[0]} is {placement}")
-            elif len(char_names) == 2:
-                descriptions.append(f"{char_names[0]} and {char_names[1]} are {placement}")
+            char_names_str = [str(n) for n in char_names]
+            if len(char_names_str) == 1:
+                descriptions.append(f"{char_names_str[0]} is {placement}")
+            elif len(char_names_str) == 2:
+                descriptions.append(f"{char_names_str[0]} and {char_names_str[1]} are {placement}")
             else:
                 # Handle 3+ characters: "A, B, and C are here"
-                all_but_last = ", ".join(char_names[:-1])
-                descriptions.append(f"{all_but_last}, and {char_names[-1]} are {placement}")
+                all_but_last = ", ".join(char_names_str[:-1])
+                descriptions.append(f"{all_but_last}, and {char_names_str[-1]} are {placement}")
         
         character_display = " ".join(descriptions) if descriptions else ""
         
