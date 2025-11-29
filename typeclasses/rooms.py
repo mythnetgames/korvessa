@@ -107,13 +107,13 @@ class Room(ObjectParent, DefaultRoom):
         Check for fully decayed corpses and clean them up just-in-time.
         """
         super().at_object_receive(moved_obj, source_location, **kwargs)
-        # Notify windows in all rooms with target_coords matching this room
-        coords = (getattr(self.db, "x", None), getattr(self.db, "y", None), getattr(self.db, "z", None))
+        # Notify registered windows for this room
+        window_dbrefs = getattr(self.db, "window_list", []) or []
         from evennia.objects.models import ObjectDB
-        for win_obj in ObjectDB.objects.filter(db_typeclass_path="typeclasses.window.Window"):
-            target = getattr(win_obj.db, "target_coords", None)
-            if target and tuple(target) == coords:
-                win_obj.echo_movement(f"{moved_obj.key} enters the room at {coords}.")
+        for dbref in window_dbrefs:
+            win_obj = ObjectDB.objects.get(dbref=dbref)
+            if win_obj:
+                win_obj.echo_movement(f"{moved_obj.key} enters the room at ({getattr(self.db, 'x', None)}, {getattr(self.db, 'y', None)}, {getattr(self.db, 'z', None)}).")
         # When a character (PC or NPC) enters, check all corpses in room for decay
         from typeclasses.characters import Character
         if isinstance(moved_obj, Character):
@@ -122,13 +122,13 @@ class Room(ObjectParent, DefaultRoom):
 
     def at_object_leave(self, moved_obj, target_location, **kwargs):
         super().at_object_leave(moved_obj, target_location, **kwargs)
-        # Notify windows in all rooms with target_coords matching this room
-        coords = (getattr(self.db, "x", None), getattr(self.db, "y", None), getattr(self.db, "z", None))
+        # Notify registered windows for this room
+        window_dbrefs = getattr(self.db, "window_list", []) or []
         from evennia.objects.models import ObjectDB
-        for win_obj in ObjectDB.objects.filter(db_typeclass_path="typeclasses.window.Window"):
-            target = getattr(win_obj.db, "target_coords", None)
-            if target and tuple(target) == coords:
-                win_obj.echo_movement(f"{moved_obj.key} leaves the room at {coords}.")
+        for dbref in window_dbrefs:
+            win_obj = ObjectDB.objects.get(dbref=dbref)
+            if win_obj:
+                win_obj.echo_movement(f"{moved_obj.key} leaves the room at ({getattr(self.db, 'x', None)}, {getattr(self.db, 'y', None)}, {getattr(self.db, 'z', None)}).")
     
     def _check_corpse_decay(self):
         """Check all corpses in room and remove those that have fully decayed."""
