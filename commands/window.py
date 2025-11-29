@@ -18,7 +18,6 @@ class CmdDebugWindows(Command):
         for win in windows:
             coords = (win.db.target_x, win.db.target_y, win.db.target_z)
             caller.msg(f"Window '{win.key}' targets room at {coords}.")
-
 class CmdAttachWindow(Command):
     """Attach a new window to this room, watching a target room by coordinates."""
     key = "attachwindow"
@@ -36,9 +35,6 @@ class CmdAttachWindow(Command):
         except ValueError:
             caller.msg("Coordinates must be integers.")
             return
-        window = create.create_object("typeclasses.window.Window", key="window", location=caller.location)
-        window.set_target_coords(x, y, z)
-        caller.msg(f"Window attached in this room, watching ({x}, {y}, {z}).")
 
 class CmdRemoveWindow(Command):
     """Remove all windows from this room."""

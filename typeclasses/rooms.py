@@ -110,9 +110,6 @@ class Room(ObjectParent, DefaultRoom):
         """
         super().at_object_receive(moved_obj, source_location, **kwargs)
         # Always check for WindowSensor objects and fire their hooks
-        for obj in self.contents:
-            if obj.is_typeclass("typeclasses.windowsensor.WindowSensor", exact=True):
-                obj.at_object_receive(moved_obj, source_location)
         # When a character (PC or NPC) enters, check all corpses in room for decay
         from typeclasses.characters import Character
         if isinstance(moved_obj, Character):
@@ -122,22 +119,13 @@ class Room(ObjectParent, DefaultRoom):
             from evennia.objects.models import ObjectDB
             x, y, z = self.db.x, self.db.y, self.db.z
             # Find all Window objects in the game watching this room
-            for win_obj in ObjectDB.objects.filter(db_typeclass_path__endswith="Window"):
-                if (win_obj.db.target_x == x and win_obj.db.target_y == y and win_obj.db.target_z == z):
-                    win_obj.relay_movement(moved_obj, 'enter')
 
     def at_object_leave(self, moved_obj, target_location, **kwargs):
         super().at_object_leave(moved_obj, target_location, **kwargs)
         # Always check for WindowSensor objects and fire their hooks
-        for obj in self.contents:
-            if obj.is_typeclass("typeclasses.windowsensor.WindowSensor", exact=True):
-                obj.at_object_leave(moved_obj, target_location)
             # Relay movement to windows watching this room
             from evennia.objects.models import ObjectDB
             x, y, z = self.db.x, self.db.y, self.db.z
-            for win_obj in ObjectDB.objects.filter(db_typeclass_path__endswith="Window"):
-                if (win_obj.db.target_x == x and win_obj.db.target_y == y and win_obj.db.target_z == z):
-                    win_obj.relay_movement(moved_obj, 'leave')
     
     def _check_corpse_decay(self):
         """Check all corpses in room and remove those that have fully decayed."""
@@ -223,11 +211,6 @@ class Room(ObjectParent, DefaultRoom):
                     break
             appearance = '\n'.join(lines)
 
-        # Sensor presence check
-        sensors = [obj for obj in self.contents if obj.is_typeclass("typeclasses.windowsensor.WindowSensor", exact=True)]
-        if sensors:
-            sensor_msg = f"|y(Sensor present: {len(sensors)} WindowSensor object(s) in this room)|n"
-            appearance += f"\n{sensor_msg}"
         return appearance
 
     def search_for_target(self, looker, searchdata, return_candidates_only=False, **kwargs):
@@ -562,11 +545,17 @@ class Room(ObjectParent, DefaultRoom):
             # Always include doors
             display_name = obj.get_display_name(looker) if hasattr(obj, "get_display_name") else obj.key
             # Ensure display_name is a plain string (not ANSIString)
-            if hasattr(display_name, 'plain'):  # ANSIString has .plain
+            if hasattr(display_name, 'plain'):
                 display_name_str = display_name.plain
+            elif isinstance(display_name, str):
+                display_name_str = display_name
             else:
                 display_name_str = str(display_name)
-            item_counts[display_name_str] += 1
+            # Final fallback: ensure it's a string
+            try:
+                item_counts[str(display_name_str)] += 1
+            except Exception:
+                item_counts['window'] += 1  # fallback for window objects
         
         if not item_counts:
             return ""
