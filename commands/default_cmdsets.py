@@ -192,20 +192,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add relay system builder/admin commands
         from commands.relay_cmdset import BuilderRelayCmdSet
         self.add(BuilderRelayCmdSet())
-        # Add attachwindow command
-        self.add(CmdAttachWindow())
-        # Add windowcoord command
-        self.add(CmdWindowCoord())
-        from commands.removewindow import CmdRemoveWindow
-        self.add(CmdRemoveWindow())
-        # Add debug windows command
-        self.add(CmdDebugWindows())
-        # from commands.debugwindows import CmdDebugWindows
-        self.add(CmdDebugWindows())
-        # Add debug room coords command
-        self.add(CmdDebugRoomCoords())
-        # Add debug sensors command
-        self.add(CmdDebugSensors())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
