@@ -48,18 +48,21 @@ class Window(DefaultObject):
 
     def echo_movement(self, msg):
         # Called by movement event in target room
+        debug_msg = f"|cWINDOW DEBUG|n: {msg}"
+        # Always send to room
         if self.location:
-            self.location.msg_contents(f"|cWINDOW DEBUG|n: {msg}")
-        # Fallback debug: also print to Splattercast and to all builders in the room
+            self.location.msg_contents(debug_msg)
+            # Directly notify all builders in the room
+            for obj in self.location.contents:
+                if hasattr(obj, "check_permstring") and obj.check_permstring("Builder"):
+                    obj.msg(debug_msg)
+        # Also print to console for server-side debugging
+        print(debug_msg)
+        # Fallback: try Splattercast
         try:
             from evennia.comms.models import ChannelDB
             splattercast = ChannelDB.objects.get_channel("Splattercast")
             if splattercast:
-                splattercast.msg(f"|cWINDOW DEBUG|n: {msg}")
-        except Exception as e:
+                splattercast.msg(debug_msg)
+        except Exception:
             pass
-        # Directly notify all builders in the room
-        if self.location:
-            for obj in self.location.contents:
-                if hasattr(obj, "check_permstring") and obj.check_permstring("Builder"):
-                    obj.msg(f"|cWINDOW DEBUG|n: {msg}")
