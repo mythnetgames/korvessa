@@ -57,13 +57,22 @@ class CmdCreateRelay(Command):
         if not self.args:
             caller.msg("Usage: create_relay [room dbref or name]")
             return
-        target_room = search_object(self.args.strip())
-        if not target_room or not inherits_from(target_room[0], "typeclasses.rooms.Room"):
-            caller.msg("Target room not found or not a valid room.")
+        arg = self.args.strip()
+        # Accept both #31 and 31
+        if arg.isdigit():
+            arg = f"#{arg}"
+        target_room = search_object(arg)
+        if not target_room:
+            caller.msg("Target room not found.")
+            return
+        room_obj = target_room[0]
+        # Accept any object whose typeclass path ends with 'rooms.Room'
+        if not room_obj.typeclass_path.endswith("rooms.Room"):
+            caller.msg("Target is not a valid room object.")
             return
         relay = create_object("typeclasses.relay.RelayNode", key="relay", location=caller.location)
-        relay.set_remote_room(target_room[0])
-        caller.msg(f"Relay created in this room, transmitting from {target_room[0].key}.")
+        relay.set_remote_room(room_obj)
+        caller.msg(f"Relay created in this room, transmitting from {room_obj.key}.")
 
 class CmdCreateViewer(Command):
     """
