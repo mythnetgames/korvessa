@@ -222,6 +222,12 @@ class Room(ObjectParent, DefaultRoom):
                     lines[i] += f" {combined_content}"
                     break
             appearance = '\n'.join(lines)
+
+        # Sensor presence check
+        sensors = [obj for obj in self.contents if obj.is_typeclass("typeclasses.windowsensor.WindowSensor", exact=True)]
+        if sensors:
+            sensor_msg = f"|y(Sensor present: {len(sensors)} WindowSensor object(s) in this room)|n"
+            appearance += f"\n{sensor_msg}"
         return appearance
 
     def search_for_target(self, looker, searchdata, return_candidates_only=False, **kwargs):
