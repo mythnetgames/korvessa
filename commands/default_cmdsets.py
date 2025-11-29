@@ -38,7 +38,6 @@ from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.shop import CmdBuy
-from commands.window import CmdWindowCoord
 from commands.attachwindow import CmdAttachWindow
 from commands.debugwindows import CmdDebugWindows
 from commands.debugroomcoords import CmdDebugRoomCoords
@@ -188,8 +187,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdMedicalAudit())
         # Add shop commands
         self.add(CmdBuy())
-        # Add windowcoord command
-        self.add(CmdWindowCoord())
         # Add attachwindow command
         self.add(CmdAttachWindow())
         from commands.removewindow import CmdRemoveWindow

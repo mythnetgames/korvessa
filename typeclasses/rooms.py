@@ -79,6 +79,8 @@ class Room(ObjectParent, DefaultRoom):
             self.db.x = 0
         if not hasattr(self.db, "y") or self.db.y is None:
             self.db.y = 0
+            if not hasattr(self.db, 'z'):
+                self.db.z = 0
 
         # Existing logic: assign coordinates if 0 and has exits
         if hasattr(self, "exits") and self.exits:
@@ -116,6 +118,13 @@ class Room(ObjectParent, DefaultRoom):
         if isinstance(moved_obj, Character):
             # Only run decay check when a character enters (not every object move)
             self._check_corpse_decay()
+            # Relay movement to windows watching this room
+            from evennia.objects.models import ObjectDB
+            x, y, z = self.db.x, self.db.y, self.db.z
+            # Find all Window objects in the game watching this room
+            for win_obj in ObjectDB.objects.filter(db_typeclass_path__endswith="Window"):
+                if (win_obj.db.target_x == x and win_obj.db.target_y == y and win_obj.db.target_z == z):
+                    win_obj.relay_movement(moved_obj, 'enter')
 
     def at_object_leave(self, moved_obj, target_location, **kwargs):
         super().at_object_leave(moved_obj, target_location, **kwargs)
@@ -123,6 +132,12 @@ class Room(ObjectParent, DefaultRoom):
         for obj in self.contents:
             if obj.is_typeclass("typeclasses.windowsensor.WindowSensor", exact=True):
                 obj.at_object_leave(moved_obj, target_location)
+            # Relay movement to windows watching this room
+            from evennia.objects.models import ObjectDB
+            x, y, z = self.db.x, self.db.y, self.db.z
+            for win_obj in ObjectDB.objects.filter(db_typeclass_path__endswith="Window"):
+                if (win_obj.db.target_x == x and win_obj.db.target_y == y and win_obj.db.target_z == z):
+                    win_obj.relay_movement(moved_obj, 'leave')
     
     def _check_corpse_decay(self):
         """Check all corpses in room and remove those that have fully decayed."""
