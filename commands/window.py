@@ -1,8 +1,4 @@
-class CmdDebugWindows(Command):
-    """Show all windows in this room and their target coordinates."""
-    key = "debugwindows"
-    locks = "cmd:perm(Builder)"
-    help_category = "Building"
+
 from evennia import Command
 from evennia.utils import create
 from typeclasses.window import Window
