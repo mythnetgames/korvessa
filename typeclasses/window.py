@@ -1,10 +1,12 @@
 from evennia import DefaultObject
 
 class Window(DefaultObject):
-        def get_display_name(self, looker=None):
-            """Return a plain string name for display, avoiding ANSIString issues."""
-            return str(self.key)
     """A window object that shows movements in another room based on coordinates."""
+
+    def get_display_name(self, looker=None):
+        """Return a plain string name for display, avoiding ANSIString issues."""
+        return str(self.key)
+
     def at_object_creation(self):
         self.db.target_coords = None  # (x, y, z) tuple
         self.db.desc = "A window looking into another space."
