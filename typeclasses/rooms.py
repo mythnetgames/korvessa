@@ -520,11 +520,11 @@ class Room(ObjectParent, DefaultRoom):
             # Skip characters (handled by get_display_characters)
             if obj.is_typeclass("typeclasses.characters.Character"):
                 continue
-            
+
             # Skip exits (handled by get_display_footer)
             if obj.is_typeclass("typeclasses.exits.Exit"):
                 continue
-            
+
             # Skip @integrate items - they're handled in room description  
             # Check Items, GraffitiObjects, BloodPools, and ShopContainers for integration
             if ((obj.is_typeclass("typeclasses.items.Item") or 
@@ -533,14 +533,16 @@ class Room(ObjectParent, DefaultRoom):
                  obj.is_typeclass("typeclasses.shopkeeper.ShopContainer")) and 
                 getattr(obj.db, "integrate", False)):
                 continue
-            
+
             # Skip objects the looker can't see
             if not obj.access(looker, "view"):
                 continue
-            
+
             # Always include doors
             display_name = obj.get_display_name(looker) if hasattr(obj, "get_display_name") else obj.key
-            item_counts[display_name] += 1
+            # Ensure display_name is a plain string (not ANSIString)
+            display_name_str = str(display_name)
+            item_counts[display_name_str] += 1
         
         if not item_counts:
             return ""
