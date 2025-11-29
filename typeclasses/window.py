@@ -21,6 +21,8 @@ class Window(DefaultObject):
 
     def relay_movement(self, char, movement_type, direction=None):
         # movement_type: 'enter' or 'leave'
+        debug_msg = f"[DEBUG] Window {self.key} relay_movement called: char={char.key}, movement_type={movement_type}, direction={direction}, window_loc={self.location}, target=({self.db.target_x},{self.db.target_y},{self.db.target_z})"
+        print(debug_msg)
         if movement_type == 'enter':
             msg = f"Through the window, you see {char.key} enter the room."
             if direction:
@@ -29,3 +31,5 @@ class Window(DefaultObject):
             msg = f"Through the window, you see {char.key} leave the room."
         if self.location:
             self.location.msg_contents(msg)
+        else:
+            print(f"[DEBUG] Window {self.key} has no location!")

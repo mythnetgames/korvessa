@@ -1,3 +1,4 @@
+from commands.window import CmdDebugWindows
 from commands.window import CmdWindowCoord
 from commands.mapper import CmdMapColor
 """
@@ -195,6 +196,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         from commands.removewindow import CmdRemoveWindow
         self.add(CmdRemoveWindow())
         # Add debug windows command
+        self.add(CmdDebugWindows())
         from commands.debugwindows import CmdDebugWindows
         self.add(CmdDebugWindows())
         # Add debug room coords command

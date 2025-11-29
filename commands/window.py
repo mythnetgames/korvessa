@@ -1,3 +1,18 @@
+class CmdDebugWindows(Command):
+    """Show all windows in this room and their target coordinates."""
+    key = "debugwindows"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+
+    def func(self):
+        caller = self.caller
+        windows = [obj for obj in caller.location.contents if obj.is_typeclass("typeclasses.window.Window", exact=True)]
+        if not windows:
+            caller.msg("No windows found in this room.")
+            return
+        for win in windows:
+            coords = (win.db.target_x, win.db.target_y, win.db.target_z)
+            caller.msg(f"Window '{win.key}' targets room at {coords}.")
 from evennia import Command
 from evennia.utils import create
 
