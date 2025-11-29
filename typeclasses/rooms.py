@@ -569,32 +569,33 @@ class Room(ObjectParent, DefaultRoom):
         # Wrap item names in |w for bold white highlighting
         formatted_items = []
         for item_name, count in item_counts.items():
+            item_name_str = str(item_name)
             if count == 1:
-                formatted_items.append(f"a |w{item_name}|n")
+                formatted_items.append(f"a |w{item_name_str}|n")
             elif count <= 50:
                 quantity = quantity_words[count]
                 # Handle plural forms - simple approach for now
-                if item_name.endswith('s') or item_name.endswith('x') or item_name.endswith('z'):
-                    plural_name = item_name
-                elif item_name.endswith('y'):
-                    plural_name = item_name[:-1] + "ies"
-                elif item_name.endswith('f'):
-                    plural_name = item_name[:-1] + "ves"
-                elif item_name.endswith('fe'):
-                    plural_name = item_name[:-2] + "ves"
+                if item_name_str.endswith('s') or item_name_str.endswith('x') or item_name_str.endswith('z'):
+                    plural_name = item_name_str
+                elif item_name_str.endswith('y'):
+                    plural_name = item_name_str[:-1] + "ies"
+                elif item_name_str.endswith('f'):
+                    plural_name = item_name_str[:-1] + "ves"
+                elif item_name_str.endswith('fe'):
+                    plural_name = item_name_str[:-2] + "ves"
                 else:
-                    plural_name = item_name + "s"
+                    plural_name = item_name_str + "s"
                 formatted_items.append(f"{quantity} |w{plural_name}|n")
             else:
                 # Use random euphemism for large quantities
                 euphemism = random.choice(euphemisms)
                 if "{}" in euphemism:
                     # Handle template euphemisms like "more {} than you know what to do with"
-                    plural_name = item_name + "s" if not item_name.endswith('s') else item_name
+                    plural_name = item_name_str + "s" if not item_name_str.endswith('s') else item_name_str
                     formatted_items.append(euphemism.format(f"|w{plural_name}|n"))
                 else:
                     # Handle direct euphemisms like "a shitload of"
-                    plural_name = item_name + "s" if not item_name.endswith('s') else item_name
+                    plural_name = item_name_str + "s" if not item_name_str.endswith('s') else item_name_str
                     formatted_items.append(f"{euphemism} |w{plural_name}|n")
         
         # Format using natural language similar to character placement
