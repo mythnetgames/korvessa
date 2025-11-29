@@ -107,17 +107,10 @@ class Room(ObjectParent, DefaultRoom):
         Check for fully decayed corpses and clean them up just-in-time.
         """
         super().at_object_receive(moved_obj, source_location, **kwargs)
-        # Notify registered windows for this room
-        window_dbrefs = getattr(self.db, "window_list", []) or []
-        from evennia.objects.models import ObjectDB
-        from evennia.comms.models import ChannelDB
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-        for dbref in window_dbrefs:
-            win_obj = ObjectDB.objects.get(dbref=dbref)
-            if win_obj:
-                win_obj.echo_movement(f"{moved_obj.key} enters the room at ({getattr(self.db, 'x', None)}, {getattr(self.db, 'y', None)}, {getattr(self.db, 'z', None)}).")
-                if splattercast:
-                    splattercast.msg(f"|gDEBUG|n: Notified window {dbref} of entry to room '{self.key}'")
+        # Always check for WindowSensor objects and fire their hooks
+        for obj in self.contents:
+            if obj.is_typeclass("typeclasses.windowsensor.WindowSensor", exact=True):
+                obj.at_object_receive(moved_obj, source_location)
         # When a character (PC or NPC) enters, check all corpses in room for decay
         from typeclasses.characters import Character
         if isinstance(moved_obj, Character):
@@ -126,17 +119,10 @@ class Room(ObjectParent, DefaultRoom):
 
     def at_object_leave(self, moved_obj, target_location, **kwargs):
         super().at_object_leave(moved_obj, target_location, **kwargs)
-        # Notify registered windows for this room
-        window_dbrefs = getattr(self.db, "window_list", []) or []
-        from evennia.objects.models import ObjectDB
-        from evennia.comms.models import ChannelDB
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-        for dbref in window_dbrefs:
-            win_obj = ObjectDB.objects.get(dbref=dbref)
-            if win_obj:
-                win_obj.echo_movement(f"{moved_obj.key} leaves the room at ({getattr(self.db, 'x', None)}, {getattr(self.db, 'y', None)}, {getattr(self.db, 'z', None)}).")
-                if splattercast:
-                    splattercast.msg(f"|gDEBUG|n: Notified window {dbref} of exit from room '{self.key}'")
+        # Always check for WindowSensor objects and fire their hooks
+        for obj in self.contents:
+            if obj.is_typeclass("typeclasses.windowsensor.WindowSensor", exact=True):
+                obj.at_object_leave(moved_obj, target_location)
     
     def _check_corpse_decay(self):
         """Check all corpses in room and remove those that have fully decayed."""
