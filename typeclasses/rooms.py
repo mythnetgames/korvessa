@@ -851,9 +851,11 @@ class Room(ObjectParent, DefaultRoom):
         Returns:
             str: Formatted direction string
         """
-        if alias and alias != direction:
-            return f"{direction} ({alias})"
-        return direction
+        direction_str = str(direction)
+        alias_str = str(alias) if alias is not None else None
+        if alias_str and alias_str != direction_str:
+            return f"{direction_str} ({alias_str})"
+        return direction_str
     
     def format_direction_list(self, directions):
         """
@@ -865,14 +867,15 @@ class Room(ObjectParent, DefaultRoom):
         Returns:
             str: Natural language list of directions
         """
-        if len(directions) == 1:
-            return directions[0]
-        elif len(directions) == 2:
-            return f"{directions[0]} and {directions[1]}"
+        directions_str = [str(d) for d in directions]
+        if len(directions_str) == 1:
+            return directions_str[0]
+        elif len(directions_str) == 2:
+            return f"{directions_str[0]} and {directions_str[1]}"
         else:
             # Handle 3+ directions: "north, south, and east"
-            all_but_last = ", ".join(directions[:-1])
-            return f"{all_but_last}, and {directions[-1]}"
+            all_but_last = ", ".join(directions_str[:-1])
+            return f"{all_but_last}, and {directions_str[-1]}"
 
 
 # =============================================================================
