@@ -1,3 +1,4 @@
+from commands.window import CmdWindowCoord
 from commands.mapper import CmdMapColor
 """
 Command sets
@@ -189,6 +190,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdBuy())
         # Add attachwindow command
         self.add(CmdAttachWindow())
+        # Add windowcoord command
+        self.add(CmdWindowCoord())
         from commands.removewindow import CmdRemoveWindow
         self.add(CmdRemoveWindow())
         # Add debug windows command
