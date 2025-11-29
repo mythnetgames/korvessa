@@ -25,6 +25,7 @@ class RelayViewer(DefaultObject):
     def at_object_creation(self):
         self.db.relay = None
         self.locks.add("view:true()")
+        self.db.desc = "A remote viewer device. Use 'look viewer' to see the remote room."
 
     def set_relay(self, relay):
         """Link this viewer to a relay node."""
