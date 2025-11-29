@@ -36,7 +36,8 @@ class Window(DefaultObject):
                     break
             if not sensor:
                 from typeclasses.windowsensor import WindowSensor
-                sensor = WindowSensor.create(key="window_sensor", location=target_room)
+                sensor_obj, errors = WindowSensor.create(key="window_sensor", location=target_room)
+                sensor = sensor_obj
                 sensor.db.installed_window_dbref = self.dbref
                 caller.msg(f"|gDEBUG|n: Created new WindowSensor in '{target_room.key}' for window {self.dbref}.")
             else:
