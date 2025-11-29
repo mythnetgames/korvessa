@@ -1,4 +1,5 @@
-from evennia import Command, create
+from evennia import Command
+from evennia.utils import create
 
 class CmdAttachWindow(Command):
     """Attach a new window to this room, watching a target room by coordinates."""
