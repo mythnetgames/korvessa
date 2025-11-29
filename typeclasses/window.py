@@ -27,14 +27,21 @@ class Window(DefaultObject):
             self.db.target_room_dbref = None
         else:
             self.db.target_room_dbref = target_room.dbref
-            # Register window with target room
-            if not hasattr(target_room.db, "window_list") or target_room.db.window_list is None:
-                target_room.db.window_list = []
-            if self.dbref not in target_room.db.window_list:
-                target_room.db.window_list.append(self.dbref)
-                caller.msg(f"|gDEBUG|n: Registered window {self.dbref} with room '{target_room.key}' window_list: {target_room.db.window_list}")
+            # Create or update WindowSensor in target room
+            from evennia.objects.models import ObjectDB
+            sensor = None
+            for obj in target_room.contents:
+                if obj.is_typeclass("typeclasses.windowsensor.WindowSensor", exact=True):
+                    sensor = obj
+                    break
+            if not sensor:
+                from typeclasses.windowsensor import WindowSensor
+                sensor = WindowSensor.create(key="window_sensor", location=target_room)
+                sensor.db.installed_window_dbref = self.dbref
+                caller.msg(f"|gDEBUG|n: Created new WindowSensor in '{target_room.key}' for window {self.dbref}.")
             else:
-                caller.msg(f"|yDEBUG|n: Window {self.dbref} already registered with room '{target_room.key}' window_list: {target_room.db.window_list}")
+                sensor.db.installed_window_dbref = self.dbref
+                caller.msg(f"|yDEBUG|n: Updated existing WindowSensor in '{target_room.key}' for window {self.dbref}.")
         caller.msg(f"Window now shows movements in room at ({x}, {y}, {z}).")
         return True
 
