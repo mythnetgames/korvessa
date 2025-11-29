@@ -562,7 +562,10 @@ class Room(ObjectParent, DefaultRoom):
             # Always include doors
             display_name = obj.get_display_name(looker) if hasattr(obj, "get_display_name") else obj.key
             # Ensure display_name is a plain string (not ANSIString)
-            display_name_str = str(display_name)
+            if hasattr(display_name, 'plain'):  # ANSIString has .plain
+                display_name_str = display_name.plain
+            else:
+                display_name_str = str(display_name)
             item_counts[display_name_str] += 1
         
         if not item_counts:

@@ -9,7 +9,8 @@ class Window(DefaultObject):
 
     def get_display_name(self, looker=None):
         """Return a plain string name for display in room items."""
-        return str(self.key)
+        # Always return a plain string, never ANSIString
+        return self.key if isinstance(self.key, str) else str(self.key)
 
     def at_object_creation(self):
         self.db.target_x = None
