@@ -32,6 +32,9 @@ class Window(DefaultObject):
                 target_room.db.window_list = []
             if self.dbref not in target_room.db.window_list:
                 target_room.db.window_list.append(self.dbref)
+                caller.msg(f"|gDEBUG|n: Registered window {self.dbref} with room '{target_room.key}' window_list: {target_room.db.window_list}")
+            else:
+                caller.msg(f"|yDEBUG|n: Window {self.dbref} already registered with room '{target_room.key}' window_list: {target_room.db.window_list}")
         caller.msg(f"Window now shows movements in room at ({x}, {y}, {z}).")
         return True
 
