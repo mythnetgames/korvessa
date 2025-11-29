@@ -42,6 +42,7 @@ from commands.window import CmdWindowCoord
 from commands.attachwindow import CmdAttachWindow
 from commands.debugwindows import CmdDebugWindows
 from commands.debugroomcoords import CmdDebugRoomCoords
+from commands.debugsensors import CmdDebugSensors
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -198,6 +199,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdDebugWindows())
         # Add debug room coords command
         self.add(CmdDebugRoomCoords())
+        # Add debug sensors command
+        self.add(CmdDebugSensors())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
