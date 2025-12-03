@@ -39,8 +39,8 @@ def node_welcome(caller, raw_string, **kwargs):
 
 # Character name entry node
 def node_charname(caller, raw_string, **kwargs):
-        import evennia
-        evennia.logger.log_info(f"[DEBUG] node_charname: caller={caller} type={type(caller)} raw_string={raw_string}")
+    import evennia
+    evennia.logger.log_info(f"[DEBUG] node_charname: caller={caller} type={type(caller)} raw_string={raw_string}")
     text = "Step 0: Enter your character's name. This will be your IC shell name.\n"
     text += "(Example: Anea, Borin, Elenwen)\n"
     if raw_string:
