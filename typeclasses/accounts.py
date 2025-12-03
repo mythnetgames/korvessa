@@ -153,7 +153,7 @@ class Account(DefaultAccount):
             newchar = create_object(Character, key=self.key)
             newchar.account = self
             newchar.save()
-            self.sessid_login(newchar)
+            self.puppet_object(session, newchar)
             evennia.logger.log_info(f"[DEBUG] at_first_login: switched to IC as {newchar.key}")
             # Launch chargen menu for the character object
             EvMenu(newchar, "commands.chargen_menu", startnode="node_charname")
