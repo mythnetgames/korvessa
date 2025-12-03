@@ -143,11 +143,18 @@ class Account(DefaultAccount):
         from evennia.utils.evmenu import EvMenu
         import evennia
         sessions = self.sessions.get()
+        import evennia
         evennia.logger.log_info(f"[DEBUG] at_first_login: sessions={sessions}")
         if sessions:
             session = sessions[0]
-            evennia.logger.log_info(f"[DEBUG] at_first_login: launching EvMenu with session={session} type={type(session)}")
-            EvMenu(session, "commands.chargen_menu", startnode="node_welcome")
+            # Create a temporary character with account name, switch to IC
+            from evennia import create_object
+            from typeclasses.characters import Character
+            newchar = create_object(Character, key=self.key, account=self)
+            self.sessid_login(newchar)
+            evennia.logger.log_info(f"[DEBUG] at_first_login: switched to IC as {newchar.key}")
+            # Launch chargen menu for the character object
+            EvMenu(newchar, "commands.chargen_menu", startnode="node_charname")
         else:
             self.msg("No active session found for chargen menu.")
 
