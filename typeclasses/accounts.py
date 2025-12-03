@@ -141,11 +141,11 @@ class Account(DefaultAccount):
         Called the first time this account logs in. Launches chargen menu.
         """
         from evennia.utils.evmenu import EvMenu
-        from commands.chargen_menu import node_welcome
-        EvMenu(self, "commands.chargen_menu", startnode="node_welcome")
-        self.msg("\nWelcome! Starting character creation...")
-
-        pass
+        session = self.sessions.get()
+        if session:
+            EvMenu(session, "commands.chargen_menu", startnode="node_welcome")
+        else:
+            self.msg("No active session found for chargen menu.")
 
 
 class Guest(DefaultGuest):
