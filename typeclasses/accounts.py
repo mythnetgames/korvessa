@@ -155,7 +155,8 @@ class Account(DefaultAccount):
             newchar.save()
             self.puppet_object(session, newchar)
             evennia.logger.log_info(f"[DEBUG] at_first_login: switched to IC as {newchar.key}")
-            # Launch chargen menu for the character object
+            # Launch chargen menu for the character object (after puppet)
+            from evennia.utils.evmenu import EvMenu
             EvMenu(newchar, "commands.chargen_menu", startnode="node_charname")
         else:
             self.msg("No active session found for chargen menu.")
