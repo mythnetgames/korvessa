@@ -29,11 +29,26 @@ class CmdStartChargen:
 def node_welcome(caller, raw_string, **kwargs):
     text = (
         "Welcome to Korvessa Character Creation!\n"
-        "You will choose your race, personality, assign stats, select skills, set your social standing, and enter public facts.\n"
+        "You will choose your name, race, personality, assign stats, select skills, set your social standing, and enter public facts.\n"
         "Type |wnext|n to begin."
     )
     options = [
-        {"desc": "Begin character creation", "goto": "node_race"},
+        {"desc": "Begin character creation", "goto": "node_charname"},
+    ]
+    return text, options
+
+# Character name entry node
+def node_charname(caller, raw_string, **kwargs):
+    text = "Step 0: Enter your character's name. This will be your IC shell name.\n"
+    text += "(Example: Anea, Borin, Elenwen)\n"
+    if raw_string:
+        name = raw_string.strip()
+        if not name or len(name) < 2:
+            return "Name must be at least 2 characters.", []
+        kwargs["charname"] = name
+        return f"Name '{name}' saved! Proceeding to race selection...", [{"desc": "Continue", "goto": ("node_race", kwargs)}]
+    options = [
+        {"desc": "Enter character name", "goto": ("node_charname", kwargs)},
     ]
     return text, options
 
@@ -202,6 +217,7 @@ def node_background(caller, raw_string, **kwargs):
 # Final confirmation node
 def node_confirm(caller, raw_string, **kwargs):
     text = "Character creation complete!\n\nSummary of your choices:\n"
+    text += f"Name: {kwargs.get('charname', 'N/A')}\n"
     text += f"Race: {kwargs.get('race', 'N/A')}\n"
     text += f"Personality: {kwargs.get('personality', 'N/A')}\n"
     text += f"Stats: {kwargs.get('stats', {})}\n"
