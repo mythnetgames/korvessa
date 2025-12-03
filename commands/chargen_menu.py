@@ -46,7 +46,14 @@ def node_charname(caller, raw_string, **kwargs):
         if not name or len(name) < 2:
             return "Name must be at least 2 characters.", []
         kwargs["charname"] = name
-        return f"Name '{name}' saved! Proceeding to race selection...", [{"desc": "Continue", "goto": ("node_race", kwargs)}]
+        # Create character and switch to IC immediately
+        from evennia import create_object
+        from typeclasses.characters import Character
+        account = caller.account if hasattr(caller, "account") else caller
+        newchar = create_object(Character, key=name, account=account)
+        caller.account.sessid_login(newchar)
+        caller.ndb.chargen_character = newchar  # Store reference for later chargen steps
+        return f"Name '{name}' saved! You are now IC as {name}. Proceeding to race selection...", [{"desc": "Continue", "goto": ("node_race", kwargs)}]
     options = [
         {"desc": "Enter character name", "goto": ("node_charname", kwargs)},
     ]

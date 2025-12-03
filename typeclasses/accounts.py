@@ -141,9 +141,13 @@ class Account(DefaultAccount):
         Called the first time this account logs in. Launches chargen menu.
         """
         from evennia.utils.evmenu import EvMenu
+        import evennia
         sessions = self.sessions.get()
+        evennia.logger.log_info(f"[DEBUG] at_first_login: sessions={sessions}")
         if sessions:
-            EvMenu(sessions[0], "commands.chargen_menu", startnode="node_welcome")
+            session = sessions[0]
+            evennia.logger.log_info(f"[DEBUG] at_first_login: launching EvMenu with session={session} type={type(session)}")
+            EvMenu(session, "commands.chargen_menu", startnode="node_welcome")
         else:
             self.msg("No active session found for chargen menu.")
 
