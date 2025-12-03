@@ -21,6 +21,12 @@ from .systems.characterfactssystem import CharacterFactsSystem
 
 
 class Character(ObjectParent, DefaultCharacter):
+        def at_post_puppet(self, account, session=None):
+            super().at_post_puppet(account, session=session)
+            # Only launch chargen menu if not complete
+            if not self.db.chargen_complete:
+                from evennia.utils.evmenu import EvMenu
+                EvMenu(self, "commands.chargen_menu", startnode="node_charname")
     # ----------------------
     # CHARACTER FACTS / PUBLIC KNOWLEDGE SYSTEM (modular)
     # ----------------------
