@@ -19,35 +19,38 @@ from .systems.socialstandingsystem import SocialStandingSystem
 from .systems.characterfactssystem import CharacterFactsSystem
 
 
+
 class Character(ObjectParent, DefaultCharacter):
-            # ----------------------
-            # CHARACTER FACTS / PUBLIC KNOWLEDGE SYSTEM (modular)
-            # ----------------------
-            # Uses CharacterFactsSystem class from typeclasses/systems/characterfactssystem.py
-            # Access via self.factsys.set_fact(), self.factsys.get_all_facts(), etc.
+    # ----------------------
+    # CHARACTER FACTS / PUBLIC KNOWLEDGE SYSTEM (modular)
+    # ----------------------
+    # Uses CharacterFactsSystem class from typeclasses/systems/characterfactssystem.py
+    # Access via self.factsys.set_fact(), self.factsys.get_all_facts(), etc.
 
-            @property
-            def factsys(self):
-                """
-                Returns CharacterFactsSystem instance for this character.
-                """
-                if not hasattr(self, "_factsys"):
-                    self._factsys = CharacterFactsSystem(self)
-                return self._factsys
-        # ----------------------
-        # SOCIAL STANDING SYSTEM (modular)
-        # ----------------------
-        # Uses SocialStandingSystem class from typeclasses/systems/socialstandingsystem.py
-        # Access via self.socialstandingsys.get_standing(), self.socialstandingsys.set_standing(), etc.
+    @property
+    def factsys(self):
+        """
+        Returns CharacterFactsSystem instance for this character.
+        """
+        if not hasattr(self, "_factsys"):
+            self._factsys = CharacterFactsSystem(self)
+        return self._factsys
 
-        @property
-        def socialstandingsys(self):
-            """
-            Returns SocialStandingSystem instance for this character.
-            """
-            if not hasattr(self, "_socialstandingsys"):
-                self._socialstandingsys = SocialStandingSystem(self)
-            return self._socialstandingsys
+    # ----------------------
+    # SOCIAL STANDING SYSTEM (modular)
+    # ----------------------
+    # Uses SocialStandingSystem class from typeclasses/systems/socialstandingsystem.py
+    # Access via self.socialstandingsys.get_standing(), self.socialstandingsys.set_standing(), etc.
+
+    @property
+    def socialstandingsys(self):
+        """
+        Returns SocialStandingSystem instance for this character.
+        """
+        if not hasattr(self, "_socialstandingsys"):
+            self._socialstandingsys = SocialStandingSystem(self)
+        return self._socialstandingsys
+
     # ----------------------
     # HEALING & INJURY SYSTEM (modular)
     # ----------------------
@@ -62,6 +65,7 @@ class Character(ObjectParent, DefaultCharacter):
         if not hasattr(self, "_healingsys"):
             self._healingsys = HealingSystem(self)
         return self._healingsys
+
     # ----------------------
     # COMBAT SYSTEM (modular)
     # ----------------------
@@ -76,6 +80,7 @@ class Character(ObjectParent, DefaultCharacter):
         if not hasattr(self, "_combatsys"):
             self._combatsys = CombatSystem(self)
         return self._combatsys
+
     # ----------------------
     # SKILLS SYSTEM (modular)
     # ----------------------
@@ -95,11 +100,6 @@ class Character(ObjectParent, DefaultCharacter):
         if not hasattr(self, "_skillsys"):
             self._skillsys = SkillSystem(self)
         return self._skillsys
-    # ----------------------
-    # XP ECONOMY SYSTEM (modular)
-    # ----------------------
-    # Uses XPSystem class from typeclasses/systems/xpsystem.py
-    # Access via self.xpsys.get_xp(), self.xpsys.add_xp(), etc.
 
     @property
     def xpsys(self):
