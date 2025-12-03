@@ -136,7 +136,16 @@ class Account(DefaultAccount):
 
     """
 
-    pass
+    def at_first_login(self):
+        """
+        Called the first time this account logs in. Launches chargen menu.
+        """
+        from evennia.utils.evmenu import EvMenu
+        from commands.chargen_menu import node_welcome
+        EvMenu(self, "commands.chargen_menu", startnode="node_welcome")
+        self.msg("\nWelcome! Starting character creation...")
+
+        pass
 
 
 class Guest(DefaultGuest):
