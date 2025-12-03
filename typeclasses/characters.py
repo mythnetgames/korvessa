@@ -242,9 +242,6 @@ class Character(ObjectParent, DefaultCharacter):
         Future systems should hook into this for initial setup.
         """
         super().at_object_creation()
-        # Default stat values (can be adjusted by chargen/personality)
-        for stat in self.STAT_NAMES:
-            self.db[stat] = 5  # Baseline value, adjust as needed
         # Personality scaffolding
         self.db.personality = None  # Will be set during character creation
 
