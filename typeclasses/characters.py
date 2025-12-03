@@ -9,241 +9,106 @@ creation commands.
 """
 
 from evennia.objects.objects import DefaultCharacter
-
 from .objects import ObjectParent
+from .systems.skillsystem import SkillSystem
+from .systems.combatsystem import CombatSystem
+from .systems.healingsystem import HealingSystem
+from .systems.xpsystem import XPSystem
+from .systems.personalitysystem import PersonalitySystem
+from .systems.socialstandingsystem import SocialStandingSystem
+from .systems.characterfactssystem import CharacterFactsSystem
 
 
 class Character(ObjectParent, DefaultCharacter):
-                    # ----------------------
-                    # COMBAT SYSTEM
-                    # ----------------------
-                    # Combat is slower, more dangerous, and stamina-focused.
-                    # Mechanics: weapon speed, hit chance, damage, stamina drain, retreat, crowd control.
-                    # Social reactions: NPCs respond based on Standing and location.
-
-                    COMBAT_MODIFIERS = {
-                        "base_hit_chance": -0.05,  # Reduced slightly
-                        "damage_reduction": 0.15,  # 10–15% less damage
-                        "stamina_drain": 1.25,     # Increased cost for maneuvers
-                        "retreat_difficulty": 1.2, # Harder to escape
-                        "crowd_control_duration": 0.7, # Shortened durations
-                    }
-
-                    def get_stamina(self):
-                        """
-                        Return current stamina value.
-                        """
-                        return self.db.stamina or 10  # Default value, adjust as needed
-
-                    def set_stamina(self, value):
-                        """
-                        Set stamina value.
-                        """
-                        self.db.stamina = value
-                        return True
-
-                    def apply_combat_modifiers(self, hit_chance, damage, maneuver_type=None):
-                        """
-                        Apply global combat modifiers to hit chance and damage.
-                        Args:
-                            hit_chance (float): Base hit chance
-                            damage (float): Base damage
-                            maneuver_type (str): Type of maneuver (optional)
-                        Returns:
-                            (float, float): Modified hit chance, damage
-                        """
-                        hit_chance += self.COMBAT_MODIFIERS["base_hit_chance"]
-                        damage *= (1 - self.COMBAT_MODIFIERS["damage_reduction"])
-                        # Stamina drain and retreat/crowd control can be handled in future hooks
-                        return hit_chance, damage
-
-                    def drain_stamina(self, amount):
-                        """
-                        Drain stamina for maneuvers, applying global modifier.
-                        """
-                        drain = amount * self.COMBAT_MODIFIERS["stamina_drain"]
-                        self.set_stamina(max(self.get_stamina() - drain, 0))
-                        return drain
-
-                    def can_retreat(self, dex, athletics):
-                        """
-                        Determine if retreat is possible, factoring in difficulty.
-                        Args:
-                            dex (int): DEX stat
-                            athletics (float): Athletics skill
-                        Returns:
-                            (bool, float): Success and difficulty
-                        """
-                        difficulty = (10 - dex) * self.COMBAT_MODIFIERS["retreat_difficulty"] - athletics
-                        return difficulty < 5, difficulty
-
-                    def apply_crowd_control(self, duration):
-                        """
-                        Apply crowd control duration modifier.
-                        """
-                        return duration * self.COMBAT_MODIFIERS["crowd_control_duration"]
-
-                    def social_reaction_to_combat(self, location, standing):
-                        """
-                        Scaffold: NPCs respond to combat based on location and Standing.
-                        Args:
-                            location (str): Zone type
-                            standing (dict): Faction standings
-                        Returns:
-                            str: Description of likely NPC reaction
-                        """
-                        # Example logic, expand for full system
-                        if location == "public":
-                            return "Guards intervene"
-                        elif location == "laborer":
-                            return "Workers join in or scatter"
-                        elif location == "underbelly":
-                            return "Ignored or thieves take advantage"
-                        return "Unusual response"
-                # ----------------------
-                # SKILLS SYSTEM
-                # ----------------------
-                # Skills are grouped into domains and have proficiency caps.
-                # Learning rates are affected by global penalties, RP bonuses, and grinding penalties.
-                # Skills are purchased via Training Points (from XP).
-                # Staff may lock skills behind Standing, teachers, or storylines.
-
-                SKILL_DOMAINS = {
-                    "Combat": ["Dodge", "Parry", "Grapple", "Weapon"],
-                    "Stealth": ["Hide", "Sneak", "Pick Locks"],
-                    "Social": ["Haggle", "Persuasion", "Streetwise"],
-                    "Crafting": ["Carpentry", "Blacksmithing", "Herbalism"],
-                    "Survival": ["Track", "Forage", "First Aid"],
-                    "Lore": ["Investigation", "Lore", "Appraise"],
-                    "Medical": ["Bandaging", "Chirurgy"],
-                }
-
-                SKILL_PROFICIENCY_CAPS = {
-                    "starting": 0.40,
-                    "self_trained": 0.80,
-                    "teacher_trained": 0.90,
-                    "gm_exceptional": 0.95,
-                }
-
-                SKILL_LEARNING_PENALTY = -0.40  # Global learning penalty
-
-                def get_skill(self, skill_name):
-                    """
-                    Return current proficiency for a skill (0.0–1.0).
-                    """
-                    return self.db.skills.get(skill_name, 0.0) if self.db.skills else 0.0
-
-                def set_skill(self, skill_name, value):
-                    """
-                    Set proficiency for a skill, respecting caps.
-                    """
-                    if not self.db.skills:
-                        self.db.skills = {}
-                    # Determine cap (scaffold: expand with training/teacher/GM logic)
-                    cap = self.SKILL_PROFICIENCY_CAPS["self_trained"]
-                    if value > cap:
-                        value = cap
-                    self.db.skills[skill_name] = value
-                    return True
-
-                def learn_skill(self, skill_name, amount, trained_by=None, gm_exceptional=False):
-                    """
-                    Increase skill proficiency, applying learning penalties and caps.
-                    Args:
-                        skill_name (str): Skill to learn
-                        amount (float): Amount to increase
-                        trained_by (str): 'teacher' or None
-                        gm_exceptional (bool): If GM grants exceptional cap
-                    """
-                    if not self.db.skills:
-                        self.db.skills = {}
-                    current = self.db.skills.get(skill_name, 0.0)
-                    # Apply global penalty
-                    amount *= (1 + self.SKILL_LEARNING_PENALTY)
-                    # RP activity bonus and grinding penalty can be added here
-                    # Determine cap
-                    if gm_exceptional:
-                        cap = self.SKILL_PROFICIENCY_CAPS["gm_exceptional"]
-                    elif trained_by == "teacher":
-                        cap = self.SKILL_PROFICIENCY_CAPS["teacher_trained"]
-                    else:
-                        cap = self.SKILL_PROFICIENCY_CAPS["self_trained"]
-                    new_value = min(current + amount, cap)
-                    self.db.skills[skill_name] = new_value
-                    return True, f"{skill_name} increased to {new_value:.2f}"
-
-                def get_skills_by_domain(self, domain):
-                    """
-                    Return all skills and proficiencies in a domain.
-                    """
-                    skills = self.SKILL_DOMAINS.get(domain, [])
-                    return {s: self.get_skill(s) for s in skills}
             # ----------------------
-            # XP ECONOMY SYSTEM
+            # CHARACTER FACTS / PUBLIC KNOWLEDGE SYSTEM (modular)
             # ----------------------
-            # XP is gained from RP, crafting, labor, combat, trading, etc.
-            # Daily cap: 200 XP
-            # XP can be spent on training points, NPC interaction, story, business, plot progression, sunset buyout
-            XP_DAILY_CAP = 200
-            XP_USE_COSTS = {
-                "training_point": 200,
-                "minor_npc_interaction": 400,
-                "story_notice": 600,
-                "small_business": 5000,
-                "full_shop": 36000,
-                "plot_progression": 4200,
-            }
+            # Uses CharacterFactsSystem class from typeclasses/systems/characterfactssystem.py
+            # Access via self.factsys.set_fact(), self.factsys.get_all_facts(), etc.
 
-            def get_xp(self):
+            @property
+            def factsys(self):
                 """
-                Return current XP value.
+                Returns CharacterFactsSystem instance for this character.
                 """
-                return self.db.xp or 0
+                if not hasattr(self, "_factsys"):
+                    self._factsys = CharacterFactsSystem(self)
+                return self._factsys
+        # ----------------------
+        # SOCIAL STANDING SYSTEM (modular)
+        # ----------------------
+        # Uses SocialStandingSystem class from typeclasses/systems/socialstandingsystem.py
+        # Access via self.socialstandingsys.get_standing(), self.socialstandingsys.set_standing(), etc.
 
-            def add_xp(self, amount):
-                """
-                Add XP, respecting daily cap.
-                Args:
-                    amount (int): XP to add
-                Returns:
-                    (bool, str): Success and message
-                """
-                # Track daily XP gain (scaffold: should reset daily)
-                daily_xp = self.db.daily_xp or 0
-                if daily_xp + amount > self.XP_DAILY_CAP:
-                    return False, f"Daily XP cap ({self.XP_DAILY_CAP}) exceeded"
-                self.db.xp = self.get_xp() + amount
-                self.db.daily_xp = daily_xp + amount
-                return True, f"Added {amount} XP"
+        @property
+        def socialstandingsys(self):
+            """
+            Returns SocialStandingSystem instance for this character.
+            """
+            if not hasattr(self, "_socialstandingsys"):
+                self._socialstandingsys = SocialStandingSystem(self)
+            return self._socialstandingsys
+    # ----------------------
+    # HEALING & INJURY SYSTEM (modular)
+    # ----------------------
+    # Uses HealingSystem class from typeclasses/systems/healingsystem.py
+    # Access via self.healingsys.get_injuries(), self.healingsys.add_injury(), etc.
 
-            def spend_xp(self, use_type):
-                """
-                Spend XP for a specific use (training, interaction, etc.).
-                Args:
-                    use_type (str): Type of XP purchase
-                Returns:
-                    (bool, str): Success and message
-                """
-                cost = self.XP_USE_COSTS.get(use_type)
-                if cost is None:
-                    return False, "Invalid XP use type"
-                if self.get_xp() < cost:
-                    return False, f"Not enough XP (need {cost})"
-                self.db.xp = self.get_xp() - cost
-                # Scaffold: trigger effects for each use type (training, business, etc.)
-                return True, f"Spent {cost} XP on {use_type}"
+    @property
+    def healingsys(self):
+        """
+        Returns HealingSystem instance for this character.
+        """
+        if not hasattr(self, "_healingsys"):
+            self._healingsys = HealingSystem(self)
+        return self._healingsys
+    # ----------------------
+    # COMBAT SYSTEM (modular)
+    # ----------------------
+    # Uses CombatSystem class from typeclasses/systems/combatsystem.py
+    # Access via self.combatsys.get_stamina(), self.combatsys.apply_combat_modifiers(), etc.
 
-            def sunset_buyout(self, buyout_type):
-                """
-                Spend remaining XP on sunset buyout options (business, rumor, reputation, standing shift).
-                Args:
-                    buyout_type (str): Type of buyout
-                Returns:
-                    (bool, str): Success and message
-                """
-                # Scaffold: implement buyout logic and options
-                self.db.xp = 0
-                return True, f"XP spent on {buyout_type} (character sunset)"
+    @property
+    def combatsys(self):
+        """
+        Returns CombatSystem instance for this character.
+        """
+        if not hasattr(self, "_combatsys"):
+            self._combatsys = CombatSystem(self)
+        return self._combatsys
+    # ----------------------
+    # SKILLS SYSTEM (modular)
+    # ----------------------
+    # Uses SkillSystem class from typeclasses/systems/skillsystem.py
+    # Access via self.skillsys.get_skill(), self.skillsys.set_skill(), etc.
+
+    def at_object_creation(self):
+        super().at_object_creation()
+        # ...existing code...
+        self.skillsys = SkillSystem(self)
+
+    @property
+    def skillsys(self):
+        """
+        Returns SkillSystem instance for this character.
+        """
+        if not hasattr(self, "_skillsys"):
+            self._skillsys = SkillSystem(self)
+        return self._skillsys
+    # ----------------------
+    # XP ECONOMY SYSTEM (modular)
+    # ----------------------
+    # Uses XPSystem class from typeclasses/systems/xpsystem.py
+    # Access via self.xpsys.get_xp(), self.xpsys.add_xp(), etc.
+
+    @property
+    def xpsys(self):
+        """
+        Returns XPSystem instance for this character.
+        """
+        if not hasattr(self, "_xpsys"):
+            self._xpsys = XPSystem(self)
+        return self._xpsys
         # ----------------------
         # D&D 5E-INSPIRED POINT BUY SYSTEM
         # ----------------------
