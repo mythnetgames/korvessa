@@ -150,7 +150,9 @@ class Account(DefaultAccount):
             # Create a temporary character with account name, switch to IC
             from evennia import create_object
             from typeclasses.characters import Character
-            newchar = create_object(Character, key=self.key, account=self)
+            newchar = create_object(Character, key=self.key)
+            newchar.account = self
+            newchar.save()
             self.sessid_login(newchar)
             evennia.logger.log_info(f"[DEBUG] at_first_login: switched to IC as {newchar.key}")
             # Launch chargen menu for the character object
