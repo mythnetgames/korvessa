@@ -30,10 +30,10 @@ def node_welcome(caller, raw_string, **kwargs):
     text = (
         "Welcome to Korvessa Character Creation!\n"
         "You will choose your name, race, personality, assign stats, select skills, set your social standing, and enter public facts.\n"
-        "Type |wnext|n to begin."
+           "Type 1 or press enter to begin.\n"
     )
     options = [
-        {"desc": "Begin character creation", "goto": "node_charname"},
+           {"desc": "Begin character creation", "goto": "node_charname", "key": ("1", "", "next")},
     ]
     return text, options
 
