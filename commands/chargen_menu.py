@@ -225,5 +225,35 @@ def node_confirm(caller, raw_string, **kwargs):
     text += f"Character Facts: {kwargs.get('facts', {})}\n"
     text += f"Background: {kwargs.get('background', '')}\n"
     text += "\nYour character will be reviewed by staff for lore and consistency.\nWelcome to Korvessa!"
+    # Character creation logic
+    if not caller.db.chargen_complete:
+        from evennia import create_object
+        from typeclasses.characters import Character
+        charname = kwargs.get('charname', None)
+        if charname:
+            # Create character and link to account
+            newchar = create_object(Character, key=charname, account=caller)
+            # Set stats
+            stats = kwargs.get('stats', {})
+            for stat, value in stats.items():
+                newchar.db[stat] = value
+            # Set personality
+            personality = kwargs.get('personality', None)
+            if personality:
+                newchar.set_personality(personality)
+            # Set skills
+            skills = kwargs.get('skills', [])
+            for skill in skills:
+                newchar.skillsys.set_skill(skill, 0.4)  # Starting proficiency
+            # Set character facts
+            facts = kwargs.get('facts', {})
+            for field, value in facts.items():
+                newchar.factsys.set_fact(field, value)
+            # Set background
+            background = kwargs.get('background', None)
+            if background:
+                newchar.db.background = background
+            caller.db.chargen_complete = True
+            text += f"\nCharacter '{charname}' created and linked to your account!"
     options = []
     return text, options
