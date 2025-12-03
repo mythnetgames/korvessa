@@ -232,7 +232,7 @@ def node_confirm(caller, raw_string, **kwargs):
         charname = kwargs.get('charname', None)
         if charname:
             # Create character and link to account
-            newchar = create_object(Character, key=charname, account=caller)
+            newchar = create_object(Character, key=charname, account=caller.account)
             # Set stats
             stats = kwargs.get('stats', {})
             for stat, value in stats.items():
@@ -255,5 +255,11 @@ def node_confirm(caller, raw_string, **kwargs):
                 newchar.db.background = background
             caller.db.chargen_complete = True
             text += f"\nCharacter '{charname}' created and linked to your account!"
+            # Auto-switch to IC mode
+            caller.account.sessid_login(newchar)
+            text += "\nYou have entered the game as your new character!"
+            options = []
+            return text, options
+    # If chargen already complete, just show summary
     options = []
     return text, options
