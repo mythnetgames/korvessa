@@ -116,24 +116,24 @@ class CmdAccountLogin(UnloggedCommand):
         connect <username> <password>
         login <username> <password>
     """
-    
+
     key = "connect"
     aliases = ["login", "l"]
     locks = "cmd:all()"
     help_category = "Account"
-    
+
     def func(self):
         """Log in to account."""
         if not self.args or len(self.args.split()) < 2:
             self.caller.msg("|r[ERROR]|n Usage: connect <username> <password>")
             return
-        
+
         username, password = self.args.split(None, 1)
-        
+
         try:
             user = User.objects.get(username=username)
             account = user.account
-            
+
             if account.check_password(password):
                 self.caller.msg(f"|g[SUCCESS]|n Logged in as {username}.")
                 # Transition to character selection menu
