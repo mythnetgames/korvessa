@@ -114,7 +114,6 @@ class CmdAccountLogin(UnloggedCommand):
 
     Usage:
         connect <username> <password>
-    or
         login <username> <password>
     """
     
