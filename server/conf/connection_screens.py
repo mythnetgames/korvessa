@@ -21,34 +21,20 @@ of the screen is done by the unlogged-in "look" command.
 from django.conf import settings
 from evennia import utils
 
-CONNECTION_SCREEN = """
-|#ffffff════════════════════════════════════════════════════════|n
-                       Welcome to |#5f005f{}|n
-                    |#ffff00May He Watch over you...|n
-|#ffffff════════════════════════════════════════════════════════|n
+CONNECTION_SCREEN = f"""
+|#ff00ff═══════════════════════════════════════════════════════════════════════════════|n
+|#00ffff  Welcome to |#ffaf00{settings.SERVERNAME}|n
+|#ff00ff═══════════════════════════════════════════════════════════════════════════════|n
 
-By logging into our game you affirm you have reached the 
-age of majority/consent in your jurisdiction or country.
+|#ffffffBy logging into our game you affirm you have reached the|n
+|#ffffffage of majority/consent in your jurisdiction or country.|n
+|#ffffffWhen in game refer to|n |#00ff00help information consent|n
 
-|b────────────────────────────────────────────────────────────|n
- |wC|n) Create a new game account. (NOTE: Not your character name)
- |wL|n) Login to an existing account
- |wX|n) Disconnect from the server
-|b────────────────────────────────────────────────────────────|n
+|#ffaf00------------------------------------------------------------|n
+ |#00ff00C|n) |#ffffffCreate a new game account. (NOTE: Not your character name)|n
+ |#00afffL|n) |#ffffffLogin to an existing account|n
+ |#ff5f5fX|n) |#ffffffDisconnect from the server|n
+|#ffaf00------------------------------------------------------------|n
 
- CONNECTION_SCREEN = f"""
- |#ff00ff═══════════════════════════════════════════════════════════════════════════════|n
- |#00ffff  Welcome to |#ffaf00{settings.SERVERNAME}|n
- |#ff00ff═══════════════════════════════════════════════════════════════════════════════|n
-
- |#ffffffBy logging into our game you affirm you have reached the|n
- |#ffffffage of majority/consent in your jurisdiction or country.|n
-
- |#ffaf00------------------------------------------------------------|n
-  |#00ff00C|n) |#ffffffCreate a new game account. (NOTE: Not your character name)|n
-  |#00afffL|n) |#ffffffLogin to an existing account|n
-  |#ff5f5fX|n) |#ffffffDisconnect from the server|n
- |#ffaf00------------------------------------------------------------|n
-
- |#ff87ffYour account name:|n\n\n|#afd700Please enter your password carefully - your access to the game server will be|n|#afd700suspended for a one-hour period if you repeatedly fail your logins!|n\n|#ff5fd7Password:|n """
+|#ff87ffYour account name:|n\n\n|#afd700Please enter your password carefully - your access to the game server will be|n+|#afd700suspended for a one-hour period if you repeatedly fail your logins!|n\n|#ff5fd7Password:|n """
 
