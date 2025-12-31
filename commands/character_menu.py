@@ -44,12 +44,20 @@ class CmdCreateCharacter(CharacterMenuCommand):
             self.caller.msg("|r[ERROR]|n You already have a character with that name.")
             return
         # Create the character
-        char = Character.objects.create(db_key=name, db_account=self.caller)
+        account = self.caller
+        char = Character.objects.create(db_key=name, db_account=account)
         char.db.desc = desc
         char.db.is_player = True
         char.db_is_player = True
+        char.db_account = account
         char.at_object_creation()
         char.save()
+        # Add character key to account's created_chars list
+        created_chars = account.db.created_chars or []
+        if char.key not in created_chars:
+            created_chars.append(char.key)
+            account.db.created_chars = created_chars
+            account.save()
         self.caller.msg(f"|g[SUCCESS]|n Character '{name}' created. (is_player={getattr(char, 'db_is_player', None)}) You may now submit an application or log in as this character.")
 
 from evennia.commands.command import Command as BaseCommand
