@@ -1,3 +1,6 @@
+from evennia.commands.command import Command as UnloggedCommand
+from evennia.utils import utils
+# ...existing code...
 
 # Custom Look command for unlogged-in users
 class CmdUnloggedinLook(UnloggedCommand):
@@ -14,10 +17,6 @@ class CmdUnloggedinLook(UnloggedCommand):
             self.caller.msg(CONNECTION_SCREEN)
         except Exception:
             self.caller.msg("|wWelcome to the game!|n\n(Type |ghelp|n for help.)")
-
-# --- CLEAN REWRITE: unlogged_commands.py ---
-from evennia.commands.command import Command as UnloggedCommand
-from evennia.utils import utils
 from evennia.accounts.models import AccountDB
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
