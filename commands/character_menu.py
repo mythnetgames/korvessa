@@ -69,7 +69,24 @@ class CmdCreateCharacter(CharacterMenuCommand):
             f"db_is_player={getattr(char, 'db_is_player', None)}, "
             f"created_chars={account.db.created_chars}"
         )
+
         self.caller.msg(f"|g[SUCCESS]|n Character '{name}' created. (is_player={getattr(char, 'db_is_player', None)}) You may now submit an application or log in as this character.\n{debug_info}")
+
+        # Show main menu options
+        menu = (
+            "\n|wWhat would you like to do next?\n"
+            "|c1.|n Login a character.\n"
+            "|c2.|n Submit a character application. |y(Approval required)|n\n"
+            "|c3.|n Delete a pending application.\n"
+            "|c4.|n Retire your current character.\n"
+            "|c5.|n View your characters.\n"
+            "|c6.|n Update your e-mail address.\n"
+            "|c7.|n Change your account password.\n"
+            "|c8.|n OOC Mail\n"
+            "\n|c11.|n Log Out.\n"
+            "\n|wYour Selection:|n "
+        )
+        self.caller.msg(menu)
 
 
 
