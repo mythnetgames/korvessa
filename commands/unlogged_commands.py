@@ -35,7 +35,7 @@ class CmdQuickCreate(UnloggedCommand):
         self.caller.msg("|g[CREATE]|n Enter a username for your new account:")
         self.caller.ndb.create_step = 1
         self.caller.ndb.create_username = None
-        self.session.inputfunc = self.create_prompt_handler
+        self.caller.inputfunc = self.create_prompt_handler
 
     def create_prompt_handler(self, session, text):
         if not hasattr(self.caller, 'ndb'):
@@ -45,13 +45,13 @@ class CmdQuickCreate(UnloggedCommand):
             self.caller.ndb.create_username = text.strip()
             self.caller.ndb.create_step = 2
             self.caller.msg("|g[CREATE]|n Enter a password for your new account:")
-            self.session.inputfunc = self.create_prompt_handler
+            self.caller.inputfunc = self.create_prompt_handler
         elif step == 2:
             username = self.caller.ndb.create_username
             password = text.strip()
             del self.caller.ndb.create_step
             del self.caller.ndb.create_username
-            self.session.inputfunc = None
+            self.caller.inputfunc = None
             self.caller.execute_cmd(f"create {username} {password}")
 
 class CmdQuickLogin(UnloggedCommand):
@@ -65,7 +65,7 @@ class CmdQuickLogin(UnloggedCommand):
         self.caller.msg("|g[LOGIN]|n Enter your account username:")
         self.caller.ndb.login_step = 1
         self.caller.ndb.login_username = None
-        self.session.inputfunc = self.login_prompt_handler
+        self.caller.inputfunc = self.login_prompt_handler
 
     def login_prompt_handler(self, session, text):
         if not hasattr(self.caller, 'ndb'):
@@ -75,13 +75,13 @@ class CmdQuickLogin(UnloggedCommand):
             self.caller.ndb.login_username = text.strip()
             self.caller.ndb.login_step = 2
             self.caller.msg("|g[LOGIN]|n Enter your account password:")
-            self.session.inputfunc = self.login_prompt_handler
+            self.caller.inputfunc = self.login_prompt_handler
         elif step == 2:
             username = self.caller.ndb.login_username
             password = text.strip()
             del self.caller.ndb.login_step
             del self.caller.ndb.login_username
-            self.session.inputfunc = None
+            self.caller.inputfunc = None
             self.caller.execute_cmd(f"connect {username} {password}")
 
 class CmdQuickDisconnect(UnloggedCommand):
@@ -93,7 +93,7 @@ class CmdQuickDisconnect(UnloggedCommand):
 
     def func(self):
         self.caller.msg("|y[INFO]|n Goodbye!")
-        self.session.inputfunc = None
+        self.caller.inputfunc = None
         self.session.disconnect()
 
 class CmdAccountCreate(UnloggedCommand):
