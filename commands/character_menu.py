@@ -124,6 +124,21 @@ class CmdLoginCharacter(CharacterMenuCommand):
             if not account.locks.check_lockstring(account, "perm(Builder)"):
                 if hasattr(character, "is_chargen_complete") and not character.is_chargen_complete():
                     account.msg("|r[ERROR]|n Your character creation is not complete. Please finish all stages before entering the game. Use the chargen command to continue character creation.")
+                    # Show main menu options
+                    menu = (
+                        "\n|wWhat would you like to do next?\n"
+                        "|c1.|n Login a character.\n"
+                        "|c2.|n Submit a character application. |y(Approval required)|n\n"
+                        "|c3.|n Delete a pending application.\n"
+                        "|c4.|n Retire your current character.\n"
+                        "|c5.|n View your characters.\n"
+                        "|c6.|n Update your e-mail address.\n"
+                        "|c7.|n Change your account password.\n"
+                        "|c8.|n OOC Mail\n"
+                        "\n|c11.|n Log Out.\n"
+                        "\n|wYour Selection:|n "
+                    )
+                    account.msg(menu)
                     return
                 if hasattr(character, "is_approved") and not character.is_approved():
                     account.msg("|r[ERROR]|n Your character has not been approved by staff yet.")
