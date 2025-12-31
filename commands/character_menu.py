@@ -9,17 +9,16 @@ class CmdQuit(BaseCommand):
         quit
     """
     key = "quit"
-    aliases = []
+    aliases = ["logout"]
     locks = "cmd:all()"
     help_category = "General"
 
     def func(self):
-        """Disconnect the session."""
+        """Disconnect the session/account."""
         self.caller.msg("|y[INFO]|n Goodbye!")
-        sessions = self.caller.sessions.get() if hasattr(self.caller, 'sessions') else []
-        if not sessions and hasattr(self.caller, 'account'):
-            sessions = self.caller.account.sessions.get()
-        for session in sessions:
+        # Disconnect all sessions for this account (whether IC or OOC)
+        account = getattr(self.caller, 'account', None) or self.caller
+        for session in account.sessions.all():
             session.disconnect()
 
 """
@@ -161,14 +160,13 @@ class CmdSubmitApplication(CharacterMenuCommand):
     """
     
     key = "apply"
-    aliases = ["2"]
-    
+    aliases = ["11", "quit"]
     def func(self):
-        """Submit character application."""
+        """Log out (synonymous with quit)."""
         account = self.caller
-        account.msg("|y[INFO]|n Character application system not yet implemented.")
-
-
+        account.msg("|y[INFO]|n Goodbye!")
+        for session in account.sessions.all():
+            session.disconnect()
 class CmdDeleteApplication(CharacterMenuCommand):
     """
     Delete a pending character application.
@@ -340,7 +338,7 @@ class CmdLogout(CharacterMenuCommand):
     """
     
     key = "logout"
-    aliases = ["11", "quit"]
+    aliases = ["11"]
     
     def func(self):
         """Log out."""
