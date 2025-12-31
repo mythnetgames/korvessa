@@ -217,6 +217,11 @@ class Character(ObjectParent, DefaultCharacter):
         # --- Mark as player character for menu visibility ---
         self.db.is_player = True
         self.db_is_player = True
+        # --- Set default starting location ---
+        from evennia.objects.models import ObjectDB
+        start_room = ObjectDB.objects.filter(db_key__iexact="Limbo").first()
+        if start_room:
+            self.location = start_room
 
     def add_xp(self, amount):
         """Add XP, respecting daily cap."""
