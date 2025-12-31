@@ -1,4 +1,6 @@
 
+from evennia.commands.command import Command as BaseCommand
+
 """
 Character menu commands for post-login character selection and management.
 """
