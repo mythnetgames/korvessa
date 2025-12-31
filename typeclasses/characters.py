@@ -72,82 +72,85 @@ class Character(ObjectParent, DefaultCharacter):
         if stage:
             return self.db.chargen_data.get(stage)
         return self.db.chargen_data
-                # --- Reputation & Rumor System Scaffolding ---
-                def at_object_creation_reputation(self):
-                    """Initialize reputation and rumor attributes."""
-                    self.db.reputation_tier = 'Unknown'
-                    self.db.rumors = []
 
-                def set_reputation_tier(self, tier):
-                    """Set the character's reputation tier."""
-                    self.db.reputation_tier = tier
+    # --- Reputation & Rumor System Scaffolding ---
+    def at_object_creation_reputation(self):
+        """Initialize reputation and rumor attributes."""
+        self.db.reputation_tier = 'Unknown'
+        self.db.rumors = []
 
-                def get_reputation_tier(self):
-                    return self.db.reputation_tier
+    def set_reputation_tier(self, tier):
+        """Set the character's reputation tier."""
+        self.db.reputation_tier = tier
 
-                def add_rumor(self, rumor):
-                    """Add a new rumor to the character's public knowledge."""
-                    if not self.db.rumors:
-                        self.db.rumors = []
-                    self.db.rumors.append(rumor)
+    def get_reputation_tier(self):
+        return self.db.reputation_tier
 
-                def get_rumors(self):
-                    return self.db.rumors if self.db.rumors else []
+    def add_rumor(self, rumor):
+        """Add a new rumor to the character's public knowledge."""
+        if not self.db.rumors:
+            self.db.rumors = []
+        self.db.rumors.append(rumor)
 
-                def clear_rumors(self):
-                    self.db.rumors = []
-            # --- Advanced Healing & Downtime Scaffolding ---
-            def at_object_creation_healing(self):
-                """Initialize downtime and advanced healing attributes."""
-                self.db.downtime_hours = 0
-                self.db.recovery_mod = 1.0  # Modifier for healing speed
+    def get_rumors(self):
+        return self.db.rumors if self.db.rumors else []
 
-            def add_downtime(self, hours):
-                """Add downtime hours for healing/recovery."""
-                self.db.downtime_hours = self.db.downtime_hours + hours if self.db.downtime_hours else hours
+    def clear_rumors(self):
+        self.db.rumors = []
 
-            def spend_downtime(self, hours):
-                """Spend downtime hours, returns True if enough downtime."""
-                if self.db.downtime_hours and self.db.downtime_hours >= hours:
-                    self.db.downtime_hours -= hours
-                    return True
-                return False
+    # --- Advanced Healing & Downtime Scaffolding ---
+    def at_object_creation_healing(self):
+        """Initialize downtime and advanced healing attributes."""
+        self.db.downtime_hours = 0
+        self.db.recovery_mod = 1.0  # Modifier for healing speed
 
-            def heal_with_downtime(self):
-                """Heal injury using downtime and recovery modifier."""
-                if self.db.injury and self.db.injury.get('healing_time', 0) > 0:
-                    heal_amount = int(1 * self.db.recovery_mod)
-                    self.heal_injury(heal_amount)
-                    return heal_amount
-                return 0
-        # --- Character Creation & Staff Tools Scaffolding ---
-        def at_chargen_start(self):
-            """Hook for start of character creation."""
-            self.db.chargen_stage = 0
-            self.db.chargen_data = {}
+    def add_downtime(self, hours):
+        """Add downtime hours for healing/recovery."""
+        self.db.downtime_hours = self.db.downtime_hours + hours if self.db.downtime_hours else hours
 
-        def at_chargen_advance(self, stage, data=None):
-            """Advance chargen stage and store data."""
-            self.db.chargen_stage = stage
-            if data:
-                self.db.chargen_data.update(data)
+    def spend_downtime(self, hours):
+        """Spend downtime hours, returns True if enough downtime."""
+        if self.db.downtime_hours and self.db.downtime_hours >= hours:
+            self.db.downtime_hours -= hours
+            return True
+        return False
 
-        def at_chargen_complete(self):
-            """Finalize character creation."""
-            self.db.chargen_complete = True
-            self.db.approved = False  # Staff must approve
+    def heal_with_downtime(self):
+        """Heal injury using downtime and recovery modifier."""
+        if self.db.injury and self.db.injury.get('healing_time', 0) > 0:
+            heal_amount = int(1 * self.db.recovery_mod)
+            self.heal_injury(heal_amount)
+            return heal_amount
+        return 0
 
-        def is_chargen_complete(self):
-            return bool(self.db.chargen_complete)
+    # --- Character Creation & Staff Tools Scaffolding ---
+    def at_chargen_start(self):
+        """Hook for start of character creation."""
+        self.db.chargen_stage = 0
+        self.db.chargen_data = {}
 
-        def is_approved(self):
-            return bool(self.db.approved)
+    def at_chargen_advance(self, stage, data=None):
+        """Advance chargen stage and store data."""
+        self.db.chargen_stage = stage
+        if data:
+            self.db.chargen_data.update(data)
 
-        def approve_character(self):
-            self.db.approved = True
+    def at_chargen_complete(self):
+        """Finalize character creation."""
+        self.db.chargen_complete = True
+        self.db.approved = False  # Staff must approve
 
-        def deny_character(self):
-            self.db.approved = False
+    def is_chargen_complete(self):
+        return bool(self.db.chargen_complete)
+
+    def is_approved(self):
+        return bool(self.db.approved)
+
+    def approve_character(self):
+        self.db.approved = True
+
+    def deny_character(self):
+        self.db.approved = False
     """
     The Character just re-implements some of the Object's methods and hooks
     to represent a Character entity in-game.
