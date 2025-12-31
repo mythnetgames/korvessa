@@ -128,3 +128,6 @@ try:
     from server.conf.secret_settings import *
 except ImportError:
     print("secret_settings.py file not found or failed to import.")
+
+# Ensure webserver-proxy always uses port 80
+WEBSERVER_PROXY_PORT = 80
