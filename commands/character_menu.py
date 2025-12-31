@@ -109,10 +109,15 @@ class CmdLoginCharacter(CharacterMenuCommand):
         try:
             # Find character owned by this account
             character = ObjectDB.objects.get(db_key=char_name, db_account=account)
-            
+            # Block entry if chargen is not complete or not approved
+            if hasattr(character, "is_chargen_complete") and not character.is_chargen_complete():
+                account.msg("|r[ERROR]|n Your character creation is not complete. Please finish all stages before entering the game.")
+                return
+            if hasattr(character, "is_approved") and not character.is_approved():
+                account.msg("|r[ERROR]|n Your character has not been approved by staff yet.")
+                return
             # Puppeting is handled by Evennia - just notify
             account.msg(f"|g[SUCCESS]|n Entering the world as {char_name}...")
-            
         except ObjectDB.DoesNotExist:
             account.msg("|r[ERROR]|n Character not found or not owned by you.")
 
@@ -314,4 +319,6 @@ class CmdLogout(CharacterMenuCommand):
         """Log out."""
         account = self.caller
         account.msg("|y[INFO]|n Goodbye!")
-        # Evennia will handle disconnection
+        # Disconnect all sessions for this account
+        for session in account.sessions.all():
+            session.disconnect()
