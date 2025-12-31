@@ -26,8 +26,6 @@ CONNECTION_SCREEN = f"""
 |#00ffff  Welcome to |#ffaf00{settings.SERVERNAME}|n
 |#ff00ff============================================================|n
 
-|#ffffffBy logging into our game you affirm you have reached the|n
-|#ffffffage of majority/consent in your jurisdiction or country.|n
 
 |#ffaf00------------------------------------------------------------|n
  |#00ff00C|n) |#ffffffCreate a new game account. (NOTE: Not your character name)|n
