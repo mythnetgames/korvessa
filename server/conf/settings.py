@@ -1,5 +1,3 @@
-# Use custom unlogged-in cmdset
-CMDSET_UNLOGGEDIN = "commands.default_cmdsets.UnloggedinCmdSet"
 r"""
 Evennia settings file.
 
@@ -35,7 +33,93 @@ from evennia.settings_default import *
 
 # This is the name of your game. Make it catchy!
 SERVERNAME = "Korvessa RPI"
-WEBSERVER_PROXY_PORT = 80
+# Short one-sentence blurb describing your game. Shown under the title
+# on the website and could be used in online listings of your game etc.
+GAME_SLOGAN = "May He Watch over you..."
+# The url address to your server, like mymudgame.com. This should be the publicly
+# visible location. This is used e.g. on the web site to show how you connect to the
+# game over telnet. Default is localhost (only on your machine).
+SERVER_HOSTNAME = "korvessarpi.org"
+# Lockdown mode will cut off the game from any external connections
+# and only allow connections from localhost. Requires a cold reboot.
+LOCKDOWN_MODE = False
+# Allow new account registration via the website and the `create` command
+# (October 18, 2025: Enabled for Cloudflare Turnstile integration testing)
+NEW_ACCOUNT_REGISTRATION_ENABLED = True
+# Activate telnet service
+TELNET_ENABLED = True
+# A list of ports the Evennia telnet server listens on Can be one or many.
+TELNET_PORTS = [23]
+# This is a security setting protecting against host poisoning
+# attacks.  It defaults to allowing all. In production, make
+# sure to change this to your actual host addresses/IPs.
+ALLOWED_HOSTS = ["korvessarpi.org","3.15.195.148"]
+# This is a security setting protecting against DJANGO CSRF nonsense
+CSRF_TRUSTED_ORIGINS = ['https://gel.monster', 'https://play.gel.monster', 'https://gelatinous.monster', 'https://gelatinous.org', 'https://96d01c0600eef9c99db924a15939abf3-578402624.us-west-2.elb.amazonaws.com', 'https://35.165.102.12']
+# Start the evennia webclient. This requires the webserver to be running and
+# offers the fallback ajax-based webclient backbone for browsers not supporting
+# the websocket one.
+WEBCLIENT_ENABLED = True
+
+# Use secure websocket on port 8443 (CloudFlare-proxied port)
+# CloudFlare handles SSL termination and proxies to backend port 4002
+WEBSOCKET_CLIENT_URL = "wss://gel.monster:8443"
+
+# Default exit typeclass
+DEFAULT_EXIT_TYPECLASS = "typeclasses.exits.Exit"
+
+######################################################################
+# Account and Character Management
+######################################################################
+
+# Set multisession mode to 1: Account-based login with single character
+# This enables proper account/character separation for resleeving mechanics
+# Mode 1: Login with account (email), then select/create character
+MULTISESSION_MODE = 1
+
+# Enable auto-puppeting for seamless login experience
+# Characters will be created/managed through resleeving system
+AUTO_CREATE_CHARACTER_WITH_ACCOUNT = False  # We'll handle this custom
+AUTO_PUPPET_ON_LOGIN = False  # Let at_post_login handle character selection/creation
+
+# Default starting location for new characters
+# Override in secret_settings.py for your specific deployment
+# If not set, defaults to Limbo (#2)
+# START_LOCATION = "#2"  # Example: set to your spawn room
+
+# Use our custom email-based login system
+CMDSET_UNLOGGEDIN = "commands.unloggedin_email.UnloggedinEmailCmdSet"
+CONNECTION_SCREEN_MODULE = "server.conf.connection_screens"
+
+######################################################################
+# Django web features
+######################################################################
+
+# Configure authentication backends for email-only login
+AUTHENTICATION_BACKENDS = [
+    "web.utils.auth_backends.EmailAuthenticationBackend",  # Email-based login only
+]
+
+######################################################################
+# Cloudflare Turnstile Configuration
+######################################################################
+
+# Cloudflare Turnstile keys for CAPTCHA verification
+# Get your keys from: https://dash.cloudflare.com/?to=/:account/turnstile
+# NOTE: These should be moved to secret_settings.py in production
+TURNSTILE_SITE_KEY = ""  # Public site key (visible in HTML)
+TURNSTILE_SECRET_KEY = ""  # Secret key (server-side only)
+
+######################################################################
+# Django web features
+######################################################################
+
+# While DEBUG is False, show a regular server error page on the web
+# stuff, email the traceback to the people in the ADMINS tuple
+# below. If True, show a detailed traceback for the web
+# browser to display. Note however that this will leak memory when
+# active, so make sure to turn it off for a production server!
+DEBUG = False
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.
@@ -44,5 +128,3 @@ try:
     from server.conf.secret_settings import *
 except ImportError:
     print("secret_settings.py file not found or failed to import.")
-
-    
