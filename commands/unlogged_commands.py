@@ -1,3 +1,76 @@
+
+    # Interactive account creation prompt
+    class CmdQuickCreate(UnloggedCommand):
+        """Quick alias for account creation: C"""
+        key = "C"
+        aliases = ["c"]
+        locks = "cmd:all()"
+        help_category = "Account"
+        def func(self):
+            self.caller.msg("|g[CREATE]|n Enter a username for your new account:")
+            self.caller.ndb.create_step = 1
+            self.caller.ndb.create_username = None
+            self.caller.session.handler = self.create_prompt_handler
+
+        def create_prompt_handler(self, session, text):
+            if not hasattr(self.caller, 'ndb'):
+                return
+            step = getattr(self.caller.ndb, 'create_step', 1)
+            if step == 1:
+                self.caller.ndb.create_username = text.strip()
+                self.caller.ndb.create_step = 2
+                self.caller.msg("|g[CREATE]|n Enter a password for your new account:")
+            elif step == 2:
+                username = self.caller.ndb.create_username
+                password = text.strip()
+                # Clean up
+                del self.caller.ndb.create_step
+                del self.caller.ndb.create_username
+                self.caller.session.handler = None
+                # Call the account creation logic
+                self.caller.execute_cmd(f"create {username} {password}")
+
+
+    # Interactive login prompt
+    class CmdQuickLogin(UnloggedCommand):
+        """Quick alias for login: L"""
+        key = "L"
+        aliases = ["l"]
+        locks = "cmd:all()"
+        help_category = "Account"
+        def func(self):
+            self.caller.msg("|g[LOGIN]|n Enter your account username:")
+            self.caller.ndb.login_step = 1
+            self.caller.ndb.login_username = None
+            self.caller.session.handler = self.login_prompt_handler
+
+        def login_prompt_handler(self, session, text):
+            if not hasattr(self.caller, 'ndb'):
+                return
+            step = getattr(self.caller.ndb, 'login_step', 1)
+            if step == 1:
+                self.caller.ndb.login_username = text.strip()
+                self.caller.ndb.login_step = 2
+                self.caller.msg("|g[LOGIN]|n Enter your account password:")
+            elif step == 2:
+                username = self.caller.ndb.login_username
+                password = text.strip()
+                # Clean up
+                del self.caller.ndb.login_step
+                del self.caller.ndb.login_username
+                self.caller.session.handler = None
+                # Call the login logic
+                self.caller.execute_cmd(f"connect {username} {password}")
+
+    class CmdQuickDisconnect(UnloggedCommand):
+        """Quick alias for disconnect: X"""
+        key = "X"
+        aliases = ["x"]
+        locks = "cmd:all()"
+        help_category = "Account"
+        def func(self):
+            self.caller.msg("|r[INFO]|n Disconnecting from server...")
+            self.caller.session.disconnect()
     menu_text = """
 
 

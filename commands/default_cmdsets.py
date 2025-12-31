@@ -89,11 +89,15 @@ class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
         """
         super().at_cmdset_creation()
         # Remove default create/connect commands to avoid conflicts
-        # self.delete("create")
-        # self.delete("connect")
-        # Add custom Korvessa login commands
-        # self.add(CmdAccountCreate())
-        # self.add(CmdAccountLogin())
+        self.delete("create")
+        self.delete("connect")
+        # Add custom Korvessa login commands and quick aliases
+        from commands.unlogged_commands import CmdAccountCreate, CmdAccountLogin, CmdQuickCreate, CmdQuickLogin, CmdQuickDisconnect
+        self.add(CmdAccountCreate())
+        self.add(CmdAccountLogin())
+        self.add(CmdQuickCreate())
+        self.add(CmdQuickLogin())
+        self.add(CmdQuickDisconnect())
 
 
 class SessionCmdSet(default_cmds.SessionCmdSet):

@@ -35,5 +35,5 @@ CONNECTION_SCREEN = f"""
  |#ff5f5fX|n) |#ffffffDisconnect from the server|n
 |#ffaf00------------------------------------------------------------|n
 
-|#ff87ffYour account name:|n\n\n|#afd700Please enter your password carefully - your access to the game server will be|n |#afd700suspended for a one-hour period if you repeatedly fail your logins!|n\n|#ff5fd7Password:|n """
+|#ff87ffEnter Your choice:
 
