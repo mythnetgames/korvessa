@@ -55,7 +55,7 @@ TELNET_PORTS = [23]
 # sure to change this to your actual host addresses/IPs.
 ALLOWED_HOSTS = ["korvessarpi.org","3.15.195.148"]
 # This is a security setting protecting against DJANGO CSRF nonsense
-CSRF_TRUSTED_ORIGINS = ['https://gel.monster', 'https://play.gel.monster', 'https://gelatinous.monster', 'https://gelatinous.org', 'https://96d01c0600eef9c99db924a15939abf3-578402624.us-west-2.elb.amazonaws.com', 'https://35.165.102.12']
+CSRF_TRUSTED_ORIGINS = ["https://korvessarpi.org", "3.15.195.148"]
 # Start the evennia webclient. This requires the webserver to be running and
 # offers the fallback ajax-based webclient backbone for browsers not supporting
 # the websocket one.
@@ -63,7 +63,7 @@ WEBCLIENT_ENABLED = True
 
 # Use secure websocket on port 8443 (CloudFlare-proxied port)
 # CloudFlare handles SSL termination and proxies to backend port 4002
-WEBSOCKET_CLIENT_URL = "wss://gel.monster:8443"
+WEBSOCKET_CLIENT_URL = "wss://korvessarpi.org:4001"
 
 # Default exit typeclass
 DEFAULT_EXIT_TYPECLASS = "typeclasses.exits.Exit"
