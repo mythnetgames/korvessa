@@ -1,7 +1,21 @@
 
+"""
+Character menu commands for post-login character selection and management.
+"""
+
+from evennia.commands.command import Command as BaseCommand
+from evennia.objects.models import ObjectDB
+from evennia.accounts.models import AccountDB
+
+
+class CharacterMenuCommand(BaseCommand):
+    """Base command for character menu."""
+    key = "char_menu_base"
+    locks = "cmd:all()"
+    help_category = "Character"
+
 # ...existing code...
 
-# Place CmdCreateCharacter after CharacterMenuCommand and all imports
 class CmdCreateCharacter(CharacterMenuCommand):
     """
     Create a new character.
@@ -34,9 +48,6 @@ class CmdCreateCharacter(CharacterMenuCommand):
         char.db.desc = desc
         char.at_object_creation()
         self.caller.msg(f"|g[SUCCESS]|n Character '{name}' created. You may now submit an application or log in as this character.")
-"""
-Character menu commands for post-login character selection and management.
-"""
 
 from evennia.commands.command import Command as BaseCommand
 from evennia.objects.models import ObjectDB
