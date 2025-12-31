@@ -158,8 +158,7 @@ class CmdAccountLogin(UnloggedCommand):
             account = user.account
             if account.check_password(password):
                 self.caller.msg(f"|g[SUCCESS]|n Logged in as {username}.")
-                account.msg("|#ffff00CHARACTER MENU|n\n")
-                self.show_character_menu(account)
+                self.session.login(account)
             else:
                 self.caller.msg("|r[ERROR]|n Invalid password.")
         except User.DoesNotExist:
