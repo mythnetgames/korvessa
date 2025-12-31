@@ -52,6 +52,9 @@ class CmdCreateCharacter(CharacterMenuCommand):
         char.db_account = account
         char.at_object_creation()
         char.save()
+        # Link character to account using Evennia's handler
+        if hasattr(account, "characters"):
+            account.characters.add(char)
         # Add character key to account's created_chars list
         created_chars = account.db.created_chars or []
         if char.key not in created_chars:
