@@ -92,7 +92,8 @@ class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
         self.remove("create")
         self.remove("connect")
         # Add custom Korvessa login commands and quick aliases
-        from commands.unlogged_commands import CmdAccountCreate, CmdAccountLogin, CmdQuickCreate, CmdQuickLogin, CmdQuickDisconnect
+        from commands.unlogged_commands import CmdAccountCreate, CmdAccountLogin, CmdQuickCreate, CmdQuickLogin, CmdQuickDisconnect, CmdUnloggedinLook
+        self.add(CmdUnloggedinLook())
         self.add(CmdAccountCreate())
         self.add(CmdAccountLogin())
         self.add(CmdQuickCreate())

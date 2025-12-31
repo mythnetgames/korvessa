@@ -1,3 +1,16 @@
+# Minimal Look command for unlogged-in users to prevent errors
+class CmdUnloggedinLook(UnloggedCommand):
+    """Display the login screen or a welcome message."""
+    key = "look"
+    locks = "cmd:all()"
+    help_category = "General"
+
+    def func(self):
+        try:
+            from server.conf.connection_screens import CONNECTION_SCREEN
+            self.caller.msg(CONNECTION_SCREEN)
+        except Exception:
+            self.caller.msg("|wWelcome to the game!|n\n(Type |ghelp|n for help.)")
 from evennia.commands.command import Command as UnloggedCommand
 from evennia.utils import utils
 # ...existing code...
