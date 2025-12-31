@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Virtualenv
+evennia-venv/
+venv/
+
+# Evennia runtime
+server/logs/
+server/.twistd.pid
+server/*.sqlite3
+server/*.db3
+server/settings_secret.py
+
+# Web
+web/static/
+web/staticfiles/
+
+# OS junk
+.DS_Store
+Thumbs.db
