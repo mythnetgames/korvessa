@@ -88,7 +88,11 @@ class CmdQuickDisconnect(UnloggedCommand):
     def func(self):
         self.caller.msg("|y[INFO]|n Goodbye!")
         self.caller.inputfunc = None
-        self.session.disconnect()
+        # Use the correct API for unlogged-in sessions
+        if hasattr(self.caller, 'session') and self.caller.session:
+            self.caller.session.disconnect()
+        elif hasattr(self, 'session') and self.session:
+            self.session.disconnect()
 
 class CmdAccountCreate(UnloggedCommand):
     """
