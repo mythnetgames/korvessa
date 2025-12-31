@@ -50,6 +50,8 @@ class CmdCreateCharacter(CharacterMenuCommand):
         char.db.is_player = True
         char.db_is_player = True
         char.db_account = account
+        # Set locks so only the creating account can puppet
+        char.locks.add(f"puppet:id({account.id})")
         char.at_object_creation()
         char.save()
         # Link character to account using Evennia's handler
