@@ -1,7 +1,8 @@
 
+from evennia.commands.command import Command as BaseCommand
+
 # ...existing code...
 
-# Place CmdQuit after all imports
 class CmdQuit(BaseCommand):
     """
     Quit the game and disconnect your session.
