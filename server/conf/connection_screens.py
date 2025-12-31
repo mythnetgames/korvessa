@@ -31,10 +31,9 @@ CONNECTION_SCREEN = f"""
  |#00ff00C|n) |#ffffffCreate a new game account. (NOTE: Not your character name)|n
  |#00ff00C|n) |wcreate <username> <password>
  |#00afff------------------------------------------------------------|n 
- |#00afffL|n) |#ffffffLogin to an existing account|n
-|#00afffL|n) |wlogin <username> <password>
- |#ff5f5fX|n) |#ffffffDisconnect from the server|n
-|#ffaf00------------------------------------------------------------|n
+ |#00afffL|n) |#ffffffLogin to an existing account with:|n
+ |#00afffL|n) |wlogin <username> <password>
+ |#ffaf00------------------------------------------------------------|n
 
 |#ff87ffYour choice:|n
 """
