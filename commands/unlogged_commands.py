@@ -127,7 +127,8 @@ class CmdAccountCreate(UnloggedCommand):
             account.db.pending_apps = []
             account.db.discord_id = None
             account.save()
-            self.caller.msg(f"|g[SUCCESS]|n Account '{username}' created! Please log in.")
+            self.caller.ndb.awaiting_email = account
+            self.caller.msg(f"|g[SUCCESS]|n Account '{username}' created! Please enter your email address to complete registration:")
         except IntegrityError:
             self.caller.msg("|r[ERROR]|n Account name already exists.")
         except Exception as e:

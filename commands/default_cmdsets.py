@@ -47,6 +47,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
+        from commands.view_account import CmdViewAccount
+        self.add(CmdViewAccount())
     """
     This is the cmdset available to the Account at all times. It is
     combined with the `CharacterCmdSet` when the Account puppets a
@@ -97,6 +99,9 @@ class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
         """
         Populates the cmdset
         """
+        super().at_cmdset_creation()
+        from commands.set_email import CmdSetEmail
+        self.add(CmdSetEmail())
         super().at_cmdset_creation()
         # Add custom Korvessa quick commands and look command
         from commands.unlogged_commands import CmdQuickCreate, CmdQuickLogin, CmdQuickDisconnect, CmdUnloggedinLook
