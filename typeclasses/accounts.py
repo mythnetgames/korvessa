@@ -32,11 +32,9 @@ class Account(DefaultAccount):
 
     Account Enhancements for Korvessa:
      - db.email - Account email address
-     - db.ansi_color - Toggle ANSI color support (default: True)
      - db.created_chars - List of created character keys
      - db.retired_chars - List of retired character keys
      - db.pending_apps - List of pending character applications
-     - db.discord_id - Linked Discord user ID
     """
 
     def at_account_creation(self):
@@ -45,6 +43,36 @@ class Account(DefaultAccount):
         self.db.created_chars = []
         self.db.retired_chars = []
         self.db.pending_apps = []
+    
+    def at_post_login(self, session=None, **kwargs):
+        """
+        Called after a successful login.
+        Show character menu instead of auto-puppeting.
+        """
+        # Show character management menu instead of automatically logging in
+        self.show_character_menu()
+    
+    def show_character_menu(self):
+        """Display character selection menu."""
+        menu_text = """
+|#ffff00════════════════════════════════════════════════════════════|n
+|#ffff00CHARACTER MANAGEMENT|n
+|#ffff00════════════════════════════════════════════════════════════|n
+
+  1. Login a character.
+  2. Submit a character application.
+                (Approval required)
+  3. Delete a pending application.
+  4. Retire your current character.
+  5. View your characters.
+  6. Update your e-mail address.
+  7. Change your account password.
+  8. Send/Check OOC Mail.
+
+ 11. Log Out.
+
+|#ffff00Your Selection:|n """
+        self.msg(menu_text)
 
 
 class Guest(DefaultGuest):

@@ -15,6 +15,18 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 """
 
 from evennia import default_cmds
+from commands.unlogged_commands import CmdAccountCreate, CmdAccountLogin
+from commands.character_menu import (
+    CmdLoginCharacter,
+    CmdSubmitApplication,
+    CmdDeleteApplication,
+    CmdRetireCharacter,
+    CmdViewCharacters,
+    CmdUpdateEmail,
+    CmdChangePassword,
+    CmdOOCMail,
+    CmdLogout,
+)
 
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
@@ -51,9 +63,16 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
-        #
-        # any commands you add below will overload the default ones.
-        #
+        # Add character menu commands
+        self.add(CmdLoginCharacter())
+        self.add(CmdSubmitApplication())
+        self.add(CmdDeleteApplication())
+        self.add(CmdRetireCharacter())
+        self.add(CmdViewCharacters())
+        self.add(CmdUpdateEmail())
+        self.add(CmdChangePassword())
+        self.add(CmdOOCMail())
+        self.add(CmdLogout())
 
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
@@ -69,9 +88,12 @@ class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
-        #
-        # any commands you add below will overload the default ones.
-        #
+        # Remove default create/connect commands to avoid conflicts
+        self.delete("create")
+        self.delete("connect")
+        # Add custom Korvessa login commands
+        self.add(CmdAccountCreate())
+        self.add(CmdAccountLogin())
 
 
 class SessionCmdSet(default_cmds.SessionCmdSet):
