@@ -1,3 +1,5 @@
+# Use custom unlogged-in cmdset
+CMDSET_UNLOGGEDIN = "commands.default_cmdsets.UnloggedinCmdSet"
 r"""
 Evennia settings file.
 
