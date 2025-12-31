@@ -9,7 +9,7 @@ class CmdQuit(BaseCommand):
         quit
     """
     key = "quit"
-    aliases = ["logout", "exit"]
+    aliases = []
     locks = "cmd:all()"
     help_category = "General"
 
