@@ -6,7 +6,8 @@ from evennia.utils import utils
 # Minimal Look command for unlogged-in users to prevent errors
 class CmdUnloggedinLook(UnloggedCommand):
     """Display the login screen or a welcome message."""
-    key = "look"
+    key = "__unloggedin_look_command"
+    aliases = ["look"]
     locks = "cmd:all()"
     help_category = "General"
 
