@@ -24,7 +24,9 @@ class CmdAppQueue(BaseCommand):
         args = self.args.strip()
         # List all pending applications
         if not args:
-            apps = ObjectDB.objects.filter(db_application_status='pending').order_by('db_date_created')
+            # Get all player objects and filter by application_status attribute
+            all_chars = ObjectDB.objects.filter(db_is_player=True).order_by('db_date_created')
+            apps = [obj for obj in all_chars if getattr(obj.db, 'application_status', None) == 'pending']
             if not apps:
                 self.caller.msg("|y[INFO]|n No pending character applications.")
                 return
@@ -40,7 +42,8 @@ class CmdAppQueue(BaseCommand):
             except ValueError:
                 self.caller.msg("|r[ERROR]|n Usage: appqueue <#>")
                 return
-            apps = ObjectDB.objects.filter(db_application_status='pending').order_by('db_date_created')
+            all_chars = ObjectDB.objects.filter(db_is_player=True).order_by('db_date_created')
+            apps = [obj for obj in all_chars if getattr(obj.db, 'application_status', None) == 'pending']
             if idx < 1 or idx > len(apps):
                 self.caller.msg("|r[ERROR]|n Invalid application number.")
                 return
