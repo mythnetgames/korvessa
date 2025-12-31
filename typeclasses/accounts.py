@@ -49,8 +49,7 @@ class Account(DefaultAccount):
         Called after a successful login.
         Show character menu instead of auto-puppeting.
         """
-        # Show character management menu instead of automatically logging in
-        self.show_character_menu()
+        # self.show_character_menu()  # Temporarily disabled to test server restart
     
     def show_character_menu(self):
         """Display character selection menu."""
