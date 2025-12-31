@@ -15,7 +15,10 @@ from .objects import ObjectParent
 
 class Character(ObjectParent, DefaultCharacter):
     def at_pre_puppet(self, account, session=None):
-        """Block entry if character creation is incomplete or not approved."""
+        """Block entry if character creation is incomplete or not approved, unless Builder+."""
+        # Allow Builder+ to bypass chargen/approval
+        if account.locks.check_lockstring(account, "perm(Builder)"):
+            return True
         if not self.is_chargen_complete():
             account.msg("Your character creation is not complete. Please finish all stages before entering the game.")
             return False

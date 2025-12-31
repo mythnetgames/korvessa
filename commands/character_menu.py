@@ -1,7 +1,9 @@
 
-from evennia.commands.command import Command as BaseCommand
+
 
 # ...existing code...
+
+from evennia.commands.command import Command as BaseCommand
 
 class CmdQuit(BaseCommand):
     """
@@ -28,9 +30,8 @@ class CmdQuit(BaseCommand):
 Character menu commands for post-login character selection and management.
 """
 
-from evennia.commands.command import Command as BaseCommand
-from evennia.objects.models import ObjectDB
-from evennia.accounts.models import AccountDB
+
+
 
 
 class CharacterMenuCommand(BaseCommand):
@@ -95,17 +96,10 @@ class CmdCreateCharacter(CharacterMenuCommand):
         )
         self.caller.msg(f"|g[SUCCESS]|n Character '{name}' created. (is_player={getattr(char, 'db_is_player', None)}) You may now submit an application or log in as this character.\n{debug_info}")
 
-from evennia.commands.command import Command as BaseCommand
-from evennia.objects.models import ObjectDB
-from evennia.accounts.models import AccountDB
 
 
-class CharacterMenuCommand(BaseCommand):
-    """Base command for character menu."""
-    
-    key = "char_menu_base"
-    locks = "cmd:all()"
-    help_category = "Character"
+
+
 
 
 class CmdLoginCharacter(CharacterMenuCommand):
@@ -134,13 +128,25 @@ class CmdLoginCharacter(CharacterMenuCommand):
         try:
             # Find character owned by this account
             character = ObjectDB.objects.get(db_key=char_name, db_account=account)
-            # Block entry if chargen is not complete or not approved
-            if hasattr(character, "is_chargen_complete") and not character.is_chargen_complete():
-                account.msg("|r[ERROR]|n Your character creation is not complete. Please finish all stages before entering the game.")
-                return
-            if hasattr(character, "is_approved") and not character.is_approved():
-                account.msg("|r[ERROR]|n Your character has not been approved by staff yet.")
-                return
+            # Allow Builder+ to bypass chargen/approval
+            if not account.locks.check_lockstring(account, "perm(Builder)"):
+                if hasattr(character, "is_chargen_complete") and not character.is_chargen_complete():
+                    account.msg("|r[ERROR]|n Your character creation is not complete. Please finish all stages before entering the game.")
+                    return
+                if hasattr(character, "is_approved") and not character.is_approved():
+                    account.msg("|r[ERROR]|n Your character has not been approved by staff yet.")
+                    return
+            # Ensure character has a valid location
+            if not character.location:
+                # Try to move to a default room (id=1), or fallback to first available room
+                from typeclasses.rooms import Room
+                try:
+                    default_room = Room.objects.get(id=1)
+                except Exception:
+                    default_room = Room.objects.first()
+                if default_room:
+                    character.location = default_room
+                    character.save()
             # Puppeting is handled by Evennia - just notify
             account.msg(f"|g[SUCCESS]|n Entering the world as {char_name}...")
         except ObjectDB.DoesNotExist:
