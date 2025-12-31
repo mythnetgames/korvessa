@@ -210,6 +210,9 @@ class Character(ObjectParent, DefaultCharacter):
         self.db.xp_daily = 0
         self.db.xp_daily_cap = 200
         self.db.training_points = 0
+        # --- Mark as player character for menu visibility ---
+        self.db.is_player = True
+        self.db_is_player = True
 
     def add_xp(self, amount):
         """Add XP, respecting daily cap."""
