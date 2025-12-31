@@ -1,3 +1,7 @@
+
+# ...existing code...
+
+# Place CmdCreateCharacter after CharacterMenuCommand and all imports
 class CmdCreateCharacter(CharacterMenuCommand):
     """
     Create a new character.

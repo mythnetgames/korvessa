@@ -14,63 +14,64 @@ from .objects import ObjectParent
 
 
 class Character(ObjectParent, DefaultCharacter):
-                        def at_pre_puppet(self, account, session=None):
-                            """Block entry if character creation is incomplete or not approved."""
-                            if not self.is_chargen_complete():
-                                account.msg("Your character creation is not complete. Please finish all stages before entering the game.")
-                                return False
-                            if not self.is_approved():
-                                account.msg("Your character has not been approved by staff yet.")
-                                return False
-                            return True
-                    # --- Modular Character Creation Pipeline ---
-                    CHARGEN_STAGES = [
-                        'name',
-                        'concept',
-                        'stats',
-                        'personality',
-                        'skills',
-                        'background',
-                        'appearance',
-                        'review',
-                    ]
+    def at_pre_puppet(self, account, session=None):
+        """Block entry if character creation is incomplete or not approved."""
+        if not self.is_chargen_complete():
+            account.msg("Your character creation is not complete. Please finish all stages before entering the game.")
+            return False
+        if not self.is_approved():
+            account.msg("Your character has not been approved by staff yet.")
+            return False
+        return True
 
-                    def get_chargen_stage(self):
-                        """Return current chargen stage name."""
-                        idx = getattr(self.db, 'chargen_stage', 0)
-                        if 0 <= idx < len(self.CHARGEN_STAGES):
-                            return self.CHARGEN_STAGES[idx]
-                        return None
+    # --- Modular Character Creation Pipeline ---
+    CHARGEN_STAGES = [
+        'name',
+        'concept',
+        'stats',
+        'personality',
+        'skills',
+        'background',
+        'appearance',
+        'review',
+    ]
 
-                    def advance_chargen_stage(self, data=None):
-                        """Advance to next chargen stage, store data."""
-                        idx = getattr(self.db, 'chargen_stage', 0)
-                        if data:
-                            if not hasattr(self.db, 'chargen_data') or not self.db.chargen_data:
-                                self.db.chargen_data = {}
-                            self.db.chargen_data[self.get_chargen_stage()] = data
-                        if idx + 1 < len(self.CHARGEN_STAGES):
-                            self.db.chargen_stage = idx + 1
-                            return self.get_chargen_stage()
-                        else:
-                            self.at_chargen_complete()
-                            return None
+    def get_chargen_stage(self):
+        """Return current chargen stage name."""
+        idx = getattr(self.db, 'chargen_stage', 0)
+        if 0 <= idx < len(self.CHARGEN_STAGES):
+            return self.CHARGEN_STAGES[idx]
+        return None
 
-                    def validate_chargen_stage(self, stage, data):
-                        """Validation hook for each chargen stage. Extend as needed."""
-                        # Example: require non-empty name
-                        if stage == 'name':
-                            return bool(data and isinstance(data, str) and len(data) > 2)
-                        # Add more validation logic per stage as needed
-                        return True
+    def advance_chargen_stage(self, data=None):
+        """Advance to next chargen stage, store data."""
+        idx = getattr(self.db, 'chargen_stage', 0)
+        if data:
+            if not hasattr(self.db, 'chargen_data') or not self.db.chargen_data:
+                self.db.chargen_data = {}
+            self.db.chargen_data[self.get_chargen_stage()] = data
+        if idx + 1 < len(self.CHARGEN_STAGES):
+            self.db.chargen_stage = idx + 1
+            return self.get_chargen_stage()
+        else:
+            self.at_chargen_complete()
+            return None
 
-                    def get_chargen_data(self, stage=None):
-                        """Get stored chargen data for a stage or all."""
-                        if not hasattr(self.db, 'chargen_data') or not self.db.chargen_data:
-                            return None
-                        if stage:
-                            return self.db.chargen_data.get(stage)
-                        return self.db.chargen_data
+    def validate_chargen_stage(self, stage, data):
+        """Validation hook for each chargen stage. Extend as needed."""
+        # Example: require non-empty name
+        if stage == 'name':
+            return bool(data and isinstance(data, str) and len(data) > 2)
+        # Add more validation logic per stage as needed
+        return True
+
+    def get_chargen_data(self, stage=None):
+        """Get stored chargen data for a stage or all."""
+        if not hasattr(self.db, 'chargen_data') or not self.db.chargen_data:
+            return None
+        if stage:
+            return self.db.chargen_data.get(stage)
+        return self.db.chargen_data
                 # --- Reputation & Rumor System Scaffolding ---
                 def at_object_creation_reputation(self):
                     """Initialize reputation and rumor attributes."""
