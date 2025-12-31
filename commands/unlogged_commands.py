@@ -92,8 +92,7 @@ class CmdQuickDisconnect(UnloggedCommand):
     help_category = "Account"
 
     def func(self):
-        self.caller.msg("|r[INFO]|n Disconnecting from server...")
-        # Clear any inputfunc handler so disconnect works immediately
+        self.caller.msg("|y[INFO]|n Goodbye!")
         self.session.set_inputfunc(None)
         self.session.disconnect()
 
