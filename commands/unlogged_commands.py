@@ -6,7 +6,7 @@ from evennia.utils import utils
 class CmdUnloggedinLook(UnloggedCommand):
     """Display the login screen and any relevant info."""
     key = "look"
-    aliases = ["l", "+", ":", ";"]
+    aliases = ["+", ":", ";"]
     locks = "cmd:all()"
     help_category = "General"
 
