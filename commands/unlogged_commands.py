@@ -108,6 +108,8 @@ class CmdAccountCreate(UnloggedCommand):
             self.caller.msg(f"|r[ERROR]|n Failed to create account: {str(e)}")
 
 
+
+# --- CLEAN REWRITE: CmdAccountLogin ---
 class CmdAccountLogin(UnloggedCommand):
     """
     Log in to an existing account.
