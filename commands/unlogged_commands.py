@@ -119,7 +119,6 @@ class CmdAccountLogin(UnloggedCommand):
     
         login <username> <password>
     """
-    """
     
     key = "connect"
     aliases = ["login", "l"]
