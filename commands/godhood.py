@@ -28,10 +28,16 @@ class CmdGodhood(Command):
             self.caller.msg(f"|rCharacter '{charname}' not found.|n")
             return
         if mode == "on":
+            if char.db.race == "Immortal":
+                self.caller.msg(f"|y{char.key} is already Immortal.|n")
+                return
             char.db.race = "Immortal"
             self.caller.msg(f"|g{char.key} is now Immortal!|n")
             char.msg("|yYou have been granted godhood (Immortal race) by an admin.|n")
         elif mode == "off":
+            if char.db.race != "Immortal":
+                self.caller.msg(f"|y{char.key} is not currently Immortal.|n")
+                return
             char.db.race = None
             self.caller.msg(f"|yGodhood removed from {char.key}.|n")
             char.msg("|rYour godhood (Immortal race) has been removed by an admin.|n")

@@ -129,6 +129,8 @@ class CmdAccountCreate(UnloggedCommand):
             account.save()
             self.caller.ndb.awaiting_email = account
             self.caller.msg(f"|g[SUCCESS]|n Account '{username}' created! Please enter your email address to complete registration:")
+            self.caller.msg("\n|wYou can now log in with:|n |cconnect {username} <your password>|n")
+            self.caller.msg("\n|wNext, create your first character with:|n |ccreatechar <name> [=description]|n\nOr type |chelp|n for more options.")
         except IntegrityError:
             self.caller.msg("|r[ERROR]|n Account name already exists.")
         except Exception as e:
