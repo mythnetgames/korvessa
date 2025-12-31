@@ -187,7 +187,7 @@ class CmdSubmitApplication(CharacterMenuCommand):
         # Find the most recently created character for this account that is not yet approved
         from evennia.objects.models import ObjectDB
         all_objs = ObjectDB.objects.all().order_by('-db_date_created')
-        chars = [c for c in all_objs if getattr(c.db, 'is_player', False) and getattr(c.db, 'account', None) == account]
+        chars = [c for c in all_objs if getattr(c.db, 'is_player', False) and getattr(c, 'db_account', None) == account]
         char = chars[0] if chars else None
         if not char:
             account.msg("|r[ERROR]|n You have no characters to submit an application for. Use |wcreatechar <name> [=description]|n to create one.")
