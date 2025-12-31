@@ -111,12 +111,10 @@ class CmdAccountCreate(UnloggedCommand):
 class CmdAccountLogin(UnloggedCommand):
     """
     Log in to an existing account.
-    
+
     Usage:
         connect <username> <password>
-    
     or
-    
         login <username> <password>
     """
     
