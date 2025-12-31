@@ -43,8 +43,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
-        from commands.character_menu import CmdLogout
-        self.add(CmdLogout())
+        # Do not add custom CmdLogout; use Evennia's default quit/logout
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
@@ -72,7 +71,6 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
             CmdUpdateEmail,
             CmdChangePassword,
             CmdOOCMail,
-            CmdLogout,
         )
         self.add(CmdCreateCharacter())
         self.add(CmdLoginCharacter())
@@ -83,7 +81,6 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(CmdUpdateEmail())
         self.add(CmdChangePassword())
         self.add(CmdOOCMail())
-        self.add(CmdLogout())
 
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):

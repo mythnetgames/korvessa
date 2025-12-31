@@ -306,29 +306,3 @@ class CmdOOCMail(CharacterMenuCommand):
         account.msg("|y[INFO]|n OOC Mail system not yet implemented.")
 
 
-class CmdLogout(CharacterMenuCommand):
-    """
-    Log out from your account.
-    
-    Usage:
-        logout
-    
-    or from the menu:
-        11
-    """
-    
-    key = "logout"
-    aliases = ["11", "quit", "logout"]
-    
-    def func(self):
-        """Log out (works both IC and OOC)."""
-        self.caller.msg("|y[INFO]|n Goodbye!")
-        # Always disconnect the current session
-        if hasattr(self, 'session') and self.session:
-            self.session.disconnect()
-        # Also disconnect all sessions for the account (for redundancy)
-        account = getattr(self.caller, 'account', None) or self.caller
-        if hasattr(account, 'sessions'):
-            for session in account.sessions.get():
-                if session != getattr(self, 'session', None):
-                    session.disconnect()
