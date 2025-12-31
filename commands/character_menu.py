@@ -48,7 +48,9 @@ class CmdCreateCharacter(CharacterMenuCommand):
             self.caller.msg("|r[ERROR]|n You already have a character with that name.")
             return
         # Create the character
-        account = self.caller
+        account = self.caller.account if hasattr(self.caller, 'account') else self.caller
+        if hasattr(account, 'dbobj'):
+            account = account.dbobj
         char = Character.objects.create(db_key=name, db_account=account)
         char.db.desc = desc
         char.db.is_player = True
