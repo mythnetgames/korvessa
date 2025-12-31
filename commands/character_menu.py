@@ -123,7 +123,7 @@ class CmdLoginCharacter(CharacterMenuCommand):
             # Allow Builder+ to bypass chargen/approval
             if not account.locks.check_lockstring(account, "perm(Builder)"):
                 if hasattr(character, "is_chargen_complete") and not character.is_chargen_complete():
-                    account.msg("|r[ERROR]|n Your character creation is not complete. Please finish all stages before entering the game.")
+                    account.msg("|r[ERROR]|n Your character creation is not complete. Please finish all stages before entering the game. Use the chargen command to continue character creation.")
                     return
                 if hasattr(character, "is_approved") and not character.is_approved():
                     account.msg("|r[ERROR]|n Your character has not been approved by staff yet.")
@@ -139,8 +139,11 @@ class CmdLoginCharacter(CharacterMenuCommand):
                 if default_room:
                     character.location = default_room
                     character.save()
-            # Puppeting is handled by Evennia - just notify
-            account.msg(f"|g[SUCCESS]|n Entering the world as {char_name}...")
+            # Only puppet if chargen is complete or Builder+
+            if account.locks.check_lockstring(account, "perm(Builder)") or (hasattr(character, "is_chargen_complete") and character.is_chargen_complete()):
+                account.msg(f"|g[SUCCESS]|n Entering the world as {char_name}...")
+                # Puppeting is handled by Evennia
+            # Otherwise, block puppet (already handled above)
         except ObjectDB.DoesNotExist:
             account.msg("|r[ERROR]|n Character not found or not owned by you.")
 
