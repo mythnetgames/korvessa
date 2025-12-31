@@ -43,8 +43,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
-        from commands.character_menu import CmdQuit
-        self.add(CmdQuit())
+        from commands.character_menu import CmdLogout
+        self.add(CmdLogout())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

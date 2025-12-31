@@ -1,26 +1,4 @@
 
-from evennia.commands.command import Command as BaseCommand
-
-class CmdQuit(BaseCommand):
-    """
-    Quit the game and disconnect your session.
-
-    Usage:
-        quit
-    """
-    key = "quit"
-    aliases = ["logout"]
-    locks = "cmd:all()"
-    help_category = "General"
-
-    def func(self):
-        """Disconnect the session/account."""
-        self.caller.msg("|y[INFO]|n Goodbye!")
-        # Disconnect all sessions for this account (whether IC or OOC)
-        account = getattr(self.caller, 'account', None) or self.caller
-        for session in account.sessions.all():
-            session.disconnect()
-
 """
 Character menu commands for post-login character selection and management.
 """
@@ -338,12 +316,11 @@ class CmdLogout(CharacterMenuCommand):
     """
     
     key = "logout"
-    aliases = ["11"]
+    aliases = ["11", "quit", "logout"]
     
     def func(self):
-        """Log out."""
-        account = self.caller
+        """Log out (works both IC and OOC)."""
+        account = getattr(self.caller, 'account', None) or self.caller
         account.msg("|y[INFO]|n Goodbye!")
-        # Disconnect all sessions for this account
         for session in account.sessions.all():
             session.disconnect()
