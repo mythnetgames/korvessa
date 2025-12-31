@@ -43,9 +43,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
-        #
-        # any commands you add below will overload the default ones.
-        #
+        from commands.character_menu import CmdQuit
+        self.add(CmdQuit())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

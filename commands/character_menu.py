@@ -1,3 +1,23 @@
+class CmdQuit(BaseCommand):
+    """
+    Quit the game and disconnect your session.
+
+    Usage:
+        quit
+    """
+    key = "quit"
+    aliases = ["logout", "exit"]
+    locks = "cmd:all()"
+    help_category = "General"
+
+    def func(self):
+        """Disconnect the session."""
+        self.caller.msg("|y[INFO]|n Goodbye!")
+        sessions = self.caller.sessions.get() if hasattr(self.caller, 'sessions') else []
+        if not sessions and hasattr(self.caller, 'account'):
+            sessions = self.caller.account.sessions.get()
+        for session in sessions:
+            session.disconnect()
 
 """
 Character menu commands for post-login character selection and management.
