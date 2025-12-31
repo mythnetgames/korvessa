@@ -41,8 +41,10 @@ class CmdCreateCharacter(CharacterMenuCommand):
         from typeclasses.characters import Character
         # Check for duplicate name for this account
         from evennia.objects.models import ObjectDB
-        acc_db = self.caller.dbobj if hasattr(self.caller, 'dbobj') else self.caller
-        if ObjectDB.objects.filter(db_key=name, db_account=acc_db).exists():
+        objs = ObjectDB.objects.filter(db_key=name)
+        acc = self.caller.account if hasattr(self.caller, 'account') else self.caller
+        char_exists = any(getattr(obj.db, 'account', None) == acc for obj in objs)
+        if char_exists:
             self.caller.msg("|r[ERROR]|n You already have a character with that name.")
             return
         # Create the character
