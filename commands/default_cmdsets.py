@@ -92,13 +92,22 @@ class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
         self.remove("create")
         self.remove("connect")
         # Add custom Korvessa login commands and quick aliases
-        from commands.unlogged_commands import CmdAccountCreate, CmdAccountLogin, CmdQuickCreate, CmdQuickLogin, CmdQuickDisconnect, CmdUnloggedinLook
-        self.add(CmdUnloggedinLook())
+        from commands.unlogged_commands import CmdAccountCreate, CmdAccountLogin, CmdQuickCreate, CmdQuickLogin, CmdQuickDisconnect
         self.add(CmdAccountCreate())
         self.add(CmdAccountLogin())
         self.add(CmdQuickCreate())
         self.add(CmdQuickLogin())
         self.add(CmdQuickDisconnect())
+
+    def at_cmdset_add(self, session):
+        """
+        Called when this cmdset is added to a session. Display splash screen.
+        """
+        try:
+            from server.conf.connection_screens import CONNECTION_SCREEN
+            session.msg(CONNECTION_SCREEN)
+        except Exception:
+            session.msg("|wWelcome to the game!|n\n(Type |ghelp|n for help.)")
 
 
 class SessionCmdSet(default_cmds.SessionCmdSet):
