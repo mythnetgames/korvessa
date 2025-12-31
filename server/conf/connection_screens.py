@@ -7,10 +7,8 @@ they log in).
 
 To change the login screen in this module, do one of the following:
 
-- Define a function `connection_screen()`, taking no arguments. This will be
   called first and must return the full string to act as the connection screen.
   This can be used to produce more dynamic screens.
-- Alternatively, define a string variable in the outermost scope of this module
   with the connection string that should be displayed. If more than one such
   variable is given, Evennia will pick one of them at random.
 
@@ -21,7 +19,6 @@ of the screen is done by the unlogged-in "look" command.
 """
 
 from django.conf import settings
-
 from evennia import utils
 
 CONNECTION_SCREEN = """
@@ -32,15 +29,26 @@ CONNECTION_SCREEN = """
 
 By logging into our game you affirm you have reached the 
 age of majority/consent in your jurisdiction or country.
-When in game refer to "help information consent"
 
 |b────────────────────────────────────────────────────────────|n
  |wC|n) Create a new game account. (NOTE: Not your character name)
  |wL|n) Login to an existing account
- |wG|n) Guest Gladiator
  |wX|n) Disconnect from the server
 |b────────────────────────────────────────────────────────────|n
 
-Your account name: |n""".format(
-    settings.SERVERNAME
-)
+ CONNECTION_SCREEN = f"""
+ |#ff00ff═══════════════════════════════════════════════════════════════════════════════|n
+ |#00ffff  Welcome to |#ffaf00{settings.SERVERNAME}|n
+ |#ff00ff═══════════════════════════════════════════════════════════════════════════════|n
+
+ |#ffffffBy logging into our game you affirm you have reached the|n
+ |#ffffffage of majority/consent in your jurisdiction or country.|n
+
+ |#ffaf00------------------------------------------------------------|n
+  |#00ff00C|n) |#ffffffCreate a new game account. (NOTE: Not your character name)|n
+  |#00afffL|n) |#ffffffLogin to an existing account|n
+  |#ff5f5fX|n) |#ffffffDisconnect from the server|n
+ |#ffaf00------------------------------------------------------------|n
+
+ |#ff87ffYour account name:|n\n\n|#afd700Please enter your password carefully - your access to the game server will be|n|#afd700suspended for a one-hour period if you repeatedly fail your logins!|n\n|#ff5fd7Password:|n """
+

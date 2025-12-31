@@ -1,43 +1,8 @@
-"""
-Unlogged-in commands for the Korvessa login system.
-
-These commands are available before account login.
-"""
-
-from evennia.commands.command import Command as BaseCommand
-from evennia.accounts.models import AccountDB
-from django.contrib.auth.models import User
-from django.db import IntegrityError
-
-
-class UnloggedCommand(BaseCommand):
-    """Base command for unlogged-in users."""
-    
-    def at_pre_cmd(self):
-        """Check if we're at login screen."""
-        # Prevent commands except on login screen
-        return False
+    menu_text = """
 
 
 class CmdAccountCreate(UnloggedCommand):
-    """
-    Create a new account.
-    
-    Usage:
-        create <username> <password>
-    
-    Creates a new account. Username must be unique.
-    """
-    
-    key = "create"
-    aliases = ["c"]
-    locks = "cmd:all()"
-    help_category = "Account"
-    
-    def func(self):
-        """Create new account."""
-        if not self.args or len(self.args.split()) < 2:
-            self.caller.msg("|r[ERROR]|n Usage: create <username> <password>")
+    menu_text = """
             return
         
         username, password = self.args.split(None, 1)
@@ -55,6 +20,7 @@ class CmdAccountCreate(UnloggedCommand):
         try:
             user = User.objects.create_user(username, email="", password=password)
             account = AccountDB.objects.create(user=user)
+    account.msg(menu_text)
             
             # Store additional account data
             account.db.email = ""
