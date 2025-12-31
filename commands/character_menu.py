@@ -1,8 +1,4 @@
 
-
-
-# ...existing code...
-
 from evennia.commands.command import Command as BaseCommand
 
 class CmdQuit(BaseCommand):

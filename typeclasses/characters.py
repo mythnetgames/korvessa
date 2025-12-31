@@ -15,7 +15,16 @@ from .objects import ObjectParent
 
 class Character(ObjectParent, DefaultCharacter):
     def at_pre_puppet(self, account, session=None):
-        """Block entry if character creation is incomplete or not approved, unless Builder+."""
+        """Block entry if character creation is incomplete or not approved, unless Builder+. Ensure valid location."""
+        # Ensure character has a valid location
+        if not self.location:
+            from evennia.objects.models import ObjectDB
+            start_room = ObjectDB.objects.filter(db_key__iexact="Limbo").first()
+            if not start_room:
+                start_room = ObjectDB.objects.filter(db_location=None).first()
+            if start_room:
+                self.location = start_room
+                self.save()
         # Allow Builder+ to bypass chargen/approval
         if account.locks.check_lockstring(account, "perm(Builder)"):
             return True
