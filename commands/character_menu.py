@@ -323,13 +323,12 @@ class CmdLogout(CharacterMenuCommand):
     def func(self):
         """Log out (works both IC and OOC)."""
         self.caller.msg("|y[INFO]|n Goodbye!")
-        # Disconnect all sessions attached to caller (Account or Character)
-        sessions = []
-        if hasattr(self.caller, 'sessions'):
-            sessions.extend(self.caller.sessions.get())
-        if hasattr(self.caller, 'account') and hasattr(self.caller.account, 'sessions'):
-            sessions.extend(self.caller.account.sessions.get())
-        # Remove duplicates
-        sessions = list(set(sessions))
-        for session in sessions:
-            session.disconnect()
+        # Always disconnect the current session
+        if hasattr(self, 'session') and self.session:
+            self.session.disconnect()
+        # Also disconnect all sessions for the account (for redundancy)
+        account = getattr(self.caller, 'account', None) or self.caller
+        if hasattr(account, 'sessions'):
+            for session in account.sessions.get():
+                if session != getattr(self, 'session', None):
+                    session.disconnect()
