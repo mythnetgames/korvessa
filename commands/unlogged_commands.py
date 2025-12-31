@@ -112,6 +112,7 @@ class CmdAccountCreate(UnloggedCommand):
 # --- CLEAN REWRITE: CmdAccountLogin ---
 class CmdAccountLogin(UnloggedCommand):
     """
+    Log in to an existing account.
 
     Usage:
         connect <username> <password>
