@@ -61,7 +61,12 @@ class CmdCreateCharacter(CharacterMenuCommand):
             created_chars.append(char.key)
             account.db.created_chars = created_chars
             account.save()
-        self.caller.msg(f"|g[SUCCESS]|n Character '{name}' created. (is_player={getattr(char, 'db_is_player', None)}) You may now submit an application or log in as this character.")
+        debug_info = (
+            f"[DEBUG] key={char.key}, db_account={char.db_account}, "
+            f"db_is_player={getattr(char, 'db_is_player', None)}, "
+            f"created_chars={account.db.created_chars}"
+        )
+        self.caller.msg(f"|g[SUCCESS]|n Character '{name}' created. (is_player={getattr(char, 'db_is_player', None)}) You may now submit an application or log in as this character.\n{debug_info}")
 
 from evennia.commands.command import Command as BaseCommand
 from evennia.objects.models import ObjectDB
