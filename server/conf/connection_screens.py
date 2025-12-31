@@ -29,7 +29,7 @@ CONNECTION_SCREEN = """
                   Welcome to |#5f005f{}|n. 
           |#ffff00May He Watch over you...
 
- |NIf you have an existing account, connect to it by typing:
+ |nIf you have an existing account, connect to it by typing:
       |wconnect <username> <password>|n
  If you need to create an account, type (without the <>'s):
       |wcreate <username> <password>|n
