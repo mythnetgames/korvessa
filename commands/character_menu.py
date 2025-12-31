@@ -140,7 +140,7 @@ class CmdSubmitApplication(CharacterMenuCommand):
     """
     
     key = "apply"
-    aliases = ["11", "quit"]
+    # aliases = ["11", "quit"]
     def func(self):
         """Log out (synonymous with quit)."""
         account = self.caller
