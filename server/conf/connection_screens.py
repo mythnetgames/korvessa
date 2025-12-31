@@ -22,13 +22,12 @@ from django.conf import settings
 from evennia import utils
 
 CONNECTION_SCREEN = f"""
-|#ff00ff═══════════════════════════════════════════════════════════════════════════════|n
+|#ff00f--------------------------------------------|n
 |#00ffff  Welcome to |#ffaf00{settings.SERVERNAME}|n
-|#ff00ff═══════════════════════════════════════════════════════════════════════════════|n
+|#ff00f--------------------------------------------|n
 
 |#ffffffBy logging into our game you affirm you have reached the|n
 |#ffffffage of majority/consent in your jurisdiction or country.|n
-|#ffffffWhen in game refer to|n |#00ff00help information consent|n
 
 |#ffaf00------------------------------------------------------------|n
  |#00ff00C|n) |#ffffffCreate a new game account. (NOTE: Not your character name)|n
@@ -36,5 +35,5 @@ CONNECTION_SCREEN = f"""
  |#ff5f5fX|n) |#ffffffDisconnect from the server|n
 |#ffaf00------------------------------------------------------------|n
 
-|#ff87ffYour account name:|n\n\n|#afd700Please enter your password carefully - your access to the game server will be|n+|#afd700suspended for a one-hour period if you repeatedly fail your logins!|n\n|#ff5fd7Password:|n """
+|#ff87ffYour account name:|n\n\n|#afd700Please enter your password carefully - your access to the game server will be|n |#afd700suspended for a one-hour period if you repeatedly fail your logins!|n\n|#ff5fd7Password:|n """
 
