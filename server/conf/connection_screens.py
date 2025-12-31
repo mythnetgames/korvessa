@@ -26,7 +26,7 @@ from evennia import utils
 
 CONNECTION_SCREEN = """
 |b==============================================================|n
- Welcome to |g{}|n, version {}!
+ Welcome to |#5f005f{}|n. |#ffff00May He Watch over you...
 
  If you have an existing account, connect to it by typing:
       |wconnect <username> <password>|n
