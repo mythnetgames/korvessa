@@ -175,6 +175,7 @@ class CmdSubmitApplication(CharacterMenuCommand):
     """
     
     key = "apply"
+    aliases = ["2"]
     def func(self):
         """Submit character application for approval."""
         account = self.caller
@@ -215,7 +216,8 @@ class CmdDeleteApplication(CharacterMenuCommand):
         """Delete a pending character application."""
         account = self.caller
         from evennia.objects.models import ObjectDB
-        char = ObjectDB.objects.filter(db_account=account, db_is_player=True, db_application_status='pending').order_by('-db_date_created').first()
+        chars = ObjectDB.objects.filter(db_account=account).order_by('-db_date_created')
+        char = next((c for c in chars if getattr(c.db, 'is_player', False) and getattr(c.db, 'application_status', None) == 'pending'), None)
         if not char:
             account.msg("|r[ERROR]|n You have no pending character application to delete.")
             return
