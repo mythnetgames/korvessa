@@ -32,10 +32,7 @@ class CmdQuickCreate(UnloggedCommand):
     help_category = "Account"
 
     def func(self):
-        self.caller.msg("|g[CREATE]|n Enter a username for your new account:")
-        self.caller.ndb.create_step = 1
-        self.caller.ndb.create_username = None
-        self.caller.inputfunc = self.create_prompt_handler
+        self.caller.msg("|g[CREATE]|n To create an account, type: |wcreate <username> <password>|n")
 
     def create_prompt_handler(self, session, text):
         if not hasattr(self.caller, 'ndb'):
@@ -62,10 +59,7 @@ class CmdQuickLogin(UnloggedCommand):
     help_category = "Account"
 
     def func(self):
-        self.caller.msg("|g[LOGIN]|n Enter your account username:")
-        self.caller.ndb.login_step = 1
-        self.caller.ndb.login_username = None
-        self.caller.inputfunc = self.login_prompt_handler
+        self.caller.msg("|g[LOGIN]|n To log in, type: |wconnect <username> <password>|n")
 
     def login_prompt_handler(self, session, text):
         if not hasattr(self.caller, 'ndb'):
