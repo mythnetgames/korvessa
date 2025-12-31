@@ -1,3 +1,8 @@
+
+from evennia.commands.command import Command as UnloggedCommand
+from evennia.utils import utils
+# ...existing code...
+
 # Minimal Look command for unlogged-in users to prevent errors
 class CmdUnloggedinLook(UnloggedCommand):
     """Display the login screen or a welcome message."""
@@ -11,9 +16,6 @@ class CmdUnloggedinLook(UnloggedCommand):
             self.caller.msg(CONNECTION_SCREEN)
         except Exception:
             self.caller.msg("|wWelcome to the game!|n\n(Type |ghelp|n for help.)")
-from evennia.commands.command import Command as UnloggedCommand
-from evennia.utils import utils
-# ...existing code...
 
 from evennia.accounts.models import AccountDB
 from django.contrib.auth import get_user_model
