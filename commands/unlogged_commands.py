@@ -2,21 +2,6 @@ from evennia.commands.command import Command as UnloggedCommand
 from evennia.utils import utils
 # ...existing code...
 
-# Custom Look command for unlogged-in users
-class CmdUnloggedinLook(UnloggedCommand):
-    """Display the login screen and any relevant info."""
-    key = "look"
-    aliases = ["+", ":", ";"]
-    locks = "cmd:all()"
-    help_category = "General"
-
-    def func(self):
-        # Display the connection screen (imported from Evennia's connection_screens)
-        try:
-            from server.conf.connection_screens import CONNECTION_SCREEN
-            self.caller.msg(CONNECTION_SCREEN)
-        except Exception:
-            self.caller.msg("|wWelcome to the game!|n\n(Type |ghelp|n for help.)")
 from evennia.accounts.models import AccountDB
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
