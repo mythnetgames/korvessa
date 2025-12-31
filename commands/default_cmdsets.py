@@ -75,6 +75,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         )
         from commands.admin_appqueue import CmdAppQueue
         from commands.view_account import CmdViewAccount
+        from commands.chargen import CmdChargen
         self.add(CmdCreateCharacter())
         self.add(CmdLoginCharacter())
         self.add(CmdSubmitApplication())
@@ -86,6 +87,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(CmdOOCMail())
         self.add(CmdAppQueue())
         self.add(CmdViewAccount())
+        self.add(CmdChargen())
 
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):

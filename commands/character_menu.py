@@ -75,23 +75,11 @@ class CmdCreateCharacter(CharacterMenuCommand):
             f"created_chars={account.db.created_chars}"
         )
 
-        self.caller.msg(f"|g[SUCCESS]|n Character '{name}' created. (is_player={getattr(char, 'db_is_player', None)}) You may now submit an application or log in as this character.\n{debug_info}")
+        self.caller.msg(f"|g[SUCCESS]|n Character '{name}' created. (is_player={getattr(char, 'db_is_player', None)})\n{debug_info}")
 
-        # Show main menu options
-        menu = (
-            "\n|wWhat would you like to do next?\n"
-            "|c1.|n Login a character.\n"
-            "|c2.|n Submit a character application. |y(Approval required)|n\n"
-            "|c3.|n Delete a pending application.\n"
-            "|c4.|n Retire your current character.\n"
-            "|c5.|n View your characters.\n"
-            "|c6.|n Update your e-mail address.\n"
-            "|c7.|n Change your account password.\n"
-            "|c8.|n OOC Mail\n"
-            "\n|c11.|n Log Out.\n"
-            "\n|wYour Selection:|n "
-        )
-        self.caller.msg(menu)
+        # Launch EvMenu-based chargen for the new character
+        from evennia.utils.evmenu import EvMenu
+        EvMenu(self.caller, "commands.chargen", startnode="node_intro", persistent=True, cmd_on_exit=None, auto_quit=True, startnode_input=char)
 
 
 
@@ -186,9 +174,13 @@ class CmdSubmitApplication(CharacterMenuCommand):
         account = self.caller
         # Find the most recently created character for this account that is not yet approved
         from evennia.objects.models import ObjectDB
-        all_objs = ObjectDB.objects.all().order_by('-db_date_created')
-        chars = [c for c in all_objs if getattr(c.db, 'is_player', False) and getattr(c, 'db_account', None) == account]
-        char = chars[0] if chars else None
+        chars = ObjectDB.objects.filter(db_account=account, db_is_player=True).order_by('-db_date_created')
+        # Find the most recent character that is not approved and not already pending
+        char = None
+        for c in chars:
+            if not getattr(c, 'is_approved', lambda: False)() and getattr(c.db, 'application_status', None) != 'pending':
+                char = c
+                break
         if not char:
             account.msg("|r[ERROR]|n You have no characters to submit an application for. Use |wcreatechar <name> [=description]|n to create one.")
             # Show main menu options
