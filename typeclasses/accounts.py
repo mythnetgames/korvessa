@@ -38,11 +38,44 @@ class Account(DefaultAccount):
     """
 
     def at_account_creation(self):
-        """Initialize new account attributes."""
+        """Initialize new account attributes and standing."""
         self.db.email = ""
         self.db.created_chars = []
         self.db.retired_chars = []
         self.db.pending_apps = []
+        self.db.standing = {
+            'Civic_Order': 0,
+            'Laborers': 0,
+            'Merchants': 0,
+            'Nobility': 0,
+            'Underbelly': 0,
+            'Watcher_Cult': 0,
+            'Scholars': 0,
+            'Feyliks_Freefolk': 0,
+        }
+        # --- Staff/Admin Scaffolding ---
+        self.db.is_staff = False
+        self.db.is_admin = False
+
+    def set_staff(self, value=True):
+        self.db.is_staff = value
+
+    def set_admin(self, value=True):
+        self.db.is_admin = value
+
+    def is_staff(self):
+        return bool(self.db.is_staff)
+
+    def is_admin(self):
+        return bool(self.db.is_admin)
+
+    def get_standing(self, group):
+        """Get social standing for a faction group (account-wide)."""
+        return self.db.standing.get(group, 0)
+
+    def set_standing(self, group, value):
+        """Set social standing for a faction group (account-wide)."""
+        self.db.standing[group] = value
     
     def at_post_login(self, session=None, **kwargs):
         """
