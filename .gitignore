@@ -1,0 +1,14 @@
+# Python cache files
+*.pyc
+*.pyo
+__pycache__/
+
+# Evennia runtime and temporary files
+server/*
+game/*/sessions
+game/*/log
+db.sqlite3
+
+# OS specific
+.DS_Store
+Thumbs.db
