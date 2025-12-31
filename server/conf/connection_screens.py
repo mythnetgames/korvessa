@@ -22,9 +22,9 @@ from django.conf import settings
 from evennia import utils
 
 CONNECTION_SCREEN = f"""
-|#ff00f--------------------------------------------|n
+|#ff00ff============================================================|n
 |#00ffff  Welcome to |#ffaf00{settings.SERVERNAME}|n
-|#ff00f--------------------------------------------|n
+|#ff00ff============================================================|n
 
 |#ffffffBy logging into our game you affirm you have reached the|n
 |#ffffffage of majority/consent in your jurisdiction or country.|n
@@ -35,5 +35,6 @@ CONNECTION_SCREEN = f"""
  |#ff5f5fX|n) |#ffffffDisconnect from the server|n
 |#ffaf00------------------------------------------------------------|n
 
-|#ff87ffEnter Your choice:
+|#ff87ffYour choice:|n
+"""
 
