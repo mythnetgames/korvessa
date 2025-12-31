@@ -184,7 +184,22 @@ class CmdSubmitApplication(CharacterMenuCommand):
         chars = ObjectDB.objects.filter(db_account=account).order_by('-db_date_created')
         char = next((c for c in chars if getattr(c.db, 'is_player', False)), None)
         if not char:
-            account.msg("|r[ERROR]|n You have no characters to submit an application for.")
+            account.msg("|r[ERROR]|n You have no characters to submit an application for. Use |wcreatechar <name> [=description]|n to create one.")
+            # Show main menu options
+            menu = (
+                "\n|wWhat would you like to do next?\n"
+                "|c1.|n Login a character.\n"
+                "|c2.|n Submit a character application. |y(Approval required)|n\n"
+                "|c3.|n Delete a pending application.\n"
+                "|c4.|n Retire your current character.\n"
+                "|c5.|n View your characters.\n"
+                "|c6.|n Update your e-mail address.\n"
+                "|c7.|n Change your account password.\n"
+                "|c8.|n OOC Mail\n"
+                "\n|c11.|n Log Out.\n"
+                "\n|wYour Selection:|n "
+            )
+            account.msg(menu)
             return
         if not hasattr(char, 'is_chargen_complete') or not char.is_chargen_complete():
             account.msg("|r[ERROR]|n You must complete character creation before submitting an application.")
