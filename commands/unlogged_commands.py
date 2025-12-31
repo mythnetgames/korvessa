@@ -68,7 +68,6 @@ class CmdQuickDisconnect(UnloggedCommand):
     def func(self):
         self.caller.msg("|r[INFO]|n Disconnecting from server...")
         self.caller.session.disconnect()
-    menu_text = """
 
 
 class CmdAccountCreate(UnloggedCommand):
