@@ -157,13 +157,27 @@ class CmdSubmitApplication(CharacterMenuCommand):
     """
     
     key = "apply"
-    # aliases = ["11", "quit"]
     def func(self):
-        """Log out (synonymous with quit)."""
+        """Submit character application for approval."""
         account = self.caller
-        account.msg("|y[INFO]|n Goodbye!")
-        for session in account.sessions.all():
-            session.disconnect()
+        # Find the most recently created character for this account that is not yet approved
+        from evennia.objects.models import ObjectDB
+        char = ObjectDB.objects.filter(db_account=account, db_is_player=True).order_by('-db_date_created').first()
+        if not char:
+            account.msg("|r[ERROR]|n You have no characters to submit an application for.")
+            return
+        if not hasattr(char, 'is_chargen_complete') or not char.is_chargen_complete():
+            account.msg("|r[ERROR]|n You must complete character creation before submitting an application.")
+            return
+        if getattr(char.db, 'application_status', None) == 'pending':
+            account.msg("|y[INFO]|n You already have a pending application for this character.")
+            return
+        if hasattr(char, 'is_approved') and char.is_approved():
+            account.msg("|y[INFO]|n This character is already approved.")
+            return
+        char.db.application_status = 'pending'
+        account.msg(f"|g[SUCCESS]|n Application for character '{char.key}' submitted and is now pending staff review.")
+        # (Optional) Notify staff here
 class CmdDeleteApplication(CharacterMenuCommand):
     """
     Delete a pending character application.
@@ -179,9 +193,15 @@ class CmdDeleteApplication(CharacterMenuCommand):
     aliases = ["3"]
     
     def func(self):
-        """Delete application."""
+        """Delete a pending character application."""
         account = self.caller
-        account.msg("|y[INFO]|n Application deletion not yet implemented.")
+        from evennia.objects.models import ObjectDB
+        char = ObjectDB.objects.filter(db_account=account, db_is_player=True, db_application_status='pending').order_by('-db_date_created').first()
+        if not char:
+            account.msg("|r[ERROR]|n You have no pending character application to delete.")
+            return
+        del char.db.application_status
+        account.msg(f"|g[SUCCESS]|n Application for character '{char.key}' has been deleted.")
 
 
 class CmdRetireCharacter(CharacterMenuCommand):

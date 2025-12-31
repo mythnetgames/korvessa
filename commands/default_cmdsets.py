@@ -72,6 +72,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
             CmdChangePassword,
             CmdOOCMail,
         )
+        from commands.admin_appqueue import CmdAppQueue
         self.add(CmdCreateCharacter())
         self.add(CmdLoginCharacter())
         self.add(CmdSubmitApplication())
@@ -81,6 +82,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(CmdUpdateEmail())
         self.add(CmdChangePassword())
         self.add(CmdOOCMail())
+        self.add(CmdAppQueue())
 
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
