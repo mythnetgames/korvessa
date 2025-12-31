@@ -1,3 +1,35 @@
+class CmdCreateCharacter(CharacterMenuCommand):
+    """
+    Create a new character.
+
+    Usage:
+        charcreate <name> [=description]
+    """
+    key = "charcreate"
+    aliases = ["createchar", "createcharacter", "newchar"]
+
+    def func(self):
+        """Create a new character for this account."""
+        if not self.args:
+            self.caller.msg("|r[ERROR]|n Usage: charcreate <name> [=description]")
+            return
+        parts = self.args.split("=", 1)
+        name = parts[0].strip()
+        desc = parts[1].strip() if len(parts) > 1 else ""
+        if len(name) < 3:
+            self.caller.msg("|r[ERROR]|n Character name must be at least 3 characters.")
+            return
+        from typeclasses.characters import Character
+        # Check for duplicate name for this account
+        from evennia.objects.models import ObjectDB
+        if ObjectDB.objects.filter(db_key=name, db_account=self.caller).exists():
+            self.caller.msg("|r[ERROR]|n You already have a character with that name.")
+            return
+        # Create the character
+        char = Character.objects.create(db_key=name, db_account=self.caller)
+        char.db.desc = desc
+        char.at_object_creation()
+        self.caller.msg(f"|g[SUCCESS]|n Character '{name}' created. You may now submit an application or log in as this character.")
 """
 Character menu commands for post-login character selection and management.
 """

@@ -63,16 +63,28 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
-        # Add character menu commands
-        # self.add(CmdLoginCharacter())
-        # self.add(CmdSubmitApplication())
-        # self.add(CmdDeleteApplication())
-        # self.add(CmdRetireCharacter())
-        # self.add(CmdViewCharacters())
-        # self.add(CmdUpdateEmail())
-        # self.add(CmdChangePassword())
-        # self.add(CmdOOCMail())
-        # self.add(CmdLogout())
+        from commands.character_menu import (
+            CmdCreateCharacter,
+            CmdLoginCharacter,
+            CmdSubmitApplication,
+            CmdDeleteApplication,
+            CmdRetireCharacter,
+            CmdViewCharacters,
+            CmdUpdateEmail,
+            CmdChangePassword,
+            CmdOOCMail,
+            CmdLogout,
+        )
+        self.add(CmdCreateCharacter())
+        self.add(CmdLoginCharacter())
+        self.add(CmdSubmitApplication())
+        self.add(CmdDeleteApplication())
+        self.add(CmdRetireCharacter())
+        self.add(CmdViewCharacters())
+        self.add(CmdUpdateEmail())
+        self.add(CmdChangePassword())
+        self.add(CmdOOCMail())
+        self.add(CmdLogout())
 
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
