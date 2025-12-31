@@ -46,9 +46,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Do not add custom CmdLogout; use Evennia's default quit/logout
 
 
+
 class AccountCmdSet(default_cmds.AccountCmdSet):
-        from commands.view_account import CmdViewAccount
-        self.add(CmdViewAccount())
     """
     This is the cmdset available to the Account at all times. It is
     combined with the `CharacterCmdSet` when the Account puppets a
@@ -75,6 +74,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
             CmdOOCMail,
         )
         from commands.admin_appqueue import CmdAppQueue
+        from commands.view_account import CmdViewAccount
         self.add(CmdCreateCharacter())
         self.add(CmdLoginCharacter())
         self.add(CmdSubmitApplication())
@@ -85,6 +85,7 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(CmdChangePassword())
         self.add(CmdOOCMail())
         self.add(CmdAppQueue())
+        self.add(CmdViewAccount())
 
 
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
