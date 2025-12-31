@@ -35,7 +35,7 @@ from evennia.settings_default import *
 
 # This is the name of your game. Make it catchy!
 SERVERNAME = "Korvessa RPI"
-
+WEBSERVER_PROXY_PORT = 80
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.
@@ -44,3 +44,5 @@ try:
     from server.conf.secret_settings import *
 except ImportError:
     print("secret_settings.py file not found or failed to import.")
+
+    
