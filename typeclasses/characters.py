@@ -189,6 +189,8 @@ class Character(ObjectParent, DefaultCharacter):
             'WIS': 0,  # Wisdom
             'CHA': 0,  # Charisma
         }
+        # Race
+        self.db.race = None  # e.g., 'Human', 'Elf', etc. 'Immortal' is reserved for admin/staff only.
         # Personality (class-like)
         self.db.personality = None  # e.g., 'Stalwart', 'Sharp-Eyed', etc.
         # Social Standing (faction values)

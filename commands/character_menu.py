@@ -178,7 +178,7 @@ class CmdSubmitApplication(CharacterMenuCommand):
         # Find the most recent character that is not approved and not already pending
         char = None
         for c in chars:
-            if not getattr(c, 'is_approved', lambda: False)() and getattr(c.db, 'application_status', None) != 'pending':
+            if not getattr(c, 'is_approved', lambda: False)():
                 char = c
                 break
         if not char:
@@ -202,14 +202,12 @@ class CmdSubmitApplication(CharacterMenuCommand):
         if not hasattr(char, 'is_chargen_complete') or not char.is_chargen_complete():
             account.msg("|r[ERROR]|n You must complete character creation before submitting an application.")
             return
-        if getattr(char.db, 'application_status', None) == 'pending':
-            account.msg("|y[INFO]|n You already have a pending application for this character.")
-            return
         if hasattr(char, 'is_approved') and char.is_approved():
             account.msg("|y[INFO]|n This character is already approved.")
             return
+        # Allow re-applying: mark as pending, and launch chargen for editing
         char.db.application_status = 'pending'
-        account.msg(f"|g[SUCCESS]|n Application for character '{char.key}' submitted and is now pending staff review.")
+        account.msg(f"|g[SUCCESS]|n Application for character '{char.key}' is now pending staff review. You may edit your application by running |cchargen|n again.")
         # (Optional) Notify staff here
 class CmdDeleteApplication(CharacterMenuCommand):
     """
