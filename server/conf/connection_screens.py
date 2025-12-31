@@ -25,17 +25,22 @@ from django.conf import settings
 from evennia import utils
 
 CONNECTION_SCREEN = """
-|#ffffff==============================================================|n
-                  Welcome to |#5f005f{}|n. 
-          |#ffff00May He Watch over you...
+|#ffffff════════════════════════════════════════════════════════|n
+                       Welcome to |#5f005f{}|n
+                    |#ffff00May He Watch over you...|n
+|#ffffff════════════════════════════════════════════════════════|n
 
- |nIf you have an existing account, connect to it by typing:
-      |wconnect <username> <password>|n
- If you need to create an account, type (without the <>'s):
-      |wcreate <username> <password>|n
+By logging into our game you affirm you have reached the 
+age of majority/consent in your jurisdiction or country.
+When in game refer to "help information consent"
 
- If you have spaces in your username, enclose it in quotes.
- Enter |whelp|n for more info. |wlook|n will re-show this screen.
-|#ffffff==============================================================|n""".format(
-    settings.SERVERNAME, utils.get_evennia_version("short")
+|b────────────────────────────────────────────────────────────|n
+ |wC|n) Create a new game account. (NOTE: Not your character name)
+ |wL|n) Login to an existing account
+ |wG|n) Guest Gladiator
+ |wX|n) Disconnect from the server
+|b────────────────────────────────────────────────────────────|n
+
+Your account name: |n""".format(
+    settings.SERVERNAME
 )
