@@ -176,7 +176,8 @@ class CmdSubmitApplication(CharacterMenuCommand):
             account = account.dbobj
         # Find the most recently created character for this account that is not yet approved
         from evennia.objects.models import ObjectDB
-        chars = ObjectDB.objects.filter(db_account=account, db_is_player=True).order_by('-db_date_created')
+        chars = ObjectDB.objects.filter(db_account=account).order_by('-db_date_created')
+        chars = [c for c in chars if getattr(c.db, 'is_player', False)]
         # Find the most recent character that is not approved and not already pending
         char = None
         for c in chars:
