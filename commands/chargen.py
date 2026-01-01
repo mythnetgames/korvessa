@@ -104,9 +104,18 @@ def node_race(caller, raw_string, **kwargs):
         caller.msg("|rInvalid race. Please choose by number or name.")
     table = EvTable("#", "Race", "Description")
     for idx, (race, desc) in enumerate(RACES, 1):
-    CHARGEN_STEPS = [
-        "race",
-        "personality",
+        table.add_row(str(idx), race, desc)
+    text = (
+        "|w[CHARGEN]|n Select your character's race.\n" + str(table) +
+        "\nType the |cnumber|n or |cname|n of your choice."
+    )
+    options = tuple()
+    return text, options
+
+# Top-level chargen steps and questions
+CHARGEN_STEPS = [
+    "race",
+    "personality",
 
         "stats",
         "skills",
