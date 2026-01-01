@@ -274,6 +274,7 @@ class CmdViewCharacters(CharacterMenuCommand):
     
     def func(self):
         """List all characters."""
+        from evennia.objects.models import ObjectDB
         account = self.caller
         characters = ObjectDB.objects.filter(db_account=account, db_is_player=True)
         
