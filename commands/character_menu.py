@@ -54,7 +54,6 @@ class CmdCreateCharacter(CharacterMenuCommand):
         char = Character.objects.create(db_key=name, db_account=account)
         char.db.desc = desc
         char.db.is_player = True
-        char.db_is_player = True
         char.db_account = account
         # Set locks so only the creating account can puppet
         char.locks.add(f"puppet:id({account.id})")
