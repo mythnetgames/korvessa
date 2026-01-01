@@ -276,7 +276,8 @@ class CmdViewCharacters(CharacterMenuCommand):
         """List all characters."""
         from evennia.objects.models import ObjectDB
         account = self.caller
-        characters = ObjectDB.objects.filter(db_account=account, db_is_player=True)
+        characters = ObjectDB.objects.filter(db_account=account)
+        characters = [c for c in characters if getattr(c.db, 'is_player', False)]
         
         if not characters.exists():
             account.msg("|y[INFO]|n You have no characters yet.")
