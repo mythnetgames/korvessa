@@ -104,18 +104,25 @@ def node_race(caller, raw_string, **kwargs):
         caller.msg("|rInvalid race. Please choose by number or name.")
     table = EvTable("#", "Race", "Description")
     for idx, (race, desc) in enumerate(RACES, 1):
-        table.add_row(str(idx), race, desc)
-    text = (
-        "|w[CHARGEN]|n Select your character's race.\n" + str(table) +
-        "\nType the |cnumber|n or |cname|n of your choice."
-    )
-    options = tuple()
-    return text, options
-
-PERSONALITIES = [
-    ("Stalwart", "Steadfast, reliable, and tough under pressure."),
+    CHARGEN_STEPS = [
+        "race",
+        "personality",
+        "stats",
+        "skills",
+        "standing",
+        "background",
+        "public_knowledge",
+        "application_questions",
+        "review",
+    ]
     ("Sharp-Eyed", "Observant, quick to notice details and changes."),
     ("Silver-Tongued", "Persuasive, charming, and socially adept."),
+    APPLICATION_QUESTIONS = [
+        ("Character Motivation", "What drives your character? What are their goals or ambitions?"),
+        ("Roleplay Sample", "Write a short in-character scene or dialogue to demonstrate how you will play this character."),
+        ("Player Intent", "What do you hope to explore or accomplish with this character on Korvessa?")
+    ]
+
     ("Brooding", "Quiet, intense, and thoughtful."),
     ("Reckless", "Bold, daring, and sometimes impulsive."),
     ("Scholarly", "Curious, analytical, and loves learning."),
