@@ -80,9 +80,11 @@ class Account(DefaultAccount):
     def at_post_login(self, session=None, **kwargs):
         """
         Called after a successful login.
-        Show character menu instead of auto-puppeting.
+        Assign default AccountCmdSet so basic commands are available.
         """
-        # self.show_character_menu()  # Temporarily disabled to test server restart
+        self.cmdset.add_default("evennia.commands.default.account.AccountCmdSet", permanent=True)
+        # Optionally show character menu:
+        # self.show_character_menu()
     
     def show_character_menu(self):
         """Display character selection menu."""
