@@ -82,7 +82,8 @@ class Account(DefaultAccount):
         Called after a successful login.
         Assign default AccountCmdSet so basic commands are available.
         """
-        self.cmdset.add_default("evennia.commands.default.account.AccountCmdSet", permanent=True)
+        from evennia.commands.default.account import AccountCmdSet
+        self.cmdset.add(AccountCmdSet, permanent=True)
         # Optionally show character menu:
         # self.show_character_menu()
     
