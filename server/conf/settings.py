@@ -88,7 +88,7 @@ AUTO_PUPPET_ON_LOGIN = False  # Let at_post_login handle character selection/cre
 # START_LOCATION = "#2"  # Example: set to your spawn room
 
 # Use our custom email-based login system
-CMDSET_UNLOGGEDIN = "commands.unloggedin_email.UnloggedinEmailCmdSet"
+CMDSET_UNLOGGEDIN = "commands.default_cmdsets.UnloggedinCmdSet"
 CONNECTION_SCREEN_MODULE = "server.conf.connection_screens"
 
 ######################################################################
