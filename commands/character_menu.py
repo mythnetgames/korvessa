@@ -171,7 +171,9 @@ class CmdSubmitApplication(CharacterMenuCommand):
     aliases = ["2"]
     def func(self):
         """Submit character application for approval."""
-        account = self.caller
+        account = self.caller.account if hasattr(self.caller, 'account') else self.caller
+        if hasattr(account, 'dbobj'):
+            account = account.dbobj
         # Find the most recently created character for this account that is not yet approved
         from evennia.objects.models import ObjectDB
         chars = ObjectDB.objects.filter(db_account=account, db_is_player=True).order_by('-db_date_created')
