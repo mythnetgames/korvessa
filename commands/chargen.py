@@ -107,6 +107,7 @@ def node_race(caller, raw_string, **kwargs):
     CHARGEN_STEPS = [
         "race",
         "personality",
+
         "stats",
         "skills",
         "standing",
@@ -115,14 +116,18 @@ def node_race(caller, raw_string, **kwargs):
         "application_questions",
         "review",
     ]
+
+# Application questions for approval
+APPLICATION_QUESTIONS = [
+    ("Character Motivation", "What drives your character? What are their goals or ambitions?"),
+    ("Roleplay Sample", "Write a short in-character scene or dialogue to demonstrate how you will play this character."),
+    ("Player Intent", "What do you hope to explore or accomplish with this character on Korvessa?")
+]
+
+# Personality options
+PERSONALITIES = [
     ("Sharp-Eyed", "Observant, quick to notice details and changes."),
     ("Silver-Tongued", "Persuasive, charming, and socially adept."),
-    APPLICATION_QUESTIONS = [
-        ("Character Motivation", "What drives your character? What are their goals or ambitions?"),
-        ("Roleplay Sample", "Write a short in-character scene or dialogue to demonstrate how you will play this character."),
-        ("Player Intent", "What do you hope to explore or accomplish with this character on Korvessa?")
-    ]
-
     ("Brooding", "Quiet, intense, and thoughtful."),
     ("Reckless", "Bold, daring, and sometimes impulsive."),
     ("Scholarly", "Curious, analytical, and loves learning."),
