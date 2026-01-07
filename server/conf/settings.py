@@ -1,6 +1,8 @@
-# Automatically enable mapper for all accounts on server start
+# Automatically enable mapper and cleanup scripts on server start
 STARTUP_SCRIPTS = [
     "scripts.map_enable_script.MapEnableScript",
+    "scripts.cleanup_idle_sessions.IdleSessionCleanup",
+    "scripts.cleanup_idle_sessions.PhantomCharacterCleanup",
 ]
 r"""
 Evennia settings file.
@@ -124,6 +126,19 @@ TURNSTILE_SECRET_KEY = ""  # Secret key (server-side only)
 # browser to display. Note however that this will leak memory when
 # active, so make sure to turn it off for a production server!
 DEBUG = False
+
+######################################################################
+# Session and Idle Timeout Settings
+######################################################################
+
+# Automatically disconnect idle sessions after 24 hours
+# This prevents "ghost" characters when players disconnect without logging out
+# Value is in seconds: 24 * 60 * 60 = 86400 seconds
+IDLE_TIMEOUT = 86400
+
+# Immediately disconnect players on network disconnect
+# Prevents phantom sessions from disconnects
+SESSION_DISCONNECT_TIMEOUT = 5  # 5 seconds to detect disconnect
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.
