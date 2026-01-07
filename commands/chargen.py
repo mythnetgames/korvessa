@@ -90,24 +90,16 @@ def node_intro(caller, raw_string, **kwargs):
             else:
                 char.db.chargen_stage = 0
                 return "node_race"
-        elif choice in ("start over", "restart", "2"):
-            # Reset progress and start over
-            char.db.chargen_stage = 0
-            char.db.chargen_data = {}
-            return "node_race"
     text = "|wWelcome to Korvessa Character Creation!|n\n\nYou will be guided through a series of steps to define your character.\n\n"
     options = []
     options.append({"desc": "Back", "goto": "node_intro", "key": "back"})
-    # Always show continue/start over prompt, even if resume_stage is 0 or None
     chargen_stage = getattr(char.db, 'chargen_stage', None) if char is not None else None
     if chargen_stage is not None and chargen_stage > 0:
-        text += "Would you like to continue from where you left off, or start over?\n"
+        text += "Would you like to continue from where you left off?\n"
         options.append({"desc": "Continue from last step", "goto": "node_intro", "key": "continue"})
-        options.append({"desc": "Start over", "goto": "node_intro", "key": "start over"})
     else:
-        text += "Would you like to begin character creation or start over?\n"
+        text += "Type |cnext|n to begin.\n"
         options.append({"desc": "Begin character creation", "goto": "node_race", "key": "next"})
-        options.append({"desc": "Start over", "goto": "node_intro", "key": "start over"})
     return text, tuple(options)
 
 RACES = [
@@ -355,10 +347,12 @@ def node_stats(caller, raw_string, **kwargs):
         personality_stat = char.db.personality_stat_bonus
     for stat in stat_keys:
         val = stats[stat]
+        min_val = POINT_BUY_MIN
         max_val = POINT_BUY_MAX
         if stat == personality_stat:
-            max_val = 15  # Only allow point-buy up to 15; bonus will make 16
-        text += f"{stat:4}  {val:5}  [+{stat}] [-{stat}] (max {max_val})\n"
+            min_val = 9
+            max_val = 16
+        text += f"{stat:4}  {val:5}  [+{stat}] [-{stat}] (min {min_val}, max {max_val})\n"
         stat_options.append({"desc": "+", "goto": "node_stats", "key": f"plus_{stat}"})
         stat_options.append({"desc": "-", "goto": "node_stats", "key": f"minus_{stat}"})
     text += "\nType |cnext|n when done."
@@ -368,18 +362,24 @@ def node_stats(caller, raw_string, **kwargs):
     if raw_string:
         key = raw_string.strip().lower()
         for stat in stat_keys:
+            min_val = POINT_BUY_MIN
             max_val = POINT_BUY_MAX
             if stat == personality_stat:
-                max_val = 15  # Only allow point-buy up to 15; bonus will make 16
+                min_val = 9
+                max_val = 16
             if key == f"plus_{stat.lower()}":
                 amt = 1
                 new_val = stats[stat] + amt
-                if new_val < POINT_BUY_MIN or new_val > max_val:
-                    caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {max_val}.|n")
+                if new_val < min_val or new_val > max_val:
+                    caller.msg(f"|r{stat} must be between {min_val} and {max_val}.|n")
                 else:
                     temp_stats = dict(stats)
                     temp_stats[stat] = new_val
-                    cost = calc_point_buy_cost(temp_stats)
+                    # For cost, only count up to 15 for bonus stat
+                    cost_stats = temp_stats.copy()
+                    if personality_stat and cost_stats[personality_stat] > 15:
+                        cost_stats[personality_stat] = 15
+                    cost = calc_point_buy_cost(cost_stats)
                     if cost > POINT_BUY_TOTAL:
                         caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
                     else:
@@ -389,12 +389,15 @@ def node_stats(caller, raw_string, **kwargs):
             elif key == f"minus_{stat.lower()}":
                 amt = -1
                 new_val = stats[stat] + amt
-                if new_val < POINT_BUY_MIN or new_val > max_val:
-                    caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {max_val}.|n")
+                if new_val < min_val or new_val > max_val:
+                    caller.msg(f"|r{stat} must be between {min_val} and {max_val}.|n")
                 else:
                     temp_stats = dict(stats)
                     temp_stats[stat] = new_val
-                    cost = calc_point_buy_cost(temp_stats)
+                    cost_stats = temp_stats.copy()
+                    if personality_stat and cost_stats[personality_stat] > 15:
+                        cost_stats[personality_stat] = 15
+                    cost = calc_point_buy_cost(cost_stats)
                     if cost > POINT_BUY_TOTAL:
                         caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
                     else:
@@ -402,7 +405,10 @@ def node_stats(caller, raw_string, **kwargs):
                         caller.msg(f"|y{stat} decreased to {new_val}.|n")
                 break
         if key == "next":
-            cost = calc_point_buy_cost(stats)
+            cost_stats = stats.copy()
+            if personality_stat and cost_stats[personality_stat] > 15:
+                cost_stats[personality_stat] = 15
+            cost = calc_point_buy_cost(cost_stats)
             if cost != POINT_BUY_TOTAL:
                 caller.msg(f"|rYou must spend exactly {POINT_BUY_TOTAL} points (currently spent: {cost}).|n")
             else:
