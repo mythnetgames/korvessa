@@ -95,13 +95,16 @@ def node_intro(caller, raw_string, **kwargs):
             return "node_race"
     text = "|wWelcome to Korvessa Character Creation!|n\n\nYou will be guided through a series of steps to define your character.\n\n"
     options = []
-    if resume_stage is not None and resume_stage > 0:
+    # Always show continue/start over prompt, even if resume_stage is 0 or None
+    chargen_stage = getattr(char.db, 'chargen_stage', None)
+    if chargen_stage is not None and chargen_stage > 0:
         text += "Would you like to continue from where you left off, or start over?\n"
         options.append({"desc": "Continue from last step", "goto": "node_intro", "key": "continue"})
         options.append({"desc": "Start over", "goto": "node_intro", "key": "start over"})
     else:
-        text += "Type |cnext|n to begin."
+        text += "Would you like to begin character creation or start over?\n"
         options.append({"desc": "Begin character creation", "goto": "node_race", "key": "next"})
+        options.append({"desc": "Start over", "goto": "node_intro", "key": "start over"})
     return text, tuple(options)
 
 RACES = [
