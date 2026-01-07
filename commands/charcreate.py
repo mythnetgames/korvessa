@@ -818,55 +818,24 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
         'willpower': 1,
         'edge': 1
     })
-    if raw_string and raw_string.strip():
-        args = raw_string.strip().lower().split()
-        if not args:
-            return first_char_stat_assign(caller, "", **kwargs)
-        command = args[0]
-        valid_stats = ['body', 'reflexes', 'dexterity', 'technique', 'smarts', 'willpower', 'edge']
-        if command == 'reset':
-            stats = {k: 1 for k in valid_stats}
-            caller.ndb.charcreate_data['stats'] = stats
-            return first_char_stat_assign(caller, "", **kwargs)
-        if command in ['done', 'finish', 'finalize']:
-            is_valid, error = validate_stat_distribution(stats)
-            if not is_valid:
-                caller.msg(f"|r{error}|n")
-                return first_char_stat_assign(caller, "", **kwargs)
-            return first_char_confirm(caller, "", **kwargs)
-        if command in valid_stats:
-            if len(args) < 2:
-                caller.msg("|rUsage: <stat> <value>  (e.g., 'body 10')|n")
-                return first_char_stat_assign(caller, "", **kwargs)
-            try:
-                value = int(args[1])
-            except ValueError:
-                caller.msg("|rValue must be a number.|n")
-                return first_char_stat_assign(caller, "", **kwargs)
-            if value < 1 or value > 10:
-                caller.msg("|rValue must be 1-10.|n")
-                return first_char_stat_assign(caller, "", **kwargs)
-            stats[command] = value
-            caller.ndb.charcreate_data['stats'] = stats
-            return first_char_stat_assign(caller, "", **kwargs)
-        empathy = stats['edge'] + stats['willpower']
-        total = sum(stats.values())
-        remaining = 45 - total
-        text = f"""
+    empathy = stats['edge'] + stats['willpower']
+    total = sum(stats.values())
+    remaining = 45 - total
+    text = f"""
 Let's assign your character's stats.
 
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
 
 Distribute |w45 points|n among the following stats:
-    |wBody|n (1-10):        {stats['body']:2d}
-    |wReflexes|n (1-10):    {stats['reflexes']:2d}
-    |wDexterity|n (1-10):   {stats['dexterity']:2d}
-    |wTechnique|n (1-10):   {stats['technique']:2d}
-    |wSmarts|n (1-10):      {stats['smarts']:2d}
-    |wWillpower|n (1-10):   {stats['willpower']:2d}
-    |wEdge|n (1-10):        {stats['edge']:2d}
-    |wEmpathy|n (auto):     {empathy:2d} (calculated: edge + willpower)
+    |wBody|n (1-10):        {stats['body']}
+    |wReflexes|n (1-10):    {stats['reflexes']}
+    |wDexterity|n (1-10):   {stats['dexterity']}
+    |wTechnique|n (1-10):   {stats['technique']}
+    |wSmarts|n (1-10):      {stats['smarts']}
+    |wWillpower|n (1-10):   {stats['willpower']}
+    |wEdge|n (1-10):        {stats['edge']}
+    |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
 
 |wTotal assigned:|n {total}/45  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
 
@@ -879,6 +848,37 @@ Commands:
     options = (
         {"key": "_default", "goto": "first_char_stat_assign"},
     )
+    if raw_string and raw_string.strip():
+        args = raw_string.strip().lower().split()
+        if not args:
+            return text, options
+        command = args[0]
+        valid_stats = ['body', 'reflexes', 'dexterity', 'technique', 'smarts', 'willpower', 'edge']
+        if command == 'reset':
+            stats = {k: 1 for k in valid_stats}
+            caller.ndb.charcreate_data['stats'] = stats
+            return text, options
+        if command in ['done', 'finish', 'finalize']:
+            is_valid, error = validate_stat_distribution(stats)
+            if not is_valid:
+                caller.msg(f"|r{error}|n")
+                return text, options
+            return first_char_confirm(caller, "", **kwargs)
+        if command in valid_stats:
+            if len(args) < 2:
+                caller.msg("|rUsage: <stat> <value>  (e.g., 'body 10')|n")
+                return text, options
+            try:
+                value = int(args[1])
+            except ValueError:
+                caller.msg("|rValue must be a number.|n")
+                return text, options
+            if value < 1 or value > 10:
+                caller.msg("|rValue must be 1-10.|n")
+                return text, options
+            stats[command] = value
+            caller.ndb.charcreate_data['stats'] = stats
+            return text, options
     return text, options
 
 
