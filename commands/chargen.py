@@ -251,7 +251,7 @@ def node_personality(caller, raw_string, **kwargs):
     text = "|wSelect your character's personality:|n\n"
     options = []
     for idx, pdata in enumerate(PERSONALITIES, 1):
-        text += f"|c{idx}. {pdata['name']}|n - {pdata['desc']}\n"
+        text += f"|c{idx}. {pdata['name']}|n\n    {pdata['desc']}\n\n"
         options.append({"desc": f"Choose {pdata['name']}", "goto": "node_personality", "key": str(idx)})
     return text, tuple(options)
 
