@@ -309,14 +309,19 @@ def node_stats(caller, raw_string, **kwargs):
         parts = raw_string.strip().upper().split()
         if len(parts) == 2 and parts[0] in stat_keys and parts[1].lstrip("+-").isdigit():
             stat, amt = parts[0], int(parts[1])
+            min_val = 9 if stat == personality_stat else POINT_BUY_MIN
+            max_val = 16 if stat == personality_stat else POINT_BUY_MAX
             new_val = stats[stat] + amt
-            if new_val < POINT_BUY_MIN or new_val > POINT_BUY_MAX:
-                caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {POINT_BUY_MAX}.|n")
+            if new_val < min_val or new_val > max_val:
+                caller.msg(f"|r{stat} must be between {min_val} and {max_val}.|n")
             else:
                 # Calculate new cost
-                temp_stats = stats.copy()
+                temp_stats = dict(stats)
                 temp_stats[stat] = new_val
-                cost = calc_point_buy_cost(temp_stats)
+                cost_stats = temp_stats.copy()
+                if personality_stat and cost_stats.get(personality_stat, 0) > 15:
+                    cost_stats[personality_stat] = 15
+                cost = calc_point_buy_cost(cost_stats)
                 if cost > POINT_BUY_TOTAL:
                     caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
                 else:
