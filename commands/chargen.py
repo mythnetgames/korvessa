@@ -300,12 +300,9 @@ def node_stats(caller, raw_string, **kwargs):
         char = caller
     stat_keys = list(STAT_INFO.keys())
     # Initialize if not set
-    if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign or any(char.db.stat_assign.get(k, POINT_BUY_START) != POINT_BUY_START for k in stat_keys):
-        char.db.stat_assign = {k: POINT_BUY_START for k in stat_keys}
-        # If personality_stat_bonus is set, set its min to 9
-        personality_stat = getattr(char.db, 'personality_stat_bonus', None)
-        if personality_stat:
-            char.db.stat_assign[personality_stat] = 9
+    personality_stat = getattr(char.db, 'personality_stat_bonus', None)
+    if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign or any(char.db.stat_assign.get(k, POINT_BUY_START) != (9 if k == personality_stat else POINT_BUY_START) for k in stat_keys):
+        char.db.stat_assign = {k: (9 if k == personality_stat else POINT_BUY_START) for k in stat_keys}
     stats = char.db.stat_assign
     # Handle input
     if raw_string:
@@ -356,7 +353,10 @@ def node_stats(caller, raw_string, **kwargs):
         if stat == personality_stat:
             min_val = 9
             max_val = 16
-        text += f"{stat:4}  {val:5}  [+{stat}] [-{stat}] (min {min_val}, max {max_val})\n"
+        text += f"{stat:4}  {val:5}  [+{stat}] [-{stat}] (min {min_val}, max {max_val})"
+        if stat == personality_stat:
+            text += " | Personality bonus stat starts at 9."
+        text += "\n"
         stat_options.append({"desc": "+", "goto": "node_stats", "key": f"plus_{stat}"})
         stat_options.append({"desc": "-", "goto": "node_stats", "key": f"minus_{stat}"})
     text += "\nType |cnext|n when done."
