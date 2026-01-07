@@ -304,38 +304,69 @@ def node_stats(caller, raw_string, **kwargs):
     if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign or any(char.db.stat_assign.get(k, POINT_BUY_START) != (9 if k == personality_stat else POINT_BUY_START) for k in stat_keys):
         char.db.stat_assign = {k: (9 if k == personality_stat else POINT_BUY_START) for k in stat_keys}
     stats = char.db.stat_assign
-    # Handle input
+    # Handle input (direct and clickable)
     if raw_string:
-        parts = raw_string.strip().upper().split()
-        if len(parts) == 2 and parts[0] in stat_keys and parts[1].lstrip("+-").isdigit():
-            stat, amt = parts[0], int(parts[1])
+        key = raw_string.strip().lower()
+        # Handle EvMenu button clicks: plus_stat/minus_stat
+        for stat in stat_keys:
             min_val = 9 if stat == personality_stat else POINT_BUY_MIN
             max_val = 16 if stat == personality_stat else POINT_BUY_MAX
-            new_val = stats[stat] + amt
-            if new_val < min_val or new_val > max_val:
-                caller.msg(f"|r{stat} must be between {min_val} and {max_val}.|n")
+            if key == f"plus_{stat.lower()}":
+                amt = 1
+            elif key == f"minus_{stat.lower()}":
+                amt = -1
             else:
-                # Calculate new cost
-                temp_stats = dict(stats)
-                temp_stats[stat] = new_val
-                cost_stats = temp_stats.copy()
+                amt = None
+            if amt is not None:
+                new_val = stats[stat] + amt
+                if new_val < min_val or new_val > max_val:
+                    caller.msg(f"|r{stat} must be between {min_val} and {max_val}.|n")
+                else:
+                    temp_stats = dict(stats)
+                    temp_stats[stat] = new_val
+                    cost_stats = temp_stats.copy()
+                    if personality_stat and cost_stats.get(personality_stat, 0) > 15:
+                        cost_stats[personality_stat] = 15
+                    cost = calc_point_buy_cost(cost_stats)
+                    if cost > POINT_BUY_TOTAL:
+                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
+                    else:
+                        stats[stat] = new_val
+                        caller.msg(f"|g{stat} set to {new_val}.|n")
+                break
+        else:
+            # Handle direct input: <STAT> <amount>
+            parts = raw_string.strip().upper().split()
+            if len(parts) == 2 and parts[0] in stat_keys and parts[1].lstrip("+-").isdigit():
+                stat, amt = parts[0], int(parts[1])
+                min_val = 9 if stat == personality_stat else POINT_BUY_MIN
+                max_val = 16 if stat == personality_stat else POINT_BUY_MAX
+                new_val = stats[stat] + amt
+                if new_val < min_val or new_val > max_val:
+                    caller.msg(f"|r{stat} must be between {min_val} and {max_val}.|n")
+                else:
+                    temp_stats = dict(stats)
+                    temp_stats[stat] = new_val
+                    cost_stats = temp_stats.copy()
+                    if personality_stat and cost_stats.get(personality_stat, 0) > 15:
+                        cost_stats[personality_stat] = 15
+                    cost = calc_point_buy_cost(cost_stats)
+                    if cost > POINT_BUY_TOTAL:
+                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
+                    else:
+                        stats[stat] = new_val
+                        caller.msg(f"|g{stat} set to {new_val}.|n")
+            elif key in ("next", "done", "finish", "1"):
+                cost_stats = dict(stats)
                 if personality_stat and cost_stats.get(personality_stat, 0) > 15:
                     cost_stats[personality_stat] = 15
                 cost = calc_point_buy_cost(cost_stats)
-                if cost > POINT_BUY_TOTAL:
-                    caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
+                if cost != POINT_BUY_TOTAL:
+                    caller.msg(f"|rYou must spend exactly {POINT_BUY_TOTAL} points (currently spent: {cost}).|n")
                 else:
-                    stats[stat] = new_val
-                    caller.msg(f"|g{stat} set to {new_val}.|n")
-        elif raw_string.strip().lower() in ("next", "done", "finish", "1"):
-            cost = calc_point_buy_cost(stats)
-            if cost != POINT_BUY_TOTAL:
-                caller.msg(f"|rYou must spend exactly {POINT_BUY_TOTAL} points (currently spent: {cost}).|n")
-            else:
-                char.db.stats = dict(stats)
-                del char.db.stat_assign
-                return "node_skills"
-        # No usage message needed
+                    char.db.stats = dict(stats)
+                    del char.db.stat_assign
+                    return "node_skills"
     # Show stat table with clickable + and -
     spent = calc_point_buy_cost(stats)
     text = (
@@ -345,9 +376,6 @@ def node_stats(caller, raw_string, **kwargs):
     )
     stat_options = []
     stat_options.append({"desc": "Back", "goto": "node_personality", "key": "back"})
-    text += "|wStat   Value   [+] [-]|n\n"
-    # Determine stat eligible for personality bonus
-    # personality_stat is already set above and should not be redefined
     for stat in stat_keys:
         val = stats[stat]
         min_val = POINT_BUY_MIN
@@ -355,15 +383,12 @@ def node_stats(caller, raw_string, **kwargs):
         if stat == personality_stat:
             min_val = 9
             max_val = 16
-        # Add clickable + and - as EvMenu buttons in the row
         plus_btn = f'|lcplus_{stat.lower()}|l+[+]|lt+|le'
         minus_btn = f'|lcminus_{stat.lower()}|l-[-]|lt-|le'
         text += f"{stat.title()}: {val} {plus_btn} {minus_btn} (min {min_val}, max {max_val})"
         if stat == personality_stat:
             text += " | Personality bonus stat starts at 9."
         text += "\n"
-        stat_options.append({"desc": "+", "goto": "node_stats", "key": f"plus_{stat}"})
-        stat_options.append({"desc": "-", "goto": "node_stats", "key": f"minus_{stat}"})
     text += "\nType |cnext|n when done."
     stat_options.append({"desc": "Continue", "goto": "node_stats", "key": "next"})
 
