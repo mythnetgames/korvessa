@@ -347,9 +347,7 @@ def node_stats(caller, raw_string, **kwargs):
     stat_options.append({"desc": "Back", "goto": "node_personality", "key": "back"})
     text += "|wStat   Value   [+] [-]|n\n"
     # Determine stat eligible for personality bonus
-    personality_stat = None
-    if hasattr(char.db, 'personality_stat_bonus'):
-        personality_stat = char.db.personality_stat_bonus
+    # personality_stat is already set above and should not be redefined
     for stat in stat_keys:
         val = stats[stat]
         min_val = POINT_BUY_MIN
