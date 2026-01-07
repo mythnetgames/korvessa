@@ -41,7 +41,7 @@ def connection_screen():
 
 |y
       
-                              |#d70000KOWLOON|w:                      
+                               |#d70000KOWLOON|w:                      
                             |#ffff00THE WALLED CITY                        
 |n
 
