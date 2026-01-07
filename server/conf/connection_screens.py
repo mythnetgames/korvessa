@@ -45,7 +45,7 @@ def connection_screen():
                             |#ffff00THE WALLED CITY                        
 |n
 
-|#d75f00The massive walls of Kowloon rise before you, ancient and impenetrable.
+|#d75f00The massive walls of |#d70000Kowloon|#d75f00 rise before you, ancient and impenetrable.
 Within its narrow alleys, vertical villages stretch toward the sky.
 Shops hum with commerce. Triads claim territories. Stories interweave.
 
