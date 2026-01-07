@@ -109,23 +109,14 @@ class Room(ObjectParent, DefaultRoom):
         Check for fully decayed corpses and clean them up just-in-time.
         """
         super().at_object_receive(moved_obj, source_location, **kwargs)
-        # Always check for WindowSensor objects and fire their hooks
         # When a character (PC or NPC) enters, check all corpses in room for decay
         from typeclasses.characters import Character
         if isinstance(moved_obj, Character):
             # Only run decay check when a character enters (not every object move)
             self._check_corpse_decay()
-            # Relay movement to windows watching this room
-            from evennia.objects.models import ObjectDB
-            x, y, z = self.db.x, self.db.y, self.db.z
-            # Find all Window objects in the game watching this room
 
     def at_object_leave(self, moved_obj, target_location, **kwargs):
         super().at_object_leave(moved_obj, target_location, **kwargs)
-        # Always check for WindowSensor objects and fire their hooks
-            # Relay movement to windows watching this room
-            from evennia.objects.models import ObjectDB
-            x, y, z = self.db.x, self.db.y, self.db.z
     
     def _check_corpse_decay(self):
         """Check all corpses in room and remove those that have fully decayed."""
