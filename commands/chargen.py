@@ -80,7 +80,7 @@ class CmdChargen(BaseCommand):
 def node_intro(caller, raw_string, **kwargs):
     char = kwargs.get("startnode_input")
     resume_stage = kwargs.get("resume_stage", None)
-    if raw_string:
+    if raw_string and isinstance(raw_string, str):
         choice = raw_string.strip().lower()
         if choice in ("continue", "resume", "1") and resume_stage is not None:
             # Resume from last stage
