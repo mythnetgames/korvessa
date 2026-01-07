@@ -92,37 +92,6 @@ def generate_random_template():
         'sex': sex,
         **stats
     }
-    }
-    STAT_MAX = {"empathy": 6, **{k: 10 for k in STAT_NAMES if k != "empathy"}}
-    STAT_MIN = 1
-    STAT_TOTAL = 68
-
-    def generate_random_template():
-        from world.namebank import FIRST_NAMES_MALE, FIRST_NAMES_FEMALE, LAST_NAMES
-        sex_choices = ['male', 'female', 'ambiguous']
-        sex = random.choice(sex_choices)
-        use_male = random.choice([True, False]) if sex == 'ambiguous' else (sex == 'male')
-        first_name = random.choice(FIRST_NAMES_MALE if use_male else FIRST_NAMES_FEMALE)
-        last_name = random.choice(LAST_NAMES)
-        # Distribute 68 points across 8 stats
-        points_left = STAT_TOTAL
-        stats = {}
-        for i, stat in enumerate(STAT_NAMES):
-            if i == len(STAT_NAMES) - 1:
-                val = points_left
-            else:
-                max_for_stat = min(STAT_MAX[stat], points_left - (len(STAT_NAMES) - i - 1) * STAT_MIN)
-                min_for_stat = STAT_MIN
-                val = random.randint(min_for_stat, max_for_stat)
-            stats[stat] = val
-            points_left -= val
-        return {
-            'first_name': first_name,
-            'last_name': last_name,
-            'name': f"{first_name} {last_name}",
-            'sex': sex,
-            **stats
-        }
     
     # Basic profanity filter (expandable)
     profanity_list = ['fuck', 'shit', 'damn', 'bitch', 'ass', 'cunt', 'dick', 'cock', 'pussy']
