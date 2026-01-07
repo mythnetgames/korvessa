@@ -355,7 +355,10 @@ def node_stats(caller, raw_string, **kwargs):
         if stat == personality_stat:
             min_val = 9
             max_val = 16
-        text += f"{stat:4}  {val:5}  [+{stat}] [-{stat}] (min {min_val}, max {max_val})"
+        # Add clickable + and - as EvMenu buttons in the row
+        plus_btn = f'|lcplus_{stat}|l+[+]|lt+|le'
+        minus_btn = f'|lcminus_{stat}|l-[-]|lt-|le'
+        text += f"{stat.title()}: {val} {plus_btn} {minus_btn} (min {min_val}, max {max_val})"
         if stat == personality_stat:
             text += " | Personality bonus stat starts at 9."
         text += "\n"
