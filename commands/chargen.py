@@ -69,12 +69,9 @@ class CmdChargen(BaseCommand):
         if not char:
             self.caller.msg("|r[ERROR]|n You must select or create a character first.")
             return
-        # Determine last step
+        # Always call node_intro and pass resume_stage if it exists
         last_stage = getattr(char.db, 'chargen_stage', None)
-        if last_stage is not None and isinstance(last_stage, int) and last_stage > 0:
-            EvMenu(self.caller, "commands.chargen", startnode="node_intro", persistent=True, cmd_on_exit=None, auto_quit=True, startnode_input=char, resume_stage=last_stage)
-        else:
-            EvMenu(self.caller, "commands.chargen", startnode="node_intro", persistent=True, cmd_on_exit=None, auto_quit=True, startnode_input=char)
+        EvMenu(self.caller, "commands.chargen", startnode="node_intro", persistent=True, cmd_on_exit=None, auto_quit=True, startnode_input=char, resume_stage=last_stage)
 
 # --- EvMenu Nodes for Chargen ---
 def node_intro(caller, raw_string, **kwargs):
@@ -86,8 +83,10 @@ def node_intro(caller, raw_string, **kwargs):
             # Resume from last stage
             stages = CHARGEN_STEPS
             if 0 <= resume_stage < len(stages):
+                char.db.chargen_stage = resume_stage
                 return stages[resume_stage]
             else:
+                char.db.chargen_stage = 0
                 return "node_race"
         elif choice in ("start over", "restart", "2"):
             # Reset progress and start over
