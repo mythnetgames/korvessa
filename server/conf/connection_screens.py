@@ -40,17 +40,14 @@ def connection_screen():
     return f"""
 
 |y
-      ╔════════════════════════════════════════════════════════════╗
-      ║                                                            ║
-      ║              KOWLOON WALLED CITY: 1980                     ║
-      ║                    THE SEALED WORLD                        ║
-      ║                                                            ║
-      ╚════════════════════════════════════════════════════════════╝
+      
+                              KOWLOON RPI:                      
+                            THE WALLED CITY                        
 |n
 
-|cThe massive walls of Kowloon rise before you, ancient and impenetrable.
+|#d75f00The massive walls of Kowloon rise before you, ancient and impenetrable.
 Within its narrow alleys, vertical villages stretch toward the sky.
-Shops hum with commerce. Gangs claim territories. Stories interweave.
+Shops hum with commerce. Triads claim territories. Stories interweave.
 
 Here you will forge your survival in the densest place on Earth.|n
 
@@ -61,8 +58,6 @@ __ Connect : |wconnect <email@address.com> <password>|n
 Character creation happens after login.
 |whelp|n for more info. |wlook|n to see this again.
 
-|rVersion {utils.get_evennia_version("short")}|n
-
 """
 
 
@@ -71,8 +66,8 @@ CONNECTION_SCREEN = """
 
 |g{} the Walled City |n Enter your ID {} |
 
-YEAR: 1980
-LOCATION: Kowloon Walled City, Hong Kong
+YEAR: 198?
+LOCATION: Kowloon Walled City
  
 
 
