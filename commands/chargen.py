@@ -302,6 +302,10 @@ def node_stats(caller, raw_string, **kwargs):
     # Initialize if not set
     if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign or any(char.db.stat_assign.get(k, POINT_BUY_START) != POINT_BUY_START for k in stat_keys):
         char.db.stat_assign = {k: POINT_BUY_START for k in stat_keys}
+        # If personality_stat_bonus is set, set its min to 9
+        personality_stat = getattr(char.db, 'personality_stat_bonus', None)
+        if personality_stat:
+            char.db.stat_assign[personality_stat] = 9
     stats = char.db.stat_assign
     # Handle input
     if raw_string:
