@@ -89,11 +89,6 @@ RACES = [
     ("Human", "Versatile and ambitious, found everywhere."),
     ("Elf", "Graceful, keen senses, attuned to nature and magic."),
     ("Dwarf", "Stout, hardy, skilled with craft and stone."),
-    ("Orc", "Strong, resilient, often misunderstood."),
-    ("Fey", "Mysterious, magical, and unpredictable."),
-    ("Halfling", "Small, nimble, and lucky."),
-    ("Beastkin", "Animal traits, keen instincts, and senses."),
-    # 'Immortal' is reserved for admin/staff and not shown in chargen
 ]
 
 def node_race(caller, raw_string, **kwargs):
@@ -103,18 +98,15 @@ def node_race(caller, raw_string, **kwargs):
         for idx, (race, desc) in enumerate(RACES, 1):
             if choice == str(idx) or choice == race.lower():
                 char.db.race = race
-                caller.msg(f"|gYou have selected:|n {race} - {desc}")
-                return "node_personality"
+                return f"|gYou have selected:|n {race} - {desc}\n\nType |cnext|n to continue.", ( {"desc": "Continue", "goto": "node_personality", "key": "next"}, )
         caller.msg("|rInvalid race. Please choose by number or name.")
-    table = EvTable("#", "Race", "Description")
+    # Show clickable race options
+    text = "|wSelect your character's race:|n\n"
+    options = []
     for idx, (race, desc) in enumerate(RACES, 1):
-        table.add_row(str(idx), race, desc)
-    text = (
-        "|w[CHARGEN]|n Select your character's race.\n" + str(table) +
-        "\nType the |cnumber|n or |cname|n of your choice."
-    )
-    options = tuple()
-    return text, options
+        text += f"|c{idx}. {race}|n - {desc}\n"
+        options.append({"desc": f"Choose {race}", "goto": "node_race", "key": str(idx)})
+    return text, tuple(options)
 
 # Top-level chargen steps and questions
 CHARGEN_STEPS = [
