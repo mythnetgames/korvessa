@@ -93,6 +93,8 @@ RACES = [
 
 def node_race(caller, raw_string, **kwargs):
     char = kwargs.get("startnode_input")
+    if char is None and hasattr(caller, 'db'):
+        char = caller
     if raw_string:
         choice = raw_string.strip().lower()
         for idx, (race, desc) in enumerate(RACES, 1):
