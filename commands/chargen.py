@@ -60,30 +60,50 @@ class CmdChargen(BaseCommand):
     help_category = "Character"
 
     def func(self):
-        """Launch EvMenu-based chargen."""
+        """Launch EvMenu-based chargen with resume/startover prompt."""
         account = self.caller.account if hasattr(self.caller, 'account') else self.caller
         char = getattr(account, 'current_character', None)
-        # If no selected character, use self.caller if it is a Character instance
         from typeclasses.characters import Character
         if not char and isinstance(self.caller, Character):
             char = self.caller
         if not char:
             self.caller.msg("|r[ERROR]|n You must select or create a character first.")
             return
-        EvMenu(self.caller, "commands.chargen", startnode="node_intro", persistent=True, cmd_on_exit=None, auto_quit=True, startnode_input=char)
+        # Determine last step
+        last_stage = getattr(char.db, 'chargen_stage', None)
+        if last_stage is not None and isinstance(last_stage, int) and last_stage > 0:
+            EvMenu(self.caller, "commands.chargen", startnode="node_intro", persistent=True, cmd_on_exit=None, auto_quit=True, startnode_input=char, resume_stage=last_stage)
+        else:
+            EvMenu(self.caller, "commands.chargen", startnode="node_intro", persistent=True, cmd_on_exit=None, auto_quit=True, startnode_input=char)
 
 # --- EvMenu Nodes for Chargen ---
 def node_intro(caller, raw_string, **kwargs):
     char = kwargs.get("startnode_input")
-    text = (
-        "|wWelcome to Korvessa Character Creation!|n\n\n"
-        "You will be guided through a series of steps to define your character's race, stats, personality, skills, social standing, and public knowledge.\n\n"
-        "Type |cnext|n to begin."
-    )
-    options = (
-        {"desc": "Begin character creation", "goto": "node_race", "key": ("next", "begin", "start", "1")},
-    )
-    return text, options
+    resume_stage = kwargs.get("resume_stage", None)
+    if raw_string:
+        choice = raw_string.strip().lower()
+        if choice in ("continue", "resume", "1") and resume_stage is not None:
+            # Resume from last stage
+            stages = CHARGEN_STEPS
+            if 0 <= resume_stage < len(stages):
+                return stages[resume_stage]
+            else:
+                return "node_race"
+        elif choice in ("start over", "restart", "2"):
+            # Reset progress and start over
+            char.db.chargen_stage = 0
+            char.db.chargen_data = {}
+            return "node_race"
+    text = "|wWelcome to Korvessa Character Creation!|n\n\nYou will be guided through a series of steps to define your character.\n\n"
+    options = []
+    if resume_stage is not None and resume_stage > 0:
+        text += "Would you like to continue from where you left off, or start over?\n"
+        options.append({"desc": "Continue from last step", "goto": "node_intro", "key": "continue"})
+        options.append({"desc": "Start over", "goto": "node_intro", "key": "start over"})
+    else:
+        text += "Type |cnext|n to begin."
+        options.append({"desc": "Begin character creation", "goto": "node_race", "key": "next"})
+    return text, tuple(options)
 
 RACES = [
     ("Human", "Versatile and ambitious, found everywhere."),
@@ -176,6 +196,8 @@ def calc_point_buy_cost(stats):
 
 def node_stats(caller, raw_string, **kwargs):
     char = kwargs.get("startnode_input")
+    if char is None and hasattr(caller, 'db'):
+        char = caller
     stat_keys = list(STAT_INFO.keys())
     # Initialize if not set
     if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign:
