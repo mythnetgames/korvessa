@@ -1026,13 +1026,13 @@ def first_char_finalize(caller, raw_string, **kwargs):
         if errors:
             raise Exception(f"Character creation failed: {errors}")
         char.body = stats['body']
-        char.reflexes = stats['reflexes']
-        char.dexterity = stats['dexterity']
-        char.technique = stats['technique']
-        char.smarts = stats['smarts']
-        char.willpower = stats['willpower']
+        char.ref = stats['reflexes']
+        char.dex = stats['dexterity']
+        char.tech = stats['technique']
+        char.smrt = stats['smarts']
+        char.will = stats['willpower']
         char.edge = stats['edge']
-        char.empathy = empathy
+        char.emp = empathy
         char.sex = sex
         char.db.archived = False
         import uuid
