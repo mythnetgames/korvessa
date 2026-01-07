@@ -133,17 +133,17 @@ def validate_stat_distribution(stats):
     Returns:
         tuple: (is_valid: bool, error_message: str or None)
     """
-    STAT_MAX = {"empathy": 6, **{k: 10 for k in stats if k != "empathy"}}
+    STAT_MAX = {k: 10 for k in stats if k != "empathy"}
     STAT_MIN = 1
-    STAT_TOTAL = 68
+    STAT_TOTAL = 45
     for stat, value in stats.items():
+        if stat == "empathy":
+            continue
         if value < STAT_MIN:
             return (False, f"{stat.capitalize()} must be at least {STAT_MIN}.")
-        if stat == "empathy" and value > STAT_MAX[stat]:
-            return (False, "Empathy cannot exceed 6.")
-        if stat != "empathy" and value > STAT_MAX[stat]:
+        if value > STAT_MAX[stat]:
             return (False, f"{stat.capitalize()} cannot exceed 10.")
-    total = sum(stats.values())
+    total = sum([v for k, v in stats.items() if k != "empathy"])
     if total != STAT_TOTAL:
         return (False, f"Stats must total {STAT_TOTAL} (current total: {total}).")
     return (True, None)
@@ -803,7 +803,7 @@ Select biological sex:
 
 
 def first_char_stat_assign(caller, raw_string, **kwargs):
-    """Distribute 68 points among 8 stats."""
+    """Distribute 45 points among 7 assignable stats (empathy is auto-calculated)."""
     if 'sex' in kwargs:
         caller.ndb.charcreate_data['sex'] = kwargs['sex']
     first_name = caller.ndb.charcreate_data.get('first_name', '')
@@ -850,15 +850,15 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
             caller.ndb.charcreate_data['stats'] = stats
             return first_char_stat_assign(caller, "", **kwargs)
         empathy = stats['edge'] + stats['willpower']
-        total = sum(stats.values()) + empathy
-        remaining = 68 - total
+        total = sum(stats.values())
+        remaining = 45 - total
         text = f"""
 Let's assign your character's stats.
 
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
 
-Distribute |w68 points|n among the following stats:
+Distribute |w45 points|n among the following stats:
     |wBody|n (1-10):        {stats['body']:2d}
     |wReflexes|n (1-10):    {stats['reflexes']:2d}
     |wDexterity|n (1-10):   {stats['dexterity']:2d}
@@ -868,12 +868,12 @@ Distribute |w68 points|n among the following stats:
     |wEdge|n (1-10):        {stats['edge']:2d}
     |wEmpathy|n (auto):     {empathy:2d} (calculated: edge + willpower)
 
-|wTotal:|n {total}/68  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|wTotal assigned:|n {total}/45  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
 
 Commands:
     |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
     |wreset|n           - Reset all stats to 1
-    |wdone|n            - Finalize character (when total = 68)
+    |wdone|n            - Finalize character (when total = 45)
 
 |w>|n """
     options = (
@@ -887,19 +887,44 @@ def first_char_confirm(caller, raw_string, **kwargs):
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
-        stats = caller.ndb.charcreate_data.get('stats', {
-                'body': 1,
-                'reflexes': 1,
-                'dexterity': 1,
-                'technique': 1,
-                'smarts': 1,
-                'willpower': 1,
-                'edge': 1
-        })
+    stats = caller.ndb.charcreate_data.get('stats', {
+        'body': 1,
+        'reflexes': 1,
+        'dexterity': 1,
+        'technique': 1,
+        'smarts': 1,
+        'willpower': 1,
+        'edge': 1
+    })
         empathy = stats['edge'] + stats['willpower']
-        total = sum(stats.values()) + empathy
+    total = sum(stats.values())
         text = f"""
 Just uh, let me know if everything looks good.
+
+|wName:|n |c{first_name} {last_name}|n
+|wSex:|n |c{sex.capitalize()}|n
+
+|wStats:|n
+    |wBody:|n      {stats['body']:2d}
+    |wReflexes:|n  {stats['reflexes']:2d}
+    |wDexterity:|n {stats['dexterity']:2d}
+    |wTechnique:|n {stats['technique']:2d}
+    |wSmarts:|n    {stats['smarts']:2d}
+    |wWillpower:|n {stats['willpower']:2d}
+    |wEdge:|n      {stats['edge']:2d}
+    |wEmpathy:|n   {empathy:2d} (calculated: edge + willpower)
+
+|wTotal assigned:|n {total}/45
+
+|yOnce created, your name cannot be changed.|n
+|yStats can be modified through gameplay.|n
+
+Create this character?
+
+|w[Y]|n Yes, finalize character
+|w[N]|n No, go back to stat assignment
+
+|w>|n """
 
 |wName:|n |c{first_name} {last_name}|n
 |wSex:|n |c{sex.capitalize()}|n
