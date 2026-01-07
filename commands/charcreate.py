@@ -896,9 +896,9 @@ def first_char_confirm(caller, raw_string, **kwargs):
         'willpower': 1,
         'edge': 1
     })
-        empathy = stats['edge'] + stats['willpower']
+    empathy = stats['edge'] + stats['willpower']
     total = sum(stats.values())
-        text = f"""
+    text = f"""
 Just uh, let me know if everything looks good.
 
 |wName:|n |c{first_name} {last_name}|n
