@@ -301,7 +301,7 @@ def node_stats(caller, raw_string, **kwargs):
     stat_keys = list(STAT_INFO.keys())
     # Initialize if not set
     personality_stat = getattr(char.db, 'personality_stat_bonus', None)
-    if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign or any(char.db.stat_assign.get(k, POINT_BUY_START) != (9 if k == personality_stat else POINT_BUY_START) for k in stat_keys):
+    if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign:
         char.db.stat_assign = {k: (9 if k == personality_stat else POINT_BUY_START) for k in stat_keys}
     stats = char.db.stat_assign
     # Handle input (direct and clickable)
@@ -378,11 +378,10 @@ def node_stats(caller, raw_string, **kwargs):
     stat_options.append({"desc": "Back", "goto": "node_personality", "key": "back"})
     for stat in stat_keys:
         val = stats[stat]
-        min_val = POINT_BUY_MIN
-        max_val = POINT_BUY_MAX
-        if stat == personality_stat:
-            min_val = 9
-            max_val = 16
+        # Always recalculate personality_stat in case it changed
+        personality_stat = getattr(char.db, 'personality_stat_bonus', None)
+        min_val = 9 if stat == personality_stat else POINT_BUY_MIN
+        max_val = 16 if stat == personality_stat else POINT_BUY_MAX
         plus_btn = f'|lcplus_{stat.lower()}|l+[+]|lt+|le'
         minus_btn = f'|lcminus_{stat.lower()}|l-[-]|lt-|le'
         text += f"{stat.title()}: {val} {plus_btn} {minus_btn} (min {min_val}, max {max_val})"
