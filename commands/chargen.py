@@ -300,7 +300,7 @@ def node_stats(caller, raw_string, **kwargs):
         char = caller
     stat_keys = list(STAT_INFO.keys())
     # Initialize if not set
-    if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign:
+    if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign or any(char.db.stat_assign.get(k, POINT_BUY_START) != POINT_BUY_START for k in stat_keys):
         char.db.stat_assign = {k: POINT_BUY_START for k in stat_keys}
     stats = char.db.stat_assign
     # Handle input
@@ -405,7 +405,7 @@ def node_stats(caller, raw_string, **kwargs):
                         caller.msg(f"|y{stat} decreased to {new_val}.|n")
                 break
         if key == "next":
-            cost_stats = stats.copy()
+            cost_stats = dict(stats)
             if personality_stat and cost_stats[personality_stat] > 15:
                 cost_stats[personality_stat] = 15
             cost = calc_point_buy_cost(cost_stats)
