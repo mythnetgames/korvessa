@@ -323,7 +323,13 @@ def node_stats(caller, raw_string, **kwargs):
                 if cost != POINT_BUY_TOTAL:
                     caller.msg(f"|rYou must spend exactly {POINT_BUY_TOTAL} points (currently spent: {cost}).|n")
                 else:
-                    char.db.stats = dict(stats)
+                    final_stats = dict(stats)
+                    # Apply stat bonus now
+                    if personality_stat:
+                        final_stats[personality_stat] += 1
+                        if final_stats[personality_stat] > 16:
+                            final_stats[personality_stat] = 16
+                    char.db.stats = final_stats
                     del char.db.stat_assign
                     return "node_skills"
                 return
@@ -346,6 +352,7 @@ def node_stats(caller, raw_string, **kwargs):
                         stats[stat] = new_val
                         caller.msg(f"|g{stat} set to {new_val}.|n")
                 break
+    # Always show the stat menu, regardless of point total
     # Show stat table with clickable + and -
     spent = calc_point_buy_cost(stats)
     text = (
