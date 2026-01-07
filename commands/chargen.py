@@ -95,6 +95,7 @@ def node_intro(caller, raw_string, **kwargs):
             return "node_race"
     text = "|wWelcome to Korvessa Character Creation!|n\n\nYou will be guided through a series of steps to define your character.\n\n"
     options = []
+    options.append({"desc": "Back", "goto": "node_intro", "key": "back"})
     # Always show continue/start over prompt, even if resume_stage is 0 or None
     chargen_stage = getattr(char.db, 'chargen_stage', None)
     if chargen_stage is not None and chargen_stage > 0:
@@ -127,6 +128,7 @@ def node_race(caller, raw_string, **kwargs):
     # Show clickable race options
     text = "|wSelect your character's race:|n\n"
     options = []
+    options.append({"desc": "Back", "goto": "node_intro", "key": "back"})
     for idx, (race, desc) in enumerate(RACES, 1):
         text += f"|c{idx}. {race}|n - {desc}\n"
         options.append({"desc": f"Choose {race}", "goto": "node_race", "key": str(idx)})
@@ -251,6 +253,7 @@ def node_personality(caller, raw_string, **kwargs):
     # Show clickable personality options with bonuses
     text = "|wSelect your character's personality:|n\n"
     options = []
+    options.append({"desc": "Back", "goto": "node_race", "key": "back"})
     for idx, pdata in enumerate(PERSONALITIES, 1):
         text += f"|c{idx}. {pdata['name']}|n\n    {pdata['desc']}\n\n"
         options.append({"desc": f"Choose {pdata['name']}", "goto": "node_personality", "key": str(idx)})
@@ -276,6 +279,7 @@ def node_personality_stat(caller, raw_string, **kwargs):
             caller.msg("|rInvalid stat choice. Please select one of the available options.")
     text = "|wChoose your stat bonus:|n\n"
     options = []
+    options.append({"desc": "Back", "goto": "node_personality", "key": "back"})
     pdata = char.db.personality_data
     for stat in pdata["stat_choices"]:
         text += f"+1 {stat}\n"
@@ -341,6 +345,7 @@ def node_stats(caller, raw_string, **kwargs):
         "Click + or - next to each attribute to adjust.\nType |cnext|n when done.\n"
     )
     stat_options = []
+    stat_options.append({"desc": "Back", "goto": "node_personality", "key": "back"})
     text += "|wStat   Value   [+] [-]|n\n"
     # Determine stat eligible for personality bonus
     personality_stat = None
