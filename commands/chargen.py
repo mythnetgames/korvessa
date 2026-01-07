@@ -240,11 +240,10 @@ def node_personality(caller, raw_string, **kwargs):
                     stat = pdata["stat_choices"][0]
                     char.db.personality_stat_bonus = stat
                     char.db.personality_pending_stat = False
-                    # Apply stat bonus to starting stats
+                    # Do NOT apply stat bonus yet; only after point-buy is complete
                     stat_keys = list(STAT_INFO.keys())
                     if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign:
                         char.db.stat_assign = {k: POINT_BUY_START for k in stat_keys}
-                    char.db.stat_assign[stat] += 1
                     return f"|gYou have selected:|n {pdata['name']}\n{pdata['desc']}\n\nType |cnext|n to continue.", ( {"desc": "Continue", "goto": "node_stats", "key": "next"}, )
         caller.msg("|rInvalid personality. Please choose by number or name.")
     # Show clickable personality options with bonuses
@@ -266,11 +265,10 @@ def node_personality_stat(caller, raw_string, **kwargs):
         if stat in pdata["stat_choices"]:
             char.db.personality_stat_bonus = stat
             char.db.personality_pending_stat = False
-            # Apply stat bonus to starting stats
+            # Do NOT apply stat bonus yet; only after point-buy is complete
             stat_keys = list(STAT_INFO.keys())
             if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign:
                 char.db.stat_assign = {k: POINT_BUY_START for k in stat_keys}
-            char.db.stat_assign[stat] += 1
             return f"|gStat bonus selected: +1 {stat}\nType |cnext|n to continue.", ( {"desc": "Continue", "goto": "node_stats", "key": "next"}, )
         else:
             caller.msg("|rInvalid stat choice. Please select one of the available options.")
@@ -350,7 +348,7 @@ def node_stats(caller, raw_string, **kwargs):
         val = stats[stat]
         max_val = POINT_BUY_MAX
         if stat == personality_stat:
-            max_val = 16
+            max_val = 15  # Only allow point-buy up to 15; bonus will make 16
         text += f"{stat:4}  {val:5}  [+{stat}] [-{stat}] (max {max_val})\n"
         stat_options.append({"desc": "+", "goto": "node_stats", "key": f"plus_{stat}"})
         stat_options.append({"desc": "-", "goto": "node_stats", "key": f"minus_{stat}"})
@@ -363,7 +361,7 @@ def node_stats(caller, raw_string, **kwargs):
         for stat in stat_keys:
             max_val = POINT_BUY_MAX
             if stat == personality_stat:
-                max_val = 16
+                max_val = 15  # Only allow point-buy up to 15; bonus will make 16
             if key == f"plus_{stat.lower()}":
                 amt = 1
                 new_val = stats[stat] + amt
@@ -373,11 +371,8 @@ def node_stats(caller, raw_string, **kwargs):
                     temp_stats = dict(stats)
                     temp_stats[stat] = new_val
                     cost = calc_point_buy_cost(temp_stats)
-                    # Personality bonus does not consume point buy
-                    bonus_val = stats[personality_stat] if personality_stat else None
-                    bonus_points = 1 if personality_stat and temp_stats[personality_stat] > POINT_BUY_MAX else 0
-                    if cost + bonus_points > POINT_BUY_TOTAL:
-                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - (calc_point_buy_cost(stats) + bonus_points)} left.|n")
+                    if cost > POINT_BUY_TOTAL:
+                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
                     else:
                         stats[stat] = new_val
                         caller.msg(f"|g{stat} increased to {new_val}.|n")
@@ -391,10 +386,8 @@ def node_stats(caller, raw_string, **kwargs):
                     temp_stats = dict(stats)
                     temp_stats[stat] = new_val
                     cost = calc_point_buy_cost(temp_stats)
-                    bonus_val = stats[personality_stat] if personality_stat else None
-                    bonus_points = 1 if personality_stat and temp_stats[personality_stat] > POINT_BUY_MAX else 0
-                    if cost + bonus_points > POINT_BUY_TOTAL:
-                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - (calc_point_buy_cost(stats) + bonus_points)} left.|n")
+                    if cost > POINT_BUY_TOTAL:
+                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
                     else:
                         stats[stat] = new_val
                         caller.msg(f"|y{stat} decreased to {new_val}.|n")
@@ -404,7 +397,13 @@ def node_stats(caller, raw_string, **kwargs):
             if cost != POINT_BUY_TOTAL:
                 caller.msg(f"|rYou must spend exactly {POINT_BUY_TOTAL} points (currently spent: {cost}).|n")
             else:
-                char.db.stats = dict(stats)
+                final_stats = dict(stats)
+                # Apply stat bonus now
+                if personality_stat:
+                    final_stats[personality_stat] += 1
+                    if final_stats[personality_stat] > 16:
+                        final_stats[personality_stat] = 16
+                char.db.stats = final_stats
                 del char.db.stat_assign
                 return "node_skills"
     return text, tuple(stat_options)
