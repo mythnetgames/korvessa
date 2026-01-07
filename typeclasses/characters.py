@@ -162,16 +162,24 @@ class Character(ObjectParent, DefaultCharacter):
         self._notify_window_observers('enter', source_location)
     def at_look(self, target=None, **kwargs):
         """
-        Called when the character uses the look command. Forces @mapon and shows map+room description.
+        Called when the character uses the look command.
+        When looking at the room (or nothing), shows the room and map.
+        When looking at an object/character, shows their description.
         """
-        if self.account and hasattr(self.account, 'db'):
-            self.account.db.mapper_enabled = True
-        self.ndb.mapper_enabled = True
-        from commands.mapper import CmdMap
-        cmd = CmdMap()
-        cmd.caller = self
-        cmd.args = ""
-        cmd.func()
+        if target is None or target == self.location:
+            # Looking at the room - show map and room
+            if self.account and hasattr(self.account, 'db'):
+                self.account.db.mapper_enabled = True
+            self.ndb.mapper_enabled = True
+            from commands.mapper import CmdMap
+            cmd = CmdMap()
+            cmd.caller = self
+            cmd.args = ""
+            cmd.func()
+            return
+        else:
+            # Looking at an object/character - show their description
+            return target.return_appearance(self)
 
     def _notify_window_observers(self, movement_type, previous_location):
         """
