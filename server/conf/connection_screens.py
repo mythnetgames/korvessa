@@ -27,21 +27,41 @@ from evennia import utils
 def connection_screen():
     """
     Dynamic connection screen that adjusts based on settings.
+    Thematic to Kowloon Walled City.
     """
     # Build the create command line based on registration setting
     if settings.NEW_ACCOUNT_REGISTRATION_ENABLED:
-        create_line = "__ Create  : |wcreate <email@address.com> <password>|n\n\nUse your email address to connect or create a new account."
+        create_line = "__ Enter   : |wcreate <email@address.com> <password>|n"
+        instructions = "\nStep into the Walled City. Create your existence or reclaim it."
     else:
-        create_line = "__ Create  : |rAccount creation disabled|n\n\nUse your email address to connect to your existing account."
+        create_line = "__ Enter   : |wconnect <email@address.com> <password>|n"
+        instructions = "\nReturn to the City. Reclaim your existence."
     
     return f"""
 
-|g{settings.SERVERNAME} SYSTEM |n :::: SIGNAL {utils.get_evennia_version("short")}
+|y
+      ╔════════════════════════════════════════════════════════════╗
+      ║                                                            ║
+      ║              KOWLOON WALLED CITY: 1980                     ║
+      ║                    THE SEALED WORLD                        ║
+      ║                                                            ║
+      ╚════════════════════════════════════════════════════════════╝
+|n
+
+|cThe massive walls of Kowloon rise before you, ancient and impenetrable.
+Within its narrow alleys, vertical villages stretch toward the sky.
+Shops hum with commerce. Gangs claim territories. Stories interweave.
+
+Here you will forge your survival in the densest place on Earth.|n
 
 __ Connect : |wconnect <email@address.com> <password>|n
 {create_line}
+
+|g{instructions}|n
 Character creation happens after login.
-Enter |whelp|n for more info. |wlook|n will re-show this screen.
+|whelp|n for more info. |wlook|n to see this again.
+
+|rVersion {utils.get_evennia_version("short")}|n
 
 """
 

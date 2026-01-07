@@ -1,7 +1,7 @@
 {% extends "website/base.html" %}
 
 {% block titleblock %}
-Respawn Sleeve
+Return to the City
 {% endblock %}
 
 {% block content %}
@@ -10,8 +10,8 @@ Respawn Sleeve
   <div class="col">
     <div class="card">
       <div class="card-body">
-        <h1 class="card-title">Respawn Sleeve</h1>
-        <p class="text-muted">Your previous sleeve has been archived. Select a new sleeve to decant into.</p>
+        <h1 class="card-title">Return to the City</h1>
+        <p class="text-muted">Your existence in Kowloon was interrupted. Choose how you return—take on a new form or reclaim your old one.</p>
         <hr />
         
         <form method="post" action="?">
@@ -57,12 +57,12 @@ Respawn Sleeve
             {% if old_character %}
             <div class="mt-4 mb-3 flash-clone-warning">
               <div class="text-center py-3">
-                <h5 class="mb-1" style="color: #e6c547; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">⚠ Flash Clone Option</h5>
-                <small style="color: #999;">Create an identical clone of your previous sleeve</small>
+                <h5 class="mb-1" style="color: #e6c547; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">⚠ Reclaim Your Existence</h5>
+                <small style="color: #999;">Restore your previous form exactly as it was</small>
                 <div class="mt-2">
                   <small style="color: #e6c547;">
-                    <strong>WARNING:</strong> Flash cloning carries inherent risks. Genetic drift, memory corruption, 
-                    and cellular degradation may occur.
+                    <strong>NOTE:</strong> Restoring your old existence carries risks. Memories may be fragmented,
+                    and the city changes quickly. You may not be exactly as you left it.
                   </small>
                 </div>
               </div>
@@ -105,7 +105,7 @@ Respawn Sleeve
           
           <hr />
           <div class="form-group">
-            <input id="decant-button" class="form-control btn btn-outline-secondary" type="submit" value="Decant Sleeve" />
+            <input id="decant-button" class="form-control btn btn-outline-secondary" type="submit" value="Enter the City" />
           </div>
         </form>
         

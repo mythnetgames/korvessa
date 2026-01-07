@@ -25,7 +25,7 @@ body {
 }
 </style>
 {% block titleblock %}
-Decant Sleeve
+Define Your Existence
 {% endblock %}
 
 {% block content %}
@@ -36,7 +36,8 @@ Decant Sleeve
     <div class="col">
       <div class="card">
         <div class="card-body">
-          <h1 class="card-title">Decant Sleeve</h1>
+          <h1 class="card-title">Define Your Existence</h1>
+          <p class="text-muted">Step into Kowloon Walled City. Every person here must be someone. Become.</p>
           <hr />
           
             {% if form.errors %}
@@ -94,19 +95,27 @@ Decant Sleeve
             </div>
             
             <div class="form-section mb-4">
-              <h3>GRIM Stats</h3>
-              <p class="text-muted">Distribute 300 points across your stats (1-150 each)</p>
-              
-              <div id="grim-total-display" class="alert alert-info mb-3">
-                <strong>Total Points:</strong> <span id="grim-total">300</span> / 300
-                <span id="grim-status"></span>
+              <h3>Your Nature</h3>
+              <p class="text-muted">Distribute 68 points across your stats. Every person in Kowloon has strengths and weaknesses.</p>
+              <ul class="text-muted" style="list-style-type:none; padding-left:0;">
+                <li><strong>Body (BODY):</strong> Your size, toughness, and ability to stay alive and conscious due to physical mass, structure, or other qualities. Important for determining how much damage you can take.</li>
+                <li><strong>Reflexes (REF):</strong> Your response time and coordination, as used in aiming, throwing, juggling, etc. Affects your ability to hit things with ranged weapons.</li>
+                <li><strong>Dexterity (DEX):</strong> Your overall physical competence, as it pertains to balancing, leaping, jumping, combat, and other athletic activities. Affects your ability to hit things with melee weapons and dodge attacks.</li>
+                <li><strong>Technique (TECH):</strong> Your ability to manipulate tools or instruments. Covers the knack of using tools, hacking, and technical skills.</li>
+                <li><strong>Smarts (SMRT):</strong> How generally bright you are. Includes cleverness, awareness, perception, and ability to learn.</li>
+                <li><strong>Willpower (WILL):</strong> Your determination and ability to face danger and/or stress. Represents courage and ability to survive long-term privation. Important for determining how much damage you can take.</li>
+                <li><strong>Edge (EDGE):</strong> Your ability to impress and influence people through character and charisma; how well you get along with others; how you interact in social situations.</li>
+                <li><strong>Empathy (EMP):</strong> Your ability to relate to and care for others, and take others into consideration. Offsets the effects of cyberpsychosis.</li>
+              </ul>
+              <div id="stat-total-display" class="alert alert-info mb-3">
+                <strong>Total Points:</strong> <span id="stat-total">68</span> / 68
+                <span id="stat-status"></span>
               </div>
-              
               {% for field in form %}
-                {% if field.name == 'grit' or field.name == 'resonance' or field.name == 'intellect' or field.name == 'motorics' %}
+                {% if field.name in ['body','reflexes','dexterity','technique','smarts','willpower','edge','empathy'] %}
                 <div class="form-field my-3">
                   {{ field.label_tag }}
-                  {{ field | addclass:"form-control grim-stat" }}
+                  {{ field | addclass:"form-control stat-field" }}
                   {% if field.help_text %}
                   <small class="form-text text-muted">{{ field.help_text|safe }}</small>
                   {% endif %}
@@ -117,7 +126,7 @@ Decant Sleeve
             
             <hr />
             <div class="form-group">
-              <input class="form-control btn btn-outline-secondary" type="submit" value="Decant Sleeve" />
+              <input class="form-control btn btn-outline-secondary" type="submit" value="Enter the City" />
               <input type="hidden" name="next" value="{{ next }}" />
             </div>
           </form>

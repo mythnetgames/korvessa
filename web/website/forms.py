@@ -1,7 +1,7 @@
 """
-Django forms for Gelatinous Monster character creation and account registration.
+Django forms for Kowloon character creation and account registration.
 
-Extends Evennia's default forms to add GRIM stat system, name structure,
+Extends Evennia's default forms to add custom stat system, name structure,
 and Cloudflare Turnstile verification.
 """
 
@@ -12,10 +12,22 @@ from evennia.web.website.forms import (
 )
 
 
-# Constants from telnet character creation
-GRIM_TOTAL_POINTS = 300
-GRIM_MIN = 1
-GRIM_MAX = 150
+# Constants for character stat system
+STAT_TOTAL_POINTS = 68  # Total points available for all stats
+STAT_MIN = 1
+STAT_MAX = 10
+
+# Stats with their max values
+STATS = {
+    'smarts': {'max': 10, 'label': 'Smarts', 'help': 'Logic, memory, reasoning'},
+    'body': {'max': 10, 'label': 'Body', 'help': 'Physical strength and health'},
+    'willpower': {'max': 10, 'label': 'Willpower', 'help': 'Mental fortitude and determination'},
+    'dexterity': {'max': 10, 'label': 'Dexterity', 'help': 'Agility and hand coordination'},
+    'edge': {'max': 10, 'label': 'Edge', 'help': 'Luck, cunning, and instinct'},
+    'empathy': {'max': 6, 'label': 'Empathy', 'help': 'Understanding and compassion'},
+    'reflexes': {'max': 10, 'label': 'Reflexes', 'help': 'Speed and reaction time'},
+    'technique': {'max': 10, 'label': 'Technique', 'help': 'Skill and precision'},
+}
 
 SEX_CHOICES = [
     ('male', 'Male'),
@@ -26,15 +38,19 @@ SEX_CHOICES = [
 
 class CharacterForm(EvenniaCharacterForm):
     """
-    Extends Evennia's default CharacterForm with GRIM stats and name structure.
+    Extends Evennia's default CharacterForm with custom stats and name structure.
     
-    GRIM System:
-    - Grit: Physical power and endurance
-    - Resonance: Psychic affinity and willpower
-    - Intellect: Logic, memory, and reasoning
-    - Motorics: Dexterity, reflexes, and coordination
+    Stat System:
+    - Smarts: Logic, memory, reasoning
+    - Body: Physical strength and health
+    - Willpower: Mental fortitude and determination
+    - Dexterity: Agility and hand coordination
+    - Edge: Luck, cunning, and instinct
+    - Empathy: Understanding and compassion (max 6)
+    - Reflexes: Speed and reaction time
+    - Technique: Skill and precision
     
-    Total points must equal 300.
+    Total points: 68
     """
     
     # Name fields (split from db_key)
@@ -69,62 +85,106 @@ class CharacterForm(EvenniaCharacterForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     
-    # GRIM Stats
-    grit = forms.IntegerField(
-        min_value=GRIM_MIN,
-        max_value=GRIM_MAX,
-        initial=75,
-        label="Grit",
-        help_text="Physical power and endurance (1-150)",
+    # Custom Stats
+    smarts = forms.IntegerField(
+        min_value=STAT_MIN,
+        max_value=10,
+        initial=8,
+        label="Smarts",
+        help_text="Logic, memory, reasoning (1-10)",
         widget=forms.NumberInput(attrs={
-            'class': 'form-control grim-stat',
-            'data-stat': 'grit',
-            'value': '75'
+            'class': 'form-control stat-field',
+            'data-stat': 'smarts',
         })
     )
     
-    resonance = forms.IntegerField(
-        min_value=GRIM_MIN,
-        max_value=GRIM_MAX,
-        initial=75,
-        label="Resonance",
-        help_text="Psychic affinity and willpower (1-150)",
+    body = forms.IntegerField(
+        min_value=STAT_MIN,
+        max_value=10,
+        initial=8,
+        label="Body",
+        help_text="Physical strength and health (1-10)",
         widget=forms.NumberInput(attrs={
-            'class': 'form-control grim-stat',
-            'data-stat': 'resonance',
-            'value': '75'
+            'class': 'form-control stat-field',
+            'data-stat': 'body',
         })
     )
     
-    intellect = forms.IntegerField(
-        min_value=GRIM_MIN,
-        max_value=GRIM_MAX,
-        initial=75,
-        label="Intellect",
-        help_text="Logic, memory, and reasoning (1-150)",
+    willpower = forms.IntegerField(
+        min_value=STAT_MIN,
+        max_value=10,
+        initial=8,
+        label="Willpower",
+        help_text="Mental fortitude and determination (1-10)",
         widget=forms.NumberInput(attrs={
-            'class': 'form-control grim-stat',
-            'data-stat': 'intellect',
-            'value': '75'
+            'class': 'form-control stat-field',
+            'data-stat': 'willpower',
         })
     )
     
-    motorics = forms.IntegerField(
-        min_value=GRIM_MIN,
-        max_value=GRIM_MAX,
-        initial=75,
-        label="Motorics",
-        help_text="Dexterity, reflexes, and coordination (1-150)",
+    dexterity = forms.IntegerField(
+        min_value=STAT_MIN,
+        max_value=10,
+        initial=8,
+        label="Dexterity",
+        help_text="Agility and hand coordination (1-10)",
         widget=forms.NumberInput(attrs={
-            'class': 'form-control grim-stat',
-            'data-stat': 'motorics',
-            'value': '75'
+            'class': 'form-control stat-field',
+            'data-stat': 'dexterity',
+        })
+    )
+    
+    edge = forms.IntegerField(
+        min_value=STAT_MIN,
+        max_value=10,
+        initial=8,
+        label="Edge",
+        help_text="Luck, cunning, and instinct (1-10)",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control stat-field',
+            'data-stat': 'edge',
+        })
+    )
+    
+    empathy = forms.IntegerField(
+        min_value=STAT_MIN,
+        max_value=6,
+        initial=4,
+        label="Empathy",
+        help_text="Understanding and compassion (1-6)",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control stat-field',
+            'data-stat': 'empathy',
+        })
+    )
+    
+    reflexes = forms.IntegerField(
+        min_value=STAT_MIN,
+        max_value=10,
+        initial=8,
+        label="Reflexes",
+        help_text="Speed and reaction time (1-10)",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control stat-field',
+            'data-stat': 'reflexes',
+        })
+    )
+    
+    technique = forms.IntegerField(
+        min_value=STAT_MIN,
+        max_value=10,
+        initial=8,
+        label="Technique",
+        help_text="Skill and precision (1-10)",
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control stat-field',
+            'data-stat': 'technique',
         })
     )
     
     class Meta(EvenniaCharacterForm.Meta):
         # Extend parent's fields with our custom fields
-        fields = ('first_name', 'last_name', 'sex', 'desc', 'grit', 'resonance', 'intellect', 'motorics')
+        fields = ('first_name', 'last_name', 'sex', 'desc', 'smarts', 'body', 'willpower', 'dexterity', 'edge', 'empathy', 'reflexes', 'technique')
     
     def clean_first_name(self):
         """Validate first name format."""
@@ -151,38 +211,18 @@ class CharacterForm(EvenniaCharacterForm):
         return name
     
     def clean(self):
-        """
-        Validate that GRIM stats total exactly 300 points.
-        
-        IntegerField automatically converts values to int during field cleaning,
-        so by the time we get here, values should already be integers.
-        """
-        cleaned_data = super().clean()
-        
-        # IntegerField should have already converted these to int
-        # If a field failed validation, it won't be in cleaned_data
-        grit = cleaned_data.get('grit', 0)
-        resonance = cleaned_data.get('resonance', 0)
-        intellect = cleaned_data.get('intellect', 0)
-        motorics = cleaned_data.get('motorics', 0)
-        
-        # Sanity check: ensure they're actually integers
-        if not all(isinstance(v, int) for v in [grit, resonance, intellect, motorics]):
-            # Force conversion if needed (shouldn't happen with IntegerField)
-            grit = int(grit) if grit else 0
-            resonance = int(resonance) if resonance else 0
-            intellect = int(intellect) if intellect else 0
-            motorics = int(motorics) if motorics else 0
-        
-        total = grit + resonance + intellect + motorics
-        
-        if total != GRIM_TOTAL_POINTS:
-            raise forms.ValidationError(
-                f"GRIM stats must total exactly {GRIM_TOTAL_POINTS} points. "
-                f"Current total: {total} points."
-            )
-        
-        return cleaned_data
+            """
+            Validate that custom stats total exactly 68 points.
+            """
+            cleaned_data = super().clean()
+            stat_names = ['smarts', 'body', 'willpower', 'dexterity', 'edge', 'empathy', 'reflexes', 'technique']
+            stats = [int(cleaned_data.get(name, 0)) for name in stat_names]
+            total = sum(stats)
+            if total != STAT_TOTAL_POINTS:
+                raise forms.ValidationError(
+                    f"Stats must total exactly {STAT_TOTAL_POINTS} points. Current total: {total} points."
+                )
+            return cleaned_data
 
 
 class TurnstileAccountForm(EvenniaAccountForm):
