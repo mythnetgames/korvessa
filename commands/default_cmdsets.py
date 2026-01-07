@@ -1,6 +1,3 @@
-from commands.window import CmdDebugWindows
-from commands.window import CmdWindowCoord
-from commands.mapper import CmdMapColor
 """
 Command sets
 
@@ -40,10 +37,10 @@ from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.shop import CmdBuy
-from commands.attachwindow import CmdAttachWindow
-from commands.debugwindows import CmdDebugWindows
+from commands.window import CmdAttachWindow, CmdRemoveWindow, CmdWindowCoord, CmdDebugWindows
 from commands.debugroomcoords import CmdDebugRoomCoords
 from commands.debugsensors import CmdDebugSensors
+from commands.mapper import CmdMapColor
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -189,6 +186,11 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdMedicalAudit())
         # Add shop commands
         self.add(CmdBuy())
+        # Add window observation commands (builder and up)
+        self.add(CmdAttachWindow())
+        self.add(CmdRemoveWindow())
+        self.add(CmdWindowCoord())
+        self.add(CmdDebugWindows())
         # Add relay system builder/admin commands
         from commands.relay_cmdset import BuilderRelayCmdSet
         self.add(BuilderRelayCmdSet())

@@ -133,10 +133,21 @@ class Character(ObjectParent, DefaultCharacter):
         # Initialize medical system - replaces legacy HP system
         self._initialize_medical_state()
 
+    def at_pre_move(self, destination, **kwargs):
+        """
+        Called before the character moves to a new location.
+        Notifies windows that observe the character's current room about departure.
+        """
+        # Notify windows that observe this current room about the character leaving
+        if self.location:
+            self._notify_window_observers('leave', None)
+        return True
+
     def at_post_move(self, source_location, **kwargs):
         """
         Called after the character moves to a new location.
         Forces @mapon and shows map+room description.
+        Also triggers window observation messages for any windows observing this room.
         """
         if self.account and hasattr(self.account, 'db'):
             self.account.db.mapper_enabled = True
@@ -146,6 +157,9 @@ class Character(ObjectParent, DefaultCharacter):
         cmd.caller = self
         cmd.args = ""
         cmd.func()
+
+        # Notify windows that observe entry/exit in this room
+        self._notify_window_observers('enter', source_location)
     def at_look(self, target=None, **kwargs):
         """
         Called when the character uses the look command. Forces @mapon and shows map+room description.
@@ -158,6 +172,82 @@ class Character(ObjectParent, DefaultCharacter):
         cmd.caller = self
         cmd.args = ""
         cmd.func()
+
+    def _notify_window_observers(self, movement_type, previous_location):
+        """
+        Notify windows that observe this character's current room.
+
+        Args:
+            movement_type: 'enter' or 'leave'
+            previous_location: The location the character came from (only used for 'enter')
+        """
+        # Check if character has required attributes (location and coordinates)
+        if not self.location or not hasattr(self.location.db, 'x') or not hasattr(self.location.db, 'y'):
+            return
+
+        current_x = self.location.db.x
+        current_y = self.location.db.y
+        current_z = getattr(self.location.db, 'z', 0)
+
+        # Find all windows everywhere that observe this room
+        from evennia.objects.models import ObjectDB
+        all_windows = ObjectDB.objects.filter(db_typeclass_path='typeclasses.window.Window')
+
+        for window_obj in all_windows:
+            try:
+                # Check if window targets this room
+                if (window_obj.db.target_x == current_x and
+                    window_obj.db.target_y == current_y and
+                    window_obj.db.target_z == current_z):
+
+                    # Determine direction if available
+                    direction = None
+                    if movement_type == 'enter' and previous_location:
+                        direction = self._get_direction_from_rooms(previous_location, self.location)
+
+                    # Call the window's relay method
+                    window_obj.relay_movement(self, movement_type, direction)
+            except (AttributeError, TypeError):
+                # Skip if window doesn't have required attributes
+                pass
+
+    def _get_direction_from_rooms(self, from_room, to_room):
+        """
+        Determine the direction from one room to another.
+
+        Args:
+            from_room: The source room
+            to_room: The destination room
+
+        Returns:
+            Direction string or None
+        """
+        if not from_room or not to_room:
+            return None
+
+        # Get coordinates
+        from_x = getattr(from_room.db, 'x', None)
+        from_y = getattr(from_room.db, 'y', None)
+        to_x = getattr(to_room.db, 'x', None)
+        to_y = getattr(to_room.db, 'y', None)
+
+        if None in (from_x, from_y, to_x, to_y):
+            return None
+
+        # Calculate direction
+        dx = to_x - from_x
+        dy = to_y - from_y
+
+        if dy > 0:
+            return "north"
+        elif dy < 0:
+            return "south"
+        elif dx > 0:
+            return "east"
+        elif dx < 0:
+            return "west"
+
+        return None
 
     def _initialize_medical_state(self):
         """Initialize the character's medical state."""
