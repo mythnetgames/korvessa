@@ -890,23 +890,6 @@ class Room(ObjectParent, DefaultRoom):
 # =============================================================================
 
 class StreetRoom(Room):
-        def at_object_receive(self, moved_obj, source_location, **kwargs):
-            super().at_object_receive(moved_obj, source_location, **kwargs)
-            coords = (getattr(self.db, "x", None), getattr(self.db, "y", None), getattr(self.db, "z", None))
-            from evennia.objects.models import ObjectDB
-            for win_obj in ObjectDB.objects.filter(db_typeclass_path="typeclasses.window.Window"):
-                target = getattr(win_obj.db, "target_coords", None)
-                if target and tuple(target) == coords:
-                    win_obj.echo_movement(f"{moved_obj.key} enters the room at {coords}.")
-
-        def at_object_leave(self, moved_obj, target_location, **kwargs):
-            super().at_object_leave(moved_obj, target_location, **kwargs)
-            coords = (getattr(self.db, "x", None), getattr(self.db, "y", None), getattr(self.db, "z", None))
-            from evennia.objects.models import ObjectDB
-            for win_obj in ObjectDB.objects.filter(db_typeclass_path="typeclasses.window.Window"):
-                target = getattr(win_obj.db, "target_coords", None)
-                if target and tuple(target) == coords:
-                    win_obj.echo_movement(f"{moved_obj.key} leaves the room at {coords}.")
     """
     A standard street room in the colony crater.
     Outdoor, crowded public space.
@@ -925,23 +908,6 @@ class StreetRoom(Room):
 
 
 class IndoorRoom(Room):
-        def at_object_receive(self, moved_obj, source_location, **kwargs):
-            super().at_object_receive(moved_obj, source_location, **kwargs)
-            coords = (getattr(self.db, "x", None), getattr(self.db, "y", None), getattr(self.db, "z", None))
-            from evennia.objects.models import ObjectDB
-            for win_obj in ObjectDB.objects.filter(db_typeclass_path="typeclasses.window.Window"):
-                target = getattr(win_obj.db, "target_coords", None)
-                if target and tuple(target) == coords:
-                    win_obj.echo_movement(f"{moved_obj.key} enters the room at {coords}.")
-
-        def at_object_leave(self, moved_obj, target_location, **kwargs):
-            super().at_object_leave(moved_obj, target_location, **kwargs)
-            coords = (getattr(self.db, "x", None), getattr(self.db, "y", None), getattr(self.db, "z", None))
-            from evennia.objects.models import ObjectDB
-            for win_obj in ObjectDB.objects.filter(db_typeclass_path="typeclasses.window.Window"):
-                target = getattr(win_obj.db, "target_coords", None)
-                if target and tuple(target) == coords:
-                    win_obj.echo_movement(f"{moved_obj.key} leaves the room at {coords}.")
     """
     An interior room (building, shop, warehouse, etc.).
     Indoor, moderate crowd levels.
