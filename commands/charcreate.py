@@ -857,6 +857,34 @@ Commands:
         if command == 'reset':
             stats = {k: 1 for k in valid_stats}
             caller.ndb.charcreate_data['stats'] = stats
+            # Immediately update display after reset
+            empathy = stats['edge'] + stats['willpower']
+            total = sum(stats.values())
+            remaining = 45 - total
+            text = f"""
+Let's assign your character's stats.
+
+Name: |c{first_name} {last_name}|n
+Sex: |c{sex.capitalize()}|n
+
+Distribute |w45 points|n among the following stats:
+    |wBody|n (1-10):        {stats['body']}
+    |wReflexes|n (1-10):    {stats['reflexes']}
+    |wDexterity|n (1-10):   {stats['dexterity']}
+    |wTechnique|n (1-10):   {stats['technique']}
+    |wSmarts|n (1-10):      {stats['smarts']}
+    |wWillpower|n (1-10):   {stats['willpower']}
+    |wEdge|n (1-10):        {stats['edge']}
+    |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
+
+|wTotal assigned:|n {total}/45  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+
+Commands:
+    |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
+    |wreset|n           - Reset all stats to 1
+    |wdone|n            - Finalize character (when total = 45)
+
+|w>|n """
             return text, options
         if command in ['done', 'finish', 'finalize']:
             is_valid, error = validate_stat_distribution(stats)
@@ -878,6 +906,34 @@ Commands:
                 return text, options
             stats[command] = value
             caller.ndb.charcreate_data['stats'] = stats
+            # Immediately update display after stat set
+            empathy = stats['edge'] + stats['willpower']
+            total = sum(stats.values())
+            remaining = 45 - total
+            text = f"""
+Let's assign your character's stats.
+
+Name: |c{first_name} {last_name}|n
+Sex: |c{sex.capitalize()}|n
+
+Distribute |w45 points|n among the following stats:
+    |wBody|n (1-10):        {stats['body']}
+    |wReflexes|n (1-10):    {stats['reflexes']}
+    |wDexterity|n (1-10):   {stats['dexterity']}
+    |wTechnique|n (1-10):   {stats['technique']}
+    |wSmarts|n (1-10):      {stats['smarts']}
+    |wWillpower|n (1-10):   {stats['willpower']}
+    |wEdge|n (1-10):        {stats['edge']}
+    |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
+
+|wTotal assigned:|n {total}/45  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+
+Commands:
+    |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
+    |wreset|n           - Reset all stats to 1
+    |wdone|n            - Finalize character (when total = 45)
+
+|w>|n """
             return text, options
     return text, options
 
