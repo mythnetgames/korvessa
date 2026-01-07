@@ -246,7 +246,51 @@ def node_stats(caller, raw_string, **kwargs):
         stat_options.append({"desc": "+", "goto": "node_stats", "key": f"plus_{stat}"})
         stat_options.append({"desc": "-", "goto": "node_stats", "key": f"minus_{stat}"})
     text += "\nType |cnext|n when done."
-    stat_options.append({"desc": "Continue", "goto": "node_skills", "key": "next"})
+    stat_options.append({"desc": "Continue", "goto": "node_stats", "key": "next"})
+
+    # Handle clickable input
+    if raw_string:
+        key = raw_string.strip().lower()
+        for stat in stat_keys:
+            if key == f"plus_{stat.lower()}":
+                amt = 1
+                new_val = stats[stat] + amt
+                if new_val < POINT_BUY_MIN or new_val > POINT_BUY_MAX:
+                    caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {POINT_BUY_MAX}.|n")
+                else:
+                    temp_stats = dict(stats)
+                    temp_stats[stat] = new_val
+                    cost = calc_point_buy_cost(temp_stats)
+                    if cost > POINT_BUY_TOTAL:
+                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
+                    else:
+                        stats[stat] = new_val
+                        caller.msg(f"|g{stat} increased to {new_val}.|n")
+                break
+            elif key == f"minus_{stat.lower()}":
+                amt = -1
+                new_val = stats[stat] + amt
+                if new_val < POINT_BUY_MIN or new_val > POINT_BUY_MAX:
+                    caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {POINT_BUY_MAX}.|n")
+                else:
+                    temp_stats = dict(stats)
+                    temp_stats[stat] = new_val
+                    cost = calc_point_buy_cost(temp_stats)
+                    if cost > POINT_BUY_TOTAL:
+                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
+                    else:
+                        stats[stat] = new_val
+                        caller.msg(f"|y{stat} decreased to {new_val}.|n")
+                break
+        if key == "next":
+            cost = calc_point_buy_cost(stats)
+            if cost != POINT_BUY_TOTAL:
+                caller.msg(f"|rYou must spend exactly {POINT_BUY_TOTAL} points (currently spent: {cost}).|n")
+            else:
+                char.db.stats = dict(stats)
+                del char.db.stat_assign
+                return "node_skills"
+    return text, tuple(stat_options)
 
     # Handle clickable input
     if raw_string:
