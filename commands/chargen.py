@@ -243,11 +243,10 @@ def node_stats(caller, raw_string, **kwargs):
         meaning, influence = STAT_INFO[stat]
         val = stats[stat]
         cost = POINT_BUY_COSTS.get(val, "-")
-        text += f"|c{stat}|n: {val} [{{+|plus_{stat}}} {{-|minus_{stat}}}] |w({meaning})|n\n"
-        stat_options.append({"desc": "+", "goto": "node_stats", "key": f"plus_{stat}"})
-        stat_options.append({"desc": "-", "goto": "node_stats", "key": f"minus_{stat}"})
-    # Only add continue button
-    stat_options = [{"desc": "Continue", "goto": "node_skills", "key": "next"}]
+        text += f"|c{stat}|n: {val} |w({meaning})|n\n"
+        stat_options.append({"desc": f"+ {stat}", "goto": "node_stats", "key": f"plus_{stat}"})
+        stat_options.append({"desc": f"- {stat}", "goto": "node_stats", "key": f"minus_{stat}"})
+    stat_options.append({"desc": "Continue", "goto": "node_skills", "key": "next"})
 
     # Handle clickable input
     if raw_string:
