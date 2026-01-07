@@ -925,31 +925,6 @@ Create this character?
 |w[N]|n No, go back to stat assignment
 
 |w>|n """
-
-|wName:|n |c{first_name} {last_name}|n
-|wSex:|n |c{sex.capitalize()}|n
-
-    |wStats:|n
-        |wBody:|n      {stats['body']}
-        |wReflexes:|n  {stats['reflexes']}
-        |wDexterity:|n {stats['dexterity']}
-        |wTechnique:|n {stats['technique']}
-        |wSmarts:|n    {stats['smarts']}
-        |wWillpower:|n {stats['willpower']}
-        |wEdge:|n      {stats['edge']}
-        |wEmpathy:|n   {empathy} (calculated: edge + willpower)
-
-|wTotal:|n {total}/68
-
-|yOnce created, your name cannot be changed.|n
-|yStats can be modified through gameplay.|n
-
-Create this character?
-
-|w[Y]|n Yes, finalize character
-|w[N]|n No, go back to stat assignment
-
-|w>|n """
     options = (
         {"key": ("y", "yes"),
          "goto": "first_char_finalize",
@@ -1047,4 +1022,3 @@ def _cleanup_charcreate_ndb(caller):
         delattr(caller.ndb, 'charcreate_old_character')
     if hasattr(caller.ndb, 'charcreate_data'):
         delattr(caller.ndb, 'charcreate_data')
-    # ...existing code...
