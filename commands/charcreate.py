@@ -816,15 +816,14 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
         'technique': 1,
         'smarts': 1,
         'willpower': 1,
-        'edge': 1,
-        'empathy': 1
+        'edge': 1
     })
     if raw_string and raw_string.strip():
         args = raw_string.strip().lower().split()
         if not args:
             return first_char_stat_assign(caller, "", **kwargs)
         command = args[0]
-        valid_stats = ['body', 'reflexes', 'dexterity', 'technique', 'smarts', 'willpower', 'edge', 'empathy']
+        valid_stats = ['body', 'reflexes', 'dexterity', 'technique', 'smarts', 'willpower', 'edge']
         if command == 'reset':
             stats = {k: 1 for k in valid_stats}
             caller.ndb.charcreate_data['stats'] = stats
@@ -844,36 +843,37 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
             except ValueError:
                 caller.msg("|rValue must be a number.|n")
                 return first_char_stat_assign(caller, "", **kwargs)
-            if value < 1 or (command == 'empathy' and value > 6) or (command != 'empathy' and value > 10):
-                caller.msg("|rValue must be 1-10 (1-6 for empathy).|n")
+            if value < 1 or value > 10:
+                caller.msg("|rValue must be 1-10.|n")
                 return first_char_stat_assign(caller, "", **kwargs)
             stats[command] = value
             caller.ndb.charcreate_data['stats'] = stats
             return first_char_stat_assign(caller, "", **kwargs)
-    total = sum(stats.values())
-    remaining = 68 - total
-    text = f"""
+        empathy = stats['edge'] + stats['willpower']
+        total = sum(stats.values()) + empathy
+        remaining = 68 - total
+        text = f"""
 Let's assign your character's stats.
 
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
 
 Distribute |w68 points|n among the following stats:
-  |wBody|n (1-10):        {stats['body']:2d}
-  |wReflexes|n (1-10):    {stats['reflexes']:2d}
-  |wDexterity|n (1-10):   {stats['dexterity']:2d}
-  |wTechnique|n (1-10):   {stats['technique']:2d}
-  |wSmarts|n (1-10):      {stats['smarts']:2d}
-  |wWillpower|n (1-10):   {stats['willpower']:2d}
-  |wEdge|n (1-10):        {stats['edge']:2d}
-  |wEmpathy|n (1-6):      {stats['empathy']:2d}
+    |wBody|n (1-10):        {stats['body']:2d}
+    |wReflexes|n (1-10):    {stats['reflexes']:2d}
+    |wDexterity|n (1-10):   {stats['dexterity']:2d}
+    |wTechnique|n (1-10):   {stats['technique']:2d}
+    |wSmarts|n (1-10):      {stats['smarts']:2d}
+    |wWillpower|n (1-10):   {stats['willpower']:2d}
+    |wEdge|n (1-10):        {stats['edge']:2d}
+    |wEmpathy|n (auto):     {empathy:2d} (calculated: edge + willpower)
 
 |wTotal:|n {total}/68  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
 
 Commands:
-  |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
-  |wreset|n           - Reset all stats to 1
-  |wdone|n            - Finalize character (when total = 68)
+    |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
+    |wreset|n           - Reset all stats to 1
+    |wdone|n            - Finalize character (when total = 68)
 
 |w>|n """
     options = (
@@ -887,32 +887,32 @@ def first_char_confirm(caller, raw_string, **kwargs):
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
-    stats = caller.ndb.charcreate_data.get('stats', {
-        'body': 1,
-        'reflexes': 1,
-        'dexterity': 1,
-        'technique': 1,
-        'smarts': 1,
-        'willpower': 1,
-        'edge': 1,
-        'empathy': 1
-    })
-    total = sum(stats.values())
-    text = f"""
+        stats = caller.ndb.charcreate_data.get('stats', {
+                'body': 1,
+                'reflexes': 1,
+                'dexterity': 1,
+                'technique': 1,
+                'smarts': 1,
+                'willpower': 1,
+                'edge': 1
+        })
+        empathy = stats['edge'] + stats['willpower']
+        total = sum(stats.values()) + empathy
+        text = f"""
 Just uh, let me know if everything looks good.
 
 |wName:|n |c{first_name} {last_name}|n
 |wSex:|n |c{sex.capitalize()}|n
 
 |wStats:|n
-  |wBody:|n      {stats['body']:2d}
-  |wReflexes:|n  {stats['reflexes']:2d}
-  |wDexterity:|n {stats['dexterity']:2d}
-  |wTechnique:|n {stats['technique']:2d}
-  |wSmarts:|n    {stats['smarts']:2d}
-  |wWillpower:|n {stats['willpower']:2d}
-  |wEdge:|n      {stats['edge']:2d}
-  |wEmpathy:|n   {stats['empathy']:2d}
+    |wBody:|n      {stats['body']:2d}
+    |wReflexes:|n  {stats['reflexes']:2d}
+    |wDexterity:|n {stats['dexterity']:2d}
+    |wTechnique:|n {stats['technique']:2d}
+    |wSmarts:|n    {stats['smarts']:2d}
+    |wWillpower:|n {stats['willpower']:2d}
+    |wEdge:|n      {stats['edge']:2d}
+    |wEmpathy:|n   {empathy:2d} (calculated: edge + willpower)
 
 |wTotal:|n {total}/68
 
@@ -956,9 +956,9 @@ def first_char_finalize(caller, raw_string, **kwargs):
         'technique': 1,
         'smarts': 1,
         'willpower': 1,
-        'edge': 1,
-        'empathy': 1
+        'edge': 1
     })
+    empathy = stats['edge'] + stats['willpower']
     start_location = get_start_location()
     try:
         char, errors = caller.create_character(
@@ -976,7 +976,7 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.smarts = stats['smarts']
         char.willpower = stats['willpower']
         char.edge = stats['edge']
-        char.empathy = stats['empathy']
+        char.empathy = empathy
         char.sex = sex
         char.db.archived = False
         import uuid
