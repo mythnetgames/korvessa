@@ -1047,3 +1047,4 @@ def _cleanup_charcreate_ndb(caller):
         delattr(caller.ndb, 'charcreate_old_character')
     if hasattr(caller.ndb, 'charcreate_data'):
         delattr(caller.ndb, 'charcreate_data')
+    # ...existing code...
