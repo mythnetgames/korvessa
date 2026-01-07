@@ -153,31 +153,122 @@ APPLICATION_QUESTIONS = [
 
 # Personality options
 PERSONALITIES = [
-    ("Sharp-Eyed", "Observant, quick to notice details and changes."),
-    ("Silver-Tongued", "Persuasive, charming, and socially adept."),
-    ("Brooding", "Quiet, intense, and thoughtful."),
-    ("Reckless", "Bold, daring, and sometimes impulsive."),
-    ("Scholarly", "Curious, analytical, and loves learning."),
-    ("Fey-Touched", "Unpredictable, whimsical, and creative."),
+    {
+        "name": "Stalwart",
+        "desc": "Resilient and tough. +1 STR or CON, Endurance +10%, Athletics +5%, Reduced stamina loss, Laborers +200",
+        "stat_choices": ["STR", "CON"],
+        "skill_bonuses": {"Endurance": 10, "Athletics": 5},
+        "passive": "Reduced stamina loss",
+        "standing_shift": {"Laborers": 200},
+    },
+    {
+        "name": "Sharp-Eyed",
+        "desc": "Observant and perceptive. +1 WIS or DEX, Perception +10%, Investigation +5%, +3% detect hidden, Civic Order +150",
+        "stat_choices": ["WIS", "DEX"],
+        "skill_bonuses": {"Perception": 10, "Investigation": 5},
+        "passive": "+3% detect hidden",
+        "standing_shift": {"Civic_Order": 150},
+    },
+    {
+        "name": "Artificer",
+        "desc": "Inventive and skilled. +1 INT or DEX, Crafting +10%, Appraise +5%, Faster repairs, Merchants +150",
+        "stat_choices": ["INT", "DEX"],
+        "skill_bonuses": {"Crafting": 10, "Appraise": 5},
+        "passive": "Faster repairs",
+        "standing_shift": {"Merchants": 150},
+    },
+    {
+        "name": "Silver-Tongued",
+        "desc": "Charming and persuasive. +1 CHA, Persuasion +10%, Social +5%, Start friendlier, Nobility +150, Merchants +100",
+        "stat_choices": ["CHA"],
+        "skill_bonuses": {"Persuasion": 10, "Social": 5},
+        "passive": "Start friendlier",
+        "standing_shift": {"Nobility": 150, "Merchants": 100},
+    },
+    {
+        "name": "Hidden",
+        "desc": "Stealthy and elusive. +1 DEX or WIS, Stealth +10%, Streetwise +5%, Harder to detect, Underbelly +200, Civic Order -100",
+        "stat_choices": ["DEX", "WIS"],
+        "skill_bonuses": {"Stealth": 10, "Streetwise": 5},
+        "passive": "Harder to detect",
+        "standing_shift": {"Underbelly": 200, "Civic_Order": -100},
+    },
+    {
+        "name": "Devoted",
+        "desc": "Faithful and resolute. +1 WIS, Ritual/Meditation +10%, Sense Motive +5%, +1 mental resist, Watcher Cult +250",
+        "stat_choices": ["WIS"],
+        "skill_bonuses": {"Ritual": 10, "Meditation": 10, "Sense Motive": 5},
+        "passive": "+1 mental resist",
+        "standing_shift": {"Watcher_Cult": 250},
+    },
+    {
+        "name": "Insightful",
+        "desc": "Wise and knowledgeable. +1 INT, Lore +10%, Investigation +5%, Auto-insight on runes/text, Scholars +200",
+        "stat_choices": ["INT"],
+        "skill_bonuses": {"Lore": 10, "Investigation": 5},
+        "passive": "Auto-insight on runes/text",
+        "standing_shift": {"Scholars": 200},
+    },
+    {
+        "name": "Freehands",
+        "desc": "Adaptable and tough. +1 DEX or CON, Adaptability +10%, +5 any, Environmental resistance, Neutral (no shifts)",
+        "stat_choices": ["DEX", "CON"],
+        "skill_bonuses": {"Adaptability": 10},
+        "passive": "Environmental resistance",
+        "standing_shift": {},
+    },
 ]
 
 def node_personality(caller, raw_string, **kwargs):
     char = kwargs.get("startnode_input")
     if char is None and hasattr(caller, 'db'):
         char = caller
+    if char is None and hasattr(caller, 'db'):
+        char = caller
     if raw_string:
         choice = raw_string.strip().lower()
-        for idx, (personality, desc) in enumerate(PERSONALITIES, 1):
-            if choice == str(idx) or choice == personality.lower():
-                char.db.personality = personality
-                return f"|gYou have selected:|n {personality} - {desc}\n\nType |cnext|n to continue.", ( {"desc": "Continue", "goto": "node_stats", "key": "next"}, )
+        for idx, pdata in enumerate(PERSONALITIES, 1):
+            pname = pdata["name"].lower()
+            if choice == str(idx) or choice == pname:
+                char.db.personality = pdata["name"]
+                char.db.personality_data = pdata
+                # If stat_choices > 1, prompt for stat selection next
+                if len(pdata["stat_choices"]) > 1:
+                    char.db.personality_pending_stat = True
+                    return f"|gYou have selected:|n {pdata['name']}\n{pdata['desc']}\n\nChoose your stat bonus:", tuple({"desc": f"+1 {stat}", "goto": "node_personality_stat", "key": stat} for stat in pdata["stat_choices"])
+                else:
+                    char.db.personality_stat_bonus = pdata["stat_choices"][0]
+                    char.db.personality_pending_stat = False
+                    return f"|gYou have selected:|n {pdata['name']}\n{pdata['desc']}\n\nType |cnext|n to continue.", ( {"desc": "Continue", "goto": "node_stats", "key": "next"}, )
         caller.msg("|rInvalid personality. Please choose by number or name.")
-    # Show clickable personality options
+    # Show clickable personality options with bonuses
     text = "|wSelect your character's personality:|n\n"
     options = []
-    for idx, (personality, desc) in enumerate(PERSONALITIES, 1):
-        text += f"|c{idx}. {personality}|n - {desc}\n"
-        options.append({"desc": f"Choose {personality}", "goto": "node_personality", "key": str(idx)})
+    for idx, pdata in enumerate(PERSONALITIES, 1):
+        text += f"|c{idx}. {pdata['name']}|n - {pdata['desc']}\n"
+        options.append({"desc": f"Choose {pdata['name']}", "goto": "node_personality", "key": str(idx)})
+    return text, tuple(options)
+
+# Node for stat selection if multiple choices
+def node_personality_stat(caller, raw_string, **kwargs):
+    char = kwargs.get("startnode_input")
+    if char is None and hasattr(caller, 'db'):
+        char = caller
+    if raw_string:
+        stat = raw_string.strip().upper()
+        pdata = char.db.personality_data
+        if stat in pdata["stat_choices"]:
+            char.db.personality_stat_bonus = stat
+            char.db.personality_pending_stat = False
+            return f"|gStat bonus selected: +1 {stat}\nType |cnext|n to continue.", ( {"desc": "Continue", "goto": "node_stats", "key": "next"}, )
+        else:
+            caller.msg("|rInvalid stat choice. Please select one of the available options.")
+    text = "|wChoose your stat bonus:|n\n"
+    options = []
+    pdata = char.db.personality_data
+    for stat in pdata["stat_choices"]:
+        text += f"+1 {stat}\n"
+        options.append({"desc": f"+1 {stat}", "goto": "node_personality_stat", "key": stat})
     return text, tuple(options)
 
 
