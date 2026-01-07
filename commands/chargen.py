@@ -342,9 +342,16 @@ def node_stats(caller, raw_string, **kwargs):
     )
     stat_options = []
     text += "|wStat   Value   [+] [-]|n\n"
+    # Determine stat eligible for personality bonus
+    personality_stat = None
+    if hasattr(char.db, 'personality_stat_bonus'):
+        personality_stat = char.db.personality_stat_bonus
     for stat in stat_keys:
         val = stats[stat]
-        text += f"{stat:4}  {val:5}  [+{stat}] [-{stat}]\n"
+        max_val = POINT_BUY_MAX
+        if stat == personality_stat:
+            max_val = 16
+        text += f"{stat:4}  {val:5}  [+{stat}] [-{stat}] (max {max_val})\n"
         stat_options.append({"desc": "+", "goto": "node_stats", "key": f"plus_{stat}"})
         stat_options.append({"desc": "-", "goto": "node_stats", "key": f"minus_{stat}"})
     text += "\nType |cnext|n when done."
@@ -354,17 +361,23 @@ def node_stats(caller, raw_string, **kwargs):
     if raw_string:
         key = raw_string.strip().lower()
         for stat in stat_keys:
+            max_val = POINT_BUY_MAX
+            if stat == personality_stat:
+                max_val = 16
             if key == f"plus_{stat.lower()}":
                 amt = 1
                 new_val = stats[stat] + amt
-                if new_val < POINT_BUY_MIN or new_val > POINT_BUY_MAX:
-                    caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {POINT_BUY_MAX}.|n")
+                if new_val < POINT_BUY_MIN or new_val > max_val:
+                    caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {max_val}.|n")
                 else:
                     temp_stats = dict(stats)
                     temp_stats[stat] = new_val
                     cost = calc_point_buy_cost(temp_stats)
-                    if cost > POINT_BUY_TOTAL:
-                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
+                    # Personality bonus does not consume point buy
+                    bonus_val = stats[personality_stat] if personality_stat else None
+                    bonus_points = 1 if personality_stat and temp_stats[personality_stat] > POINT_BUY_MAX else 0
+                    if cost + bonus_points > POINT_BUY_TOTAL:
+                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - (calc_point_buy_cost(stats) + bonus_points)} left.|n")
                     else:
                         stats[stat] = new_val
                         caller.msg(f"|g{stat} increased to {new_val}.|n")
@@ -372,14 +385,16 @@ def node_stats(caller, raw_string, **kwargs):
             elif key == f"minus_{stat.lower()}":
                 amt = -1
                 new_val = stats[stat] + amt
-                if new_val < POINT_BUY_MIN or new_val > POINT_BUY_MAX:
-                    caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {POINT_BUY_MAX}.|n")
+                if new_val < POINT_BUY_MIN or new_val > max_val:
+                    caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {max_val}.|n")
                 else:
                     temp_stats = dict(stats)
                     temp_stats[stat] = new_val
                     cost = calc_point_buy_cost(temp_stats)
-                    if cost > POINT_BUY_TOTAL:
-                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
+                    bonus_val = stats[personality_stat] if personality_stat else None
+                    bonus_points = 1 if personality_stat and temp_stats[personality_stat] > POINT_BUY_MAX else 0
+                    if cost + bonus_points > POINT_BUY_TOTAL:
+                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - (calc_point_buy_cost(stats) + bonus_points)} left.|n")
                     else:
                         stats[stat] = new_val
                         caller.msg(f"|y{stat} decreased to {new_val}.|n")
