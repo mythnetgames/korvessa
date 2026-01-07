@@ -1,5 +1,5 @@
 """
-Character Creation System for Gelatinous Monster
+Character Creation System for Kowloon Walled City RPI
 
 This module handles both first-time character creation and respawn/flash cloning
 after death. It uses Evennia's EvMenu system for the interactive interface.
@@ -86,107 +86,81 @@ def generate_random_template():
         points_left -= points
     
     # Give remainder to 4th stat (clamped to max 150)
-    stats.append(min(150, points_left))
-    
-    # Shuffle so variance isn't predictable by position
-    random.shuffle(stats)
-    
-    return {
-        'first_name': first_name,
-        'last_name': last_name,
-        'name': f"{first_name} {last_name}",  # Full name for display
-        'sex': sex,
+
+    """
+    Kowloon Walled City Character Creation System
+
+    Handles first-time character creation and respawn/clone after death.
+    Uses Evennia's EvMenu for interactive menus.
+
+    Flow:
+    1. First Character: Name input → Sex selection → Stat assignment (68 points, 8 stats)
+    2. Respawn: Choose from 3 random templates OR flash clone previous character
+    """
         'grit': stats[0],
-        'resonance': stats[1],
-        'intellect': stats[2],
-        'motorics': stats[3]
+
+    from evennia import create_object
+    from evennia.utils.evmenu import EvMenu
+    from django.conf import settings
+                # Distribute 68 points across 8 stats
+                STAT_NAMES = [
+                    "body", "reflexes", "dexterity", "technique",
+                    "smarts", "willpower", "edge", "empathy"
+                ]
+                STAT_MAX = {"empathy": 6, **{k: 10 for k in STAT_NAMES if k != "empathy"}}
+                STAT_MIN = 1
+                STAT_TOTAL = 68
+                points_left = STAT_TOTAL
+                stats = {}
+                for i, stat in enumerate(STAT_NAMES):
+                    if i == len(STAT_NAMES) - 1:
+                        val = points_left
+                    else:
+                        max_for_stat = min(STAT_MAX[stat], points_left - (len(STAT_NAMES) - i - 1) * STAT_MIN)
+                        min_for_stat = STAT_MIN
+                        val = random.randint(min_for_stat, max_for_stat)
+                    stats[stat] = val
+                    points_left -= val
+                return {
+                    'first_name': first_name,
+                    'last_name': last_name,
+                    'name': f"{first_name} {last_name}",
+                    'sex': sex,
+                    **stats
+                }
+        "edge": "Edge",
+        "empathy": "Empathy"
     }
+    STAT_MAX = {"empathy": 6, **{k: 10 for k in STAT_NAMES if k != "empathy"}}
+    STAT_MIN = 1
+    STAT_TOTAL = 68
 
-
-def build_name_from_death_count(base_name, death_count):
-    """
-    Build character name with Roman numeral based on death_count.
-    
-    The death_count is the source of truth - it's incremented at death (at_death()).
-    - death_count = 1: No Roman numeral (original character)
-    - death_count = 2: Roman numeral II (first death/clone)
-    - death_count = 3: Roman numeral III (second death/clone)
-    - etc.
-    
-    Examples:
-        ("Brock", 1) → "Brock"
-        ("Brock", 2) → "Brock II"
-        ("Brock", 3) → "Brock III"
-        ("Marcus", 10) → "Marcus X"
-    
-    Args:
-        base_name (str): Character base name (may include old Roman numeral to strip)
-        death_count (int): Current death_count value
-        
-    Returns:
-        str: Name with appropriate Roman numeral (or none if death_count=1)
-    """
-    # Strip any existing Roman numeral from base_name
-    # Only strip if there's whitespace before the Roman numeral to avoid
-    # stripping letters from names like "Drivel" (ends with "L")
-    pattern = r'^(.+?)\s+([IVXLCDM]+)$'
-    match = re.match(pattern, base_name.strip(), re.IGNORECASE)
-    if match:
-        base_name = match.group(1).strip()
-    
-    # Original character (death_count=1) has no Roman numeral
-    if death_count == 1:
-        return base_name
-    
-    # death_count 2+ gets Roman numeral (2=II, 3=III, etc.)
-    roman = int_to_roman(death_count)
-    return f"{base_name} {roman}"
-
-
-def int_to_roman(num):
-    """Convert integer to Roman numeral."""
-    values = [
-        (1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'),
-        (100, 'C'), (90, 'XC'), (50, 'L'), (40, 'XL'),
-        (10, 'X'), (9, 'IX'), (5, 'V'), (4, 'IV'), (1, 'I')
-    ]
-    
-    result = ''
-    for value, numeral in values:
-        count = num // value
-        if count:
-            result += numeral * count
-            num -= value * count
-    return result
-
-
-def validate_name(name):
-    """
-    Validate a character name.
-    
-    Rules:
-    - 2-30 characters
-    - Letters, spaces, hyphens, apostrophes only
-    - Cannot start/end with space or punctuation
-    - No profanity (basic filter)
-    
-    Args:
-        name (str): Name to validate
-        
-    Returns:
-        tuple: (is_valid: bool, error_message: str or None)
-    """
-    name = name.strip()
-    
-    if len(name) < 2:
-        return (False, "Name must be at least 2 characters long.")
-    
-    if len(name) > 30:
-        return (False, "Name must be 30 characters or less.")
-    
-    # Check allowed characters
-    if not re.match(r"^[a-zA-Z][a-zA-Z\s\-']*[a-zA-Z]$", name):
-        return (False, "Name can only contain letters, spaces, hyphens, and apostrophes.")
+    def generate_random_template():
+        from world.namebank import FIRST_NAMES_MALE, FIRST_NAMES_FEMALE, LAST_NAMES
+        sex_choices = ['male', 'female', 'ambiguous']
+        sex = random.choice(sex_choices)
+        use_male = random.choice([True, False]) if sex == 'ambiguous' else (sex == 'male')
+        first_name = random.choice(FIRST_NAMES_MALE if use_male else FIRST_NAMES_FEMALE)
+        last_name = random.choice(LAST_NAMES)
+        # Distribute 68 points across 8 stats
+        points_left = STAT_TOTAL
+        stats = {}
+        for i, stat in enumerate(STAT_NAMES):
+            if i == len(STAT_NAMES) - 1:
+                val = points_left
+            else:
+                max_for_stat = min(STAT_MAX[stat], points_left - (len(STAT_NAMES) - i - 1) * STAT_MIN)
+                min_for_stat = STAT_MIN
+                val = random.randint(min_for_stat, max_for_stat)
+            stats[stat] = val
+            points_left -= val
+        return {
+            'first_name': first_name,
+            'last_name': last_name,
+            'name': f"{first_name} {last_name}",
+            'sex': sex,
+            **stats
+        }
     
     # Basic profanity filter (expandable)
     profanity_list = ['fuck', 'shit', 'damn', 'bitch', 'ass', 'cunt', 'dick', 'cock', 'pussy']
@@ -217,7 +191,9 @@ def validate_grim_distribution(grit, resonance, intellect, motorics):
     Returns:
         tuple: (is_valid: bool, error_message: str or None)
     """
-    stats = [grit, resonance, intellect, motorics]
+        stats = [grit, resonance, intellect, motorics]  # This line will need to be updated to reflect the new stats
+        # Update to reflect the new 8-stat system
+        stats = [body, reflexes, dexterity, technique, smarts, willpower, edge, empathy]
     
     # Check range
     for stat in stats:
@@ -227,9 +203,9 @@ def validate_grim_distribution(grit, resonance, intellect, motorics):
             return (False, "No stat can exceed 150.")
     
     # Check total
-    total = sum(stats)
-    if total != 300:
-        return (False, f"Stats must total 300 (current total: {total}).")
+        total = sum(stats)  # This line will need to be updated to reflect the new total
+        if total != 68:  # Update to reflect the new total for the 8-stat system
+            return (False, f"Stats must total 68 (current total: {total}).")
     
     return (True, None)
 
@@ -773,6 +749,16 @@ def first_char_name_first(caller, raw_string, **kwargs):
             # Return None to re-display current node
             return None
         
+        """
+        Kowloon Walled City Character Creation System
+
+        Handles first-time character creation and respawn/clone after death.
+        Uses Evennia's EvMenu for interactive menus.
+
+        Flow:
+        1. First Character: Name input → Sex selection → Stat assignment (68 points, 8 stats)
+        2. Respawn: Choose from 3 random templates OR flash clone previous character
+        """
         # Store first name and advance to next node
         caller.ndb.charcreate_data['first_name'] = name
         # Call next node directly and return its result
