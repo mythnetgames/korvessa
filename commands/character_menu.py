@@ -75,11 +75,11 @@ class CmdCreateCharacter(CharacterMenuCommand):
         )
 
         self.caller.msg(f"|g[SUCCESS]|n Character '{name}' created. (is_player={getattr(char, 'db_is_player', None)})\n{debug_info}")
-            # Automatically select the new character for chargen
-            if hasattr(account, 'current_character'):
-                account.current_character = char
-            else:
-                setattr(account, 'current_character', char)
+        # Automatically select the new character for chargen
+        if hasattr(account, 'current_character'):
+            account.current_character = char
+        else:
+            setattr(account, 'current_character', char)
 
         # Launch EvMenu-based chargen for the new character
         from evennia.utils.evmenu import EvMenu
