@@ -81,7 +81,7 @@ def node_intro(caller, raw_string, **kwargs):
         "Type |cnext|n to begin."
     )
     options = (
-        {"desc": "Begin character creation", "goto": "node_race", "key": ("next", "begin", "start", 1)},
+        {"desc": "Begin character creation", "goto": "node_race", "key": ("next", "begin", "start", "1")},
     )
     return text, options
 
