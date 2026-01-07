@@ -1040,7 +1040,7 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.db.original_creation = time.time()
         char.db.current_sleeve_birth = time.time()
         caller.puppet_object(caller.sessions.all()[0], char)
-)        char.msg("")
+        char.msg("")
         char.msg(f"|wWelcome to Kowloon, |c{char.key}|w.|n")
         char.msg("")
         char.msg("|wPro tip? Don't trust anyone.|n")
