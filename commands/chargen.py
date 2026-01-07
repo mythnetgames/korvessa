@@ -239,13 +239,13 @@ def node_stats(caller, raw_string, **kwargs):
         "Click + or - next to each attribute to adjust.\nType |cnext|n when done.\n"
     )
     stat_options = []
+    text += "|wStat   Value   [+] [-]|n\n"
     for stat in stat_keys:
-        meaning, influence = STAT_INFO[stat]
         val = stats[stat]
-        cost = POINT_BUY_COSTS.get(val, "-")
-        text += f"|c{stat}|n: {val} |w({meaning})|n\n"
-        stat_options.append({"desc": f"+ {stat}", "goto": "node_stats", "key": f"plus_{stat}"})
-        stat_options.append({"desc": f"- {stat}", "goto": "node_stats", "key": f"minus_{stat}"})
+        text += f"{stat:4}  {val:5}  [+{stat}] [-{stat}]\n"
+        stat_options.append({"desc": "+", "goto": "node_stats", "key": f"plus_{stat}"})
+        stat_options.append({"desc": "-", "goto": "node_stats", "key": f"minus_{stat}"})
+    text += "\nType |cnext|n when done."
     stat_options.append({"desc": "Continue", "goto": "node_skills", "key": "next"})
 
     # Handle clickable input
