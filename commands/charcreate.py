@@ -108,36 +108,27 @@ def generate_random_template():
     return (True, None)
 
 
-def validate_grim_distribution(grit, resonance, intellect, motorics):
+def validate_stat_distribution(stats):
     """
-    Validate GRIM stat distribution.
-    
-    Rules:
-    - All stats between 1 and 150
-    - Total equals 300
-    
+    Validate 8-stat distribution for character creation.
     Args:
-        grit, resonance, intellect, motorics (int): Stat values
-        
+        stats (dict): {stat_name: value}
     Returns:
         tuple: (is_valid: bool, error_message: str or None)
     """
-        stats = [grit, resonance, intellect, motorics]  # This line will need to be updated to reflect the new stats
-        # Update to reflect the new 8-stat system
-        stats = [body, reflexes, dexterity, technique, smarts, willpower, edge, empathy]
-    
-    # Check range
-    for stat in stats:
-        if stat < 1:
-            return (False, "All stats must be at least 1.")
-        if stat > 150:
-            return (False, "No stat can exceed 150.")
-    
-    # Check total
-        total = sum(stats)  # This line will need to be updated to reflect the new total
-        if total != 68:  # Update to reflect the new total for the 8-stat system
-            return (False, f"Stats must total 68 (current total: {total}).")
-    
+    STAT_MAX = {"empathy": 6, **{k: 10 for k in stats if k != "empathy"}}
+    STAT_MIN = 1
+    STAT_TOTAL = 68
+    for stat, value in stats.items():
+        if value < STAT_MIN:
+            return (False, f"{stat.capitalize()} must be at least {STAT_MIN}.")
+        if stat == "empathy" and value > STAT_MAX[stat]:
+            return (False, "Empathy cannot exceed 6.")
+        if stat != "empathy" and value > STAT_MAX[stat]:
+            return (False, f"{stat.capitalize()} cannot exceed 10.")
+    total = sum(stats.values())
+    if total != STAT_TOTAL:
+        return (False, f"Stats must total {STAT_TOTAL} (current total: {total}).")
     return (True, None)
 
 
