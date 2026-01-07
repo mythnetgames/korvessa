@@ -243,9 +243,7 @@ def node_stats(caller, raw_string, **kwargs):
         meaning, influence = STAT_INFO[stat]
         val = stats[stat]
         cost = POINT_BUY_COSTS.get(val, "-")
-        text += f"|c{stat}|n: {val} ["
-        text += f"{{+|plus_{stat}}} "
-        text += f"{{-|minus_{stat}}}"] |w({meaning})|n\n"
+        text += f"|c{stat}|n: {val} [{{+|plus_{stat}}} {{-|minus_{stat}}}] |w({meaning})|n\n"
         stat_options.append({"desc": "+", "goto": "node_stats", "key": f"plus_{stat}"})
         stat_options.append({"desc": "-", "goto": "node_stats", "key": f"minus_{stat}"})
     # Only add continue button
