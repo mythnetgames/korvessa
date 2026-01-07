@@ -905,14 +905,14 @@ Just uh, let me know if everything looks good.
 |wSex:|n |c{sex.capitalize()}|n
 
 |wStats:|n
-    |wBody:|n      {stats['body']:2d}
-    |wReflexes:|n  {stats['reflexes']:2d}
-    |wDexterity:|n {stats['dexterity']:2d}
-    |wTechnique:|n {stats['technique']:2d}
-    |wSmarts:|n    {stats['smarts']:2d}
-    |wWillpower:|n {stats['willpower']:2d}
-    |wEdge:|n      {stats['edge']:2d}
-    |wEmpathy:|n   {empathy:2d} (calculated: edge + willpower)
+    |wBody:|n      {stats['body']}
+    |wReflexes:|n  {stats['reflexes']}
+    |wDexterity:|n {stats['dexterity']}
+    |wTechnique:|n {stats['technique']}
+    |wSmarts:|n    {stats['smarts']}
+    |wWillpower:|n {stats['willpower']}
+    |wEdge:|n      {stats['edge']}
+    |wEmpathy:|n   {empathy} (calculated: edge + willpower)
 
 |wTotal assigned:|n {total}/45
 
