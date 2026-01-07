@@ -373,69 +373,6 @@ def node_stats(caller, raw_string, **kwargs):
     text += "\nType |cnext|n when done."
     stat_options.append({"desc": "Continue", "goto": "node_stats", "key": "next"})
 
-    # Handle clickable input
-    if raw_string:
-        key = raw_string.strip().lower()
-        for stat in stat_keys:
-            min_val = POINT_BUY_MIN
-            max_val = POINT_BUY_MAX
-            if stat == personality_stat:
-                min_val = 9
-                max_val = 16
-            if key == f"plus_{stat.lower()}":
-                amt = 1
-                new_val = stats[stat] + amt
-                if new_val < min_val or new_val > max_val:
-                    caller.msg(f"|r{stat} must be between {min_val} and {max_val}.|n")
-                else:
-                    temp_stats = dict(stats)
-                    temp_stats[stat] = new_val
-                    # For cost, only count up to 15 for bonus stat
-                    cost_stats = temp_stats.copy()
-                    if personality_stat and cost_stats[personality_stat] > 15:
-                        cost_stats[personality_stat] = 15
-                    cost = calc_point_buy_cost(cost_stats)
-                    if cost > POINT_BUY_TOTAL:
-                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
-                    else:
-                        stats[stat] = new_val
-                        caller.msg(f"|g{stat} increased to {new_val}.|n")
-                break
-            elif key == f"minus_{stat.lower()}":
-                amt = -1
-                new_val = stats[stat] + amt
-                if new_val < min_val or new_val > max_val:
-                    caller.msg(f"|r{stat} must be between {min_val} and {max_val}.|n")
-                else:
-                    temp_stats = dict(stats)
-                    temp_stats[stat] = new_val
-                    cost_stats = temp_stats.copy()
-                    if personality_stat and cost_stats[personality_stat] > 15:
-                        cost_stats[personality_stat] = 15
-                    cost = calc_point_buy_cost(cost_stats)
-                    if cost > POINT_BUY_TOTAL:
-                        caller.msg(f"|rNot enough points. You have {POINT_BUY_TOTAL - calc_point_buy_cost(stats)} left.|n")
-                    else:
-                        stats[stat] = new_val
-                        caller.msg(f"|y{stat} decreased to {new_val}.|n")
-                break
-        if key == "next":
-            cost_stats = dict(stats)
-            if personality_stat and cost_stats[personality_stat] > 15:
-                cost_stats[personality_stat] = 15
-            cost = calc_point_buy_cost(cost_stats)
-            if cost != POINT_BUY_TOTAL:
-                caller.msg(f"|rYou must spend exactly {POINT_BUY_TOTAL} points (currently spent: {cost}).|n")
-            else:
-                final_stats = dict(stats)
-                # Apply stat bonus now
-                if personality_stat:
-                    final_stats[personality_stat] += 1
-                    if final_stats[personality_stat] > 16:
-                        final_stats[personality_stat] = 16
-                char.db.stats = final_stats
-                del char.db.stat_assign
-                return "node_skills"
     return text, tuple(stat_options)
 
     # Handle clickable input
