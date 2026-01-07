@@ -63,8 +63,9 @@ class CmdChargen(BaseCommand):
         """Launch EvMenu-based chargen."""
         account = self.caller.account if hasattr(self.caller, 'account') else self.caller
         char = getattr(account, 'current_character', None)
-        # If no selected character, use currently puppeted character if available
-        if not char and hasattr(self.caller, 'is_player') and self.caller.is_player:
+        # If no selected character, use self.caller if it is a Character instance
+        from typeclasses.characters import Character
+        if not char and isinstance(self.caller, Character):
             char = self.caller
         if not char:
             self.caller.msg("|r[ERROR]|n You must select or create a character first.")
