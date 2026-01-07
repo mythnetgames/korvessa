@@ -220,6 +220,9 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(CmdMapOff())
 
 
+                # Add adminchargentest command
+                from commands.admin_chargen_test import CmdAdminChargenTest
+                self.add(CmdAdminChargenTest())
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
     """
     Command set available to the Session before being logged in.  This
