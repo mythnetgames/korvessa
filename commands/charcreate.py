@@ -632,15 +632,13 @@ def first_char_welcome(caller, raw_string, **kwargs):
     """First character creation entry point."""
     
     text = """
-|b╔════════════════════════════════════════════════════════════════╗
-║  WELCOME TO THE GELATINOUS MONSTER                             ║
-║  CHARACTER INITIALIZATION PROTOCOL                             ║
-╚════════════════════════════════════════════════════════════════╝|n
+|bWelcome to |#d70000KOWLOON|w:                      
+         |#ffff00THE WALLED CITY|n
 
-|wBeginning consciousness upload sequence...|n
+|wAfter years of isolation, the Walled City has reopened to outsiders.|n
 
-|wThe year is 198█. The broadcast never ends.|n
-|wYour memories are... incomplete. But you're here now.|n
+|wThe year is 198█.|n
+|wYou arrive at South Gate... but let's get some things cleared up first.|n
 
 Press |w<Enter>|n to begin character creation.
 """
@@ -688,10 +686,6 @@ def first_char_name_first(caller, raw_string, **kwargs):
     
     # Display prompt (first time or after error)
     text = """
-|w╔════════════════════════════════════════════════════════════════╗
-║  IDENTITY VERIFICATION                                         ║
-╚════════════════════════════════════════════════════════════════╝|n
-
 |wWhat is your FIRST name?|n
 
 (2-30 characters, letters only)
@@ -740,10 +734,6 @@ def first_char_name_last(caller, raw_string, **kwargs):
     
     # Display prompt (first time or after error)
     text = f"""
-|w╔════════════════════════════════════════════════════════════════╗
-║  IDENTITY VERIFICATION                                         ║
-╚════════════════════════════════════════════════════════════════╝|n
-
 First name: |c{first_name}|n
 
 |wWhat is your LAST name?|n
@@ -765,10 +755,6 @@ def first_char_sex(caller, raw_string, **kwargs):
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     text = f"""
-|w╔════════════════════════════════════════════════════════════════╗
-║  BIOLOGICAL CONFIGURATION                                      ║
-╚════════════════════════════════════════════════════════════════╝|n
-
 Name: |c{first_name} {last_name}|n
 
 Select biological sex:
@@ -850,9 +836,7 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
     total = sum(stats.values())
     remaining = 68 - total
     text = f"""
-|w╔════════════════════════════════════════════════════════════════╗
-║  STAT ASSIGNMENT                                               ║
-╚════════════════════════════════════════════════════════════════╝|n
+Let's assign your character's stats.
 
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
@@ -898,9 +882,7 @@ def first_char_confirm(caller, raw_string, **kwargs):
     })
     total = sum(stats.values())
     text = f"""
-|w╔════════════════════════════════════════════════════════════════╗
-║  FINAL CONFIRMATION                                            ║
-╚════════════════════════════════════════════════════════════════╝|n
+Just uh, let me know if everything looks good.
 
 |wName:|n |c{first_name} {last_name}|n
 |wSex:|n |c{sex.capitalize()}|n
