@@ -66,38 +66,32 @@ def generate_random_template():
     first_name = random.choice(FIRST_NAMES_MALE if use_male else FIRST_NAMES_FEMALE)
     last_name = random.choice(LAST_NAMES)
     
-    # Generate GRIM distribution totaling 300 points
-    # Use weighted random distribution to create varied but viable templates
-    points_left = 300
-    stats = []
-    
-    # Assign 3 stats randomly, then give remainder to 4th
-    for i in range(3):
-        # Each stat gets between 25-100 points (avoid extremes)
-        min_points = max(25, points_left - (150 * (3 - i)))  # Ensure enough left
-        max_points = min(100, points_left - (25 * (3 - i)))  # Ensure minimum for others
-        
-        if max_points > min_points:
-            points = random.randint(min_points, max_points)
+    # 8-stat system for Kowloon
+    STAT_NAMES = [
+        "body", "reflexes", "dexterity", "technique",
+        "smarts", "willpower", "edge", "empathy"
+    ]
+    STAT_MAX = {"empathy": 6, **{k: 10 for k in STAT_NAMES if k != "empathy"}}
+    STAT_MIN = 1
+    STAT_TOTAL = 68
+    points_left = STAT_TOTAL
+    stats = {}
+    for i, stat in enumerate(STAT_NAMES):
+        if i == len(STAT_NAMES) - 1:
+            val = points_left
         else:
-            points = min_points
-            
-        stats.append(points)
-        points_left -= points
-    
-    # Remove all old GRIM/GRIT code and duplicated logic. Only the new 8-stat system should remain.
-                        val = random.randint(min_for_stat, max_for_stat)
-                    stats[stat] = val
-                    points_left -= val
-                return {
-                    'first_name': first_name,
-                    'last_name': last_name,
-                    'name': f"{first_name} {last_name}",
-                    'sex': sex,
-                    **stats
-                }
-        "edge": "Edge",
-        "empathy": "Empathy"
+            max_for_stat = min(STAT_MAX[stat], points_left - (len(STAT_NAMES) - i - 1) * STAT_MIN)
+            min_for_stat = STAT_MIN
+            val = random.randint(min_for_stat, max_for_stat)
+        stats[stat] = val
+        points_left -= val
+    return {
+        'first_name': first_name,
+        'last_name': last_name,
+        'name': f"{first_name} {last_name}",
+        'sex': sex,
+        **stats
+    }
     }
     STAT_MAX = {"empathy": 6, **{k: 10 for k in STAT_NAMES if k != "empathy"}}
     STAT_MIN = 1
@@ -808,10 +802,8 @@ First name: |c{first_name}|n
 
 def first_char_sex(caller, raw_string, **kwargs):
     """Select biological sex."""
-    
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
-    
     text = f"""
 |w╔════════════════════════════════════════════════════════════════╗
 ║  BIOLOGICAL CONFIGURATION                                      ║
@@ -826,18 +818,17 @@ Select biological sex:
 |w[3]|n Androgynous
 
 |wEnter choice:|n """
-    
     options = (
         {"key": "1",
-         "goto": ("first_char_grim", {"sex": "male"}),
+         "goto": ("first_char_stat_assign", {"sex": "male"}),
          "auto_help": False,
          "auto_look": False},
         {"key": "2",
-         "goto": ("first_char_grim", {"sex": "female"}),
+         "goto": ("first_char_stat_assign", {"sex": "female"}),
          "auto_help": False,
          "auto_look": False},
         {"key": "3",
-         "goto": ("first_char_grim", {"sex": "ambiguous"}),
+         "goto": ("first_char_stat_assign", {"sex": "ambiguous"}),
          "auto_help": False,
          "auto_look": False},
         {"key": "_default",
@@ -845,149 +836,107 @@ Select biological sex:
          "auto_help": False,
          "auto_look": False},
     )
-    
     return text, options
 
 
-def first_char_grim(caller, raw_string, **kwargs):
-    """Distribute GRIM points."""
-    
-    # Store sex if explicitly provided in kwargs (from EvMenu goto dict)
-    # Only update if 'sex' key exists in kwargs to avoid overwriting with default
+def first_char_stat_assign(caller, raw_string, **kwargs):
+    """Distribute 68 points among 8 stats."""
     if 'sex' in kwargs:
         caller.ndb.charcreate_data['sex'] = kwargs['sex']
-    
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
-    
-    # Get current GRIM values (or defaults)
-    grit = caller.ndb.charcreate_data.get('grit', 75)
-    resonance = caller.ndb.charcreate_data.get('resonance', 75)
-    intellect = caller.ndb.charcreate_data.get('intellect', 75)
-    motorics = caller.ndb.charcreate_data.get('motorics', 75)
-    
-    total = grit + resonance + intellect + motorics
-    remaining = 300 - total
-    
-    # Process input ONLY if it's a valid command (not just transitioning from previous node)
-    # Valid commands: stat assignments, reset, done
-    # Invalid to process: single numbers like "1", "2", "3" from sex selection
+    stats = caller.ndb.charcreate_data.get('stats', {
+        'body': 1,
+        'reflexes': 1,
+        'dexterity': 1,
+        'technique': 1,
+        'smarts': 1,
+        'willpower': 1,
+        'edge': 1,
+        'empathy': 1
+    })
     if raw_string and raw_string.strip():
         args = raw_string.strip().lower().split()
-        
         if not args:
-            # Re-display current node (ignore empty command)
-            return first_char_grim(caller, "", **kwargs)
-        
+            return first_char_stat_assign(caller, "", **kwargs)
         command = args[0]
-        
-        # Only process if it's a known command (not leftover input from previous node)
-        # Commands: grit, resonance, intellect, motorics, reset, done
-        # Ignore: single digits (from sex selection) or other garbage
-        valid_commands = ['grit', 'g', 'resonance', 'r', 'res', 'intellect', 'i', 'int', 
-                         'motorics', 'm', 'mot', 'reset', 'done', 'd', 'finish', 'finalize']
-        
-        if command in valid_commands:
-            # Reset command
-            if command in ["reset", "r"]:
-                caller.ndb.charcreate_data['grit'] = 75
-                caller.ndb.charcreate_data['resonance'] = 75
-                caller.ndb.charcreate_data['intellect'] = 75
-                caller.ndb.charcreate_data['motorics'] = 75
-                # Re-display the menu with reset values by calling self recursively
-                return first_char_grim(caller, "", **kwargs)
-            
-            # Done command
-            if command in ["done", "d", "finish", "finalize"]:
-                # Validate distribution
-                is_valid, error = validate_grim_distribution(grit, resonance, intellect, motorics)
-                if not is_valid:
-                    caller.msg(f"|r{error}|n")
-                    # Re-display current node with error message
-                    return first_char_grim(caller, "", **kwargs)
-                # Call next node directly and return its result
-                return first_char_confirm(caller, "", **kwargs)
-            
-            # Stat assignment commands
+        valid_stats = ['body', 'reflexes', 'dexterity', 'technique', 'smarts', 'willpower', 'edge', 'empathy']
+        if command == 'reset':
+            stats = {k: 1 for k in valid_stats}
+            caller.ndb.charcreate_data['stats'] = stats
+            return first_char_stat_assign(caller, "", **kwargs)
+        if command in ['done', 'finish', 'finalize']:
+            is_valid, error = validate_stat_distribution(stats)
+            if not is_valid:
+                caller.msg(f"|r{error}|n")
+                return first_char_stat_assign(caller, "", **kwargs)
+            return first_char_confirm(caller, "", **kwargs)
+        if command in valid_stats:
             if len(args) < 2:
-                caller.msg("|rUsage: <stat> <value>  (e.g., 'grit 100')|n")
-                # Re-display current node
-                return first_char_grim(caller, "", **kwargs)
-            
+                caller.msg("|rUsage: <stat> <value>  (e.g., 'body 10')|n")
+                return first_char_stat_assign(caller, "", **kwargs)
             try:
                 value = int(args[1])
             except ValueError:
                 caller.msg("|rValue must be a number.|n")
-                # Re-display current node
-                return first_char_grim(caller, "", **kwargs)
-            
-            if value < 1 or value > 150:
-                caller.msg("|rValue must be between 1 and 150.|n")
-                # Re-display current node
-                return first_char_grim(caller, "", **kwargs)
-            
-            # Set the stat
-            if command in ["grit", "g"]:
-                caller.ndb.charcreate_data['grit'] = value
-            elif command in ["resonance", "r", "res"]:
-                caller.ndb.charcreate_data['resonance'] = value
-            elif command in ["intellect", "i", "int"]:
-                caller.ndb.charcreate_data['intellect'] = value
-            elif command in ["motorics", "m", "mot"]:
-                caller.ndb.charcreate_data['motorics'] = value
-            
-            # Re-display the menu with updated values by calling self recursively
-            return first_char_grim(caller, "", **kwargs)
-        # If not a valid command, just ignore and display the menu
-    
-    # Display the GRIM distribution screen
+                return first_char_stat_assign(caller, "", **kwargs)
+            if value < 1 or (command == 'empathy' and value > 6) or (command != 'empathy' and value > 10):
+                caller.msg("|rValue must be 1-10 (1-6 for empathy).|n")
+                return first_char_stat_assign(caller, "", **kwargs)
+            stats[command] = value
+            caller.ndb.charcreate_data['stats'] = stats
+            return first_char_stat_assign(caller, "", **kwargs)
+    total = sum(stats.values())
+    remaining = 68 - total
     text = f"""
 |w╔════════════════════════════════════════════════════════════════╗
-║  G.R.I.M. ATTRIBUTE DISTRIBUTION                               ║
+║  STAT ASSIGNMENT                                               ║
 ╚════════════════════════════════════════════════════════════════╝|n
 
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
 
-Distribute |w300 points|n across your attributes (min 1, max 150 per stat):
+Distribute |w68 points|n among the following stats:
+  |wBody|n (1-10):        {stats['body']:2d}
+  |wReflexes|n (1-10):    {stats['reflexes']:2d}
+  |wDexterity|n (1-10):   {stats['dexterity']:2d}
+  |wTechnique|n (1-10):   {stats['technique']:2d}
+  |wSmarts|n (1-10):      {stats['smarts']:2d}
+  |wWillpower|n (1-10):   {stats['willpower']:2d}
+  |wEdge|n (1-10):        {stats['edge']:2d}
+  |wEmpathy|n (1-6):      {stats['empathy']:2d}
 
-|gGrit:|n      {grit:3d}  (Physical resilience, endurance, toughness)
-|yResonance:|n {resonance:3d}  (Social awareness, empathy, influence)
-|bIntellect:|n {intellect:3d}  (Mental acuity, reasoning, knowledge)
-|mMotorics:|n  {motorics:3d}  (Physical coordination, reflexes, dexterity)
-
-|wTotal:|n {total}/300  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|wTotal:|n {total}/68  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
 
 Commands:
-  |wgrit <value>|n     - Set Grit
-  |wresonance <value>|n - Set Resonance
-  |wintellect <value>|n - Set Intellect
-  |wmotorics <value>|n  - Set Motorics
-  |wreset|n             - Reset to defaults (75 each)
-  |wdone|n              - Finalize character (when total = 300)
+  |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
+  |wreset|n           - Reset all stats to 1
+  |wdone|n            - Finalize character (when total = 68)
 
 |w>|n """
-    
     options = (
-        {"key": "_default",
-         "goto": "first_char_grim"},
+        {"key": "_default", "goto": "first_char_stat_assign"},
     )
-    
     return text, options
 
 
 def first_char_confirm(caller, raw_string, **kwargs):
     """Final confirmation and character creation."""
-    
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
-    grit = caller.ndb.charcreate_data.get('grit', 75)
-    resonance = caller.ndb.charcreate_data.get('resonance', 75)
-    intellect = caller.ndb.charcreate_data.get('intellect', 75)
-    motorics = caller.ndb.charcreate_data.get('motorics', 75)
-    
+    stats = caller.ndb.charcreate_data.get('stats', {
+        'body': 1,
+        'reflexes': 1,
+        'dexterity': 1,
+        'technique': 1,
+        'smarts': 1,
+        'willpower': 1,
+        'edge': 1,
+        'empathy': 1
+    })
+    total = sum(stats.values())
     text = f"""
 |w╔════════════════════════════════════════════════════════════════╗
 ║  FINAL CONFIRMATION                                            ║
@@ -996,13 +945,17 @@ def first_char_confirm(caller, raw_string, **kwargs):
 |wName:|n |c{first_name} {last_name}|n
 |wSex:|n |c{sex.capitalize()}|n
 
-|wG.R.I.M. Attributes:|n
-  |gGrit:|n      {grit:3d}
-  |yResonance:|n {resonance:3d}
-  |bIntellect:|n {intellect:3d}
-  |mMotorics:|n {motorics:3d}
+|wStats:|n
+  |wBody:|n      {stats['body']:2d}
+  |wReflexes:|n  {stats['reflexes']:2d}
+  |wDexterity:|n {stats['dexterity']:2d}
+  |wTechnique:|n {stats['technique']:2d}
+  |wSmarts:|n    {stats['smarts']:2d}
+  |wWillpower:|n {stats['willpower']:2d}
+  |wEdge:|n      {stats['edge']:2d}
+  |wEmpathy:|n   {stats['empathy']:2d}
 
-|wTotal:|n 300/300
+|wTotal:|n {total}/68
 
 |yOnce created, your name cannot be changed.|n
 |yStats can be modified through gameplay.|n
@@ -1010,17 +963,16 @@ def first_char_confirm(caller, raw_string, **kwargs):
 Create this character?
 
 |w[Y]|n Yes, finalize character
-|w[N]|n No, go back to GRIM distribution
+|w[N]|n No, go back to stat assignment
 
 |w>|n """
-    
     options = (
         {"key": ("y", "yes"),
          "goto": "first_char_finalize",
          "auto_help": False,
          "auto_look": False},
         {"key": ("n", "no"),
-         "goto": "first_char_grim",
+         "goto": "first_char_stat_assign",
          "auto_help": False,
          "auto_look": False},
         {"key": "_default",
@@ -1028,65 +980,51 @@ Create this character?
          "auto_help": False,
          "auto_look": False},
     )
-    
     return text, options
 
 
 def first_char_finalize(caller, raw_string, **kwargs):
     """Create the character and enter game."""
-    
     from typeclasses.characters import Character
-    
-    # Get data
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     full_name = f"{first_name} {last_name}"
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
-    grit = caller.ndb.charcreate_data.get('grit', 75)
-    resonance = caller.ndb.charcreate_data.get('resonance', 75)
-    intellect = caller.ndb.charcreate_data.get('intellect', 75)
-    motorics = caller.ndb.charcreate_data.get('motorics', 75)
-    
-    # Get spawn location
+    stats = caller.ndb.charcreate_data.get('stats', {
+        'body': 1,
+        'reflexes': 1,
+        'dexterity': 1,
+        'technique': 1,
+        'smarts': 1,
+        'willpower': 1,
+        'edge': 1,
+        'empathy': 1
+    })
     start_location = get_start_location()
-    
-    # Create character
     try:
-        # Use Evennia's proper character creation method
         char, errors = caller.create_character(
             key=full_name,
             location=start_location,
             home=start_location,
             typeclass="typeclasses.characters.Character"
         )
-        
         if errors:
-            # Handle creation errors
             raise Exception(f"Character creation failed: {errors}")
-        
-        # Set GRIM stats
-        char.grit = grit
-        char.resonance = resonance
-        char.intellect = intellect
-        char.motorics = motorics
-        
-        # Set sex
+        char.body = stats['body']
+        char.reflexes = stats['reflexes']
+        char.dexterity = stats['dexterity']
+        char.technique = stats['technique']
+        char.smarts = stats['smarts']
+        char.willpower = stats['willpower']
+        char.edge = stats['edge']
+        char.empathy = stats['empathy']
         char.sex = sex
-        
-        # Set defaults
-        # death_count starts at 1 via AttributeProperty in Character class
         char.db.archived = False
-        
-        # Generate unique Stack ID
         import uuid
         char.db.stack_id = str(uuid.uuid4())
         char.db.original_creation = time.time()
         char.db.current_sleeve_birth = time.time()
-        
-        # Puppet the character
         caller.puppet_object(caller.sessions.all()[0], char)
-        
-        # Send welcome message
         char.msg("|g╔════════════════════════════════════════════════════════════════╗")
         char.msg("|g║  CONSCIOUSNESS UPLOAD COMPLETE                                 ║")
         char.msg("|g╚════════════════════════════════════════════════════════════════╝|n")
@@ -1100,15 +1038,9 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.msg("|yType |wlook|y to examine your surroundings.|n")
         char.msg("|yType |whelp|y for a list of commands.|n")
         char.msg("")
-        
-        # Clean up
         _cleanup_charcreate_ndb(caller)
-        
-        # Exit menu
         return None
-        
     except Exception as e:
-        # Error - show message and return to confirmation
         caller.msg(f"|rError creating character: {e}|n")
         from evennia.comms.models import ChannelDB
         try:
