@@ -85,39 +85,7 @@ def generate_random_template():
         stats.append(points)
         points_left -= points
     
-    # Give remainder to 4th stat (clamped to max 150)
-
-    """
-    Kowloon Walled City Character Creation System
-
-    Handles first-time character creation and respawn/clone after death.
-    Uses Evennia's EvMenu for interactive menus.
-
-    Flow:
-    1. First Character: Name input → Sex selection → Stat assignment (68 points, 8 stats)
-    2. Respawn: Choose from 3 random templates OR flash clone previous character
-    """
-        'grit': stats[0],
-
-    from evennia import create_object
-    from evennia.utils.evmenu import EvMenu
-    from django.conf import settings
-                # Distribute 68 points across 8 stats
-                STAT_NAMES = [
-                    "body", "reflexes", "dexterity", "technique",
-                    "smarts", "willpower", "edge", "empathy"
-                ]
-                STAT_MAX = {"empathy": 6, **{k: 10 for k in STAT_NAMES if k != "empathy"}}
-                STAT_MIN = 1
-                STAT_TOTAL = 68
-                points_left = STAT_TOTAL
-                stats = {}
-                for i, stat in enumerate(STAT_NAMES):
-                    if i == len(STAT_NAMES) - 1:
-                        val = points_left
-                    else:
-                        max_for_stat = min(STAT_MAX[stat], points_left - (len(STAT_NAMES) - i - 1) * STAT_MIN)
-                        min_for_stat = STAT_MIN
+    # Remove all old GRIM/GRIT code and duplicated logic. Only the new 8-stat system should remain.
                         val = random.randint(min_for_stat, max_for_stat)
                     stats[stat] = val
                     points_left -= val
