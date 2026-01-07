@@ -389,6 +389,9 @@ def node_stats(caller, raw_string, **kwargs):
         if stat == personality_stat:
             text += " | Personality bonus stat starts at 9."
         text += "\n"
+        # Add hidden stat options for EvMenu recognition
+        stat_options.append({"desc": "", "goto": "node_stats", "key": f"plus_{stat.lower()}"})
+        stat_options.append({"desc": "", "goto": "node_stats", "key": f"minus_{stat.lower()}"})
     text += "\nType |cnext|n when done."
     stat_options.append({"desc": "Continue", "goto": "node_stats", "key": "next"})
 
