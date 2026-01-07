@@ -238,30 +238,27 @@ def node_stats(caller, raw_string, **kwargs):
         f"Attributes must be between {POINT_BUY_MIN} and {POINT_BUY_MAX}.\n"
         "Click + or - next to each attribute to adjust.\nType |cnext|n when done.\n"
     )
+    stat_options = []
     for stat in stat_keys:
         meaning, influence = STAT_INFO[stat]
         val = stats[stat]
         cost = POINT_BUY_COSTS.get(val, "-")
-        text += f"|c{stat}|n: {val} [|c+|n|cinc_{stat}|n |c-|n|cdec_{stat}|n] |w({meaning})|n\n"
-    
-    # Create clickable options for stat adjustment
-    stat_options = []
-    for stat in stat_keys:
-        stat_options.append({"desc": f"Increase {stat}", "goto": "node_stats", "key": f"inc_{stat}"})
-        stat_options.append({"desc": f"Decrease {stat}", "goto": "node_stats", "key": f"dec_{stat}"})
+        text += f"|c{stat}|n: {val} [|c+|n |c-|n] |w({meaning})|n\n"
+        stat_options.append({"desc": "+", "goto": "node_stats", "key": f"plus_{stat}"})
+        stat_options.append({"desc": "-", "goto": "node_stats", "key": f"minus_{stat}"})
     stat_options.append({"desc": "Continue", "goto": "node_skills", "key": "next"})
 
     # Handle clickable input
     if raw_string:
         key = raw_string.strip().lower()
         for stat in stat_keys:
-            if key == f"inc_{stat.lower()}":
+            if key == f"plus_{stat.lower()}":
                 amt = 1
                 new_val = stats[stat] + amt
                 if new_val < POINT_BUY_MIN or new_val > POINT_BUY_MAX:
                     caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {POINT_BUY_MAX}.|n")
                 else:
-                    temp_stats = stats.copy()
+                    temp_stats = dict(stats)
                     temp_stats[stat] = new_val
                     cost = calc_point_buy_cost(temp_stats)
                     if cost > POINT_BUY_TOTAL:
@@ -270,13 +267,13 @@ def node_stats(caller, raw_string, **kwargs):
                         stats[stat] = new_val
                         caller.msg(f"|g{stat} increased to {new_val}.|n")
                 break
-            elif key == f"dec_{stat.lower()}":
+            elif key == f"minus_{stat.lower()}":
                 amt = -1
                 new_val = stats[stat] + amt
                 if new_val < POINT_BUY_MIN or new_val > POINT_BUY_MAX:
                     caller.msg(f"|r{stat} must be between {POINT_BUY_MIN} and {POINT_BUY_MAX}.|n")
                 else:
-                    temp_stats = stats.copy()
+                    temp_stats = dict(stats)
                     temp_stats[stat] = new_val
                     cost = calc_point_buy_cost(temp_stats)
                     if cost > POINT_BUY_TOTAL:
