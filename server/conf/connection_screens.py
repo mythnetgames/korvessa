@@ -41,8 +41,8 @@ def connection_screen():
 
 |y
       
-                              KOWLOON RPI:                      
-                            THE WALLED CITY                        
+                              |#d70000KOWLOON RPI|w:                      
+                            |#ffff00THE WALLED CITY                        
 |n
 
 |#d75f00The massive walls of Kowloon rise before you, ancient and impenetrable.
