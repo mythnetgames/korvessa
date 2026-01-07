@@ -143,23 +143,22 @@ PERSONALITIES = [
 
 def node_personality(caller, raw_string, **kwargs):
     char = kwargs.get("startnode_input")
+    if char is None and hasattr(caller, 'db'):
+        char = caller
     if raw_string:
         choice = raw_string.strip().lower()
         for idx, (personality, desc) in enumerate(PERSONALITIES, 1):
             if choice == str(idx) or choice == personality.lower():
                 char.db.personality = personality
-                caller.msg(f"|gYou have selected:|n {personality} - {desc}")
-                return "node_stats"
+                return f"|gYou have selected:|n {personality} - {desc}\n\nType |cnext|n to continue.", ( {"desc": "Continue", "goto": "node_stats", "key": "next"}, )
         caller.msg("|rInvalid personality. Please choose by number or name.")
-    table = EvTable("#", "Personality", "Description")
+    # Show clickable personality options
+    text = "|wSelect your character's personality:|n\n"
+    options = []
     for idx, (personality, desc) in enumerate(PERSONALITIES, 1):
-        table.add_row(str(idx), personality, desc)
-    text = (
-        "|w[CHARGEN]|n Select your character's personality.\n" + str(table) +
-        "\nType the |cnumber|n or |cname|n of your choice."
-    )
-    options = tuple()
-    return text, options
+        text += f"|c{idx}. {personality}|n - {desc}\n"
+        options.append({"desc": f"Choose {personality}", "goto": "node_personality", "key": str(idx)})
+    return text, tuple(options)
 
 
 # D&D 5e point buy config
@@ -224,7 +223,7 @@ def node_stats(caller, raw_string, **kwargs):
         "Usage: <STAT> <amount> (e.g. STR 2, DEX -1)\n"
         "Type |cnext|n when done.\n" + str(table)
     )
-    options = tuple()
+    options = ({"desc": "Continue", "goto": "node_skills", "key": "next"},)
     return text, options
 
 SKILL_GROUPS = [
@@ -254,7 +253,7 @@ def node_skills(caller, raw_string, **kwargs):
         "|w[CHARGEN]|n Select your primary skill group.\n" + str(table) +
         "\nType the |cnumber|n or |cname|n of your choice."
     )
-    options = tuple()
+    options = tuple({"desc": f"Choose {group}", "goto": "node_skills", "key": str(idx)} for idx, (group, _) in enumerate(SKILL_GROUPS, 1))
     return text, options
 
 def node_standing(caller, raw_string, **kwargs):
@@ -298,7 +297,7 @@ def node_standing(caller, raw_string, **kwargs):
         "Usage: <FACTION> <amount> (e.g. Merchants 2, Nobility -1)\n"
         "Type |cnext|n when done.\n" + str(table)
     )
-    options = tuple()
+    options = ({"desc": "Continue", "goto": "node_background", "key": "next"},)
     return text, options
 
 def node_background(caller, raw_string, **kwargs):
@@ -319,7 +318,7 @@ def node_background(caller, raw_string, **kwargs):
         "Type your background and press enter. When satisfied, type |cnext|n to continue.\n"
         f"Current: |w{char.db.background_entry}|n"
     )
-    options = tuple()
+    options = ({"desc": "Continue", "goto": "node_public_knowledge", "key": "next"},)
     return text, options
 
 def node_public_knowledge(caller, raw_string, **kwargs):
@@ -354,7 +353,7 @@ def node_public_knowledge(caller, raw_string, **kwargs):
         f"Current: |w{pk[field]}|n\n"
         "Type your answer and press enter, or type |cskip|n to skip."
     )
-    options = tuple()
+    options = ({"desc": "Continue", "goto": "node_public_knowledge", "key": "next"},)
     return text, options
 
 def node_review(caller, raw_string, **kwargs):
