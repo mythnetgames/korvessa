@@ -317,7 +317,7 @@ def node_stats(caller, raw_string, **kwargs):
             if cost != POINT_BUY_TOTAL:
                 caller.msg(f"|rYou must spend exactly {POINT_BUY_TOTAL} points (currently spent: {cost}).|n")
             else:
-                char.db.stats = stats.copy()
+                char.db.stats = dict(stats)
                 del char.db.stat_assign
                 return "node_skills"
         else:
