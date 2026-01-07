@@ -340,6 +340,8 @@ SKILL_GROUPS = [
 
 def node_skills(caller, raw_string, **kwargs):
     char = kwargs.get("startnode_input")
+    if char is None and hasattr(caller, 'db'):
+        char = caller
     if raw_string:
         choice = raw_string.strip().lower()
         for idx, (group, desc) in enumerate(SKILL_GROUPS, 1):
