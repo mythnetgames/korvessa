@@ -135,7 +135,7 @@ def validate_stat_distribution(stats):
     """
     STAT_MAX = {k: 10 for k in stats if k != "empathy"}
     STAT_MIN = 1
-    STAT_TOTAL = 45
+    STAT_TOTAL = 35
     for stat, value in stats.items():
         if stat == "empathy":
             continue
@@ -803,7 +803,7 @@ Select biological sex:
 
 
 def first_char_stat_assign(caller, raw_string, **kwargs):
-    """Distribute 45 points among 7 assignable stats (empathy is auto-calculated)."""
+    """Distribute 35 points among 7 assignable stats (empathy is auto-calculated)."""
     if 'sex' in kwargs:
         caller.ndb.charcreate_data['sex'] = kwargs['sex']
     first_name = caller.ndb.charcreate_data.get('first_name', '')
@@ -820,14 +820,14 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
     })
     empathy = stats['edge'] + stats['willpower']
     total = sum(stats.values())
-    remaining = 45 - total
+    remaining = 35 - total
     text = f"""
 Let's assign your character's stats.
 
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
 
-Distribute |w45 points|n among the following stats:
+Distribute |w35 points|n among the following stats:
     |wBody|n (1-10):        {stats['body']}
     |wReflexes|n (1-10):    {stats['reflexes']}
     |wDexterity|n (1-10):   {stats['dexterity']}
@@ -837,12 +837,12 @@ Distribute |w45 points|n among the following stats:
     |wEdge|n (1-10):        {stats['edge']}
     |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
 
-|wTotal assigned:|n {total}/45  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|wTotal assigned:|n {total}/35  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
 
 Commands:
     |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
     |wreset|n           - Reset all stats to 1
-    |wdone|n            - Finalize character (when total = 45)
+    |wdone|n            - Finalize character (when total = 35)
 
 |w>|n """
     options = (
@@ -860,14 +860,14 @@ Commands:
             # Immediately update display after reset
             empathy = stats['edge'] + stats['willpower']
             total = sum(stats.values())
-            remaining = 45 - total
+            remaining = 35 - total
             text = f"""
 Let's assign your character's stats.
 
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
 
-Distribute |w45 points|n among the following stats:
+Distribute |w35 points|n among the following stats:
     |wBody|n (1-10):        {stats['body']}
     |wReflexes|n (1-10):    {stats['reflexes']}
     |wDexterity|n (1-10):   {stats['dexterity']}
@@ -877,12 +877,12 @@ Distribute |w45 points|n among the following stats:
     |wEdge|n (1-10):        {stats['edge']}
     |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
 
-|wTotal assigned:|n {total}/45  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|wTotal assigned:|n {total}/35  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
 
 Commands:
     |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
     |wreset|n           - Reset all stats to 1
-    |wdone|n            - Finalize character (when total = 45)
+    |wdone|n            - Finalize character (when total = 35)
 
 |w>|n """
             return text, options
@@ -909,14 +909,14 @@ Commands:
             # Immediately update display after stat set
             empathy = stats['edge'] + stats['willpower']
             total = sum(stats.values())
-            remaining = 45 - total
+            remaining = 35 - total
             text = f"""
 Let's assign your character's stats.
 
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
 
-Distribute |w45 points|n among the following stats:
+Distribute |w35 points|n among the following stats:
     |wBody|n (1-10):        {stats['body']}
     |wReflexes|n (1-10):    {stats['reflexes']}
     |wDexterity|n (1-10):   {stats['dexterity']}
@@ -926,12 +926,12 @@ Distribute |w45 points|n among the following stats:
     |wEdge|n (1-10):        {stats['edge']}
     |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
 
-|wTotal assigned:|n {total}/45  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|wTotal assigned:|n {total}/35  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
 
 Commands:
     |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
     |wreset|n           - Reset all stats to 1
-    |wdone|n            - Finalize character (when total = 45)
+    |wdone|n            - Finalize character (when total = 35)
 
 |w>|n """
             return text, options
@@ -970,7 +970,7 @@ Just uh, let me know if everything looks good.
     |wEdge:|n      {stats['edge']}
     |wEmpathy:|n   {empathy} (calculated: edge + willpower)
 
-|wTotal assigned:|n {total}/45
+|wTotal assigned:|n {total}/35
 
 |yOnce created, your name cannot be changed.|n
 |yStats can be modified through gameplay.|n
@@ -1040,15 +1040,11 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.db.original_creation = time.time()
         char.db.current_sleeve_birth = time.time()
         caller.puppet_object(caller.sessions.all()[0], char)
-        char.msg("|g╔════════════════════════════════════════════════════════════════╗")
-        char.msg("|g║  CONSCIOUSNESS UPLOAD COMPLETE                                 ║")
-        char.msg("|g╚════════════════════════════════════════════════════════════════╝|n")
+)        char.msg("")
+        char.msg(f"|wWelcome to Kowloon, |c{char.key}|w.|n")
         char.msg("")
-        char.msg(f"|wWelcome to Gelatinous Monster, |c{char.key}|w.|n")
-        char.msg("")
-        char.msg("|wThe static clears. You open your eyes.|n")
-        char.msg("|wThe year is 198█. The broadcast continues.|n")
-        char.msg("|wYou are here. You are real. You are... something.|n")
+        char.msg("|wPro tip? Don't trust anyone.|n")
+        char.msg("|wJust a little work north, and you're in the City.|n")
         char.msg("")
         char.msg("|yType |wlook|y to examine your surroundings.|n")
         char.msg("|yType |whelp|y for a list of commands.|n")
