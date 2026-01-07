@@ -76,6 +76,8 @@ class CmdChargen(BaseCommand):
 # --- EvMenu Nodes for Chargen ---
 def node_intro(caller, raw_string, **kwargs):
     char = kwargs.get("startnode_input")
+    if char is None and hasattr(caller, 'db'):
+        char = caller
     resume_stage = kwargs.get("resume_stage", None)
     if raw_string and isinstance(raw_string, str):
         choice = raw_string.strip().lower()
@@ -97,7 +99,7 @@ def node_intro(caller, raw_string, **kwargs):
     options = []
     options.append({"desc": "Back", "goto": "node_intro", "key": "back"})
     # Always show continue/start over prompt, even if resume_stage is 0 or None
-    chargen_stage = getattr(char.db, 'chargen_stage', None)
+    chargen_stage = getattr(char.db, 'chargen_stage', None) if char is not None else None
     if chargen_stage is not None and chargen_stage > 0:
         text += "Would you like to continue from where you left off, or start over?\n"
         options.append({"desc": "Continue from last step", "goto": "node_intro", "key": "continue"})
