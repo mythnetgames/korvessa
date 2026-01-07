@@ -237,8 +237,14 @@ def node_personality(caller, raw_string, **kwargs):
                     char.db.personality_pending_stat = True
                     return f"|gYou have selected:|n {pdata['name']}\n{pdata['desc']}\n\nChoose your stat bonus:", tuple({"desc": f"+1 {stat}", "goto": "node_personality_stat", "key": stat} for stat in pdata["stat_choices"])
                 else:
-                    char.db.personality_stat_bonus = pdata["stat_choices"][0]
+                    stat = pdata["stat_choices"][0]
+                    char.db.personality_stat_bonus = stat
                     char.db.personality_pending_stat = False
+                    # Apply stat bonus to starting stats
+                    stat_keys = list(STAT_INFO.keys())
+                    if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign:
+                        char.db.stat_assign = {k: POINT_BUY_START for k in stat_keys}
+                    char.db.stat_assign[stat] += 1
                     return f"|gYou have selected:|n {pdata['name']}\n{pdata['desc']}\n\nType |cnext|n to continue.", ( {"desc": "Continue", "goto": "node_stats", "key": "next"}, )
         caller.msg("|rInvalid personality. Please choose by number or name.")
     # Show clickable personality options with bonuses
@@ -260,6 +266,11 @@ def node_personality_stat(caller, raw_string, **kwargs):
         if stat in pdata["stat_choices"]:
             char.db.personality_stat_bonus = stat
             char.db.personality_pending_stat = False
+            # Apply stat bonus to starting stats
+            stat_keys = list(STAT_INFO.keys())
+            if not hasattr(char.db, 'stat_assign') or not char.db.stat_assign:
+                char.db.stat_assign = {k: POINT_BUY_START for k in stat_keys}
+            char.db.stat_assign[stat] += 1
             return f"|gStat bonus selected: +1 {stat}\nType |cnext|n to continue.", ( {"desc": "Continue", "goto": "node_stats", "key": "next"}, )
         else:
             caller.msg("|rInvalid stat choice. Please select one of the available options.")
