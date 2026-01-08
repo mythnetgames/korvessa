@@ -38,6 +38,7 @@ from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.nakeds import CmdNakeds
 from commands.who import CmdWho, CmdInvisible, CmdWhoLocation
+from commands.place import CmdLookPlace, CmdTempPlace
 from commands.shop import CmdBuy
 from commands.window import CmdAttachWindow, CmdRemoveWindow, CmdWindowCoord, CmdDebugWindows
 from commands.debugroomcoords import CmdDebugRoomCoords
@@ -203,6 +204,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(BuilderRelayCmdSet())
         # Add nakeds command
         self.add(CmdNakeds())
+        # Add look_place and temp_place commands
+        self.add(CmdLookPlace())
+        self.add(CmdTempPlace())
         # Add createzone command
         from commands.createzone import CmdCreateZone
         self.add(CmdCreateZone())

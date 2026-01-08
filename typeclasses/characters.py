@@ -147,7 +147,12 @@ class Character(ObjectParent, DefaultCharacter):
         Called after the character moves to a new location.
         Forces @mapon and shows map+room description.
         Also triggers window observation messages for any windows observing this room.
+        Clears @temp_place when moving to a new room.
         """
+        # Clear temp_place when changing rooms
+        if hasattr(self.ndb, 'temp_place'):
+            delattr(self.ndb, 'temp_place')
+        
         if self.account and hasattr(self.account, 'db'):
             self.account.db.mapper_enabled = True
         self.ndb.mapper_enabled = True
@@ -1369,9 +1374,39 @@ class Character(ObjectParent, DefaultCharacter):
     # Stored as a dictionary mapping body part names to description strings
     # Structure: {"head": "description", "face": "description", ...}
     
+    # PLACEMENT SYSTEM (@look_place, @temp_place)
+    # Persistent placement description (what character is doing in room)
+    look_place = AttributeProperty(
+        None,
+        category="appearance",
+        autocreate=True
+    )
+    # Temporary placement description (cleared when changing rooms, stored in NDB)
+    @property
+    def temp_place(self):
+        """Get temporary placement description."""
+        return getattr(self.ndb, 'temp_place', None)
+    
+    @temp_place.setter
+    def temp_place(self, value):
+        """Set temporary placement description."""
+        if value is None:
+            if hasattr(self.ndb, 'temp_place'):
+                delattr(self.ndb, 'temp_place')
+        else:
+            self.ndb.temp_place = value
+    
+    # Override placement description (for special poses/states)
+    override_place = AttributeProperty(
+        None,
+        category="appearance",
+        autocreate=True
+    )
+    
     # CLOTHING SYSTEM
     # Storage for worn clothing items organized by body location
     worn_items = AttributeProperty({}, category="clothing", autocreate=True)
+
     # Structure: {
     #     "chest": [jacket_obj, shirt_obj],  # Ordered by layer (outer first)
     #     "head": [hat_obj],
