@@ -15,27 +15,9 @@ class Window(DefaultObject):
         """Return a plain string name for display."""
         return self.key if isinstance(self.key, str) else str(self.key)
 
-    def at_object_creation(self):
-        """Initialize window with target coordinates and description."""
-        self.db.target_x = None
-        self.db.target_y = None
-        self.db.target_z = None
-        self.db.desc = "A window looking into another space."
-        self.locks.add("view:all();setcoord:perm(Builder)")
-
-    def set_target_coords(self, x, y, z):
-        """Set the coordinates of the room this window observes."""
-        self.db.target_x = x
-        self.db.target_y = y
-        self.db.target_z = z
-
-    def get_target_coords(self):
-        """Get the coordinates this window is observing."""
-        return (self.db.target_x, self.db.target_y, self.db.target_z)
-    
-    def return_appearance(self, looker):
+    def get_display_desc(self, looker, **kwargs):
         """
-        Return the appearance of the window, including contents of the room it observes.
+        Return the description of the window, including contents of the room it observes.
         
         Args:
             looker: The character looking at the window
@@ -73,7 +55,6 @@ class Window(DefaultObject):
                 return base_desc
             
             # Get display of what's in the target room
-            from typeclasses.rooms import get_display_characters
             room_display = target_room.get_display_characters(looker) if hasattr(target_room, 'get_display_characters') else None
             
             if room_display:
@@ -86,6 +67,24 @@ class Window(DefaultObject):
             import traceback
             traceback.print_exc()
             return base_desc
+
+    def at_object_creation(self):
+        """Initialize window with target coordinates and description."""
+        self.db.target_x = None
+        self.db.target_y = None
+        self.db.target_z = None
+        self.db.desc = "A window looking into another space."
+        self.locks.add("view:all();setcoord:perm(Builder)")
+
+    def set_target_coords(self, x, y, z):
+        """Set the coordinates of the room this window observes."""
+        self.db.target_x = x
+        self.db.target_y = y
+        self.db.target_z = z
+
+    def get_target_coords(self):
+        """Get the coordinates this window is observing."""
+        return (self.db.target_x, self.db.target_y, self.db.target_z)
 
     def relay_movement(self, char, movement_type, direction=None):
         """
