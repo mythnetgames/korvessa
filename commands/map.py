@@ -12,6 +12,13 @@ class CmdMap(Command):
         x0 = getattr(room.db, "x", None)
         y0 = getattr(room.db, "y", None)
         z0 = getattr(room.db, "z", None)
+        
+        # DEBUG: Show current room zone immediately
+        current_zone = getattr(room, "zone", None)
+        caller.msg(f"|y=== MAP DEBUG ===|n")
+        caller.msg(f"|yYour room: {room.key}|n")
+        caller.msg(f"|yYour zone attribute: {current_zone}|n")
+        caller.msg(f"|yYour coords: ({x0}, {y0}, {z0})|n")
         # Allow optional Z argument
         args = self.args.strip().split()
         if args and args[0].lstrip('-').isdigit():
@@ -35,10 +42,16 @@ class CmdMap(Command):
         current_zone = getattr(room, "zone", None)
         zone_rooms = [r for r in all_rooms if getattr(r, "zone", None) == current_zone]
         
-        caller.msg(f"|y[DEBUG] Your zone: {current_zone}|n")
-        caller.msg(f"|y[DEBUG] All rooms: {len(all_rooms)}, Zone-matched rooms: {len(zone_rooms)}|n")
-        for r in zone_rooms[:5]:
-            caller.msg(f"|y  - {r.key} zone={getattr(r, 'zone', None)} coords=({getattr(r.db, 'x', None)}, {getattr(r.db, 'y', None)}, {getattr(r.db, 'z', None)})|n")
+        caller.msg(f"|yAll rooms found: {len(all_rooms)}|n")
+        caller.msg(f"|yRooms matching your zone ({current_zone}): {len(zone_rooms)}|n")
+        
+        # Show first few matched rooms
+        for i, r in enumerate(zone_rooms[:3]):
+            r_zone = getattr(r, "zone", None)
+            r_x = getattr(r.db, "x", None)
+            r_y = getattr(r.db, "y", None)
+            r_z = getattr(r.db, "z", None)
+            caller.msg(f"|y  [{i}] {r.key} - zone={r_zone}, coords=({r_x},{r_y},{r_z})|n")
         
         # Room lookup key includes zone to avoid coordinate collisions between zones
         # Only include rooms with matching zone
@@ -53,7 +66,7 @@ class CmdMap(Command):
                 if r_zone == current_zone:
                     room_lookup[(r_zone, r_x, r_y, r_z)] = r
         
-        caller.msg(f"|y[DEBUG] Room lookup has {len(room_lookup)} entries|n")
+        caller.msg(f"|y=== END DEBUG ===|n")
         
         caller.msg(f"DEBUG: Current zone: {current_zone}, Zone rooms: {len(zone_rooms)}, Room lookup entries: {len(room_lookup)}")
         for key in sorted(room_lookup.keys())[:5]:
