@@ -82,16 +82,16 @@ This will prompt you through a menu to:
   @paged-notes  - Browse notes with pages
 """
 
-        def func(self):
-            """Start the note creation menu."""
-            caller = self.caller
-            EvMenu(
-                caller,
-                "commands.notes",
-                startnode="tag_select",
-                persist=False,
-                store={}
-            )
+    def func(self):
+        """Start the note creation menu."""
+        caller = self.caller
+        EvMenu(
+            caller,
+            "commands.notes",
+            startnode="tag_select",
+            persist=False,
+            store={}
+        )
 
 
 class CmdNotes(Command):
