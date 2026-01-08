@@ -1,10 +1,11 @@
 """
 Player-to-staff notes system.
 Players leave notes that staff can review and act on.
-Uses a simple state-based input system instead of EvMenu.
+Uses Evennia's get_input for reliable input capture.
 """
 
-from evennia import Command, CmdSet, search_object
+from evennia import Command, search_object
+from evennia.utils.evmenu import get_input
 from datetime import datetime
 
 
@@ -26,153 +27,114 @@ NOTE_TAGS = [
 
 
 # ============================================================================
-# NOTE CREATION INPUT HANDLER
+# CALLBACK FUNCTIONS FOR NOTE CREATION
 # ============================================================================
 
-class CmdNoteInput(Command):
-    """
-    Handles input during note creation process.
-    This command intercepts all input when added to the character.
-    """
-    key = "help"  # Use 'help' as fallback key (universal match)
-    aliases = []
-    locks = "cmd:all()"
-    help_category = "OOC"
-    auto_help = False
+def _note_tag_callback(caller, prompt, result):
+    """Handle tag selection input."""
+    result = result.strip()
     
-    def match(self, cmdname, cmdset):
-        """
-        Match any input when in note creation mode.
-        """
-        caller = cmdset.cmdset_owner if hasattr(cmdset, 'cmdset_owner') else None
-        if caller and hasattr(caller, 'ndb') and hasattr(caller.ndb, 'note_state') and caller.ndb.note_state:
-            # Accept any input
-            return True
-        # Otherwise don't match
-        return False
+    # Handle cancel
+    if result.lower() in ('cancel', 'quit', 'q'):
+        caller.msg("|yNote creation cancelled.|n")
+        if hasattr(caller.ndb, 'note_data'):
+            del caller.ndb.note_data
+        return
     
-    def func(self):
-        """Process input based on current note creation state."""
-        caller = self.caller
-        raw_input = self.raw_string.strip() if self.raw_string else ""
-        state = getattr(caller.ndb, 'note_state', None)
-        
-        if not state:
-            self._cleanup(caller)
-            return
-        
-        # Handle cancel at any stage
-        if raw_input.lower() in ('cancel', 'quit', 'q'):
-            caller.msg("|yNote creation cancelled.|n")
-            self._cleanup(caller)
-            return
-        
-        if state == "tag_select":
-            self._handle_tag_select(caller, raw_input)
-        elif state == "subject_input":
-            self._handle_subject_input(caller, raw_input)
-        elif state == "content_input":
-            self._handle_content_input(caller, raw_input)
-        elif state == "confirm":
-            self._handle_confirm(caller, raw_input)
+    try:
+        selection = int(result)
+        if 1 <= selection <= len(NOTE_TAGS):
+            caller.ndb.note_data['tag'] = NOTE_TAGS[selection - 1]
+            _prompt_subject(caller)
         else:
-            caller.msg("|rUnknown state. Cancelling.|n")
-            self._cleanup(caller)
-    
-    def _handle_tag_select(self, caller, raw_input):
-        """Handle tag selection."""
-        try:
-            selection = int(raw_input)
-            if 1 <= selection <= len(NOTE_TAGS):
-                caller.ndb.note_data['tag'] = NOTE_TAGS[selection - 1]
-                caller.ndb.note_state = "subject_input"
-                self._show_subject_prompt(caller)
-            else:
-                caller.msg(f"|rPlease enter a number between 1 and {len(NOTE_TAGS)}.|n")
-                self._show_tag_menu(caller)
-        except ValueError:
-            caller.msg("|rPlease enter a number to select a tag, or 'cancel' to quit.|n")
-            self._show_tag_menu(caller)
-    
-    def _handle_subject_input(self, caller, raw_input):
-        """Handle subject line input."""
-        if not raw_input:
-            caller.msg("|rPlease enter a subject line.|n")
-            return
-        
-        if len(raw_input) > 200:
-            caller.msg("|rSubject too long. Please keep it under 200 characters.|n")
-            return
-        
-        caller.ndb.note_data['subject'] = raw_input
-        caller.ndb.note_state = "content_input"
-        self._show_content_prompt(caller)
-    
-    def _handle_content_input(self, caller, raw_input):
-        """Handle note content input."""
-        if not raw_input:
-            caller.msg("|rPlease enter note content.|n")
-            return
-        
-        caller.ndb.note_data['content'] = raw_input
-        caller.ndb.note_state = "confirm"
-        self._show_confirm_prompt(caller)
-    
-    def _handle_confirm(self, caller, raw_input):
-        """Handle confirmation input."""
-        if raw_input.lower() in ('y', 'yes', '1', 'save'):
-            self._save_note(caller)
-        elif raw_input.lower() in ('n', 'no', '2'):
-            caller.msg("|yNote creation cancelled.|n")
-            self._cleanup(caller)
-        else:
-            caller.msg("|rPlease enter 'yes' to save or 'no' to cancel.|n")
-    
-    def _save_note(self, caller):
-        """Save the note to the character."""
-        note_data = caller.ndb.note_data
-        
-        note_entry = {
-            "id": get_next_note_id(caller),
-            "timestamp": datetime.now(),
-            "tag": note_data.get("tag", "Other"),
-            "subject": note_data.get("subject", "(Untitled)"),
-            "content": note_data.get("content", ""),
-            "read_by_staff": False,
-        }
-        
-        if not getattr(caller.db, 'character_notes', None):
-            caller.db.character_notes = []
-        caller.db.character_notes.append(note_entry)
-        
-        # Notify staff
-        notify_staff_new_note(caller, note_entry)
-        
-        caller.msg(f"""
-|g=== Note Saved ===|n
+            caller.msg(f"|rPlease enter a number between 1 and {len(NOTE_TAGS)}.|n")
+            _prompt_tag(caller)
+    except ValueError:
+        caller.msg("|rPlease enter a number to select a tag, or 'cancel' to quit.|n")
+        _prompt_tag(caller)
 
-Your note has been saved and will be reviewed by staff.
 
-|wTag:|n {note_data.get('tag', '?')}
-|wSubject:|n {note_data.get('subject', '?')}
+def _note_subject_callback(caller, prompt, result):
+    """Handle subject line input."""
+    result = result.strip()
+    
+    # Handle cancel
+    if result.lower() in ('cancel', 'quit', 'q'):
+        caller.msg("|yNote creation cancelled.|n")
+        if hasattr(caller.ndb, 'note_data'):
+            del caller.ndb.note_data
+        return
+    
+    if not result:
+        caller.msg("|rPlease enter a subject line.|n")
+        _prompt_subject(caller)
+        return
+    
+    if len(result) > 200:
+        caller.msg("|rSubject too long. Please keep it under 200 characters.|n")
+        _prompt_subject(caller)
+        return
+    
+    caller.ndb.note_data['subject'] = result
+    _prompt_content(caller)
 
-Staff will be notified of your note. Thank you!
-""")
-        self._cleanup(caller)
+
+def _note_content_callback(caller, prompt, result):
+    """Handle note content input."""
+    result = result.strip()
     
-    def _show_tag_menu(self, caller):
-        """Display tag selection menu."""
-        text = "|cSelect a tag for your note:|n\n"
-        text += "|y(Type 'cancel' at any time to quit)|n\n\n"
-        for i, tag in enumerate(NOTE_TAGS, 1):
-            text += f"  |w{i:2}|n - {tag}\n"
-        text += "\n|wEnter a number:|n "
-        caller.msg(text)
+    # Handle cancel
+    if result.lower() in ('cancel', 'quit', 'q'):
+        caller.msg("|yNote creation cancelled.|n")
+        if hasattr(caller.ndb, 'note_data'):
+            del caller.ndb.note_data
+        return
     
-    def _show_subject_prompt(self, caller):
-        """Display subject input prompt."""
-        tag = caller.ndb.note_data.get('tag', '?')
-        caller.msg(f"""
+    if not result:
+        caller.msg("|rPlease enter note content.|n")
+        _prompt_content(caller)
+        return
+    
+    caller.ndb.note_data['content'] = result
+    _prompt_confirm(caller)
+
+
+def _note_confirm_callback(caller, prompt, result):
+    """Handle confirmation input."""
+    result = result.strip().lower()
+    
+    # Handle cancel
+    if result in ('cancel', 'quit', 'q', 'n', 'no', '2'):
+        caller.msg("|yNote creation cancelled.|n")
+        if hasattr(caller.ndb, 'note_data'):
+            del caller.ndb.note_data
+        return
+    
+    if result in ('y', 'yes', '1', 'save'):
+        _save_note(caller)
+    else:
+        caller.msg("|rPlease enter 'yes' to save or 'no' to cancel.|n")
+        _prompt_confirm(caller)
+
+
+# ============================================================================
+# PROMPT FUNCTIONS
+# ============================================================================
+
+def _prompt_tag(caller):
+    """Display tag selection and prompt for input."""
+    text = "|cSelect a tag for your note:|n\n"
+    text += "|y(Type 'cancel' at any time to quit)|n\n\n"
+    for i, tag in enumerate(NOTE_TAGS, 1):
+        text += f"  |w{i:2}|n - {tag}\n"
+    
+    get_input(caller, text + "\n|wEnter a number:|n ", _note_tag_callback)
+
+
+def _prompt_subject(caller):
+    """Display subject input prompt."""
+    tag = caller.ndb.note_data.get('tag', '?')
+    text = f"""
 |cEnter a subject line for your note:|n
 |y(Type 'cancel' to quit)|n
 
@@ -187,14 +149,15 @@ Current tag: |w{tag}|n
   Looking for a bartender job
   Left a resume with Hookie for bartender position
   Asked a Triad member about joining as a bruiser
+"""
+    get_input(caller, text + "\n|wEnter subject:|n ", _note_subject_callback)
 
-|wEnter subject:|n """)
-    
-    def _show_content_prompt(self, caller):
-        """Display content input prompt."""
-        tag = caller.ndb.note_data.get('tag', '?')
-        subject = caller.ndb.note_data.get('subject', '?')
-        caller.msg(f"""
+
+def _prompt_content(caller):
+    """Display content input prompt."""
+    tag = caller.ndb.note_data.get('tag', '?')
+    subject = caller.ndb.note_data.get('subject', '?')
+    text = f"""
 |cEnter the content of your note:|n
 |y(Type 'cancel' to quit)|n
 
@@ -205,39 +168,58 @@ Current subject: |w{subject}|n
   - What happened
   - Why your character did it
   - What your character wants to happen next
+"""
+    get_input(caller, text + "\n|wEnter content:|n ", _note_content_callback)
 
-|wEnter content:|n """)
-    
-    def _show_confirm_prompt(self, caller):
-        """Display confirmation prompt."""
-        note_data = caller.ndb.note_data
-        caller.msg(f"""
+
+def _prompt_confirm(caller):
+    """Display confirmation prompt."""
+    note_data = caller.ndb.note_data
+    text = f"""
 |c=== Review Your Note ===|n
 
 |wTag:|n {note_data.get('tag', '?')}
 |wSubject:|n {note_data.get('subject', '?')}
 |wContent:|n
 {note_data.get('content', '?')}
+"""
+    get_input(caller, text + "\n|ySave this note? (yes/no)|n ", _note_confirm_callback)
 
-|ySave this note? (yes/no)|n """)
+
+def _save_note(caller):
+    """Save the note to the character."""
+    note_data = caller.ndb.note_data
     
-    def _cleanup(self, caller):
-        """Clean up note creation state and remove cmdset."""
-        if hasattr(caller.ndb, 'note_state'):
-            del caller.ndb.note_state
-        if hasattr(caller.ndb, 'note_data'):
-            del caller.ndb.note_data
-        caller.cmdset.remove(NoteInputCmdSet)
-
-
-class NoteInputCmdSet(CmdSet):
-    """CmdSet for capturing note input."""
-    key = "note_input_cmdset"
-    priority = 200  # High priority to intercept input
-    mergetype = "Union"
+    note_entry = {
+        "id": get_next_note_id(caller),
+        "timestamp": datetime.now(),
+        "tag": note_data.get("tag", "Other"),
+        "subject": note_data.get("subject", "(Untitled)"),
+        "content": note_data.get("content", ""),
+        "read_by_staff": False,
+    }
     
-    def at_cmdset_creation(self):
-        self.add(CmdNoteInput())
+    if not getattr(caller.db, 'character_notes', None):
+        caller.db.character_notes = []
+    caller.db.character_notes.append(note_entry)
+    
+    # Notify staff
+    notify_staff_new_note(caller, note_entry)
+    
+    caller.msg(f"""
+|g=== Note Saved ===|n
+
+Your note has been saved and will be reviewed by staff.
+
+|wTag:|n {note_data.get('tag', '?')}
+|wSubject:|n {note_data.get('subject', '?')}
+
+Staff will be notified of your note. Thank you!
+""")
+    
+    # Cleanup
+    if hasattr(caller.ndb, 'note_data'):
+        del caller.ndb.note_data
 
 
 # ============================================================================
@@ -305,26 +287,12 @@ This will prompt you through steps to:
         """Start the note creation process."""
         caller = self.caller
         
-        # Check if already in note creation mode
-        if hasattr(caller.ndb, 'note_state') and caller.ndb.note_state:
-            caller.msg("|yYou are already creating a note. Type 'cancel' to abort.|n")
-            return
-        
-        # Initialize note creation state
-        caller.ndb.note_state = "tag_select"
+        # Initialize note data storage
         caller.ndb.note_data = {}
         
-        # Add input capture cmdset
-        caller.cmdset.add(NoteInputCmdSet)
-        
-        # Show initial tag selection
-        text = "|c=== Create a Note for Staff ===|n\n"
-        text += "|y(Type 'cancel' at any time to quit)|n\n\n"
-        text += "|cSelect a tag for your note:|n\n\n"
-        for i, tag in enumerate(NOTE_TAGS, 1):
-            text += f"  |w{i:2}|n - {tag}\n"
-        text += "\n|wEnter a number:|n "
-        caller.msg(text)
+        # Show header and start the input chain
+        caller.msg("|c=== Create a Note for Staff ===|n")
+        _prompt_tag(caller)
 
 
 class CmdNotes(Command):
