@@ -43,6 +43,13 @@ class Exit(DefaultExit):
         if alias and alias not in self.aliases.all():
             self.aliases.add(alias)
         # Remove custom command registration
+        
+        # Auto-assign coordinates to source room if at (0,0,0)
+        if self.location and hasattr(self.location, '_assign_coordinates_from_exits'):
+            try:
+                self.location._assign_coordinates_from_exits()
+            except Exception:
+                pass
 
     def return_appearance(self, looker, **kwargs):
         """
