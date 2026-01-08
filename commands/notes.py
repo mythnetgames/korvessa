@@ -1,11 +1,11 @@
 """
 Player-to-staff notes system.
 Players leave notes that staff can review and act on.
-Uses Evennia's get_input for reliable input capture.
+Uses Evennia's @interactive decorator for reliable input capture.
 """
 
-from evennia import Command, search_object
-from evennia.utils.evmenu import get_input
+from evennia import Command, search_object, InterruptCommand
+from evennia.commands.command import InteractiveCommand
 from datetime import datetime
 
 
@@ -27,206 +27,10 @@ NOTE_TAGS = [
 
 
 # ============================================================================
-# CALLBACK FUNCTIONS FOR NOTE CREATION
-# ============================================================================
-
-def _note_tag_callback(caller, prompt, result):
-    """Handle tag selection input."""
-    result = result.strip()
-    
-    # Handle cancel
-    if result.lower() in ('cancel', 'quit', 'q'):
-        caller.msg("|yNote creation cancelled.|n")
-        if hasattr(caller.ndb, 'note_data'):
-            del caller.ndb.note_data
-        return
-    
-    try:
-        selection = int(result)
-        if 1 <= selection <= len(NOTE_TAGS):
-            caller.ndb.note_data['tag'] = NOTE_TAGS[selection - 1]
-            _prompt_subject(caller)
-        else:
-            caller.msg(f"|rPlease enter a number between 1 and {len(NOTE_TAGS)}.|n")
-            _prompt_tag(caller)
-    except ValueError:
-        caller.msg("|rPlease enter a number to select a tag, or 'cancel' to quit.|n")
-        _prompt_tag(caller)
-
-
-def _note_subject_callback(caller, prompt, result):
-    """Handle subject line input."""
-    result = result.strip()
-    
-    # Handle cancel
-    if result.lower() in ('cancel', 'quit', 'q'):
-        caller.msg("|yNote creation cancelled.|n")
-        if hasattr(caller.ndb, 'note_data'):
-            del caller.ndb.note_data
-        return
-    
-    if not result:
-        caller.msg("|rPlease enter a subject line.|n")
-        _prompt_subject(caller)
-        return
-    
-    if len(result) > 200:
-        caller.msg("|rSubject too long. Please keep it under 200 characters.|n")
-        _prompt_subject(caller)
-        return
-    
-    caller.ndb.note_data['subject'] = result
-    _prompt_content(caller)
-
-
-def _note_content_callback(caller, prompt, result):
-    """Handle note content input."""
-    result = result.strip()
-    
-    # Handle cancel
-    if result.lower() in ('cancel', 'quit', 'q'):
-        caller.msg("|yNote creation cancelled.|n")
-        if hasattr(caller.ndb, 'note_data'):
-            del caller.ndb.note_data
-        return
-    
-    if not result:
-        caller.msg("|rPlease enter note content.|n")
-        _prompt_content(caller)
-        return
-    
-    caller.ndb.note_data['content'] = result
-    _prompt_confirm(caller)
-
-
-def _note_confirm_callback(caller, prompt, result):
-    """Handle confirmation input."""
-    result = result.strip().lower()
-    
-    # Handle cancel
-    if result in ('cancel', 'quit', 'q', 'n', 'no', '2'):
-        caller.msg("|yNote creation cancelled.|n")
-        if hasattr(caller.ndb, 'note_data'):
-            del caller.ndb.note_data
-        return
-    
-    if result in ('y', 'yes', '1', 'save'):
-        _save_note(caller)
-    else:
-        caller.msg("|rPlease enter 'yes' to save or 'no' to cancel.|n")
-        _prompt_confirm(caller)
-
-
-# ============================================================================
-# PROMPT FUNCTIONS
-# ============================================================================
-
-def _prompt_tag(caller):
-    """Display tag selection and prompt for input."""
-    text = "|cSelect a tag for your note:|n\n"
-    text += "|y(Type 'cancel' at any time to quit)|n\n\n"
-    for i, tag in enumerate(NOTE_TAGS, 1):
-        text += f"  |w{i:2}|n - {tag}\n"
-    
-    get_input(caller, text + "\n|wEnter a number:|n ", _note_tag_callback)
-
-
-def _prompt_subject(caller):
-    """Display subject input prompt."""
-    tag = caller.ndb.note_data.get('tag', '?')
-    text = f"""
-|cEnter a subject line for your note:|n
-|y(Type 'cancel' to quit)|n
-
-Current tag: |w{tag}|n
-
-|yBad examples:|n
-  Job
-  Need job
-  Talked to NPC
-
-|yGood examples:|n
-  Looking for a bartender job
-  Left a resume with Hookie for bartender position
-  Asked a Triad member about joining as a bruiser
-"""
-    get_input(caller, text + "\n|wEnter subject:|n ", _note_subject_callback)
-
-
-def _prompt_content(caller):
-    """Display content input prompt."""
-    tag = caller.ndb.note_data.get('tag', '?')
-    subject = caller.ndb.note_data.get('subject', '?')
-    text = f"""
-|cEnter the content of your note:|n
-|y(Type 'cancel' to quit)|n
-
-Current tag: |w{tag}|n
-Current subject: |w{subject}|n
-
-|yWrite clearly and include:|n
-  - What happened
-  - Why your character did it
-  - What your character wants to happen next
-"""
-    get_input(caller, text + "\n|wEnter content:|n ", _note_content_callback)
-
-
-def _prompt_confirm(caller):
-    """Display confirmation prompt."""
-    note_data = caller.ndb.note_data
-    text = f"""
-|c=== Review Your Note ===|n
-
-|wTag:|n {note_data.get('tag', '?')}
-|wSubject:|n {note_data.get('subject', '?')}
-|wContent:|n
-{note_data.get('content', '?')}
-"""
-    get_input(caller, text + "\n|ySave this note? (yes/no)|n ", _note_confirm_callback)
-
-
-def _save_note(caller):
-    """Save the note to the character."""
-    note_data = caller.ndb.note_data
-    
-    note_entry = {
-        "id": get_next_note_id(caller),
-        "timestamp": datetime.now(),
-        "tag": note_data.get("tag", "Other"),
-        "subject": note_data.get("subject", "(Untitled)"),
-        "content": note_data.get("content", ""),
-        "read_by_staff": False,
-    }
-    
-    if not getattr(caller.db, 'character_notes', None):
-        caller.db.character_notes = []
-    caller.db.character_notes.append(note_entry)
-    
-    # Notify staff
-    notify_staff_new_note(caller, note_entry)
-    
-    caller.msg(f"""
-|g=== Note Saved ===|n
-
-Your note has been saved and will be reviewed by staff.
-
-|wTag:|n {note_data.get('tag', '?')}
-|wSubject:|n {note_data.get('subject', '?')}
-
-Staff will be notified of your note. Thank you!
-""")
-    
-    # Cleanup
-    if hasattr(caller.ndb, 'note_data'):
-        del caller.ndb.note_data
-
-
-# ============================================================================
 # PLAYER COMMANDS
 # ============================================================================
 
-class CmdAddNote(Command):
+class CmdAddNote(InteractiveCommand):
     """
     Leave a note for staff.
     
@@ -255,8 +59,8 @@ This will prompt you through steps to:
 
 |wGood note examples:|n
   Tag: Employment
-  Subject: Left resume with Hookie for bartender position
-  Content: Approached Hookie about a bartender job. Discussed pay and hours. 
+  Subject: Left resume with Waymond for bartender position
+  Content: Approached Waymond about a bartender job. Discussed pay and hours. 
            Waiting to hear back about the position.
 
   Tag: Significant Event
@@ -284,15 +88,156 @@ This will prompt you through steps to:
 """
 
     def func(self):
-        """Start the note creation process."""
+        """Start the note creation process using yield for input."""
         caller = self.caller
         
-        # Initialize note data storage
-        caller.ndb.note_data = {}
-        
-        # Show header and start the input chain
+        # Show header
         caller.msg("|c=== Create a Note for Staff ===|n")
-        _prompt_tag(caller)
+        
+        # === STEP 1: Tag Selection ===
+        tag = None
+        while tag is None:
+            text = "|cSelect a tag for your note:|n\n"
+            text += "|y(Type 'cancel' at any time to quit)|n\n\n"
+            for i, t in enumerate(NOTE_TAGS, 1):
+                text += f"  |w{i:2}|n - {t}\n"
+            text += "\n|wEnter a number:|n "
+            caller.msg(text)
+            
+            response = yield
+            response = response.strip()
+            
+            if response.lower() in ('cancel', 'quit', 'q'):
+                caller.msg("|yNote creation cancelled.|n")
+                return
+            
+            try:
+                selection = int(response)
+                if 1 <= selection <= len(NOTE_TAGS):
+                    tag = NOTE_TAGS[selection - 1]
+                else:
+                    caller.msg(f"|rPlease enter a number between 1 and {len(NOTE_TAGS)}.|n")
+            except ValueError:
+                caller.msg("|rPlease enter a number to select a tag.|n")
+        
+        # === STEP 2: Subject Input ===
+        subject = None
+        while subject is None:
+            text = f"""
+|cEnter a subject line for your note:|n
+|y(Type 'cancel' to quit)|n
+
+Current tag: |w{tag}|n
+
+|yBad examples:|n
+  Job
+  Need job
+  Talked to NPC
+
+|yGood examples:|n
+  Looking for a bartender job
+  Left a resume with Waymond for bartender position
+  Asked a Triad member about joining as a bruiser
+
+|wEnter subject:|n """
+            caller.msg(text)
+            
+            response = yield
+            response = response.strip()
+            
+            if response.lower() in ('cancel', 'quit', 'q'):
+                caller.msg("|yNote creation cancelled.|n")
+                return
+            
+            if not response:
+                caller.msg("|rPlease enter a subject line.|n")
+            elif len(response) > 200:
+                caller.msg("|rSubject too long. Please keep it under 200 characters.|n")
+            else:
+                subject = response
+        
+        # === STEP 3: Content Input ===
+        content = None
+        while content is None:
+            text = f"""
+|cEnter the content of your note:|n
+|y(Type 'cancel' to quit)|n
+
+Current tag: |w{tag}|n
+Current subject: |w{subject}|n
+
+|yWrite clearly and include:|n
+  - What happened
+  - Why your character did it
+  - What your character wants to happen next
+
+|wEnter content:|n """
+            caller.msg(text)
+            
+            response = yield
+            response = response.strip()
+            
+            if response.lower() in ('cancel', 'quit', 'q'):
+                caller.msg("|yNote creation cancelled.|n")
+                return
+            
+            if not response:
+                caller.msg("|rPlease enter note content.|n")
+            else:
+                content = response
+        
+        # === STEP 4: Confirmation ===
+        confirmed = None
+        while confirmed is None:
+            text = f"""
+|c=== Review Your Note ===|n
+
+|wTag:|n {tag}
+|wSubject:|n {subject}
+|wContent:|n
+{content}
+
+|ySave this note? (yes/no)|n """
+            caller.msg(text)
+            
+            response = yield
+            response = response.strip().lower()
+            
+            if response in ('cancel', 'quit', 'q', 'n', 'no', '2'):
+                caller.msg("|yNote creation cancelled.|n")
+                return
+            elif response in ('y', 'yes', '1', 'save'):
+                confirmed = True
+            else:
+                caller.msg("|rPlease enter 'yes' to save or 'no' to cancel.|n")
+        
+        # === STEP 5: Save the note ===
+        note_entry = {
+            "id": get_next_note_id(caller),
+            "timestamp": datetime.now(),
+            "tag": tag,
+            "subject": subject,
+            "content": content,
+            "read_by_staff": False,
+        }
+        
+        if not getattr(caller.db, 'character_notes', None):
+            caller.db.character_notes = []
+        caller.db.character_notes.append(note_entry)
+        
+        # Notify staff
+        notify_staff_new_note(caller, note_entry)
+        
+        caller.msg(f"""
+|g=== Note Saved ===|n
+
+Your note has been saved and will be reviewed by staff.
+
+|wTag:|n {tag}
+|wSubject:|n {subject}
+
+Staff will be notified of your note. Thank you!
+""")
 
 
 class CmdNotes(Command):
