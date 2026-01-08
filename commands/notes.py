@@ -302,14 +302,39 @@ def tag_select(caller, raw_string, **kwargs):
         text += f"  |w{i}|n - {tag}\n"
     return text, options
 
-    
+    caller.db.character_notes.append(note_entry)
+    store = kwargs.get("store", {})
+    note_entry = {
+        "id": get_next_note_id(caller),
+        "timestamp": datetime.now(),
+        "tag": store.get("tag", "Other"),
+        "subject": store.get("subject", "(Untitled)"),
+        "content": store.get("content", ""),
+        "read_by_staff": False,
+    }
+    if not getattr(caller.db, 'character_notes', None):
+        caller.db.character_notes = []
+    caller.db.character_notes.append(note_entry)
+    notify_staff_new_note(caller, note_entry)
+    text = f"""
+def tag_select(caller, raw_string, **kwargs):
+    store = kwargs.get("store", {})
+    options = []
+    for i, tag in enumerate(NOTE_TAGS, 1):
+        options.append((str(i), tag, "tag_selected", {"selected_tag": tag}))
+    text = "|cSelect a tag for your note:|n\n\n"
+    for i, tag in enumerate(NOTE_TAGS, 1):
+        text += f"  |w{i}|n - {tag}\n"
+    return text, options
+
+  @view-notes "Employment"
     store = kwargs.get("store", {})
     selected_tag = kwargs.get("selected_tag")
     if selected_tag:
         store["tag"] = selected_tag
     return subject_input(caller, raw_string, **kwargs)
 
-    # Store note on character
+  @view-notes unread
     store = kwargs.get("store", {})
     if raw_string and raw_string.strip():
         store["subject"] = raw_string.strip()
@@ -326,12 +351,12 @@ Current tag: |w{store.get('tag', '?')}|n
 
 |yGood examples:|n
   Looking for a bartender job
-  Left a resume with Hookie for bartender position
+  Left a resume with Waymond for bartender position
   Asked a Triad member about joining as a bruiser
 """
     return text, ()
 
-    if not getattr(caller.db, 'character_notes', None):
+  @view-notes mark-read 5
     store = kwargs.get("store", {})
     if raw_string and raw_string.strip():
         store["content"] = raw_string.strip()
@@ -351,7 +376,7 @@ You can write multiple paragraphs.
 """
     return text, ()
 
-        caller.db.character_notes = []
+
     store = kwargs.get("store", {})
     text = f"""
 |c=== Review Your Note ===|n
@@ -370,7 +395,7 @@ You can write multiple paragraphs.
     ]
     return text, options
 
-    caller.db.character_notes.append(note_entry)
+|wNote that:|n
     store = kwargs.get("store", {})
     note_entry = {
         "id": get_next_note_id(caller),
@@ -397,109 +422,9 @@ Staff will be notified of your note. Thank you!
     caller.msg(text)
     return None
 
-    
+  Notes are marked as read when viewed by staff.
     caller.msg("|yNote creation cancelled.|n")
     return None
-    # Notify all staff
-    notify_staff_new_note(caller, note_entry)
-    
-    text = f"""
-|g=== Note Saved ===|n
-
-Your note has been saved and will be reviewed by staff.
-
-|wTag:|n {store.get('tag', '?')}
-|wSubject:|n {store.get('subject', '?')}
-
-Staff will be notified of your note. Thank you!
-"""
-    
-    # End the menu
-    menu.close_menu()
-    caller.msg(text)
-
-
-def cancel_note(menu, *args, **kwargs):
-    """Cancel note creation."""
-    menu.close_menu()
-    menu.caller.msg("|yNote creation cancelled.|n")
-
-
-# ============================================================================
-# UTILITY FUNCTIONS
-# ============================================================================
-
-def get_next_note_id(char):
-    """Get the next note ID for this character."""
-    notes = getattr(char.db, 'character_notes', None) or []
-    if not notes:
-        return 1
-    return max(n.get('id', 0) for n in notes) + 1
-
-
-def notify_staff_new_note(character, note_entry):
-    """Notify all online staff of a new note."""
-    from evennia.comms.models import ChannelDB
-    from evennia.accounts.models import AccountDB
-    
-    try:
-        # Try to get Splattercast debug channel
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-        tag = note_entry.get('tag', 'Other')
-        subject = note_entry.get('subject', '(Untitled)')
-        note_id = note_entry.get('id', '?')
-        splattercast.msg(f"|y[NEW NOTE]|n {character.key} - [{tag}] {subject} (Note #{note_id})")
-    except:
-        pass
-    
-    # Also send a message to online staff
-    staff_list = AccountDB.objects.filter(is_superuser=True)
-    for staff in staff_list:
-        for session in staff.sessions.all():
-            char = session.get_puppet()
-            if char:
-                tag = note_entry.get('tag', 'Other')
-                subject = note_entry.get('subject', '(Untitled)')
-                note_id = note_entry.get('id', '?')
-                char.msg(f"|y[NEW NOTE FROM {character.key}]|n [{tag}] {subject} - Note #{note_id}")
-
-
-# ============================================================================
-# STAFF COMMANDS
-# ============================================================================
-
-class CmdViewAllNotes(Command):
-    """
-    Staff command to view all player notes.
-    """
-    key = "@view-notes"
-    aliases = ["@viewnotes", "@staff-notes"]
-    locks = "cmd:perm(Admin)"
-    help_category = "Admin"
-
-    def get_help(self, caller, *args, **kwargs):
-        """Return help documentation."""
-        return """
-|cSTAFF HELP - @VIEW-NOTES|n
-
-View all player notes or notes for a specific player.
-
-|wUsage:|n
-  @view-notes               - View recent notes from all players
-  @view-notes <character>   - View all notes from a specific player
-  @view-notes <tag>         - View notes with a specific tag
-  @view-notes unread        - View only unread notes
-  @view-notes mark-read <id> - Mark a note as read
-
-|wExamples:|n
-  @view-notes
-  @view-notes TestDummy
-  @view-notes "Employment"
-  @view-notes unread
-  @view-notes mark-read 5
-
-|wNote that:|n
-  Notes are marked as read when viewed by staff.
   Use 'mark-read' to mark notes staff have already reviewed.
 """
 
