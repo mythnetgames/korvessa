@@ -248,18 +248,54 @@ class CmdStaffPetition(Command):
             caller.msg("Usage: petitions | petitions personal | petitions all | petitions pending <char> <id> | petitions resolve <char> <id> | petitions view <char>")
     
     def view_own_petitions(self, admin):
-        """View all petitions from the admin themselves."""
-        petitions = getattr(admin.db, 'petitions', None) or []
+        """View petitions submitted by admin AND petitions targeted at admin."""
+        from evennia.accounts.models import AccountDB
         
-        if not petitions:
-            admin.msg(f"You have no petitions.")
-            return
+        # First show own submitted petitions
+        own_petitions = getattr(admin.db, 'petitions', None) or []
         
-        admin.msg(f"|c=== Your Petitions ===|n")
-        for p in petitions:
-            status = p.get('status', 'active').upper()
-            timestamp = p.get('timestamp', '').strftime('%Y-%m-%d %H:%M') if hasattr(p.get('timestamp', ''), 'strftime') else str(p.get('timestamp', ''))
-            admin.msg(f"  |w[#{p.get('id', '?')}]|n ({status}) [{timestamp}] to {p.get('target', '?')}: {p.get('message', '?')}")
+        if own_petitions:
+            admin.msg(f"|c=== Your Submitted Petitions ===|n")
+            for p in own_petitions:
+                status = p.get('status', 'active').upper()
+                timestamp = p.get('timestamp', '').strftime('%Y-%m-%d %H:%M') if hasattr(p.get('timestamp', ''), 'strftime') else str(p.get('timestamp', ''))
+                admin.msg(f"  |w[#{p.get('id', '?')}]|n ({status}) [{timestamp}] to {p.get('target', '?')}: {p.get('message', '?')}")
+        else:
+            admin.msg(f"|YYou have no submitted petitions.|n")
+        
+        # Now find petitions targeted at this admin
+        targeted_petitions = []
+        admin_name_lower = admin.key.lower()
+        
+        for account in AccountDB.objects.all():
+            if account.character:
+                petitions = getattr(account.character.db, 'petitions', None) or []
+                for p in petitions:
+                    target = p.get('target', '').lower()
+                    # Match if targeted specifically at this admin
+                    if target == admin_name_lower:
+                        targeted_petitions.append({
+                            'id': p.get('id'),
+                            'timestamp': p.get('timestamp'),
+                            'target': p.get('target'),
+                            'message': p.get('message'),
+                            'status': p.get('status'),
+                            'character': account.character.key
+                        })
+        
+        if targeted_petitions:
+            # Sort by most recent first
+            targeted_petitions.sort(key=lambda p: p.get('timestamp', ''), reverse=True)
+            
+            admin.msg(f"\n|c=== Petitions Targeted at You ({len(targeted_petitions)}) ===|n")
+            for p in targeted_petitions:
+                status = p.get('status', 'active').upper()
+                char = p.get('character', '?')
+                timestamp = p.get('timestamp', '').strftime('%Y-%m-%d %H:%M') if hasattr(p.get('timestamp', ''), 'strftime') else str(p.get('timestamp', ''))
+                admin.msg(f"  |w[#{p.get('id', '?')}]|n ({status}) [{timestamp}] from {char}: {p.get('message', '?')}")
+                admin.msg(f"        Resolve: |wpetitions resolve {char} {p.get('id', '?')}|n | Pending: |wpetitions pending {char} {p.get('id', '?')}|n")
+        else:
+            admin.msg(f"\n|YNo petitions targeted at you.|n")
     
     def view_all_petitions(self, admin):
         """View all petitions from all players."""
