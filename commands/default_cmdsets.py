@@ -41,6 +41,7 @@ from commands.who import CmdWho, CmdInvisible, CmdWhoLocation
 from commands.place import CmdLookPlace, CmdTempPlace, CmdTPEmote
 from commands.voice import CmdVoice
 from commands.petition import CmdPetition, CmdErasePetition, CmdStaffPetition
+from commands.pnote import CmdPnotes, CmdPnote, CmdPread, CmdPnoteDelete
 from commands.look import CmdLook
 from commands.shop import CmdBuy
 from commands.window import CmdAttachWindow, CmdRemoveWindow, CmdWindowCoord, CmdDebugWindows
@@ -228,6 +229,11 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdPetition())
         self.add(CmdErasePetition())
         self.add(CmdStaffPetition())
+        # Add pnote commands
+        self.add(CmdPnotes())
+        self.add(CmdPnote())
+        self.add(CmdPread())
+        self.add(CmdPnoteDelete())
         # Add createzone command
         from commands.createzone import CmdCreateZone
         self.add(CmdCreateZone())
