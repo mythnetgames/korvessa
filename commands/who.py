@@ -43,6 +43,7 @@ class CmdWho(default_cmds.CmdWho):
         
         # Build player list and count invisible
         visible_players = []
+        admin_players = []
         total_players = 0
         invisible_count = 0
         for account in accounts:
@@ -59,10 +60,14 @@ class CmdWho(default_cmds.CmdWho):
                     loc = character.location
                     if loc:
                         location_name = loc.get_display_name(caller)
-                visible_players.append({
+                entry = {
                     'name': character.get_display_name(caller),
                     'location': location_name
-                })
+                }
+                if character.is_superuser or character.is_staff or character.locks.check_lockstring(caller, 'perm(Builder)'):
+                    admin_players.append(entry)
+                else:
+                    visible_players.append(entry)
         # Format output
         output = f"|C{'='*70}|n\n"
         if invisible_count:
@@ -70,11 +75,17 @@ class CmdWho(default_cmds.CmdWho):
         else:
             output += f"|CPlayers Online ({total_players}):|n\n"
         output += f"|C{'='*70}|n\n"
-        if not visible_players:
+        if not visible_players and not admin_players:
             output += "|YNo players are currently online.|n\n"
         else:
-            for player in visible_players:
-                output += f"  |G{player['name']:<30}|n {player['location']}\n"
+            if visible_players:
+                output += "|wPlayers:|n\n"
+                for player in visible_players:
+                    output += f"  |G{player['name']:<30}|n {player['location']}\n"
+            if admin_players:
+                output += "|wStaff/Admin:|n\n"
+                for player in admin_players:
+                    output += f"  |C{player['name']:<30}|n {player['location']}\n"
         output += f"|C{'='*70}|n"
         caller.msg(output)
 
