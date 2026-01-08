@@ -237,6 +237,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add zone-aware dig command
         from commands.zonedig import CmdZoneDig
         self.add(CmdZoneDig())
+        # Add control command
+        from commands.control import CmdControl
+        self.add(CmdControl())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
