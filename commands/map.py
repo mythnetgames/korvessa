@@ -35,6 +35,11 @@ class CmdMap(Command):
         current_zone = getattr(room, "zone", None)
         zone_rooms = [r for r in all_rooms if getattr(r, "zone", None) == current_zone]
         
+        caller.msg(f"|y[DEBUG] Your zone: {current_zone}|n")
+        caller.msg(f"|y[DEBUG] All rooms: {len(all_rooms)}, Zone-matched rooms: {len(zone_rooms)}|n")
+        for r in zone_rooms[:5]:
+            caller.msg(f"|y  - {r.key} zone={getattr(r, 'zone', None)} coords=({getattr(r.db, 'x', None)}, {getattr(r.db, 'y', None)}, {getattr(r.db, 'z', None)})|n")
+        
         # Room lookup key includes zone to avoid coordinate collisions between zones
         # Only include rooms with matching zone
         room_lookup = {}
@@ -47,6 +52,8 @@ class CmdMap(Command):
                 # Only add if zone matches current zone
                 if r_zone == current_zone:
                     room_lookup[(r_zone, r_x, r_y, r_z)] = r
+        
+        caller.msg(f"|y[DEBUG] Room lookup has {len(room_lookup)} entries|n")
         
         caller.msg(f"DEBUG: Current zone: {current_zone}, Zone rooms: {len(zone_rooms)}, Room lookup entries: {len(room_lookup)}")
         for key in sorted(room_lookup.keys())[:5]:
