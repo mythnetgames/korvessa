@@ -30,7 +30,7 @@ class CmdEmote(DefaultCmdPose):
             caller.msg("Emote what?")
             return
         
-        emote_text = self.args
+        emote_text = self.args.lstrip()  # Remove leading whitespace
         
         # Check if character has a voice set
         voice = getattr(caller.db, 'voice', None)
@@ -49,7 +49,7 @@ class CmdEmote(DefaultCmdPose):
             # Replace all speech instances with voice-enhanced versions
             emote_text = re.sub(speech_pattern, replace_speech, emote_text)
         
-        # Format the pose with caller's name
+        # Format the pose with caller's name (ensure single space)
         pose_text = f"{caller.name} {emote_text}"
         
         # Send to the caller
