@@ -2156,6 +2156,7 @@ class Character(ObjectParent, DefaultCharacter):
         Process template variables in descriptions for perspective-aware text.
         
         Uses simple template variables like {their}, {they}, {name} similar to {color}.
+        Also supports percent-sign pronoun codes: %p, %s, %o, %q, %r
         
         Args:
             desc (str): Description text with potential template variables
@@ -2168,6 +2169,9 @@ class Character(ObjectParent, DefaultCharacter):
         """
         if not desc or not looker:
             return desc
+        
+        # First, convert percent-sign pronoun codes (%p, %s, %o, %q, %r) to curly braces for processing
+        desc = self._convert_percent_pronouns_to_template(desc, looker, force_third_person)
             
         # Map of available template variables based on perspective
         is_self = (looker == self) and not force_third_person
@@ -2279,3 +2283,61 @@ class Character(ObjectParent, DefaultCharacter):
         }
         
         return pronouns.get(gender, pronouns['plural']).get(pronoun_type, 'they')
+
+    def _convert_percent_pronouns_to_template(self, desc, looker, force_third_person=False):
+        """
+        Convert percent-sign pronoun codes to template variable format.
+        
+        Supports: %p (possessive), %s (subject), %o (object), %q (possessive absolute), %r (reflexive)
+        Capitalize % to capitalize the pronoun: %P, %S, %O, %Q, %R
+        
+        Args:
+            desc (str): Description with percent-sign pronouns
+            looker (Character): Who is looking
+            force_third_person (bool): If True, always use 3rd person
+            
+        Returns:
+            str: Description with percent codes replaced by template variables
+        """
+        import re
+        
+        is_self = (looker == self) and not force_third_person
+        
+        # Build pronoun mapping from character gender
+        gender_mapping = {
+            'male': 'male',
+            'female': 'female', 
+            'neutral': 'plural',
+            'nonbinary': 'plural',
+            'other': 'plural'
+        }
+        character_gender = gender_mapping.get(self.gender, 'plural')
+        
+        # Get pronouns for this character
+        pronouns_dict = {
+            'p': self._get_pronoun('possessive', character_gender),  # his/her/their
+            's': self._get_pronoun('subject', character_gender),    # he/she/they
+            'o': self._get_pronoun('object', character_gender),     # him/her/them
+            'q': self._get_pronoun('possessive_absolute', character_gender),  # his/hers/theirs
+            'r': self._get_pronoun('reflexive', character_gender)   # himself/herself/themselves
+        }
+        
+        # For self viewing, swap pronouns
+        if is_self:
+            pronouns_dict = {
+                'p': 'your',
+                's': 'you',
+                'o': 'you',
+                'q': 'yours',
+                'r': 'yourself'
+            }
+        
+        # Replace %p, %s, %o, %q, %r and their capitalized versions
+        result = desc
+        for code, pronoun in pronouns_dict.items():
+            # Lowercase version
+            result = result.replace(f'%{code}', pronoun)
+            # Capitalized version
+            result = result.replace(f'%{code.upper()}', pronoun.capitalize())
+        
+        return result

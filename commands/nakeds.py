@@ -72,6 +72,9 @@ class CmdNakeds(Command):
         parts = self.args.split(" is ", 1)
         bodypart = parts[0].strip().lower()
         description = parts[1].strip() if len(parts) > 1 else ""
+        # Remove leading/trailing quotes if present
+        if (description.startswith('"') and description.endswith('"')) or (description.startswith("'") and description.endswith("'")):
+            description = description[1:-1].strip()
         
         if not description:
             caller.msg("|RYou must provide a description.|n")
