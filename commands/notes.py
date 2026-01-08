@@ -86,18 +86,14 @@ This will prompt you through a menu to:
         """Start the note creation menu."""
         caller = self.caller
         
-        # Start the menu system
+        # Start the menu system with the nodes defined in this module
+        import commands.notes as notes_module
+        
         EvMenu(
             caller,
-            "commands.notes",
+            notes_module,
             startnode="tag_select",
-            persist=False,
-            store={
-                "character": caller,
-                "tag": None,
-                "subject": None,
-                "content": None,
-            }
+            persist=False
         )
 
 
@@ -299,39 +295,43 @@ class CmdReadNote(Command):
 # MENU NODES FOR NOTE CREATION
 # ============================================================================
 
-def tag_select(caller, raw_string, **kwargs):
+def tag_select(menu, *args, **kwargs):
     """Present tag selection menu."""
-    store = kwargs.get("store", {})
+    store = menu.store
     
     options = []
     for i, tag in enumerate(NOTE_TAGS, 1):
-        options.append((str(i), tag, "tag_selected", {"tag": tag}))
+        options.append((str(i), tag, "tag_selected", {"selected_tag": tag}))
     
     text = "|cSelect a tag for your note:|n\n\n"
     for i, tag in enumerate(NOTE_TAGS, 1):
         text += f"  |w{i}|n - {tag}\n"
     
-    return text, options
+    return {
+        "text": text,
+        "options": options
+    }
 
 
-def tag_selected(caller, raw_string, **kwargs):
+def tag_selected(menu, *args, **kwargs):
     """After tag is selected, move to subject input."""
-    store = kwargs.get("store", {})
-    tag = kwargs.get("tag")
+    store = menu.store
+    selected_tag = kwargs.get("selected_tag")
     
-    if tag:
-        store["tag"] = tag
+    if selected_tag:
+        store["tag"] = selected_tag
     
-    return subject_input(caller, raw_string, **kwargs)
+    return subject_input(menu, *args, **kwargs)
 
 
-def subject_input(caller, raw_string, **kwargs):
+def subject_input(menu, *args, **kwargs):
     """Get subject line from player."""
-    store = kwargs.get("store", {})
+    store = menu.store
     
-    if raw_string and raw_string.strip():
-        store["subject"] = raw_string.strip()
-        return content_input(caller, raw_string, **kwargs)
+    # If user provided input, save it and move to content
+    if args and args[0]:
+        store["subject"] = str(args[0]).strip()
+        return content_input(menu, *args, **kwargs)
     
     text = f"""
 |cEnter a subject line for your note:|n
@@ -347,20 +347,22 @@ Current tag: |w{store.get('tag', '?')}|n
   Looking for a bartender job
   Left a resume with Hookie for bartender position
   Asked a Triad member about joining as a bruiser
-
-Type your subject line:
 """
     
-    return text, {}
+    return {
+        "text": text,
+        "options": ()
+    }
 
 
-def content_input(caller, raw_string, **kwargs):
+def content_input(menu, *args, **kwargs):
     """Get note content from player."""
-    store = kwargs.get("store", {})
+    store = menu.store
     
-    if raw_string and raw_string.strip():
-        store["content"] = raw_string.strip()
-        return confirm_note(caller, raw_string, **kwargs)
+    # If user provided input, save it and move to confirmation
+    if args and args[0]:
+        store["content"] = str(args[0]).strip()
+        return confirm_note(menu, *args, **kwargs)
     
     text = f"""
 |cEnter the content of your note:|n
@@ -373,15 +375,18 @@ Current subject: |w{store.get('subject', '?')}|n
   - Why your character did it
   - What your character wants to happen next
 
-You can write multiple paragraphs. Type your note:
+You can write multiple paragraphs.
 """
     
-    return text, {}
+    return {
+        "text": text,
+        "options": ()
+    }
 
 
-def confirm_note(caller, raw_string, **kwargs):
+def confirm_note(menu, *args, **kwargs):
     """Show note summary and confirm saving."""
-    store = kwargs.get("store", {})
+    store = menu.store
     
     text = f"""
 |c=== Review Your Note ===|n
@@ -391,22 +396,23 @@ def confirm_note(caller, raw_string, **kwargs):
 |wContent:|n
 {store.get('content', '?')}
 
-|y[1]|n Save this note
-|y[2]|n Cancel
-
 """
     
     options = [
-        ("1", "Save", "save_note", {}),
-        ("2", "Cancel", "cancel_note", {}),
+        ("1", "Save this note", "save_note"),
+        ("2", "Cancel", "cancel_note"),
     ]
     
-    return text, options
+    return {
+        "text": text,
+        "options": options
+    }
 
 
-def save_note(caller, raw_string, **kwargs):
+def save_note(menu, *args, **kwargs):
     """Save the note to the character."""
-    store = kwargs.get("store", {})
+    caller = menu.caller
+    store = menu.store
     
     # Create note entry
     note_entry = {
@@ -435,16 +441,17 @@ Your note has been saved and will be reviewed by staff.
 |wSubject:|n {store.get('subject', '?')}
 
 Staff will be notified of your note. Thank you!
-
 """
     
-    return text, {}
+    # End the menu
+    menu.close_menu()
+    caller.msg(text)
 
 
-def cancel_note(caller, raw_string, **kwargs):
+def cancel_note(menu, *args, **kwargs):
     """Cancel note creation."""
-    text = "|yNote creation cancelled.|n\n"
-    return text, {}
+    menu.close_menu()
+    menu.caller.msg("|yNote creation cancelled.|n")
 
 
 # ============================================================================
