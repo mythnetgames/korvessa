@@ -23,7 +23,7 @@ class CmdEmote(DefaultCmdPose):
     """
     
     def func(self):
-        """Override emote to include voice description in speech."""
+        """Override emote to include voice description in speech and perspective replacement."""
         caller = self.caller
         
         if not self.args:
@@ -49,6 +49,29 @@ class CmdEmote(DefaultCmdPose):
             # Replace all speech instances with voice-enhanced versions
             emote_text = re.sub(speech_pattern, replace_speech, emote_text)
         
-        # Use the parent emote command with the processed text
-        self.args = emote_text
-        super().func()
+        # Format the pose with caller's name
+        pose_text = f"{caller.name} {emote_text}"
+        
+        # Send to the caller
+        caller.msg(pose_text)
+        
+        # Send to others in the location, replacing their name with "you" if present
+        if caller.location:
+            for char in caller.location.contents:
+                if char == caller:
+                    continue
+                
+                # Create perspective-adjusted message for this character
+                message = pose_text
+                
+                # Replace character's name with "you" (case-insensitive but preserve original capitalization context)
+                # Match whole word boundaries
+                message = re.sub(
+                    rf'\b{re.escape(char.name)}\b',
+                    'you',
+                    message,
+                    flags=re.IGNORECASE
+                )
+                
+                if hasattr(char, 'msg'):
+                    char.msg(message)
