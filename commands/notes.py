@@ -4,7 +4,6 @@ Players leave notes that staff can review and act on.
 """
 
 from evennia import Command, search_object, EvMenu
-from evennia.utils.utils import get_paginator
 from datetime import datetime
 from django.db.models import Q
 
