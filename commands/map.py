@@ -119,7 +119,13 @@ class CmdMap(Command):
         coord_str = f"Current coordinates: x={x0}, y={y0}, z={z_view}"
         z_conn_str = ''
         if up_conn:
+            z_conn_str += up_conn + " "
+        if down_conn:
+            z_conn_str += down_conn + " "
+        
+        debug_info = f"\n[DEBUG] Zone: {current_zone}, Rooms in zone: {len(zone_rooms)}, Room lookup entries: {len(room_lookup)}"
+        if up_conn:
             z_conn_str += f'|c{up_conn}|n\n'
         if down_conn:
             z_conn_str += f'|c{down_conn}|n'
-        caller.msg(f"{map_str}\n|c{coord_str}|n\n{z_conn_str}")
+        caller.msg(f"{map_str}\n|c{coord_str}|n{debug_info}\n{z_conn_str}")
