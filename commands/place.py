@@ -31,7 +31,7 @@ class CmdLookPlace(Command):
     
     Tips:
         - Write in third person (he/she/they, not I/my)
-        - Use @options tpemote to auto-emote when setting @temp_place
+        - Use |ctpemote|n to toggle auto-emote when setting @temp_place
     """
     key = "look_place"
     aliases = ["lp"]
@@ -111,7 +111,7 @@ class CmdTempPlace(Command):
     Tips:
         - Write in third person (he/she/they, not I/my)
         - Temp place clears automatically when you change rooms
-        - Use @options tpemote to auto-emote the change
+        - Use |ctpemote|n to toggle auto-emote when setting @temp_place
     """
     key = "temp_place"
     aliases = ["tp"]
@@ -170,3 +170,35 @@ class CmdTempPlace(Command):
         if hasattr(caller.ndb, 'temp_place'):
             delattr(caller.ndb, 'temp_place')
         caller.msg("|GCleared @temp_place.|n")
+
+
+class CmdTPEmote(Command):
+    """
+    Toggle auto-emote when setting @temp_place.
+    
+    Usage:
+        tpemote
+    
+    When enabled, setting your @temp_place will automatically emote the change
+    to everyone in the room. This allows you to set a pose and announce it at
+    the same time.
+    
+    Examples:
+        tpemote                    (toggles the setting on/off)
+        @tp me is standing up.     (if tpemote is on, will announce to room)
+    """
+    key = "tpemote"
+    locks = "cmd:all()"
+    help_category = "Character"
+    
+    def func(self):
+        caller = self.caller
+        
+        # Toggle the setting
+        current = getattr(caller.db, 'tpemote_enabled', False)
+        caller.db.tpemote_enabled = not current
+        
+        if caller.db.tpemote_enabled:
+            caller.msg("|GEnabled:|n Auto-emote is now |gON|n. Setting @temp_place will announce to the room.")
+        else:
+            caller.msg("|GDisabled:|n Auto-emote is now |rOFF|n. Setting @temp_place will be private.")
