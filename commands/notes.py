@@ -301,7 +301,7 @@ def tag_select(caller, raw_string, **kwargs):
     text = "|cSelect a tag for your note:|n\n\n"
     for i, tag in enumerate(NOTE_TAGS, 1):
         text += f"  |w{i}|n - {tag}\n"
-    return text, options
+    return {"text": text, "options": options}
 
 
 def tag_selected(caller, raw_string, **kwargs):
@@ -318,6 +318,7 @@ def subject_input(caller, raw_string, **kwargs):
     store = kwargs.get("store", {})
     if raw_string and raw_string.strip():
         store["subject"] = raw_string.strip()
+        kwargs["store"] = store
         return content_input(caller, "", **kwargs)
     text = f"""
 |cEnter a subject line for your note:|n
@@ -334,7 +335,7 @@ Current tag: |w{store.get('tag', '?')}|n
   Left a resume with Hookie for bartender position
   Asked a Triad member about joining as a bruiser
 """
-    return text, ()
+    return {"text": text, "options": ()}
 
 
 def content_input(caller, raw_string, **kwargs):
