@@ -157,35 +157,52 @@ class Room(ObjectParent, DefaultRoom):
         """
         Assign coordinates based on exits to rooms in the same zone.
         Called when exits are added to this room.
+        
+        The logic: if this room has an exit in a direction TO a destination,
+        then THIS room is in the OPPOSITE direction from the destination.
         """
         if hasattr(self, "exits") and self.exits:
             for exit_obj in self.exits:
                 dest = getattr(exit_obj, "destination", None)
-                if dest and hasattr(dest.db, "x") and hasattr(dest.db, "y") and getattr(dest, "zone", None) == self.zone:
-                    if self.db.x == 0 and self.db.y == 0:
+                if dest and hasattr(dest.db, "x") and hasattr(dest.db, "y") and hasattr(dest.db, "z") and getattr(dest, "zone", None) == self.zone:
+                    if self.db.x == 0 and self.db.y == 0 and self.db.z == 0:
                         direction = exit_obj.key.lower()
                         if direction == "north":
                             self.db.x = dest.db.x
-                            self.db.y = dest.db.y + 1
+                            self.db.y = dest.db.y - 1
+                            self.db.z = dest.db.z
                         elif direction == "south":
                             self.db.x = dest.db.x
-                            self.db.y = dest.db.y - 1
+                            self.db.y = dest.db.y + 1
+                            self.db.z = dest.db.z
                         elif direction == "east":
-                            self.db.x = dest.db.x + 1
-                            self.db.y = dest.db.y
-                        elif direction == "west":
                             self.db.x = dest.db.x - 1
                             self.db.y = dest.db.y
+                            self.db.z = dest.db.z
+                        elif direction == "west":
+                            self.db.x = dest.db.x + 1
+                            self.db.y = dest.db.y
+                            self.db.z = dest.db.z
+                        elif direction == "up" or direction == "u":
+                            self.db.x = dest.db.x
+                            self.db.y = dest.db.y
+                            self.db.z = dest.db.z - 1
+                        elif direction == "down" or direction == "d":
+                            self.db.x = dest.db.x
+                            self.db.y = dest.db.y
+                            self.db.z = dest.db.z + 1
                         break
         
         # Also check if we're inside a location - if so, assign next to parent
-        if self.location and self.db.x == 0 and self.db.y == 0:
+        if self.location and self.db.x == 0 and self.db.y == 0 and self.db.z == 0:
             parent_x = getattr(self.location.db, "x", None)
             parent_y = getattr(self.location.db, "y", None)
-            if parent_x is not None and parent_y is not None:
+            parent_z = getattr(self.location.db, "z", None)
+            if parent_x is not None and parent_y is not None and parent_z is not None:
                 # Place next to parent
                 self.db.x = parent_x + 1
                 self.db.y = parent_y
+                self.db.z = parent_z
 
     def at_object_leave(self, moved_obj, target_location, **kwargs):
         super().at_object_leave(moved_obj, target_location, **kwargs)
