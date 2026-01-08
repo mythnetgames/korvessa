@@ -20,8 +20,8 @@ class CmdCreateZone(Command):
             return
         direction, zonename = args[0], " ".join(args[1:])
         # Find the highest zone number
-        from evennia import search_object
-        rooms = [obj for obj in search_object() if obj.is_typeclass(Room, exact=False) and obj.zone is not None]
+        from evennia.objects.models import ObjectDB
+        rooms = [obj for obj in ObjectDB.objects.all() if obj.is_typeclass(Room, exact=False) and getattr(obj, 'zone', None) is not None]
         zone_numbers = []
         for room in rooms:
             try:
