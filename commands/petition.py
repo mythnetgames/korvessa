@@ -58,7 +58,7 @@ class CmdPetition(Command):
         }
         
         # Store petition on character
-        if not hasattr(caller.db, 'petitions'):
+        if not getattr(caller.db, 'petitions', None):
             caller.db.petitions = []
         caller.db.petitions.append(petition_entry)
         
