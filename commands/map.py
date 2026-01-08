@@ -30,7 +30,12 @@ class CmdMap(Command):
             all_rooms = [room]
         if room not in all_rooms:
             all_rooms.append(room)
-        room_lookup = {(getattr(r.db, "x", None), getattr(r.db, "y", None), getattr(r.db, "z", None)): r for r in all_rooms if hasattr(r, "db") and getattr(r.db, "x", None) is not None and getattr(r.db, "y", None) is not None and getattr(r.db, "z", None) is not None}
+        
+        # Filter rooms to only those in the same zone as current room
+        current_zone = getattr(room, "zone", None)
+        zone_rooms = [r for r in all_rooms if getattr(r, "zone", None) == current_zone]
+        
+        room_lookup = {(getattr(r.db, "x", None), getattr(r.db, "y", None), getattr(r.db, "z", None)): r for r in zone_rooms if hasattr(r, "db") and getattr(r.db, "x", None) is not None and getattr(r.db, "y", None) is not None and getattr(r.db, "z", None) is not None}
         # Build grid with connectors for the selected Z level
         for dy in range(-2, 3):
             row = []
