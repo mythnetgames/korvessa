@@ -17,23 +17,21 @@ class Window(DefaultObject):
 
     def get_display_desc(self, looker, **kwargs):
         """
-        Return the description of the window, including contents of the room it observes.
+        Return the description of the target room as seen through the window.
         
         Args:
             looker: The character looking at the window
             
         Returns:
-            String describing the window and what's visible through it
+            String with the target room's description and contents
         """
-        # Get the base description
-        base_desc = self.db.desc or "A window looking into another space."
-        
         # Get target coordinates
         target_x = getattr(self.db, 'target_x', None)
         target_y = getattr(self.db, 'target_y', None)
         target_z = getattr(self.db, 'target_z', None)
         
-        # If window has no target coordinates set, just show base description
+        # If window has no target coordinates set, show base description
+        base_desc = self.db.desc or "A window looking into another space."
         if target_x is None or target_y is None or target_z is None:
             return base_desc
         
@@ -54,18 +52,21 @@ class Window(DefaultObject):
             if not target_room:
                 return base_desc
             
+            # Get the target room's description
+            room_desc = target_room.db.desc or "A featureless room."
+            
             # Get display of what's in the target room
             room_display = target_room.get_display_characters(looker) if hasattr(target_room, 'get_display_characters') else None
             
+            # Combine room description with character display
+            result = room_desc
             if room_display:
-                return f"{base_desc}\n\n|cThrough the window:|n\n{room_display}"
-            else:
-                return f"{base_desc}\n\n|cThrough the window:|n The room appears empty."
+                result += f"\n\n{room_display}"
+            
+            return result
                 
         except Exception as e:
             # If anything goes wrong, return base description
-            import traceback
-            traceback.print_exc()
             return base_desc
 
     def at_object_creation(self):
