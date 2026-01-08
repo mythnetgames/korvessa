@@ -37,6 +37,7 @@ from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.nakeds import CmdNakeds
+from commands.who import CmdWho, CmdInvisible, CmdWhoLocation
 from commands.shop import CmdBuy
 from commands.window import CmdAttachWindow, CmdRemoveWindow, CmdWindowCoord, CmdDebugWindows
 from commands.debugroomcoords import CmdDebugRoomCoords
@@ -114,6 +115,11 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
+        # Remove default WHO and add custom one
+        self.remove("who")
+        self.add(CmdWho())
+        self.add(CmdInvisible())
+        self.add(CmdWhoLocation())
         # Add individual attach/remove/program/show commands for doors/locks/keypads
         from commands.door import (
             CmdAttachDoor, CmdAttachLock, CmdAttachKeypad, CmdRemoveDoor, CmdRemoveLock, CmdRemoveKeypad,
