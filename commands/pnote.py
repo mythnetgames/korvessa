@@ -410,16 +410,55 @@ To find the entry numbers, use:
 class CmdPnoteDelete(Command):
     """
     Delete a pnote.
-    
-    Usage (Players):
-        pdel <entry number>      - Delete your pnote
-    
-    Usage (Staff):
-        pdel <character> <entry> - Delete a player's pnote
     """
     key = "pdel"
     locks = "cmd:all()"
     help_category = "OOC"
+
+    def get_help(self, caller, *args, **kwargs):
+        """Return appropriate help based on caller permission."""
+        is_staff = caller.is_superuser if hasattr(caller, 'is_superuser') else False
+        
+        if is_staff:
+            return """
+|cSTAFF HELP - PDEL|n
+
+Delete a pnote left for a player.
+
+|wUsage:|n
+  pdel <entry>               - Delete one of your own pnotes
+  pdel <character> <entry>   - Delete a player's pnote
+
+|wExamples:|n
+  pdel 1
+  pdel Test Dummy 1
+  pdel Dalao 3
+
+|wSee Also:|n
+  pnotes  - List and search pnotes
+  pnote   - Add a pnote for a player
+  pread   - Read a pnote
+"""
+        else:
+            return """
+|cPLAYER HELP - PDEL|n
+
+Delete one of your pnotes from staff.
+
+|wUsage:|n
+  pdel <entry>  - Delete a specific pnote by number
+
+|wExamples:|n
+  pdel 1
+  pdel 2
+
+To find the entry numbers, use:
+  pnotes - Lists all your pnotes with their numbers
+
+|wSee Also:|n
+  pnotes  - List your pnotes
+  pread   - Read a pnote
+"""
 
     def func(self):
         caller = self.caller
