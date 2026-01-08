@@ -200,6 +200,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add setzone command
         from commands.setzone import CmdSetZone
         self.add(CmdSetZone())
+        # Add deletezone command
+        from commands.deletezone import CmdDeleteZone
+        self.add(CmdDeleteZone())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
@@ -226,7 +229,6 @@ class AccountCmdSet(default_cmds.AccountCmdSet):
         self.add(CmdMapOff())
 
 
-            # ...existing code...
 class UnloggedinCmdSet(default_cmds.UnloggedinCmdSet):
     """
     Command set available to the Session before being logged in.  This
