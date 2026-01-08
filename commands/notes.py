@@ -379,7 +379,7 @@ def confirm_note(caller, raw_string, **kwargs):
         ("1", "Save this note", "save_note"),
         ("2", "Cancel", "cancel_note"),
     ]
-    return text, options
+    return {"text": text, "options": options}
 
 
 def save_note(caller, raw_string, **kwargs):
@@ -408,7 +408,7 @@ Your note has been saved and will be reviewed by staff.
 Staff will be notified of your note. Thank you!
 """
     caller.msg(text)
-    return None
+    return {"text": ""}
 
 
 def cancel_note(caller, raw_string, **kwargs):
