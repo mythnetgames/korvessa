@@ -209,6 +209,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add deletezone command
         from commands.deletezone import CmdDeleteZone
         self.add(CmdDeleteZone())
+        # Add zone-aware dig command
+        from commands.zonedig import CmdZoneDig
+        self.add(CmdZoneDig())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
