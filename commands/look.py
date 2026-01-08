@@ -33,7 +33,7 @@ class CmdLook(DefaultCmdLook):
     
     def view_petitions(self, char):
         """Display active petitions for the character."""
-        petitions = getattr(char.db, 'petitions', [])
+        petitions = getattr(char.db, 'petitions', None) or []
         active_petitions = [p for p in petitions if p.get('status') == 'active']
         
         if not active_petitions:
@@ -48,7 +48,7 @@ class CmdLook(DefaultCmdLook):
     
     def view_pending(self, char):
         """Display pending petitions for the character."""
-        petitions = getattr(char.db, 'petitions', [])
+        petitions = getattr(char.db, 'petitions', None) or []
         pending_petitions = [p for p in petitions if p.get('status') == 'pending']
         
         if not pending_petitions:

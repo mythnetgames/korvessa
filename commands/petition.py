@@ -77,19 +77,39 @@ class CmdPetition(Command):
     def notify_staff(self, petitioner, target, message, petition_id):
         """Notify staff members of the petition."""
         from evennia.comms.models import ChannelDB
+        from evennia.accounts.models import AccountDB
         
-        # Try to find the staff channel
-        try:
-            staff_channel = ChannelDB.objects.get_channel("Staff")
-            if target.lower() == "all":
-                staff_msg = f"|y[PETITION #{petition_id}]|n {petitioner.key}: {message}"
-            else:
-                staff_msg = f"|y[PETITION #{petition_id} to {target}]|n {petitioner.key}: {message}"
+        if target.lower() == "all":
+            # Notify all online admin/immortal users
+            staff_msg = f"|y[PETITION #{petition_id}]|n {petitioner.key}: {message}"
             
-            staff_channel.msg(staff_msg)
-        except:
-            # Staff channel doesn't exist or no online staff
-            pass
+            # Find all online admins
+            for account in AccountDB.objects.filter(db_is_connected=True):
+                if account.character and hasattr(account.character, 'is_superuser'):
+                    if account.character.is_superuser or account.is_superuser:
+                        account.character.msg(staff_msg)
+            
+            # Also try staff channel
+            try:
+                staff_channel = ChannelDB.objects.get_channel("Staff")
+                staff_channel.msg(staff_msg)
+            except:
+                pass
+        else:
+            # Notify specific staff member
+            from evennia.utils.search import search_object
+            staff_targets = search_object(target)
+            if staff_targets:
+                staff_member = staff_targets[0]
+                staff_msg = f"|y[PETITION #{petition_id} to you]|n {petitioner.key}: {message}"
+                staff_member.msg(staff_msg)
+            
+            # Also notify via staff channel
+            try:
+                staff_channel = ChannelDB.objects.get_channel("Staff")
+                staff_channel.msg(f"|y[PETITION #{petition_id} to {target}]|n {petitioner.key}: {message}")
+            except:
+                pass
 
 
 class CmdViewPetitions(Command):

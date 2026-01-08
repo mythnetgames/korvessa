@@ -30,6 +30,22 @@ class Character(ObjectParent, DefaultCharacter):
         cmd.caller = self
         cmd.args = ""
         cmd.func()
+        
+        # Show pending petitions on login
+        self.show_pending_petitions()
+
+    def show_pending_petitions(self):
+        """Display pending and active petitions on login."""
+        petitions = getattr(self.db, 'petitions', None) or []
+        active_count = len([p for p in petitions if p.get('status') == 'active'])
+        pending_count = len([p for p in petitions if p.get('status') == 'pending'])
+        
+        if active_count > 0 or pending_count > 0:
+            self.msg("|y=== You have pending petitions ===|n")
+            if active_count > 0:
+                self.msg(f"  |c{active_count} active petition(s)|n - type |wlook petitions|n to view")
+            if pending_count > 0:
+                self.msg(f"  |c{pending_count} pending petition(s)|n - type |wlook pending|n to view")
 
         def at_server_start(self):
             """
