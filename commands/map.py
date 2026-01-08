@@ -35,13 +35,14 @@ class CmdMap(Command):
         current_zone = getattr(room, "zone", None)
         zone_rooms = [r for r in all_rooms if getattr(r, "zone", None) == current_zone]
         
-        room_lookup = {(getattr(r.db, "x", None), getattr(r.db, "y", None), getattr(r.db, "z", None)): r for r in zone_rooms if hasattr(r, "db") and getattr(r.db, "x", None) is not None and getattr(r.db, "y", None) is not None and getattr(r.db, "z", None) is not None}
+        # Room lookup key includes zone to avoid coordinate collisions between zones
+        room_lookup = {(getattr(r, "zone", None), getattr(r.db, "x", None), getattr(r.db, "y", None), getattr(r.db, "z", None)): r for r in zone_rooms if hasattr(r, "db") and getattr(r.db, "x", None) is not None and getattr(r.db, "y", None) is not None and getattr(r.db, "z", None) is not None}
         # Build grid with connectors for the selected Z level
         for dy in range(-2, 3):
             row = []
             for dx in range(-2, 3):
                 rx, ry, rz = x0 + dx, y0 + dy, z_view
-                target_room = room_lookup.get((rx, ry, rz))
+                target_room = room_lookup.get((current_zone, rx, ry, rz))
                 if target_room:
                     found_rooms.append(f"Found room: {target_room.key} at ({rx},{ry},{rz})")
                     if target_room == room:
@@ -52,7 +53,7 @@ class CmdMap(Command):
                     row.append('   ')
                 # Add horizontal connector to the right
                 if dx < 2:
-                    east_room = room_lookup.get((rx+1, ry, rz))
+                    east_room = room_lookup.get((current_zone, rx+1, ry, rz))
                     connector = '   '
                     if target_room and east_room:
                         if hasattr(target_room, 'exits'):
@@ -67,8 +68,8 @@ class CmdMap(Command):
                 conn_row = []
                 for dx in range(-2, 3):
                     rx, ry, rz = x0 + dx, y0 + dy, z_view
-                    target_room = room_lookup.get((rx, ry, rz))
-                    south_room = room_lookup.get((rx, ry+1, rz))
+                    target_room = room_lookup.get((current_zone, rx, ry, rz))
+                    south_room = room_lookup.get((current_zone, rx, ry+1, rz))
                     connector = '   '
                     if target_room and south_room:
                         if hasattr(target_room, 'exits'):
@@ -82,8 +83,8 @@ class CmdMap(Command):
                         conn_row.append('   ')
                 grid.append(''.join(conn_row))
         # Up/down connectors for current room
-        up_room = room_lookup.get((x0, y0, z_view+1))
-        down_room = room_lookup.get((x0, y0, z_view-1))
+        up_room = room_lookup.get((current_zone, x0, y0, z_view+1))
+        down_room = room_lookup.get((current_zone, x0, y0, z_view-1))
         up_conn = ''
         down_conn = ''
         if up_room and hasattr(room, 'exits'):
