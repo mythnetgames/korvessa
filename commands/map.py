@@ -8,18 +8,15 @@ class CmdMap(Command):
     def func(self):
         caller = self.caller
         room = caller.location
+        
+        # CRITICAL TEST: Show zone info
+        zone = getattr(room, "zone", None)
+        caller.msg(f"DEBUG_ZONE_TEST: Your current room's zone is: [{zone}]")
+        
         # Check for valid x, y, z coordinates
         x0 = getattr(room.db, "x", None)
         y0 = getattr(room.db, "y", None)
         z0 = getattr(room.db, "z", None)
-        
-        # DEBUG: Show current room zone immediately
-        current_zone = getattr(room, "zone", None)
-        caller.msg(f"|y=== MAP DEBUG ===|n")
-        caller.msg(f"|yYour room: {room.key}|n")
-        caller.msg(f"|yYour zone attribute: {current_zone}|n")
-        caller.msg(f"|yYour coords: ({x0}, {y0}, {z0})|n")
-        # Allow optional Z argument
         args = self.args.strip().split()
         if args and args[0].lstrip('-').isdigit():
             z_view = int(args[0])
