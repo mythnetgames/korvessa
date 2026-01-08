@@ -36,7 +36,21 @@ class CmdMap(Command):
         zone_rooms = [r for r in all_rooms if getattr(r, "zone", None) == current_zone]
         
         # Room lookup key includes zone to avoid coordinate collisions between zones
-        room_lookup = {(getattr(r, "zone", None), getattr(r.db, "x", None), getattr(r.db, "y", None), getattr(r.db, "z", None)): r for r in zone_rooms if hasattr(r, "db") and getattr(r.db, "x", None) is not None and getattr(r.db, "y", None) is not None and getattr(r.db, "z", None) is not None}
+        # Only include rooms with matching zone
+        room_lookup = {}
+        for r in zone_rooms:
+            if hasattr(r, "db") and getattr(r.db, "x", None) is not None and getattr(r.db, "y", None) is not None and getattr(r.db, "z", None) is not None:
+                r_zone = getattr(r, "zone", None)
+                r_x = getattr(r.db, "x", None)
+                r_y = getattr(r.db, "y", None)
+                r_z = getattr(r.db, "z", None)
+                # Only add if zone matches current zone
+                if r_zone == current_zone:
+                    room_lookup[(r_zone, r_x, r_y, r_z)] = r
+        
+        caller.msg(f"DEBUG: Current zone: {current_zone}, Zone rooms: {len(zone_rooms)}, Room lookup entries: {len(room_lookup)}")
+        for key in sorted(room_lookup.keys())[:5]:
+            caller.msg(f"  Lookup key: {key}")
         # Build grid with connectors for the selected Z level
         for dy in range(-2, 3):
             row = []
