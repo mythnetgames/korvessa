@@ -1,4 +1,5 @@
-from evennia import Command, search_object
+from evennia import Command
+from evennia.objects.models import ObjectDB
 from typeclasses.rooms import Room
 
 class CmdDeleteZone(Command):
@@ -17,7 +18,7 @@ class CmdDeleteZone(Command):
         if not zone:
             caller.msg("Usage: deletezone <zone>")
             return
-        rooms = [obj for obj in search_object() if obj.is_typeclass(Room, exact=False) and (getattr(obj, 'zone', None) == zone or obj.db.zone == zone)]
+        rooms = [obj for obj in ObjectDB.objects.all() if obj.is_typeclass(Room, exact=False) and (getattr(obj, 'zone', None) == zone or obj.db.zone == zone)]
         if not rooms:
             caller.msg(f"No rooms found for zone '{zone}'.")
             return

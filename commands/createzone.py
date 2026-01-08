@@ -40,6 +40,17 @@ class CmdCreateZone(Command):
         room.db.zone = zonename
         room.db.desc = f"This is the starting room of zone {zonename}."
         caller.msg(f"Zone {zonename} created with first room at (0,0,0). Room dbref: {room.dbref}")
-        # Optionally, you could link this room to the caller's current room in the given direction
-        # or store the zone's origin for further expansion.
+        # Link the new zone's room to the caller's current room in the specified direction
+        current_room = caller.location
+        if current_room and direction:
+            # Create exit from current room to new zone room
+            from evennia.utils import create
+            exit_obj = create.create_object(
+                typeclass="typeclasses.exits.Exit",
+                key=direction,
+                location=current_room,
+                destination=room
+            )
+            caller.msg(f"Created exit '{direction}' from {current_room.key} to new zone room {room.key}.")
+        # Optionally, you could store the zone's origin for further expansion.
         return
