@@ -343,6 +343,7 @@ def content_input(caller, raw_string, **kwargs):
     store = kwargs.get("store", {})
     if raw_string and raw_string.strip():
         store["content"] = raw_string.strip()
+        kwargs["store"] = store
         return confirm_note(caller, "", **kwargs)
     text = f"""
 |cEnter the content of your note:|n
@@ -357,7 +358,7 @@ Current subject: |w{store.get('subject', '?')}|n
 
 You can write multiple paragraphs.
 """
-    return text, ()
+    return {"text": text, "options": ()}
 
 
 def confirm_note(caller, raw_string, **kwargs):
