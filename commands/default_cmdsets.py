@@ -40,6 +40,8 @@ from commands.nakeds import CmdNakeds
 from commands.who import CmdWho, CmdInvisible, CmdWhoLocation
 from commands.place import CmdLookPlace, CmdTempPlace, CmdTPEmote
 from commands.voice import CmdVoice
+from commands.petition import CmdPetition, CmdErasePetition, CmdStaffPetition
+from commands.look import CmdLook
 from commands.shop import CmdBuy
 from commands.window import CmdAttachWindow, CmdRemoveWindow, CmdWindowCoord, CmdDebugWindows
 from commands.debugroomcoords import CmdDebugRoomCoords
@@ -130,6 +132,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.remove("emote")
         from commands.emote import CmdEmote
         self.add(CmdEmote())
+        # Remove default look and add custom one with petition support
+        self.remove("look")
+        self.add(CmdLook())
         # Add individual attach/remove/program/show commands for doors/locks/keypads
         from commands.door import (
             CmdAttachDoor, CmdAttachLock, CmdAttachKeypad, CmdRemoveDoor, CmdRemoveLock, CmdRemoveKeypad,
@@ -219,6 +224,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdTPEmote())
         # Add voice command
         self.add(CmdVoice())
+        # Add petition commands
+        self.add(CmdPetition())
+        self.add(CmdErasePetition())
+        self.add(CmdStaffPetition())
         # Add createzone command
         from commands.createzone import CmdCreateZone
         self.add(CmdCreateZone())
