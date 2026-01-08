@@ -202,6 +202,9 @@ class CmdStaffPetition(Command):
     Staff command to manage petitions.
     
     Usage:
+        petitions                        - View your own petitions
+        petitions personal               - View your own petitions
+        petitions all                    - View all petitions from all players
         petitions pending <char> <id>    - Move petition to pending
         petitions resolve <char> <id>    - Resolve a petition
         petitions view <char>            - View all petitions from a character
@@ -214,13 +217,18 @@ class CmdStaffPetition(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: petitions pending <char> <id> | petitions resolve <char> <id> | petitions view <char>")
+            # No args - show own petitions
+            self.view_own_petitions(caller)
             return
         
         parts = self.args.split()
         action = parts[0].lower()
         
-        if action == "view" and len(parts) >= 2:
+        if action == "personal":
+            self.view_own_petitions(caller)
+        elif action == "all":
+            self.view_all_petitions(caller)
+        elif action == "view" and len(parts) >= 2:
             self.view_petitions(caller, ' '.join(parts[1:]))
         elif action == "pending" and len(parts) >= 3:
             try:
@@ -237,7 +245,50 @@ class CmdStaffPetition(Command):
             except ValueError:
                 caller.msg("Invalid petition ID.")
         else:
-            caller.msg("Usage: petitions pending <char> <id> | petitions resolve <char> <id> | petitions view <char>")
+            caller.msg("Usage: petitions | petitions personal | petitions all | petitions pending <char> <id> | petitions resolve <char> <id> | petitions view <char>")
+    
+    def view_own_petitions(self, admin):
+        """View all petitions from the admin themselves."""
+        petitions = getattr(admin.db, 'petitions', None) or []
+        
+        if not petitions:
+            admin.msg(f"You have no petitions.")
+            return
+        
+        admin.msg(f"|c=== Your Petitions ===|n")
+        for p in petitions:
+            status = p.get('status', 'active').upper()
+            timestamp = p.get('timestamp', '').strftime('%Y-%m-%d %H:%M') if hasattr(p.get('timestamp', ''), 'strftime') else str(p.get('timestamp', ''))
+            admin.msg(f"  |w[#{p.get('id', '?')}]|n ({status}) [{timestamp}] to {p.get('target', '?')}: {p.get('message', '?')}")
+    
+    def view_all_petitions(self, admin):
+        """View all petitions from all players."""
+        from evennia.accounts.models import AccountDB
+        
+        all_petitions = []
+        
+        for account in AccountDB.objects.all():
+            if account.character:
+                petitions = getattr(account.character.db, 'petitions', None) or []
+                for p in petitions:
+                    p_with_char = p.copy()
+                    p_with_char['character'] = account.character.key
+                    all_petitions.append(p_with_char)
+        
+        if not all_petitions:
+            admin.msg("There are no petitions in the system.")
+            return
+        
+        # Sort by most recent first
+        all_petitions.sort(key=lambda p: p.get('timestamp', ''), reverse=True)
+        
+        admin.msg(f"|c=== All Petitions in System ({len(all_petitions)} total) ===|n")
+        for p in all_petitions:
+            status = p.get('status', 'active').upper()
+            char = p.get('character', '?')
+            timestamp = p.get('timestamp', '').strftime('%Y-%m-%d %H:%M') if hasattr(p.get('timestamp', ''), 'strftime') else str(p.get('timestamp', ''))
+            admin.msg(f"  |w[#{p.get('id', '?')}]|n ({status}) [{timestamp}] from {char} to {p.get('target', '?')}: {p.get('message', '?')}")
+    
     
     def view_petitions(self, admin, char_name):
         """View all petitions from a character."""
