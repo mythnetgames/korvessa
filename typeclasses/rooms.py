@@ -24,6 +24,36 @@ class Room(ObjectParent, DefaultRoom):
         if self.zone is None:
             return []
         return [room for room in ObjectDB.objects.filter(db_typeclass_path=self.typeclass_path) if getattr(room, 'zone', None) == self.zone]
+    
+    def update_zone_and_coordinates(self):
+        """
+        Update zone and coordinate assignments for this room.
+        Called when a room's zone is changed to ensure proper coordinate mapping.
+        """
+        # Reset coordinates to 0, 0, 0
+        self.db.x = 0
+        self.db.y = 0
+        self.db.z = 0
+        
+        # Reassign coordinates based on exits to rooms in the same zone
+        if hasattr(self, "exits") and self.exits:
+            for exit_obj in self.exits:
+                dest = getattr(exit_obj, "destination", None)
+                if dest and hasattr(dest.db, "x") and hasattr(dest.db, "y") and getattr(dest, "zone", None) == self.zone:
+                    direction = exit_obj.key.lower()
+                    if direction == "north":
+                        self.db.x = dest.db.x
+                        self.db.y = dest.db.y + 1
+                    elif direction == "south":
+                        self.db.x = dest.db.x
+                        self.db.y = dest.db.y - 1
+                    elif direction == "east":
+                        self.db.x = dest.db.x + 1
+                        self.db.y = dest.db.y
+                    elif direction == "west":
+                        self.db.x = dest.db.x - 1
+                        self.db.y = dest.db.y
+                    break
 
     """
     Rooms are like any Object, except their location is None

@@ -33,12 +33,13 @@ class CmdCreateZone(Command):
         zonename = str(next_zone)
         # Create the new zone's first room
         room = create.create_object(Room, key=f"Zone {zonename} Room (0,0,0)")
+        room.zone = zonename
+        room.db.zone = zonename
         room.db.x = 0
         room.db.y = 0
         room.db.z = 0
-        room.zone = zonename
-        room.db.zone = zonename
         room.db.desc = f"This is the starting room of zone {zonename}."
+        room.update_zone_and_coordinates()
         caller.msg(f"Zone {zonename} created with first room at (0,0,0). Room dbref: {room.dbref}")
         # Link the new zone's room to the caller's current room in the specified direction
         current_room = caller.location
