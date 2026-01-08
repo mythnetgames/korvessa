@@ -35,8 +35,8 @@ class CmdSay(DefaultCmdSay):
         voice = getattr(caller.db, 'voice', None)
         
         if voice:
-            # Format message with voice
-            message = f'|c{caller.name}|n says, "*in a {voice}* {speech}"|n'
+            # Format message with voice (plain color for name, just like emotes)
+            message = f'{caller.name} says, "*in a {voice}* {speech}"|n'
             
             # Send to caller
             caller.msg(message)
