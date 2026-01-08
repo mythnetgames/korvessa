@@ -42,13 +42,6 @@ class CmdNoteInput(Command):
     # Make this command match ANY input
     auto_help = False
     
-    def match(self, cmdname, cmdset):
-        """Match any input when in note creation mode."""
-        # Check if we're in note creation mode
-        if hasattr(self.caller.ndb, 'note_state') and self.caller.ndb.note_state:
-            return True
-        return False
-    
     def func(self):
         """Process input based on current note creation state."""
         caller = self.caller
@@ -236,6 +229,18 @@ class NoteInputCmdSet(CmdSet):
     
     def at_cmdset_creation(self):
         self.add(CmdNoteInput())
+    
+    def resolve_command(self, user_input, user, case_sensitive=False):
+        """Override to intercept any input when in note creation mode."""
+        # Always return our input handler when note_state is active
+        if hasattr(user, 'ndb') and hasattr(user.ndb, 'note_state') and user.ndb.note_state:
+            cmd = self.commands[0]  # Get our CmdNoteInput
+            # Set the raw_string and args for the command
+            cmd.raw_string = user_input
+            cmd.args = user_input
+            cmd.caller = user
+            return [cmd], user_input
+        return super().resolve_command(user_input, user, case_sensitive=case_sensitive)
 
 
 # ============================================================================
