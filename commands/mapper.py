@@ -156,6 +156,8 @@ class CmdMap(Command):
         x = getattr(room.db, "x", None)
         y = getattr(room.db, "y", None)
         z = getattr(room.db, "z", None)
+        zone = getattr(room, "zone", None)
+        
         if x is None or y is None or z is None:
             self.caller.msg("This room does not have valid coordinates. The map cannot be displayed.")
             return
@@ -167,7 +169,9 @@ class CmdMap(Command):
 
         # Always show the map when called, regardless of toggle
         from evennia.objects.models import ObjectDB
-        rooms = [r for r in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room") if getattr(r.db, "z", None) == z]
+        # Filter rooms by both zone AND z-level for zone-aware mapping
+        rooms = [r for r in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room") 
+                 if getattr(r.db, "z", None) == z and getattr(r, "zone", None) == zone]
         coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
         grid = []
         for dy in range(2, -3, -1):
