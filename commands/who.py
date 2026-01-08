@@ -64,7 +64,12 @@ class CmdWho(default_cmds.CmdWho):
                     'name': character.get_display_name(caller),
                     'location': location_name
                 }
-                if character.is_superuser or character.is_staff or character.locks.check_lockstring(caller, 'perm(Builder)'):
+                # Check staff/admin status via account permissions
+                account = getattr(character, 'account', None)
+                is_admin = False
+                if account:
+                    is_admin = account.is_superuser or account.is_staff or account.check_permstring('builders')
+                if is_admin:
                     admin_players.append(entry)
                 else:
                     visible_players.append(entry)
