@@ -125,10 +125,9 @@ class Character(ObjectParent, DefaultCharacter):
         """
         super().at_object_creation()
 
-        # Initialize longdesc system with default anatomy
-        from world.combat.constants import DEFAULT_LONGDESC_LOCATIONS
-        if not self.longdesc:
-            self.longdesc = DEFAULT_LONGDESC_LOCATIONS.copy()
+        # Initialize nakeds system for naked body part descriptions
+        if not self.db.nakeds:
+            self.db.nakeds = {}
 
         # Initialize medical system - replaces legacy HP system
         self._initialize_medical_state()
@@ -1365,13 +1364,10 @@ class Character(ObjectParent, DefaultCharacter):
         autocreate=True
     )
 
-    # LONGDESC SYSTEM
-    # Detailed body part descriptions: anatomy source of truth
-    longdesc = AttributeProperty(
-        None,  # Will be set to copy of DEFAULT_LONGDESC_LOCATIONS in at_object_creation
-        category="appearance",
-        autocreate=True
-    )
+    # NAKEDS SYSTEM
+    # Naked body part descriptions - detailed descriptions for individual body parts
+    # Stored as a dictionary mapping body part names to description strings
+    # Structure: {"head": "description", "face": "description", ...}
     
     # CLOTHING SYSTEM
     # Storage for worn clothing items organized by body location
@@ -1837,7 +1833,7 @@ class Character(ObjectParent, DefaultCharacter):
         
         descriptions = []
         coverage_map = self._build_clothing_coverage_map()
-        longdescs = self.longdesc or {}
+        nakeds = self.db.nakeds or {}
         
         # Track which clothing items we've already added to avoid duplicates
         added_clothing_items = set()
@@ -1856,10 +1852,10 @@ class Character(ObjectParent, DefaultCharacter):
                         descriptions.append((location, desc))
                         added_clothing_items.add(clothing_item)
             else:
-                # Location not covered - use character's longdesc if set with template variable processing
-                if location in longdescs and longdescs[location]:
+                # Location not covered - use character's naked description if set with template variable processing
+                if location in nakeds and nakeds[location]:
                     # Longdesc should have skintone applied
-                    processed_desc = self._process_description_variables(longdescs[location], looker, force_third_person=True, apply_skintone=True)
+                    processed_desc = self._process_description_variables(nakeds[location], looker, force_third_person=True, apply_skintone=True)
                     
                     # Add wounds to this location if any exist
                     try:
@@ -1894,8 +1890,8 @@ class Character(ObjectParent, DefaultCharacter):
                         # Wound system not available, continue without wounds
                         pass
         
-        # Add any extended anatomy not in default order (clothing or longdesc)
-        all_locations = set(longdescs.keys()) | set(coverage_map.keys())
+        # Add any extended anatomy not in default order (clothing or nakeds)
+        all_locations = set(nakeds.keys()) | set(coverage_map.keys())
         for location in all_locations:
             if location not in ANATOMICAL_DISPLAY_ORDER:
                 if location in coverage_map:
@@ -1907,9 +1903,9 @@ class Character(ObjectParent, DefaultCharacter):
                         if desc:
                             descriptions.append((location, desc))
                             added_clothing_items.add(clothing_item)
-                elif location in longdescs and longdescs[location]:
-                    # Extended location with longdesc - apply template variable processing and skintone
-                    processed_desc = self._process_description_variables(longdescs[location], looker, force_third_person=True, apply_skintone=True)
+                elif location in nakeds and nakeds[location]:
+                    # Extended location with nakeds - apply template variable processing and skintone
+                    processed_desc = self._process_description_variables(nakeds[location], looker, force_third_person=True, apply_skintone=True)
                     
                     # Add wounds to this extended location if any exist
                     try:
@@ -2042,9 +2038,9 @@ class Character(ObjectParent, DefaultCharacter):
         longdescs = self.longdesc or {}
         return list(longdescs.keys())
 
-    def set_longdesc(self, location, description):
+    def set_naked(self, location, description):
         """
-        Sets a longdesc for a specific location.
+        Sets a naked description for a specific body part.
         
         Args:
             location: Body location
@@ -2053,29 +2049,43 @@ class Character(ObjectParent, DefaultCharacter):
         Returns:
             bool: True if successful, False if location invalid
         """
-        if not self.has_location(location):
-            return False
+        if not description:
+            return self.clear_naked(location)
         
-        longdescs = self.longdesc or {}
-        longdescs[location] = description
-        self.longdesc = longdescs
+        nakeds = self.db.nakeds or {}
+        nakeds[location] = description
+        self.db.nakeds = nakeds
         return True
 
-    def get_longdesc(self, location):
+    def get_naked(self, location):
         """
-        Gets longdesc for a specific location.
+        Gets naked description for a specific body part.
         
         Args:
             location: Body location
             
         Returns:
-            str or None: Description text or None if unset/invalid
+            str or None: Description text or None if unset
         """
-        if not self.has_location(location):
-            return None
+        nakeds = self.db.nakeds or {}
+        return nakeds.get(location)
+    
+    def clear_naked(self, location):
+        """
+        Clears naked description for a specific body part.
         
-        longdescs = self.longdesc or {}
-        return longdescs.get(location)
+        Args:
+            location: Body location
+            
+        Returns:
+            bool: True if successful
+        """
+        nakeds = self.db.nakeds or {}
+        if location in nakeds:
+            del nakeds[location]
+            self.db.nakeds = nakeds
+            return True
+        return False
 
     def return_appearance(self, looker, **kwargs):
         """
@@ -2103,13 +2113,9 @@ class Character(ObjectParent, DefaultCharacter):
         
         parts.append('\n'.join(name_and_desc))
         
-        # 2. Longdesc + clothing integration (uses automatic paragraph parsing)
-        if self.longdesc is None:
-            try:
-                from world.combat.constants import DEFAULT_LONGDESC_LOCATIONS
-                self.longdesc = DEFAULT_LONGDESC_LOCATIONS.copy()
-            except ImportError:
-                pass
+        # 2. Nakeds + clothing integration (uses automatic paragraph parsing)
+        if not self.db.nakeds:
+            self.db.nakeds = {}
         
         visible_body_descriptions = self._get_visible_body_descriptions(looker)
         if visible_body_descriptions:

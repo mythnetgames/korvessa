@@ -36,6 +36,7 @@ from commands.CmdThrow import (
 from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
+from commands.nakeds import CmdNakeds
 from commands.shop import CmdBuy
 from commands.window import CmdAttachWindow, CmdRemoveWindow, CmdWindowCoord, CmdDebugWindows
 from commands.debugroomcoords import CmdDebugRoomCoords
@@ -194,6 +195,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add relay system builder/admin commands
         from commands.relay_cmdset import BuilderRelayCmdSet
         self.add(BuilderRelayCmdSet())
+        # Add nakeds command
+        self.add(CmdNakeds())
         # Add createzone command
         from commands.createzone import CmdCreateZone
         self.add(CmdCreateZone())
