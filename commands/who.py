@@ -150,17 +150,18 @@ class CmdWho(default_cmds.CmdWho):
 
 class CmdInvisible(Command):
     """
-    Toggle your invisibility.
+    Toggle your visibility on the WHO list.
     
     Usage:
-        invisible       - Toggle invisible mode (admin/builders only)
+        invisible       - Toggle invisible mode
     
     When invisible, regular players cannot see you on the WHO list.
     Staff will still see you marked as (invisible).
+    This is useful for avoiding unwanted contact while still being online.
     """
     key = "invisible"
-    locks = "cmd:perm(builders)"
-    help_category = "Admin"
+    locks = "cmd:all()"
+    help_category = "General"
 
     def func(self):
         caller = self.caller
