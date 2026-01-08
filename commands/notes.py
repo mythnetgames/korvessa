@@ -67,6 +67,18 @@ class CmdAddNote(Command):
     aliases = ["@addnote", "@note"]
     locks = "cmd:all()"
     help_category = "OOC"
+    
+    def parse(self):
+        """Parse the command for switches."""
+        self.note_switches = []
+        args = self.args.strip() if self.args else ""
+        
+        # Check if command was called with /tags
+        if self.cmdstring.endswith("/tags") or args.lower() == "tags":
+            self.note_switches.append("tags")
+            # Remove "tags" from args if it was passed as argument
+            if args.lower() == "tags":
+                self.args = ""
 
     def get_help(self, caller, *args, **kwargs):
         """Return help documentation."""
@@ -110,7 +122,7 @@ Leave a note for staff about your character's actions, goals, or events.
         caller = self.caller
         
         # Check for /tags switch
-        if "tags" in self.switches:
+        if "tags" in self.note_switches:
             self._show_tags(caller)
             return
         
