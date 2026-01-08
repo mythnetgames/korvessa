@@ -39,7 +39,7 @@ class CmdWho(default_cmds.CmdWho):
     def show_player_who(self, caller):
         """Show WHO list for regular players - hidden locations and no invisible players."""
         # Get all online accounts
-        accounts = AccountDB.objects.filter(is_connected=True)
+        accounts = AccountDB.objects.filter(db_is_connected=True)
         
         # Build player list
         visible_players = []
@@ -83,7 +83,7 @@ class CmdWho(default_cmds.CmdWho):
     def show_admin_who(self, caller):
         """Show WHO list for staff - shows all players, accounts, and locations."""
         # Get all online accounts
-        accounts = AccountDB.objects.filter(is_connected=True)
+        accounts = AccountDB.objects.filter(db_is_connected=True)
         
         # Build player list
         all_players = []
