@@ -45,9 +45,21 @@ class Window(DefaultObject):
         if not self.location:
             return
 
+        OPPOSITE_DIRECTIONS = {
+            'north': 'south', 'south': 'north',
+            'east': 'west', 'west': 'east',
+            'northeast': 'southwest', 'southwest': 'northeast',
+            'northwest': 'southeast', 'southeast': 'northwest',
+            'up': 'down', 'down': 'up',
+            'in': 'out', 'out': 'in',
+            'n': 's', 's': 'n', 'e': 'w', 'w': 'e',
+            'ne': 'sw', 'sw': 'ne', 'nw': 'se', 'se': 'nw',
+            'u': 'd', 'd': 'u'
+        }
         if movement_type == 'enter':
             if direction:
-                msg = f"Through the window, you see {char.get_display_name()} enter from the {direction}."
+                entry_dir = OPPOSITE_DIRECTIONS.get(direction.lower(), direction)
+                msg = f"Through the window, you see {char.get_display_name()} enter from the {entry_dir}."
             else:
                 msg = f"Through the window, you see {char.get_display_name()} enter the room."
         elif movement_type == 'leave':
