@@ -44,7 +44,6 @@ class CmdCreateZone(Command):
         current_room = caller.location
         if current_room and direction:
             # Create exit from current room to new zone room
-            from evennia.utils import create
             exit_obj = create.create_object(
                 typeclass="typeclasses.exits.Exit",
                 key=direction,
