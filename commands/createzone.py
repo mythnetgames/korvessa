@@ -51,5 +51,27 @@ class CmdCreateZone(Command):
                 destination=room
             )
             caller.msg(f"Created exit '{direction}' from {current_room.key} to new zone room {room.key}.")
+            
+            # Create reverse exit from new zone room back to current room
+            reverse_directions = {
+                "north": "south", "south": "north",
+                "east": "west", "west": "east",
+                "northeast": "southwest", "southwest": "northeast",
+                "northwest": "southeast", "southeast": "northwest",
+                "up": "down", "down": "up",
+                "in": "out", "out": "in",
+                "n": "s", "s": "n", "e": "w", "w": "e",
+                "ne": "sw", "sw": "ne", "nw": "se", "se": "nw",
+                "u": "d", "d": "u"
+            }
+            reverse_dir = reverse_directions.get(direction.lower())
+            if reverse_dir:
+                create.create_object(
+                    typeclass="typeclasses.exits.Exit",
+                    key=reverse_dir,
+                    location=room,
+                    destination=current_room
+                )
+                caller.msg(f"Created return exit '{reverse_dir}' from {room.key} to {current_room.key}.")
         # Optionally, you could store the zone's origin for further expansion.
         return
