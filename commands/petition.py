@@ -271,8 +271,15 @@ class CmdStaffPetition(Command):
             if account.character:
                 petitions = getattr(account.character.db, 'petitions', None) or []
                 for p in petitions:
-                    p_with_char = p.copy()
-                    p_with_char['character'] = account.character.key
+                    # Create a new dict instead of copying the _SaverDict
+                    p_with_char = {
+                        'id': p.get('id'),
+                        'timestamp': p.get('timestamp'),
+                        'target': p.get('target'),
+                        'message': p.get('message'),
+                        'status': p.get('status'),
+                        'character': account.character.key
+                    }
                     all_petitions.append(p_with_char)
         
         if not all_petitions:
