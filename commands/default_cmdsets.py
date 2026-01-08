@@ -194,6 +194,12 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add relay system builder/admin commands
         from commands.relay_cmdset import BuilderRelayCmdSet
         self.add(BuilderRelayCmdSet())
+        # Add createzone command
+        from commands.createzone import CmdCreateZone
+        self.add(CmdCreateZone())
+        # Add setzone command
+        from commands.setzone import CmdSetZone
+        self.add(CmdSetZone())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """

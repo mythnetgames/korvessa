@@ -15,6 +15,8 @@ from .objects import ObjectParent
 
 
 class Room(ObjectParent, DefaultRoom):
+    # Zone indicator for multi-zone support
+    zone = AttributeProperty(default=None, autocreate=True)
 
         # ...existing code...
     """
