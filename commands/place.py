@@ -162,8 +162,7 @@ class CmdTempPlace(Command):
         
         # Auto-emote if enabled
         if getattr(caller.db, 'tpemote_enabled', False):
-            caller.msg(f"|Y{caller.get_display_name(caller)}: {description}|n")
-            caller.location.msg_contents(f"|Y{caller.get_display_name(caller)}: {description}|n", exclude=[caller])
+            caller.execute_cmd(f"emote is {description}")
 
     def clear_temp_place(self, caller):
         """Clear the temp_place message."""
