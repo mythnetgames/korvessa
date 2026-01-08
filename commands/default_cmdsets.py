@@ -39,6 +39,7 @@ from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.nakeds import CmdNakeds
 from commands.who import CmdWho, CmdInvisible, CmdWhoLocation
 from commands.place import CmdLookPlace, CmdTempPlace, CmdTPEmote
+from commands.voice import CmdVoice
 from commands.shop import CmdBuy
 from commands.window import CmdAttachWindow, CmdRemoveWindow, CmdWindowCoord, CmdDebugWindows
 from commands.debugroomcoords import CmdDebugRoomCoords
@@ -121,6 +122,14 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdWho())
         self.add(CmdInvisible())
         self.add(CmdWhoLocation())
+        # Remove default say and add custom one with voice support
+        self.remove("say")
+        from commands.say import CmdSay
+        self.add(CmdSay())
+        # Remove default emote and add custom one with voice support
+        self.remove("emote")
+        from commands.emote import CmdEmote
+        self.add(CmdEmote())
         # Add individual attach/remove/program/show commands for doors/locks/keypads
         from commands.door import (
             CmdAttachDoor, CmdAttachLock, CmdAttachKeypad, CmdRemoveDoor, CmdRemoveLock, CmdRemoveKeypad,
@@ -208,6 +217,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdLookPlace())
         self.add(CmdTempPlace())
         self.add(CmdTPEmote())
+        # Add voice command
+        self.add(CmdVoice())
         # Add createzone command
         from commands.createzone import CmdCreateZone
         self.add(CmdCreateZone())
