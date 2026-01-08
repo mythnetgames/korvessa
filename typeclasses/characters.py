@@ -1375,12 +1375,7 @@ class Character(ObjectParent, DefaultCharacter):
     # Structure: {"head": "description", "face": "description", ...}
     
     # PLACEMENT SYSTEM (@look_place, @temp_place)
-    # Persistent placement description (what character is doing in room)
-    look_place = AttributeProperty(
-        None,
-        category="appearance",
-        autocreate=True
-    )
+    # Note: look_place and override_place are defined as AttributeProperty above
     # Temporary placement description (cleared when changing rooms, stored in NDB)
     @property
     def temp_place(self):
@@ -1396,12 +1391,6 @@ class Character(ObjectParent, DefaultCharacter):
         else:
             self.ndb.temp_place = value
     
-    # Override placement description (for special poses/states)
-    override_place = AttributeProperty(
-        None,
-        category="appearance",
-        autocreate=True
-    )
     
     # CLOTHING SYSTEM
     # Storage for worn clothing items organized by body location

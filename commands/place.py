@@ -43,7 +43,7 @@ class CmdLookPlace(Command):
         
         # No arguments - show current look_place
         if not self.args:
-            current = getattr(caller.db, 'look_place', None)
+            current = caller.look_place
             if current:
                 caller.msg(f"|GYour @look_place:|n {current}")
             else:
@@ -77,13 +77,12 @@ class CmdLookPlace(Command):
 
     def set_look_place(self, caller, description):
         """Set the persistent look_place message."""
-        caller.db.look_place = description
+        caller.look_place = description
         caller.msg(f"|GSet @look_place:|n {description}")
 
     def clear_look_place(self, caller):
         """Clear the look_place message."""
-        if hasattr(caller.db, 'look_place'):
-            delattr(caller.db, 'look_place')
+        caller.look_place = None
         caller.msg("|GCleared @look_place.|n")
 
 
