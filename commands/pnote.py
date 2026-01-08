@@ -9,26 +9,57 @@ from datetime import datetime
 class CmdPnotes(Command):
     """
     List and search pnotes.
-    
-    Player Usage:
-        pnotes                   : Lists all your pnotes
-        pnotes <search term>     : Searches your pnotes for the term
-    
-    Admin Usage:
-        pnotes                   : Lists admin's pnotes
-        pnotes <player>          : Lists player's pnotes
-        pnotes "<search term>"   : Searches admin's pnotes for the term
-        pnotes <player> "<term>" : Searches player's pnotes for the term
-    
-    Examples:
-        pnotes
-        pnotes "combat approval"
-        pnotes TestDummy
-        pnotes TestDummy "chrome installation"
     """
     key = "pnotes"
     locks = "cmd:all()"
     help_category = "OOC"
+
+    def get_help(self, caller, *args, **kwargs):
+        """Return appropriate help based on caller permission."""
+        is_staff = caller.is_superuser if hasattr(caller, 'is_superuser') else False
+        
+        if is_staff:
+            return """
+|cSTAFF HELP - PNOTES|n
+
+List and search pnotes left by staff for players.
+
+|wUsage:|n
+  pnotes                   - View your submitted petitions AND petitions for you
+  pnotes <player>          - View a specific player's pnotes
+  pnotes "<search term>"   - Search your pnotes for a term
+  pnotes <player> "<term>" - Search a player's pnotes for a term
+
+|wExamples:|n
+  pnotes
+  pnotes TestDummy
+  pnotes "chrome"
+  pnotes Dalao "combat"
+
+|wSee Also:|n
+  pnote   - Add a pnote for a player
+  pread   - Read a player's pnote
+  pdel    - Delete a pnote
+"""
+        else:
+            return """
+|cPLAYER HELP - PNOTES|n
+
+View and search your pnotes from staff.
+
+|wUsage:|n
+  pnotes                 - List all your pnotes
+  pnotes <search term>   - Search your pnotes for a term
+
+|wExamples:|n
+  pnotes
+  pnotes "combat approval"
+  pnotes chrome
+
+|wSee Also:|n
+  pread   - Read a specific pnote
+  pdel    - Delete a pnote
+"""
 
     def func(self):
         caller = self.caller
@@ -122,18 +153,46 @@ class CmdPnotes(Command):
 class CmdPnote(Command):
     """
     View or add pnotes (staff messages to players).
-    
-    Usage (Players):
-        pnote              - List your pnotes
-    
-    Usage (Staff):
-        pnote <character> <message>  - Leave a pnote for a player
-    
-    Players receive pnotes from staff and can read them with pread.
     """
     key = "pnote"
     locks = "cmd:all()"
     help_category = "OOC"
+
+    def get_help(self, caller, *args, **kwargs):
+        """Return appropriate help based on caller permission."""
+        is_staff = caller.is_superuser if hasattr(caller, 'is_superuser') else False
+        
+        if is_staff:
+            return """
+|cSTAFF HELP - PNOTE|n
+
+Leave messages for players that they can read when they log in.
+
+|wUsage:|n
+  pnote <character> = <message>
+
+|wExamples:|n
+  pnote Test Dummy = Great work on that contract!
+  pnote Dalao = Chrome approved for installation
+
+|wSee Also:|n
+  pnotes  - List and search pnotes
+  pread   - Read a player's pnote
+  pdel    - Delete a pnote
+"""
+        else:
+            return """
+|cPLAYER HELP - PNOTE|n
+
+View pnotes left for you by staff.
+
+|wUsage:|n
+  pnote  - List all your pnotes
+
+|wSee Also:|n
+  pread   - Read a specific pnote
+  pdel    - Delete a pnote
+"""
 
     def func(self):
         caller = self.caller
@@ -144,20 +203,25 @@ class CmdPnote(Command):
         if not self.args:
             # No args - show own pnotes (for players) or tell staff to provide target
             if is_staff:
-                caller.msg("Usage: pnote <character> <message>")
+                caller.msg("Usage: pnote <character> = <message>")
             else:
                 self.view_own_pnotes(caller)
             return
         
         # If staff, parse target and message
         if is_staff:
-            parts = self.args.split(None, 1)
-            if len(parts) < 2:
-                caller.msg("Usage: pnote <character> <message>")
+            if '=' not in self.args:
+                caller.msg("Usage: pnote <character> = <message>")
                 return
             
-            target_name = parts[0]
-            message = parts[1]
+            parts = self.args.split('=', 1)
+            target_name = parts[0].strip()
+            message = parts[1].strip()
+            
+            if not target_name or not message:
+                caller.msg("Usage: pnote <character> = <message>")
+                return
+            
             self.add_pnote(caller, target_name, message)
         else:
             # Players can only list their own pnotes
@@ -218,20 +282,55 @@ class CmdPnote(Command):
 class CmdPread(Command):
     """
     Read a pnote.
-    
-    Usage (Players):
-        pread <entry number>     - Read your pnote
-    
-    Usage (Staff):
-        pread <character> <entry> - Read a player's pnote
-    
-    Examples:
-        pread 1
-        pread TestDummy 2
     """
     key = "pread"
     locks = "cmd:all()"
     help_category = "OOC"
+
+    def get_help(self, caller, *args, **kwargs):
+        """Return appropriate help based on caller permission."""
+        is_staff = caller.is_superuser if hasattr(caller, 'is_superuser') else False
+        
+        if is_staff:
+            return """
+|cSTAFF HELP - PREAD|n
+
+Read a pnote left for a player.
+
+|wUsage:|n
+  pread <entry>               - Read one of your own pnotes
+  pread <character> <entry>   - Read a player's pnote
+
+|wExamples:|n
+  pread 1
+  pread Test Dummy 1
+  pread Dalao 3
+
+|wSee Also:|n
+  pnotes  - List and search pnotes
+  pnote   - Add a pnote for a player
+  pdel    - Delete a pnote
+"""
+        else:
+            return """
+|cPLAYER HELP - PREAD|n
+
+Read one of your pnotes from staff.
+
+|wUsage:|n
+  pread <entry>  - Read a specific pnote by number
+
+|wExamples:|n
+  pread 1
+  pread 2
+
+To find the entry numbers, use:
+  pnotes - Lists all your pnotes with their numbers
+
+|wSee Also:|n
+  pnotes  - List your pnotes
+  pdel    - Delete a pnote
+"""
 
     def func(self):
         caller = self.caller
