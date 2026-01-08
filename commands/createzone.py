@@ -34,7 +34,6 @@ class CmdCreateZone(Command):
         # Create the new zone's first room
         room = create.create_object(Room, key=f"Zone {zonename} Room (0,0,0)")
         room.zone = zonename
-        room.db.zone = zonename
         room.db.x = 0
         room.db.y = 0
         room.db.z = 0

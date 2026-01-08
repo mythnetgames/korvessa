@@ -22,7 +22,6 @@ class CmdSetZone(Command):
             caller.msg("You must be in a room to set its zone.")
             return
         room.zone = zone
-        room.db.zone = zone
         # Update coordinates to match new zone
         room.update_zone_and_coordinates()
         caller.msg(f"Room {room.key} (dbref {room.dbref}) assigned to zone '{zone}' and coordinates updated to ({room.db.x}, {room.db.y}, {room.db.z}).")

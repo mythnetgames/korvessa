@@ -42,14 +42,25 @@ class Exit(DefaultExit):
         alias = cardinal_aliases.get(self.key.lower())
         if alias and alias not in self.aliases.all():
             self.aliases.add(alias)
-        # Remove custom command registration
+
+    def at_object_post_create(self):
+        """Called after the exit is fully created with destination set"""
+        super().at_object_post_create()
         
-        # Auto-assign coordinates to source room if at (0,0,0)
-        if self.location and hasattr(self.location, '_assign_coordinates_from_exits'):
-            try:
-                self.location._assign_coordinates_from_exits()
-            except Exception:
-                pass
+        # Auto-assign zone and coordinates
+        if self.location and self.destination:
+            # Inherit source room's zone to destination room if destination doesn't have one
+            src_zone = getattr(self.location, 'zone', None)
+            dest_zone = getattr(self.destination, 'zone', None)
+            if src_zone and not dest_zone:
+                self.destination.zone = src_zone
+            
+            # Auto-assign coordinates to source room if at (0,0,0)
+            if hasattr(self.location, '_assign_coordinates_from_exits'):
+                try:
+                    self.location._assign_coordinates_from_exits()
+                except Exception:
+                    pass
 
     def return_appearance(self, looker, **kwargs):
         """
