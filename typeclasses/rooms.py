@@ -96,8 +96,15 @@ class Room(ObjectParent, DefaultRoom):
         """
         Called when room is first created.
         Initialize room attributes for existing rooms.
+        Auto-inherit zone from parent room if creating in a zoned location.
         """
         super().at_object_creation()
+        
+        # Inherit zone from parent location if not explicitly set
+        if self.location and hasattr(self.location, 'zone'):
+            parent_zone = getattr(self.location, 'zone', None)
+            if parent_zone and not self.zone:
+                self.zone = parent_zone
         
         # Initialize attributes - AttributeProperty will handle new rooms,
         # but existing rooms need this to ensure attributes exist
