@@ -269,7 +269,8 @@ View pnotes left for you by staff.
         
         # Notify target if online
         if target.sessions.all():
-            target.msg(f"|y[PNOTE]|n You have received a new pnote from {staff.key}. Type |wpread|n to view.")
+            pnote_count = len(getattr(target.db, 'pnotes', None) or [])
+            target.msg(f"|y[PNOTE]|n You have received a new pnote from {staff.key}. Type |wpread {pnote_count}|n to view.")
     
     def get_next_pnote_id(self, char):
         """Get the next pnote ID for this character."""
@@ -337,7 +338,8 @@ To find the entry numbers, use:
         is_staff = caller.is_superuser if hasattr(caller, 'is_superuser') else False
         
         if not self.args:
-            caller.msg("Usage: pread <entry> | pread <character> <entry>")
+            # No args - show newest pnote (highest ID)
+            self.read_newest_pnote(caller)
             return
         
         parts = self.args.split()
@@ -381,6 +383,27 @@ To find the entry numbers, use:
                 return
         
         char.msg(f"No pnote found with ID #{pnote_id}.")
+    
+    def read_newest_pnote(self, char):
+        """Read the newest (highest ID) pnote."""
+        pnotes = getattr(char.db, 'pnotes', None) or []
+        
+        if not pnotes:
+            char.msg("|YYou have no pnotes.|n")
+            return
+        
+        # Find pnote with highest ID
+        newest = max(pnotes, key=lambda p: p.get('id', 0))
+        pnote_id = newest.get('id', '?')
+        
+        from_staff = newest.get('from_staff', '?')
+        timestamp = newest.get('timestamp', '').strftime('%Y-%m-%d %H:%M') if hasattr(newest.get('timestamp', ''), 'strftime') else str(newest.get('timestamp', ''))
+        message = newest.get('message', '')
+        
+        char.msg(f"|c=== Pnote #{pnote_id} (newest) ===|n")
+        char.msg(f"|yFrom:|n {from_staff}")
+        char.msg(f"|yDate:|n {timestamp}")
+        char.msg(f"|yMessage:|n\n{message}")
     
     def read_other_pnote(self, staff, target_name, pnote_id):
         """Staff reading another character's pnote."""
@@ -521,3 +544,77 @@ To find the entry numbers, use:
                 return
         
         staff.msg(f"No pnote found with ID #{pnote_id} for {target.key}.")
+
+
+class CmdPlist(Command):
+    """
+    List all your pnotes from staff (for players).
+    """
+    key = "plist"
+    locks = "cmd:all()"
+    help_category = "OOC"
+
+    def get_help(self, caller, *args, **kwargs):
+        """Return appropriate help based on caller permission."""
+        is_staff = caller.is_superuser if hasattr(caller, 'is_superuser') else False
+        
+        if is_staff:
+            return """
+|cSTAFF HELP - PLIST|n
+
+This command is for players only. Use 'pnotes' to list player pnotes.
+
+|wSee Also:|n
+  pnotes  - List and search pnotes for any player
+  pnote   - Add a pnote for a player
+"""
+        else:
+            return """
+|cPLAYER HELP - PLIST|n
+
+View all your pnotes from staff in a compact list (oldest at bottom).
+
+|wUsage:|n
+  plist  - List all your pnotes
+
+|wExamples:|n
+  plist
+
+To read a specific pnote, use:
+  pread <number>
+
+To read your newest pnote, use:
+  pread  (with no number)
+
+|wSee Also:|n
+  pread   - Read a specific pnote
+  pnotes  - Search your pnotes
+  pdel    - Delete a pnote
+"""
+
+    def func(self):
+        caller = self.caller
+        is_staff = caller.is_superuser if hasattr(caller, 'is_superuser') else False
+        
+        if is_staff:
+            caller.msg("The 'plist' command is for players only. Use 'pnotes' to manage player pnotes.")
+            return
+        
+        pnotes = getattr(caller.db, 'pnotes', None) or []
+        
+        if not pnotes:
+            caller.msg("|YYou have no pnotes.|n")
+            return
+        
+        # Sort by ID (ascending, oldest first)
+        sorted_pnotes = sorted(pnotes, key=lambda p: p.get('id', 0))
+        
+        caller.msg("|c=== Your Pnotes ===|n")
+        for note in sorted_pnotes:
+            from_staff = note.get('from_staff', '?')
+            timestamp = note.get('timestamp', '').strftime('%Y-%m-%d %H:%M') if hasattr(note.get('timestamp', ''), 'strftime') else str(note.get('timestamp', ''))
+            note_id = note.get('id', '?')
+            preview = note.get('message', '')[:50] + ('...' if len(note.get('message', '')) > 50 else '')
+            caller.msg(f"  |w[{note_id}]|n from {from_staff} [{timestamp}]: {preview}")
+            caller.msg(f"       Read with: |wpread {note_id}|n")
+
