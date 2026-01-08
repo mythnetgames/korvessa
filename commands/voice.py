@@ -27,7 +27,7 @@ class CmdVoice(Command):
         @voice me is "slow southern drawl"
         @voice me is "disturbing arrhythmic cadence"
         @voice me is "ominous tone"
-        @voice me is "squeaky feminine"
+        @voice me is "squeaky feminine voice"
     
     Important:
         - Once set, your @voice cannot be cleared, only replaced with a new one
