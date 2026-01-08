@@ -121,6 +121,33 @@ class Room(ObjectParent, DefaultRoom):
             self.db.z = 0
 
         # Zone-aware coordinate assignment: only consider exits to rooms in the same zone
+        self._assign_coordinates_from_exits()
+    
+    def at_object_receive(self, moved_obj, source_location, **kwargs):
+        """
+        Called when an object enters this room.
+        Check for fully decayed corpses and clean them up just-in-time.
+        Also auto-assign coordinates if this room has (0,0,0) and an exit to a non-(0,0,0) room.
+        """
+        super().at_object_receive(moved_obj, source_location, **kwargs)
+        
+        # Auto-assign coordinates when an exit object is created and placed in this room
+        from typeclasses.exits import Exit
+        if isinstance(moved_obj, Exit) and self.db.x == 0 and self.db.y == 0:
+            # Re-run coordinate assignment logic
+            self._assign_coordinates_from_exits()
+        
+        # When a character (PC or NPC) enters, check all corpses in room for decay
+        from typeclasses.characters import Character
+        if isinstance(moved_obj, Character):
+            # Only run decay check when a character enters (not every object move)
+            self._check_corpse_decay()
+    
+    def _assign_coordinates_from_exits(self):
+        """
+        Assign coordinates based on exits to rooms in the same zone.
+        Called when exits are added to this room.
+        """
         if hasattr(self, "exits") and self.exits:
             for exit_obj in self.exits:
                 dest = getattr(exit_obj, "destination", None)
@@ -140,18 +167,6 @@ class Room(ObjectParent, DefaultRoom):
                             self.db.x = dest.db.x - 1
                             self.db.y = dest.db.y
                         break
-    
-    def at_object_receive(self, moved_obj, source_location, **kwargs):
-        """
-        Called when an object enters this room.
-        Check for fully decayed corpses and clean them up just-in-time.
-        """
-        super().at_object_receive(moved_obj, source_location, **kwargs)
-        # When a character (PC or NPC) enters, check all corpses in room for decay
-        from typeclasses.characters import Character
-        if isinstance(moved_obj, Character):
-            # Only run decay check when a character enters (not every object move)
-            self._check_corpse_decay()
 
     def at_object_leave(self, moved_obj, target_location, **kwargs):
         super().at_object_leave(moved_obj, target_location, **kwargs)
