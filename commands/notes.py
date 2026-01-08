@@ -1,11 +1,10 @@
 """
 Player-to-staff notes system.
 Players leave notes that staff can review and act on.
-Uses Evennia's @interactive decorator for reliable input capture.
+Uses simple argument-based commands for reliability.
 """
 
-from evennia import Command, search_object, InterruptCommand
-from evennia.commands.command import InteractiveCommand
+from evennia import Command, search_object
 from datetime import datetime
 
 
@@ -25,20 +24,47 @@ NOTE_TAGS = [
     "Other"
 ]
 
+# Short aliases for tags
+TAG_ALIASES = {
+    "goals": "Character Goals",
+    "event": "Significant Event",
+    "npc": "NPC Interaction",
+    "pc": "PC Interaction",
+    "job": "Employment",
+    "employment": "Employment",
+    "investigate": "Investigation",
+    "investigation": "Investigation",
+    "faction": "Faction Activity",
+    "combat": "Combat/Conflict",
+    "fight": "Combat/Conflict",
+    "plot": "Plot Development",
+    "help": "Staff Assistance Needed",
+    "staff": "Staff Assistance Needed",
+    "doc": "Documentation",
+    "docs": "Documentation",
+    "other": "Other",
+}
+
 
 # ============================================================================
 # PLAYER COMMANDS
 # ============================================================================
 
-class CmdAddNote(InteractiveCommand):
+class CmdAddNote(Command):
     """
     Leave a note for staff.
     
-    This command allows you to document your character's actions,
-    goals, and events for staff to review.
+    Usage:
+      @add-note <tag>/<subject>=<content>
+      @add-note/tags
+    
+    Examples:
+      @add-note job/Looking for bartender work=Talked to Hookie about a job.
+      @add-note combat/Fight with Triad=Got in a scrap outside the noodle shop.
+      @add-note other/General update=Just checking in with what my character is up to.
     """
     key = "@add-note"
-    aliases = ["@addnote"]
+    aliases = ["@addnote", "@note"]
     locks = "cmd:all()"
     help_category = "OOC"
 
@@ -50,168 +76,92 @@ class CmdAddNote(InteractiveCommand):
 Leave a note for staff about your character's actions, goals, or events.
 
 |wUsage:|n
-  @add-note
+  @add-note <tag>/<subject>=<content>
+  @add-note/tags              - List available tags
 
-This will prompt you through steps to:
-1. Select a tag describing the note's purpose
-2. Enter a subject line
-3. Write your note content
+|wExamples:|n
+  @add-note job/Looking for bartender work=Talked to Hookie about a job. 
+            Waiting to hear back.
+  @add-note combat/Fight with Triad enforcer=Got in a scrap outside the 
+            noodle shop. Won but took some hits.
+  @add-note plot/Following up on rumors=Heard about something going down 
+            at the docks. Planning to investigate.
 
-|wGood note examples:|n
-  Tag: Employment
-  Subject: Left resume with Waymond for bartender position
-  Content: Approached Waymond about a bartender job. Discussed pay and hours. 
-           Waiting to hear back about the position.
+|wAvailable tag shortcuts:|n
+  goals, event, npc, pc, job, investigate, faction, 
+  combat, plot, help, doc, other
 
-  Tag: Significant Event
-  Subject: Attacked unpuppeted Triad member in Kowloon Walled City
-  Content: Engaged in combat with a Triad enforcer who was unpuppeted.
-           Defeated him. This should attract attention from the faction.
+|wFull tag names also work:|n
+  "Character Goals", "Significant Event", "NPC Interaction", etc.
 
-|wTags available:|n
-  Character Goals, Significant Event, NPC Interaction, PC Interaction,
-  Employment, Investigation, Faction Activity, Combat/Conflict,
-  Plot Development, Staff Assistance Needed, Documentation, Other
-
-|wRead your notes:|n
-  @notes  - View all your notes
-  @paged-notes  - View notes with pagination
-
-|wWhy leave notes:|n
-  Staff cannot see everything. Notes help us track your character's
-  actions, goals, and plot developments. Always include context, motivation,
-  and what you want to happen next.
+|wGood notes include:|n
+  - What happened
+  - Why your character did it
+  - What you want to happen next
 
 |wSee Also:|n
-  @notes  - View your notes
-  @paged-notes  - Browse notes with pages
+  @notes       - View your notes
+  @paged-notes - Browse notes with pagination
+  @read-note   - Read a specific note
 """
 
     def func(self):
-        """Start the note creation process using yield for input."""
+        """Process the note creation."""
         caller = self.caller
         
-        # Show header
-        caller.msg("|c=== Create a Note for Staff ===|n")
+        # Check for /tags switch
+        if "tags" in self.switches:
+            self._show_tags(caller)
+            return
         
-        # === STEP 1: Tag Selection ===
+        if not self.args:
+            caller.msg("|rUsage: @add-note <tag>/<subject>=<content>|n")
+            caller.msg("|yUse @add-note/tags to see available tags.|n")
+            return
+        
+        # Parse the arguments: tag/subject=content
+        if "=" not in self.args:
+            caller.msg("|rYou must include content after an = sign.|n")
+            caller.msg("|yExample: @add-note job/Looking for work=Talked to the bartender.|n")
+            return
+        
+        header, content = self.args.split("=", 1)
+        content = content.strip()
+        
+        if not content:
+            caller.msg("|rYou must include note content.|n")
+            return
+        
+        if "/" not in header:
+            caller.msg("|rYou must include a tag and subject separated by /|n")
+            caller.msg("|yExample: @add-note job/Looking for work=Talked to the bartender.|n")
+            return
+        
+        tag_input, subject = header.split("/", 1)
+        tag_input = tag_input.strip().lower()
+        subject = subject.strip()
+        
+        if not subject:
+            caller.msg("|rYou must include a subject line.|n")
+            return
+        
+        # Resolve the tag
         tag = None
-        while tag is None:
-            text = "|cSelect a tag for your note:|n\n"
-            text += "|y(Type 'cancel' at any time to quit)|n\n\n"
-            for i, t in enumerate(NOTE_TAGS, 1):
-                text += f"  |w{i:2}|n - {t}\n"
-            text += "\n|wEnter a number:|n "
-            caller.msg(text)
-            
-            response = yield
-            response = response.strip()
-            
-            if response.lower() in ('cancel', 'quit', 'q'):
-                caller.msg("|yNote creation cancelled.|n")
-                return
-            
-            try:
-                selection = int(response)
-                if 1 <= selection <= len(NOTE_TAGS):
-                    tag = NOTE_TAGS[selection - 1]
-                else:
-                    caller.msg(f"|rPlease enter a number between 1 and {len(NOTE_TAGS)}.|n")
-            except ValueError:
-                caller.msg("|rPlease enter a number to select a tag.|n")
+        if tag_input in TAG_ALIASES:
+            tag = TAG_ALIASES[tag_input]
+        else:
+            # Try to match full tag name
+            for full_tag in NOTE_TAGS:
+                if tag_input == full_tag.lower():
+                    tag = full_tag
+                    break
         
-        # === STEP 2: Subject Input ===
-        subject = None
-        while subject is None:
-            text = f"""
-|cEnter a subject line for your note:|n
-|y(Type 'cancel' to quit)|n
-
-Current tag: |w{tag}|n
-
-|yBad examples:|n
-  Job
-  Need job
-  Talked to NPC
-
-|yGood examples:|n
-  Looking for a bartender job
-  Left a resume with Waymond for bartender position
-  Asked a Triad member about joining as a bruiser
-
-|wEnter subject:|n """
-            caller.msg(text)
-            
-            response = yield
-            response = response.strip()
-            
-            if response.lower() in ('cancel', 'quit', 'q'):
-                caller.msg("|yNote creation cancelled.|n")
-                return
-            
-            if not response:
-                caller.msg("|rPlease enter a subject line.|n")
-            elif len(response) > 200:
-                caller.msg("|rSubject too long. Please keep it under 200 characters.|n")
-            else:
-                subject = response
+        if not tag:
+            caller.msg(f"|rUnknown tag '{tag_input}'.|n")
+            caller.msg("|yUse @add-note/tags to see available tags.|n")
+            return
         
-        # === STEP 3: Content Input ===
-        content = None
-        while content is None:
-            text = f"""
-|cEnter the content of your note:|n
-|y(Type 'cancel' to quit)|n
-
-Current tag: |w{tag}|n
-Current subject: |w{subject}|n
-
-|yWrite clearly and include:|n
-  - What happened
-  - Why your character did it
-  - What your character wants to happen next
-
-|wEnter content:|n """
-            caller.msg(text)
-            
-            response = yield
-            response = response.strip()
-            
-            if response.lower() in ('cancel', 'quit', 'q'):
-                caller.msg("|yNote creation cancelled.|n")
-                return
-            
-            if not response:
-                caller.msg("|rPlease enter note content.|n")
-            else:
-                content = response
-        
-        # === STEP 4: Confirmation ===
-        confirmed = None
-        while confirmed is None:
-            text = f"""
-|c=== Review Your Note ===|n
-
-|wTag:|n {tag}
-|wSubject:|n {subject}
-|wContent:|n
-{content}
-
-|ySave this note? (yes/no)|n """
-            caller.msg(text)
-            
-            response = yield
-            response = response.strip().lower()
-            
-            if response in ('cancel', 'quit', 'q', 'n', 'no', '2'):
-                caller.msg("|yNote creation cancelled.|n")
-                return
-            elif response in ('y', 'yes', '1', 'save'):
-                confirmed = True
-            else:
-                caller.msg("|rPlease enter 'yes' to save or 'no' to cancel.|n")
-        
-        # === STEP 5: Save the note ===
+        # Create the note
         note_entry = {
             "id": get_next_note_id(caller),
             "timestamp": datetime.now(),
@@ -231,13 +181,22 @@ Current subject: |w{subject}|n
         caller.msg(f"""
 |g=== Note Saved ===|n
 
-Your note has been saved and will be reviewed by staff.
-
 |wTag:|n {tag}
 |wSubject:|n {subject}
+|wContent:|n {content}
 
-Staff will be notified of your note. Thank you!
+Staff have been notified. Thank you!
 """)
+    
+    def _show_tags(self, caller):
+        """Display available tags."""
+        caller.msg("|c=== Available Note Tags ===|n\n")
+        caller.msg("|wShortcut|n -> |cFull Tag Name|n")
+        caller.msg("-" * 40)
+        for shortcut, full_name in sorted(TAG_ALIASES.items(), key=lambda x: x[1]):
+            caller.msg(f"  |w{shortcut:12}|n -> |c{full_name}|n")
+        caller.msg("")
+        caller.msg("|yYou can use either the shortcut or full name.|n")
 
 
 class CmdNotes(Command):
