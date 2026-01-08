@@ -414,7 +414,7 @@ Staff will be notified of your note. Thank you!
 def cancel_note(caller, raw_string, **kwargs):
     """Cancel note creation."""
     caller.msg("|yNote creation cancelled.|n")
-    return None
+    return {"text": ""}
 
 
 # ============================================================================
