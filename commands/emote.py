@@ -36,18 +36,24 @@ class CmdEmote(DefaultCmdPose):
         voice = getattr(caller.db, 'voice', None)
         
         if voice:
-            # Look for speech patterns in the emote
-            # Match patterns like: says, "text" or says 'text' or says, "text"
+            # Insert accent for 'says' patterns
             speech_pattern = r'(says,?\s*["\'])(.*?)(["\'])'
-            
             def replace_speech(match):
-                prefix = match.group(1)  # 'says, "' or 'says "'
-                speech = match.group(2)   # The actual speech
-                quote = match.group(3)    # The closing quote
+                prefix = match.group(1)
+                speech = match.group(2)
+                quote = match.group(3)
                 return f'{prefix}*in a {voice}* {speech}{quote}'
-            
-            # Replace all speech instances with voice-enhanced versions
             emote_text = re.sub(speech_pattern, replace_speech, emote_text)
+
+            # Insert accent for emotes that are just quoted speech (e.g., "Test")
+            # Only if the whole emote is a quoted string
+            quote_only_pattern = r'^(["\'])(.*?)(["\'])$'
+            def replace_quote_only(match):
+                open_quote = match.group(1)
+                speech = match.group(2)
+                close_quote = match.group(3)
+                return f'{open_quote}*in a {voice}* {speech}{close_quote}'
+            emote_text = re.sub(quote_only_pattern, replace_quote_only, emote_text)
         
         # Format the pose with caller's name (ensure single space)
         pose_text = f"{caller.name} {emote_text}"
