@@ -161,37 +161,47 @@ class Room(ObjectParent, DefaultRoom):
         The logic: if this room has an exit in a direction TO a destination,
         then THIS room is in the OPPOSITE direction from the destination.
         """
+        # Debug: force zone inheritance if not set
+        if not self.zone and self.location:
+            parent_zone = getattr(self.location, 'zone', None)
+            if parent_zone:
+                self.zone = parent_zone
+        
         if hasattr(self, "exits") and self.exits:
             for exit_obj in self.exits:
                 dest = getattr(exit_obj, "destination", None)
-                if dest and hasattr(dest.db, "x") and hasattr(dest.db, "y") and hasattr(dest.db, "z") and getattr(dest, "zone", None) == self.zone:
-                    if self.db.x == 0 and self.db.y == 0 and self.db.z == 0:
-                        direction = exit_obj.key.lower()
-                        if direction == "north":
-                            self.db.x = dest.db.x
-                            self.db.y = dest.db.y - 1
-                            self.db.z = dest.db.z
-                        elif direction == "south":
-                            self.db.x = dest.db.x
-                            self.db.y = dest.db.y + 1
-                            self.db.z = dest.db.z
-                        elif direction == "east":
-                            self.db.x = dest.db.x - 1
-                            self.db.y = dest.db.y
-                            self.db.z = dest.db.z
-                        elif direction == "west":
-                            self.db.x = dest.db.x + 1
-                            self.db.y = dest.db.y
-                            self.db.z = dest.db.z
-                        elif direction == "up" or direction == "u":
-                            self.db.x = dest.db.x
-                            self.db.y = dest.db.y
-                            self.db.z = dest.db.z - 1
-                        elif direction == "down" or direction == "d":
-                            self.db.x = dest.db.x
-                            self.db.y = dest.db.y
-                            self.db.z = dest.db.z + 1
-                        break
+                if dest and hasattr(dest.db, "x") and hasattr(dest.db, "y") and hasattr(dest.db, "z"):
+                    dest_zone = getattr(dest, "zone", None)
+                    my_zone = self.zone
+                    # Check zones match (both None or both equal)
+                    if dest_zone == my_zone:
+                        if self.db.x == 0 and self.db.y == 0 and self.db.z == 0:
+                            direction = exit_obj.key.lower()
+                            if direction == "north":
+                                self.db.x = dest.db.x
+                                self.db.y = dest.db.y - 1
+                                self.db.z = dest.db.z
+                            elif direction == "south":
+                                self.db.x = dest.db.x
+                                self.db.y = dest.db.y + 1
+                                self.db.z = dest.db.z
+                            elif direction == "east":
+                                self.db.x = dest.db.x - 1
+                                self.db.y = dest.db.y
+                                self.db.z = dest.db.z
+                            elif direction == "west":
+                                self.db.x = dest.db.x + 1
+                                self.db.y = dest.db.y
+                                self.db.z = dest.db.z
+                            elif direction == "up" or direction == "u":
+                                self.db.x = dest.db.x
+                                self.db.y = dest.db.y
+                                self.db.z = dest.db.z - 1
+                            elif direction == "down" or direction == "d":
+                                self.db.x = dest.db.x
+                                self.db.y = dest.db.y
+                                self.db.z = dest.db.z + 1
+                            break
         
         # Also check if we're inside a location - if so, assign next to parent
         if self.location and self.db.x == 0 and self.db.y == 0 and self.db.z == 0:
