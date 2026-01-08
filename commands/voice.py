@@ -20,10 +20,10 @@ class CmdVoice(Command):
     When you speak, others will hear it described as "*in a [description]* [your speech]".
     
     The description should be 2-3 words accurately describing your voice. Valid endings
-    include: Accent, Tone, Drawl, Voice, Rasp, and Cadence.
+    include (but are not limited to!): Accent, Tone, Drawl, Voice, Rasp, and Cadence.
     
     Examples:
-        @voice me is "thick Korean accented"
+        @voice me is "thick Korean accent"
         @voice me is "slow southern drawl"
         @voice me is "disturbing arrhythmic cadence"
         @voice me is "ominous tone"
