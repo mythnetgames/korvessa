@@ -46,44 +46,46 @@ class Window(DefaultObject):
         # Get the base description
         base_desc = self.db.desc or "A window looking into another space."
         
-        # Try to find the target room by coordinates
-        from typeclasses.rooms import Room
-        coords = self.get_target_coords()
+        # Get target coordinates
+        target_x = getattr(self.db, 'target_x', None)
+        target_y = getattr(self.db, 'target_y', None)
+        target_z = getattr(self.db, 'target_z', None)
+        
+        # If window has no target coordinates set, just show base description
+        if target_x is None or target_y is None or target_z is None:
+            return base_desc
         
         try:
-            target_room = Room.objects.get(
-                db_attributes__db_key="zone",
-                db_attributes__db_value=str(getattr(self.location, 'db', type('obj', (object,), {'zone': '0'})).zone or '0'))
+            from typeclasses.rooms import Room
             
-            # Look for room with matching coordinates in the same zone
-            for room in Room.objects.filter(db_location=None):  # Rooms with no parent (world rooms)
+            # Search for room with matching coordinates
+            target_room = None
+            for room in Room.objects.all():
                 room_x = getattr(room.db, 'x', None)
                 room_y = getattr(room.db, 'y', None)
                 room_z = getattr(room.db, 'z', None)
                 
-                if room_x == coords[0] and room_y == coords[1] and room_z == coords[2]:
+                if room_x == target_x and room_y == target_y and room_z == target_z:
                     target_room = room
                     break
-            else:
-                # Room not found, return just the base description
+            
+            if not target_room:
                 return base_desc
+            
+            # Get display of what's in the target room
+            from typeclasses.rooms import get_display_characters
+            room_display = target_room.get_display_characters(looker) if hasattr(target_room, 'get_display_characters') else None
+            
+            if room_display:
+                return f"{base_desc}\n\n|cThrough the window:|n\n{room_display}"
+            else:
+                return f"{base_desc}\n\n|cThrough the window:|n The room appears empty."
                 
-        except Exception:
-            # If anything goes wrong, just return base description
+        except Exception as e:
+            # If anything goes wrong, return base description
+            import traceback
+            traceback.print_exc()
             return base_desc
-        
-        # Get characters and objects in the target room
-        contents = []
-        for obj in target_room.contents:
-            if hasattr(obj, 'get_display_name'):
-                contents.append(obj.get_display_name(looker))
-        
-        # Format the description with contents
-        if contents:
-            contents_str = ", ".join(contents)
-            return f"{base_desc}\n\n|cThrough the window:|n {contents_str}"
-        else:
-            return f"{base_desc}\n\n|cThrough the window:|n The room appears empty."
 
     def relay_movement(self, char, movement_type, direction=None):
         """
