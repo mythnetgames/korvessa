@@ -3,10 +3,10 @@ Custom Emote command that integrates voice descriptions into speech.
 """
 
 import re
-from evennia.commands.default.general import CmdEmote as DefaultCmdEmote
+from evennia.commands.default.general import CmdPose as DefaultCmdPose
 
 
-class CmdEmote(DefaultCmdEmote):
+class CmdEmote(DefaultCmdPose):
     """
     Perform an action (emote) with optional voice description in speech.
     
