@@ -203,6 +203,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add setcoord command
         from commands.setcoord import CmdSetCoord
         self.add(CmdSetCoord())
+        # Add autocoord command
+        from commands.autocoord import CmdAutoCoord
+        self.add(CmdAutoCoord())
         # Add deletezone command
         from commands.deletezone import CmdDeleteZone
         self.add(CmdDeleteZone())

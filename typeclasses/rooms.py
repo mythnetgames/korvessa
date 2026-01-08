@@ -138,11 +138,14 @@ class Room(ObjectParent, DefaultRoom):
         """
         super().at_object_receive(moved_obj, source_location, **kwargs)
         
-        # Auto-assign coordinates when an exit object is created and placed in this room
-        from typeclasses.exits import Exit
-        if isinstance(moved_obj, Exit) and self.db.x == 0 and self.db.y == 0:
-            # Re-run coordinate assignment logic
-            self._assign_coordinates_from_exits()
+        # Auto-assign coordinates when an exit object is placed in this room
+        try:
+            from typeclasses.exits import Exit
+            if isinstance(moved_obj, Exit) and self.db.x == 0 and self.db.y == 0:
+                # Re-run coordinate assignment logic
+                self._assign_coordinates_from_exits()
+        except (ImportError, AttributeError):
+            pass
         
         # When a character (PC or NPC) enters, check all corpses in room for decay
         from typeclasses.characters import Character
@@ -174,6 +177,15 @@ class Room(ObjectParent, DefaultRoom):
                             self.db.x = dest.db.x - 1
                             self.db.y = dest.db.y
                         break
+        
+        # Also check if we're inside a location - if so, assign next to parent
+        if self.location and self.db.x == 0 and self.db.y == 0:
+            parent_x = getattr(self.location.db, "x", None)
+            parent_y = getattr(self.location.db, "y", None)
+            if parent_x is not None and parent_y is not None:
+                # Place next to parent
+                self.db.x = parent_x + 1
+                self.db.y = parent_y
 
     def at_object_leave(self, moved_obj, target_location, **kwargs):
         super().at_object_leave(moved_obj, target_location, **kwargs)
