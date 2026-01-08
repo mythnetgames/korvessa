@@ -709,3 +709,80 @@ class CmdReadStaffNote(Command):
                 return
         
         caller.msg(f"Note #{note_id} not found for {target.key}.")
+
+
+class CmdNextNote(Command):
+    """
+    Staff command to read the next unread note in queue.
+    """
+    key = "@next-note"
+    aliases = ["@nextnote", "@note-next"]
+    locks = "cmd:perm(Admin)"
+    help_category = "Admin"
+
+    def get_help(self, caller, *args, **kwargs):
+        """Return help documentation."""
+        return """
+|cSTAFF HELP - @NEXT-NOTE|n
+
+Read the next unread note in the queue (oldest first).
+Automatically marks the note as read.
+
+|wUsage:|n
+  @next-note
+
+|wSee Also:|n
+  @view-notes  - View notes with filters
+  @read-staff-note  - Read a specific note
+"""
+
+    def func(self):
+        """Read the next unread note."""
+        caller = self.caller
+        from typeclasses.characters import Character
+        
+        # Collect all unread notes
+        all_unread = []
+        for char in Character.objects.all():
+            notes = getattr(char.db, 'character_notes', None) or []
+            for note in notes:
+                if not note.get('read_by_staff', False):
+                    all_unread.append((char.key, note))
+        
+        if not all_unread:
+            caller.msg("|gNo unread notes in queue.|n")
+            return
+        
+        # Sort by timestamp, oldest first
+        all_unread.sort(key=lambda x: x[1].get('timestamp', datetime.min))
+        
+        # Get the first one
+        char_key, note = all_unread[0]
+        
+        # Mark as read
+        note['read_by_staff'] = True
+        
+        # Display it
+        note_id = note.get('id', '?')
+        tag = note.get('tag', '?')
+        subject = note.get('subject', '?')
+        content = note.get('content', '?')
+        timestamp = note.get('timestamp', '')
+        if hasattr(timestamp, 'strftime'):
+            timestamp = timestamp.strftime('%Y-%m-%d %H:%M')
+        else:
+            timestamp = str(timestamp)
+        
+        # Show progress
+        unread_left = len(all_unread) - 1
+        caller.msg(f"|c=== Note #{note_id} from {char_key} ===|n")
+        caller.msg(f"|wTag:|n {tag}")
+        caller.msg(f"|wSubject:|n {subject}")
+        caller.msg(f"|wDate:|n {timestamp}")
+        caller.msg(f"|wContent:|n\n{content}")
+        caller.msg("")
+        if unread_left > 0:
+            caller.msg(f"|y{unread_left} unread note{'s' if unread_left > 1 else ''} remaining in queue.|n")
+        else:
+            caller.msg("|gAll notes have been read!|n")
+
