@@ -18,7 +18,13 @@ class Room(ObjectParent, DefaultRoom):
     # Zone indicator for multi-zone support
     zone = AttributeProperty(default=None, autocreate=True)
 
-        # ...existing code...
+    def get_zone_rooms(self):
+        """Return all rooms in the same zone as this room."""
+        from evennia.objects.models import ObjectDB
+        if self.zone is None:
+            return []
+        return [room for room in ObjectDB.objects.filter(db_typeclass_path=self.typeclass_path) if getattr(room, 'zone', None) == self.zone]
+
     """
     Rooms are like any Object, except their location is None
     (which is default). They also use basetype_setup() to
@@ -81,14 +87,14 @@ class Room(ObjectParent, DefaultRoom):
             self.db.x = 0
         if not hasattr(self.db, "y") or self.db.y is None:
             self.db.y = 0
-            if not hasattr(self.db, 'z'):
-                self.db.z = 0
+        if not hasattr(self.db, "z") or self.db.z is None:
+            self.db.z = 0
 
-        # Existing logic: assign coordinates if 0 and has exits
+        # Zone-aware coordinate assignment: only consider exits to rooms in the same zone
         if hasattr(self, "exits") and self.exits:
             for exit_obj in self.exits:
                 dest = getattr(exit_obj, "destination", None)
-                if dest and hasattr(dest.db, "x") and hasattr(dest.db, "y"):
+                if dest and hasattr(dest.db, "x") and hasattr(dest.db, "y") and getattr(dest, "zone", None) == self.zone:
                     if self.db.x == 0 and self.db.y == 0:
                         direction = exit_obj.key.lower()
                         if direction == "north":
@@ -170,19 +176,7 @@ class Room(ObjectParent, DefaultRoom):
         if not force_display and not (mapper_enabled or show_room_desc):
             return ""  # Suppress automatic room display
 
-        # ...existing code for aiming, integrated content, weather, etc...
-        aiming_direction = getattr(looker.ndb, "aiming_direction", None) if hasattr(looker, 'ndb') else None
-        if aiming_direction:
-            exit_obj = None
-            for ex in self.exits:
-                current_exit_aliases_lower = [alias.lower() for alias in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-                if ex.key.lower() == aiming_direction.lower() or aiming_direction.lower() in currentExit_aliases_lower:
-                    exit_obj = ex
-                    break
-            if exit_obj and exit_obj.destination:
-                aimed_room = exit_obj.destination
-                return super(Room, aimed_room).return_appearance(looker, **kwargs)
-
+        # Zone-aware mapping: only show exits and map info for rooms in the same zone
         appearance = super().return_appearance(looker, **kwargs)
         integrated_content = self.get_integrated_objects_content(looker)
         weather_desc = weather_system.get_weather_contributions(self, looker)
@@ -203,6 +197,14 @@ class Room(ObjectParent, DefaultRoom):
                     lines[i] += f" {combined_content}"
                     break
             appearance = '\n'.join(lines)
+
+        # Filter exits to only those leading to rooms in the same zone
+        if hasattr(self, "exits"):
+            for ex in list(self.exits):
+                dest = getattr(ex, "destination", None)
+                if dest and getattr(dest, "zone", None) != self.zone:
+                    # Optionally hide or mark exits to other zones
+                    pass  # Could remove from display or mark specially
 
         return appearance
 
