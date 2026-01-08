@@ -13,7 +13,7 @@ class CmdWho(default_cmds.CmdWho):
     
     Usage:
         who              - Show all visible players
-        invisible        - Toggle your invisibility (admin only)
+        invisible        - Toggle your visibility on the who list
         who_location     - Toggle your location visibility (for RP)
     
     Features:
@@ -41,42 +41,40 @@ class CmdWho(default_cmds.CmdWho):
         # Get all online accounts
         accounts = AccountDB.objects.filter(db_is_connected=True)
         
-        # Build player list
+        # Build player list and count invisible
         visible_players = []
+        total_players = 0
+        invisible_count = 0
         for account in accounts:
-            # Get character(s) for this account
             characters = account.characters
             if not characters:
                 continue
-            
             for character in characters:
-                # Skip invisible characters
+                total_players += 1
                 if self.is_invisible(character):
+                    invisible_count += 1
                     continue
-                
-                # Get location - check if player hid it
                 location_name = "Hidden"
                 if not self.has_hidden_location(character):
                     loc = character.location
                     if loc:
                         location_name = loc.get_display_name(caller)
-                
                 visible_players.append({
                     'name': character.get_display_name(caller),
                     'location': location_name
                 })
-        
         # Format output
         output = f"|C{'='*70}|n\n"
-        output += f"|CPlayers Online ({len(visible_players)}):|n\n"
+        if invisible_count:
+            output += f"|CPlayers Online ({total_players}, {invisible_count} invisible):|n\n"
+        else:
+            output += f"|CPlayers Online ({total_players}):|n\n"
         output += f"|C{'='*70}|n\n"
-        
         if not visible_players:
             output += "|YNo players are currently online.|n\n"
         else:
             for player in visible_players:
                 output += f"  |G{player['name']:<30}|n {player['location']}\n"
-        
         output += f"|C{'='*70}|n"
         caller.msg(output)
 
