@@ -119,15 +119,37 @@ class CmdNPCUnpuppet(Command):
     def func(self):
         """Unpuppet the current NPC."""
         caller = self.caller
+        account = caller.account
         
-        # Check if caller is an NPC being puppeted
-        if getattr(caller.db, 'is_npc', False) and caller.db.puppeted_by:
-            # Caller IS the NPC being puppeted
-            success, msg = caller.unpuppet_admin()
-            if success:
-                caller.msg(msg)
+        # Check if caller is an NPC being puppeted (either via @puppet or built-in puppet)
+        if getattr(caller.db, 'is_npc', False):
+            # Caller IS an NPC - unpuppet it
+            npc_name = caller.key
+            
+            # If using custom @puppet system, use unpuppet_admin
+            if caller.db.puppeted_by:
+                success, msg = caller.unpuppet_admin()
+                if success:
+                    caller.msg(msg)
+                else:
+                    caller.msg(f"|r{msg}|n")
+                return
+            
+            # Using Evennia's built-in puppet - use @ic to return to main character
+            # Find the account's original character (non-NPC)
+            original_char = None
+            for char in account.characters.all():
+                if not getattr(char.db, 'is_npc', False):
+                    original_char = char
+                    break
+            
+            if original_char:
+                # Unpuppet the NPC and puppet the original character
+                account.unpuppet_object(caller.sessions.first())
+                account.puppet_object(caller.sessions.first(), original_char)
+                original_char.msg(f"|gYou have released {npc_name}.|n")
             else:
-                caller.msg(f"|r{msg}|n")
+                caller.msg("|rCould not find your original character. Use @ic <character> to return.|n")
             return
         
         # Check if caller is the admin that is puppeting an NPC in this location
