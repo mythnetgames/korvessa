@@ -144,10 +144,16 @@ class CmdNPCUnpuppet(Command):
                     break
             
             if original_char:
-                # Unpuppet the NPC and puppet the original character
-                account.unpuppet_object(caller.sessions.first())
-                account.puppet_object(caller.sessions.first(), original_char)
-                original_char.msg(f"|gYou have released {npc_name}.|n")
+                # Get the session - sessions.get() returns a list
+                sessions = caller.sessions.get()
+                if sessions:
+                    session = sessions[0]
+                    # Unpuppet the NPC and puppet the original character
+                    account.unpuppet_object(session)
+                    account.puppet_object(session, original_char)
+                    original_char.msg(f"|gYou have released {npc_name}.|n")
+                else:
+                    caller.msg("|rNo active session found.|n")
             else:
                 caller.msg("|rCould not find your original character. Use @ic <character> to return.|n")
             return
