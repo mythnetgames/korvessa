@@ -415,23 +415,14 @@ class Character(ObjectParent, DefaultCharacter):
         if not text:
             return
             
-        # Block most system messages (from_obj=None), but allow death curtain animations
-        if not from_obj:
-            # Allow death curtain animations - frames consist primarily of red-colored dots
-            text_str = str(text)
-            # Death curtain frames: red color codes with dots (fade effect) or death message keywords
-            has_red_color = '|r' in text_str or '|R' in text_str
-            has_dots = text_str.count('.') > 5
-            has_death_keywords = 'haze' in text_str or 'vision' in text_str or 'world' in text_str or 'slips' in text_str or 'away' in text_str
-            # Also allow mostly-whitespace frames (final fade) or frames that are mostly color codes and spaces
-            stripped = text_str.replace('|r', '').replace('|R', '').replace('|n', '').strip()
-            is_blank_frame = len(stripped) < 10
+        # Allow death curtain animation messages (identified by sender)
+        if from_obj and hasattr(from_obj, 'key') and from_obj.key == 'death_curtain_animation':
+            return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
             
-            if has_red_color and (has_dots or has_death_keywords or is_blank_frame):
-                return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
-            else:
-                # Block other system messages (combat, explosives, medical, etc.)
-                return
+        # Block most system messages (from_obj=None)
+        if not from_obj:
+            # Block system messages (combat, explosives, medical, etc.)
+            return
             
         # Allow messages from staff (for admin commands, but not social)
         if hasattr(from_obj, 'locks') and from_obj.locks.check(from_obj, "perm(Builder)"):

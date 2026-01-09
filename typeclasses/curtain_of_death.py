@@ -147,6 +147,17 @@ def curtain_of_death(text, width=None, session=None):
     return frames
 
 
+class DeathCurtainSender:
+    """
+    Simple sender object to identify death curtain messages in the msg filter.
+    This allows the character.msg() filter to recognize and allow death curtain frames.
+    """
+    key = "death_curtain_animation"
+    
+    def __repr__(self):
+        return "<DeathCurtainSender>"
+
+
 class DeathCurtain:
     """
     Creates a "dripping blood" death animation by progressively removing
@@ -182,6 +193,8 @@ class DeathCurtain:
         self.current_frame = 0
         self.frame_delay = 0.05  # Start slower than before (was 0.015)
         self.delay_multiplier = 1.02  # More significant slowdown (was 1.005)
+        # Create a sender object so message filter can identify death curtain messages
+        self.sender = DeathCurtainSender()
         
     def start_animation(self):
         """Start the death curtain animation."""
@@ -198,7 +211,7 @@ class DeathCurtain:
                     victim_msg = f"|rYour body succumbs to {death_cause}. The end draws near...|n"
                 else:
                     victim_msg = f"|rYour body fails you. The end draws near...|n"
-                self.character.msg(victim_msg)
+                self.character.msg(victim_msg, from_obj=self.sender)
             
             # Don't send initial "dying from" message to observers - 
             # we'll send a combined death message later
@@ -209,9 +222,9 @@ class DeathCurtain:
     def _show_next_frame(self):
         """Show the next frame of the animation."""
         if self.current_frame < len(self.frames):
-            # Send current frame to the dying character
+            # Send current frame to the dying character with sender for filter identification
             if self.character:
-                self.character.msg(self.frames[self.current_frame])
+                self.character.msg(self.frames[self.current_frame], from_obj=self.sender)
             
             self.current_frame += 1
             
