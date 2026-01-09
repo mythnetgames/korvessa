@@ -75,7 +75,7 @@ ANATOMICAL_DISPLAY_ORDER = [
     # Head region
     "head", "lear", "rear", "face", "leye", "reye", "neck",
     # Torso region  
-    "lshoulder", "rshoulder", "larm", "rarm", "chest", "abdomen", "back",
+    "lshoulder", "rshoulder", "larm", "rarm", "lhand", "rhand", "chest", "abdomen", "back",
     # Groin/hip region
     "groin", "ass",
     # Leg region
@@ -85,7 +85,7 @@ ANATOMICAL_DISPLAY_ORDER = [
 # Anatomical regions for paragraph breaking
 ANATOMICAL_REGIONS = {
     "head_region": ["head", "lear", "rear", "face", "leye", "reye", "neck"],
-    "torso_region": ["lshoulder", "rshoulder", "larm", "rarm", "chest", "abdomen", "back"],
+    "torso_region": ["lshoulder", "rshoulder", "larm", "rarm", "lhand", "rhand", "chest", "abdomen", "back"],
     "groin_region": ["groin", "ass"],
     "leg_region": ["lthigh", "rthigh", "lshin", "rshin", "lfoot", "rfoot"]
 }
