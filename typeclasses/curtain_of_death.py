@@ -38,7 +38,7 @@ def _colorize_evennia(text):
     # Use Evennia's color system - random red variations for blood effect
     colors = ["|r", "|R"]  # Red variations for blood effect
     
-    colored = []
+    colored = ["|r"]  # Always start with red color code for filter detection
     for char in text:
         if char != " ":  # Don't colorize spaces
             colored.append(f"{random.choice(colors)}{char}")

@@ -419,14 +419,15 @@ class Character(ObjectParent, DefaultCharacter):
         if not from_obj:
             # Allow death curtain animations - frames consist primarily of red-colored dots
             text_str = str(text)
-            # Death curtain frames: red color codes with lots of dots (fade effect) or death message keywords
+            # Death curtain frames: red color codes with dots (fade effect) or death message keywords
             has_red_color = '|r' in text_str or '|R' in text_str
-            has_many_dots = text_str.count('.') > 15
-            has_death_keywords = 'haze' in text_str or 'vision' in text_str or 'world' in text_str or 'slips' in text_str
-            # Also allow mostly-whitespace frames (final fade)
-            is_blank_frame = len(text_str.strip()) < 10 and has_red_color
+            has_dots = text_str.count('.') > 5
+            has_death_keywords = 'haze' in text_str or 'vision' in text_str or 'world' in text_str or 'slips' in text_str or 'away' in text_str
+            # Also allow mostly-whitespace frames (final fade) or frames that are mostly color codes and spaces
+            stripped = text_str.replace('|r', '').replace('|R', '').replace('|n', '').strip()
+            is_blank_frame = len(stripped) < 10
             
-            if has_red_color and (has_many_dots or has_death_keywords or is_blank_frame):
+            if has_red_color and (has_dots or has_death_keywords or is_blank_frame):
                 return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
             else:
                 # Block other system messages (combat, explosives, medical, etc.)
