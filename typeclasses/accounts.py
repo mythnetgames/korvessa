@@ -164,7 +164,7 @@ class Guest(DefaultGuest):
     def check_available_slots(self, **kwargs):
         """
         Override Evennia's default to exclude archived characters from slot count.
-        
+
         Helper method used to determine if an account can create additional characters
         using the character slot system. Archived characters don't count toward the limit.
 
