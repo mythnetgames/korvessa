@@ -319,12 +319,21 @@ def create_condition_from_damage(damage_amount, damage_type, location=None):
     """
     conditions = []
     
-    # Always create bleeding for significant damage
-    threshold = BLEEDING_DAMAGE_THRESHOLDS.get('minor', 5)
-    
-    if damage_amount >= threshold:
-        bleeding_severity = min(10, max(1, damage_amount // 3))
-        conditions.append(BleedingCondition(bleeding_severity, location))
+    # Weapon-specific bleeding thresholds
+    # Blades and bullets cause bleeding more readily due to wound characteristics
+    if damage_type in ['bullet', 'blade', 'stab', 'laceration']:
+        # Sharp/penetrating wounds bleed easily - lower threshold
+        bleeding_threshold = 8  # Bleed at 8+ damage
+        if damage_amount >= bleeding_threshold:
+            # Severity scales with damage: 8 damage = 1 severity, 16 damage = 4 severity, etc.
+            bleeding_severity = min(10, max(1, damage_amount // 4))
+            conditions.append(BleedingCondition(bleeding_severity, location))
+    else:
+        # Other damage types (blunt, burn, etc.) have higher thresholds
+        threshold = BLEEDING_DAMAGE_THRESHOLDS.get('minor', 10)
+        if damage_amount >= threshold:
+            bleeding_severity = min(10, max(1, damage_amount // 3))
+            conditions.append(BleedingCondition(bleeding_severity, location))
     
     # Add pain for any damage
     if damage_amount > 0:
@@ -332,7 +341,7 @@ def create_condition_from_damage(damage_amount, damage_type, location=None):
         conditions.append(PainCondition(pain_severity, location))
     
     # Add infection risk for penetrating wounds
-    if damage_type in ['bullet', 'blade', 'pierce'] and damage_amount >= 8:
+    if damage_type in ['bullet', 'blade', 'pierce', 'stab', 'laceration'] and damage_amount >= 6:
         if random.randint(1, 100) <= 25:  # 25% chance
             infection_severity = random.randint(1, 3)
             conditions.append(InfectionCondition(infection_severity, location))
