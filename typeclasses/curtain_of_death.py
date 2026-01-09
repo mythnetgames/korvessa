@@ -196,8 +196,24 @@ class DeathCurtain:
         # Create a sender object so message filter can identify death curtain messages
         self.sender = DeathCurtainSender()
         
+        # Debug logging
+        try:
+            from evennia.comms.models import ChannelDB
+            splattercast = ChannelDB.objects.get_channel("Splattercast")
+            splattercast.msg(f"DEATH_CURTAIN_INIT: Character {character.key}, {len(self.frames)} frames generated")
+        except:
+            pass
+        
     def start_animation(self):
         """Start the death curtain animation."""
+        # Debug logging
+        try:
+            from evennia.comms.models import ChannelDB
+            splattercast = ChannelDB.objects.get_channel("Splattercast")
+            splattercast.msg(f"DEATH_CURTAIN_START: Starting animation for {self.character.key}")
+        except:
+            pass
+        
         # Send initial death messages before the curtain starts
         if self.location:
             # Get death cause for both messages
@@ -224,7 +240,15 @@ class DeathCurtain:
         if self.current_frame < len(self.frames):
             # Send current frame to the dying character with sender for filter identification
             if self.character:
-                self.character.msg(self.frames[self.current_frame], from_obj=self.sender)
+                frame_text = self.frames[self.current_frame]
+                try:
+                    from evennia.comms.models import ChannelDB
+                    splattercast = ChannelDB.objects.get_channel("Splattercast")
+                    splattercast.msg(f"DEATH_CURTAIN_FRAME: Frame {self.current_frame + 1}/{len(self.frames)} for {self.character.key}")
+                except:
+                    pass
+                
+                self.character.msg(frame_text, from_obj=self.sender)
             
             self.current_frame += 1
             
@@ -233,6 +257,13 @@ class DeathCurtain:
             self.frame_delay *= self.delay_multiplier
         else:
             # Animation complete, trigger death
+            try:
+                from evennia.comms.models import ChannelDB
+                splattercast = ChannelDB.objects.get_channel("Splattercast")
+                splattercast.msg(f"DEATH_CURTAIN_COMPLETE: Animation finished for {self.character.key}")
+            except:
+                pass
+            
             self._on_animation_complete()
             
     def _on_animation_complete(self):
