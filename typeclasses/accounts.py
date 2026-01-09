@@ -127,16 +127,11 @@ class Guest(DefaultGuest):
      - get_character_slots()
      - get_available_character_slots()
      - create_character(*args, **kwargs)
-    """
 
-    * Hook methods
+    * Hook methods:
 
-     basetype_setup()
-     at_account_creation()
-
-     > note that the following hooks are also found on Objects and are
-       usually handled on the character level:
-
+     - basetype_setup()
+     - at_account_creation()
      - at_init()
      - at_first_save()
      - at_access()
@@ -158,7 +153,6 @@ class Guest(DefaultGuest):
      - at_post_remove_character(char)
      - at_pre_channel_msg(message, channel, senders=None, **kwargs)
      - at_post_chnnel_msg(message, channel, senders=None, **kwargs)
-
     """
 
     def check_available_slots(self, **kwargs):
