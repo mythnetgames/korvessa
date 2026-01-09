@@ -38,6 +38,7 @@ from commands.CmdThrow import (
 from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
+from commands.CmdStatAdjust import CmdStatAdjust
 from commands.nakeds import CmdNakeds
 from commands.wield import CmdWield
 from commands.who import CmdWho, CmdInvisible, CmdWhoLocation
@@ -177,6 +178,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add stats command
         from commands.CmdStats import CmdStats
         self.add(CmdStats())
+        # Add stat adjust command (admin)
+        self.add(CmdStatAdjust())
         # Add setstat command (builder and up)
         from commands.CmdSetStat import CmdSetStat
         self.add(CmdSetStat())
