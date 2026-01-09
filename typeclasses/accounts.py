@@ -128,11 +128,6 @@ class Guest(DefaultGuest):
      - get_available_character_slots()
      - create_character(*args, **kwargs)
     """
-     - create(*args, **kwargs)
-     - delete(*args, **kwargs)
-     - channel_msg(message, channel, senders=None, **kwargs)
-     - idle_time()
-     - connection_time()
 
     * Hook methods
 
