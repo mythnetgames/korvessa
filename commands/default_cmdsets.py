@@ -28,6 +28,7 @@ from commands import CmdMedicalItems
 from commands.CmdSpawnMob import CmdSpawnMob
 from commands.CmdBug import CmdBug
 from commands.CmdAdmin import CmdHeal, CmdPeace, CmdTestDeathCurtain, CmdWeather, CmdResetMedical, CmdMedicalAudit, CmdTestDeath, CmdTestUnconscious
+from commands.CmdRevive import CmdRevive
 from commands.CmdFixCharacterOwnership import CmdFixCharacterOwnership
 from commands.combat.cmdset_combat import CombatCmdSet
 from commands.combat.special_actions import CmdAim, CmdGrapple
@@ -217,6 +218,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdResetMedical())
         self.add(CmdMedicalAudit())
         self.add(CmdMedicalInfo())
+        # Add revive command (admin)
+        self.add(CmdRevive())
         # Add combat commands
         self.add(CombatCmdSet())
         # Add wield command
