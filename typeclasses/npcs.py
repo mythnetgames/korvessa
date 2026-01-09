@@ -2,12 +2,13 @@
 NPC (Non-Player Character) typeclass with reactions, wandering, and puppet support.
 """
 
-from evennia import DefaultCharacter, utils
+from evennia import utils
+from typeclasses.characters import Character
 from random import choice, randint
 from datetime import datetime
 
 
-class NPC(DefaultCharacter):
+class NPC(Character):
     """
     An NPC character that can be controlled by players through puppeting,
     has reactions to player input, and can wander within zones.
