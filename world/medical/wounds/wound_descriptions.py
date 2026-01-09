@@ -31,11 +31,15 @@ def get_wound_description(injury_type, location, severity="Moderate", stage="fre
     Returns:
         str: Formatted wound description ready for longdesc integration
     """
+    # Fallback if injury_type is None
+    if not injury_type:
+        injury_type = "generic"
+    
     # Get the appropriate message module for this injury type
     try:
         message_module = getattr(messages, injury_type)
         wound_messages = message_module.WOUND_DESCRIPTIONS
-    except AttributeError:
+    except (AttributeError, TypeError):
         # Fallback to generic wound descriptions
         message_module = messages.generic
         wound_messages = message_module.WOUND_DESCRIPTIONS
