@@ -20,6 +20,7 @@ from commands import CmdCharacter
 from commands import CmdInventory
 from commands import CmdAdmin
 from commands import CmdClothing
+from commands.CmdClothing import CmdWear, CmdRemove
 from commands import CmdMedical
 from commands import CmdConsumption
 from commands import CmdMedicalItems
@@ -292,6 +293,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdTailorMessages())
         self.add(CmdTailorCheck())
         self.add(CmdTailorFinalize())
+        # Add clothing commands (wear/remove)
+        self.add(CmdWear())
+        self.add(CmdRemove())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
