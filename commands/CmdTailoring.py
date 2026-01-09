@@ -195,8 +195,8 @@ class CmdTailorCoverage(Command):
         caller = self.caller
         # Ensure switches exists (for Evennia compatibility)
         switches = getattr(self, "switches", [])
-        # List valid locations
-        if "list" in switches:
+        # Handle /list switch - check both switches and args
+        if "list" in switches or (self.args and self.args.strip().lower() == "/list"):
             caller.msg("|c=== Valid Coverage Locations ===|n")
             for loc, name in sorted(COVERAGE_LOCATION_NAMES.items()):
                 caller.msg(f"  |w{loc}|n - {name}")
