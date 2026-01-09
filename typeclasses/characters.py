@@ -417,8 +417,10 @@ class Character(ObjectParent, DefaultCharacter):
             
         # Block most system messages (from_obj=None), but allow death curtain animations
         if not from_obj:
-            # Allow death curtain animations (contains block characters)
-            if '▓' in str(text):
+            # Allow death curtain animations - check for red color codes used in curtain
+            text_str = str(text)
+            # Death curtain uses |r and |R color codes with the death message
+            if ('|r' in text_str or '|R' in text_str) and ('haze' in text_str or 'vision' in text_str or 'world' in text_str or text_str.count('.') > 10):
                 return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
             else:
                 # Block other system messages (combat, explosives, medical, etc.)
