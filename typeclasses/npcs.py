@@ -63,9 +63,15 @@ class NPC(Character):
         super().at_object_delete()
     
     def at_object_receive(self, moved_object, source):
-        """Handle items being given to the NPC."""
-        super().at_object_receive(moved_object, source)
-        # Could trigger reactions here
+        """Handle items being given to the NPC. Allow items to be added to inventory."""
+        # Allow the item to be received (return True or don't return False)
+        # Call parent to ensure normal behavior
+        return super().at_object_receive(moved_object, source)
+    
+    def at_pre_move(self, destination):
+        """Called before the object moves. For items being given TO this NPC, allow it."""
+        # Allow items to be moved into this NPC's inventory
+        return super().at_pre_move(destination)
     
     def at_init(self):
         """Called when NPC is loaded."""
