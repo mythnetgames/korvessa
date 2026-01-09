@@ -126,7 +126,7 @@ class FreshMaterial(DefaultObject):
             "describe": {
                 "set": bool(self.clothing_desc),
                 "required": True,
-                "description": "Item description (@describe)"
+                "description": "Item description (@tdescribe)"
             },
             "msg_wear": {
                 "set": bool(self.msg_wear),
@@ -164,7 +164,7 @@ class FreshMaterial(DefaultObject):
                 requirements["color_in_desc"] = {
                     "set": has_token or has_literal,
                     "required": True,
-                    "description": f"%color or '{self.clothing_color_name}' in @describe"
+                    "description": f"%color or '{self.clothing_color_name}' in @tdescribe"
                 }
             
             if self.msg_worn:
