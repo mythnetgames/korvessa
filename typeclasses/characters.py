@@ -402,19 +402,25 @@ class Character(ObjectParent, DefaultCharacter):
 
     def msg(self, text=None, from_obj=None, session=None, **kwargs):
         """
-        Override msg method to implement death curtain message filtering.
+        Override msg method to implement death message filtering.
         
-        Dead characters receive only essential messages for immersive death experience.
+        Dead characters receive only death-related messages for immersion.
+        The _death_curtain_active flag bypasses ALL filtering.
         """
         # If not dead, use normal messaging
         if not self.is_dead():
             return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
         
-        # ALWAYS allow death curtain messages (checked via ndb flag)
+        # CRITICAL: Allow ALL messages when death curtain/progression flag is set
+        # This is the main mechanism for death messages to get through
         if getattr(self.ndb, '_death_curtain_active', False):
             return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
+        
+        # Also allow if in active death progression
+        if getattr(self.ndb, '_death_progression_active', False):
+            return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
             
-        # Death curtain filtering for dead characters
+        # No text = nothing to filter
         if not text:
             return
             
@@ -427,20 +433,7 @@ class Character(ObjectParent, DefaultCharacter):
             except:
                 pass
             
-        # Allow death progression script messages
-        # Check for script key attribute (Evennia scripts use .key property)
-        if from_obj:
-            from_obj_key = getattr(from_obj, 'key', None)
-            if from_obj_key:
-                key_lower = str(from_obj_key).lower()
-                if 'death_progression' in key_lower or 'death_curtain' in key_lower:
-                    return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
-            # Also check typeclass name for scripts
-            from_obj_class = type(from_obj).__name__.lower()
-            if 'deathprogression' in from_obj_class:
-                return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
-            
-        # Block all other messages for immersion
+        # Block all other messages for immersion - dead characters see nothing
         return
         
     def _is_social_message(self, text, kwargs):
