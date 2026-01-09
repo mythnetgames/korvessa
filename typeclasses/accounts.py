@@ -50,6 +50,12 @@ class Account(DefaultAccount):
         """
         # Call the original unpuppet
         super().unpuppet_object(session)
+
+
+class Guest(DefaultGuest):
+    """
+    Guest account - a simple low-level account for testing.
+    
     An Account is the actual OOC player entity. It doesn't exist in the game,
     but puppets characters.
 
@@ -98,6 +104,7 @@ class Account(DefaultAccount):
                       quiet=False, **kwargs)
      - is_typeclass(typeclass, exact=False)
      - swap_typeclass(new_typeclass, clean_attributes=False, no_default=True)
+    """
      - access(accessing_obj, access_type='read', default=False, no_superuser_bypass=False, **kwargs)
      - check_permstring(permstring)
      - get_cmdsets(caller, current, **kwargs)
