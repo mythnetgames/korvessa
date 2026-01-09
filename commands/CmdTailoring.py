@@ -657,8 +657,11 @@ class CmdTailorCheck(Command):
         caller.msg(f"|c=== Tailoring Checklist for {material.key} ===|n")
         
         for req_name, req_info in requirements.items():
+            desc = req_info['description']
+            if req_name == "name":
+                desc = desc.replace("@name", "@tname")
             status = "|g✓|n" if req_info["set"] else "|r✗|n"
-            caller.msg(f"  {status} {req_info['description']}")
+            caller.msg(f"  {status} {desc}")
         
         caller.msg("")
         if all_valid:

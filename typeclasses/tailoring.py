@@ -111,7 +111,7 @@ class FreshMaterial(DefaultObject):
             "name": {
                 "set": bool(self.clothing_name),
                 "required": True,
-                "description": "Item name (@name)"
+                "description": "Item name (@tname)"
             },
             "color": {
                 "set": bool(self.clothing_color_code and self.clothing_color_name),
