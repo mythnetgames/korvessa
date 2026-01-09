@@ -34,6 +34,35 @@ class Character(ObjectParent, DefaultCharacter):
         # Show pending petitions on login
         self.show_pending_petitions()
 
+    def at_post_puppet(self, **kwargs):
+        """
+        Called just after puppeting has been completed. Suppress the "has entered
+        the game" message if an admin is puppeting this character.
+        
+        Args:
+            **kwargs: Arbitrary, optional arguments
+        """
+        from django.utils.translation import gettext as _
+        
+        # Show the account link message
+        self.msg(_("\nYou become |c{name}|n.\n").format(name=self.key))
+        self.msg((self.at_look(self.location), {"type": "look"}), options=None)
+
+        # Check if the controlling account is an admin
+        is_admin_puppeted = False
+        if self.account:
+            is_admin_puppeted = self.account.is_superuser or self.account.is_staff
+        
+        # Only show "has entered the game" if NOT puppeted by an admin
+        if self.location and not is_admin_puppeted:
+            def message(obj, from_obj):
+                obj.msg(
+                    _("{name} has entered the game.").format(name=self.get_display_name(obj)),
+                    from_obj=from_obj,
+                )
+
+            self.location.for_contents(message, exclude=[self], from_obj=self)
+
     def show_pending_petitions(self):
         """Display pending and active petitions on login."""
         petitions = getattr(self.db, 'petitions', None) or []
