@@ -2021,18 +2021,29 @@ class Character(ObjectParent, DefaultCharacter):
         from world.combat.constants import (
             PARAGRAPH_BREAK_THRESHOLD, 
             ANATOMICAL_REGIONS,
-            REGION_BREAK_PRIORITY
+            REGION_BREAK_PRIORITY,
+            ANATOMICAL_DISPLAY_ORDER
         )
         
         if not longdesc_list:
             return ""
+        
+        # Sort descriptions by ANATOMICAL_DISPLAY_ORDER to ensure proper grouping
+        def get_location_order(item):
+            location, _ = item
+            try:
+                return ANATOMICAL_DISPLAY_ORDER.index(location)
+            except ValueError:
+                return len(ANATOMICAL_DISPLAY_ORDER)  # Put unknown locations at end
+        
+        sorted_longdesc_list = sorted(longdesc_list, key=get_location_order)
         
         paragraphs = []
         current_paragraph = []
         current_char_count = 0
         current_region = None
         
-        for location, description in longdesc_list:
+        for location, description in sorted_longdesc_list:
             # Strip trailing periods from descriptions to avoid double periods when joining
             description = description.rstrip('.').strip()
             if not description:
