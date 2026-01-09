@@ -59,9 +59,10 @@ class CmdWield(Command):
         
         # Determine which hand to use
         hand = "right"
-        if "left" in self.switches:
+        switches = getattr(self, "switches", [])
+        if "left" in switches:
             hand = "left"
-        elif "both" in self.switches:
+        elif "both" in switches:
             hand = "both"
         
         self._wield_item(item, hand)
