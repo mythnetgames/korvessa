@@ -72,6 +72,18 @@ Examples:
   @npc-naked vendor/info
   @npc-naked vendor/clear=torso
 
+|wGender|n
+- |c@npc-gender <npc>=<gender>|n: Set NPC gender.
+- |c@npc-gender <npc>/info|n: View NPC gender.
+
+Valid genders: male, female, neutral
+
+Examples:
+  @npc-gender vendor=male
+  @npc-gender vendor=female
+  @npc-gender vendor=neutral
+  @npc-gender vendor/info
+
 |wUsage Notes|n
 - Triggers are case-insensitive (hello matches HELLO, Hello, etc).
 - Add multiple reactions to the same trigger for variety - NPCs randomly pick one.

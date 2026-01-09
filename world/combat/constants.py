@@ -49,12 +49,12 @@ FALLBACK_WEAPON_NAME = "your fists"
 
 # Default human anatomy (auto-created on character creation)
 DEFAULT_LONGDESC_LOCATIONS = {
-    "head": None, "face": None, "left_eye": None, "right_eye": None, 
-    "left_ear": None, "right_ear": None, "neck": None,
-    "chest": None, "back": None, "abdomen": None, "groin": None,
-    "left_arm": None, "right_arm": None, "left_hand": None, "right_hand": None,
-    "left_thigh": None, "right_thigh": None, "left_shin": None, "right_shin": None,
-    "left_foot": None, "right_foot": None
+    "head": None, "face": None, "leye": None, "reye": None, 
+    "lear": None, "rear": None, "neck": None,
+    "lshoulder": None, "rshoulder": None, "larm": None, "rarm": None,
+    "chest": None, "back": None, "abdomen": None, "groin": None, "ass": None,
+    "lthigh": None, "rthigh": None, "lshin": None, "rshin": None,
+    "lfoot": None, "rfoot": None, "lhand": None, "rhand": None
 }
 
 # Practical limit for total body locations per character
@@ -73,21 +73,21 @@ VALID_LONGDESC_LOCATIONS = set(DEFAULT_LONGDESC_LOCATIONS.keys())
 # Anatomical display order (head to toe)
 ANATOMICAL_DISPLAY_ORDER = [
     # Head region
-    "head", "face", "left_eye", "right_eye", "left_ear", "right_ear", "neck",
+    "head", "lear", "rear", "face", "leye", "reye", "neck",
     # Torso region  
-    "chest", "back", "abdomen",
-    # Arm region
-    "left_arm", "right_arm", "left_hand", "right_hand",
+    "lshoulder", "rshoulder", "larm", "rarm", "chest", "abdomen", "back",
+    # Groin/hip region
+    "groin", "ass",
     # Leg region
-    "groin", "left_thigh", "right_thigh", "left_shin", "right_shin", "left_foot", "right_foot"
+    "lthigh", "rthigh", "lshin", "rshin", "lfoot", "rfoot"
 ]
 
 # Anatomical regions for paragraph breaking
 ANATOMICAL_REGIONS = {
-    "head_region": ["head", "face", "left_eye", "right_eye", "left_ear", "right_ear", "neck"],
-    "torso_region": ["chest", "back", "abdomen"],
-    "arm_region": ["left_arm", "right_arm", "left_hand", "right_hand"],
-    "leg_region": ["groin", "left_thigh", "right_thigh", "left_shin", "right_shin", "left_foot", "right_foot"]
+    "head_region": ["head", "lear", "rear", "face", "leye", "reye", "neck"],
+    "torso_region": ["lshoulder", "rshoulder", "larm", "rarm", "chest", "abdomen", "back"],
+    "groin_region": ["groin", "ass"],
+    "leg_region": ["lthigh", "rthigh", "lshin", "rshin", "lfoot", "rfoot"]
 }
 
 # Coverage inheritance - parent locations can optionally cover their children
@@ -97,25 +97,28 @@ ANATOMICAL_REGIONS = {
 COVERAGE_INHERITANCE = {
     "head": [],  # Head (skull/crown) is separate from face/eyes/ears
     "face": [],  # Face is separate
-    "left_eye": [],  # Eyes are separate
-    "right_eye": [],
-    "left_ear": [],  # Ears are separate
-    "right_ear": [],
+    "leye": [],  # Eyes are separate
+    "reye": [],
+    "lear": [],  # Ears are separate
+    "rear": [],
     "neck": [],  # Neck is standalone
+    "lshoulder": [],
+    "rshoulder": [],
     "chest": [],  # No sub-locations
     "back": [],
     "abdomen": [],
-    "left_arm": [],  # Arms don't automatically include hands
-    "right_arm": [],
-    "left_hand": [],
-    "right_hand": [],
+    "larm": [],  # Arms don't automatically include hands
+    "rarm": [],
+    "lhand": [],
+    "rhand": [],
     "groin": [],
-    "left_thigh": [],  # Thighs don't automatically include shins
-    "right_thigh": [],
-    "left_shin": [],  # Shins don't automatically include feet
-    "right_shin": [],
-    "left_foot": [],
-    "right_foot": []
+    "ass": [],
+    "lthigh": [],  # Thighs don't automatically include shins
+    "rthigh": [],
+    "lshin": [],  # Shins don't automatically include feet
+    "rshin": [],
+    "lfoot": [],
+    "rfoot": []
 }
 
 # ===================================================================
@@ -139,12 +142,12 @@ CLOTHING_LAYERS = {
 
 # Example coverage definitions for common clothing types
 SHIRT_COVERAGE = ["chest", "back", "abdomen"]
-PANTS_COVERAGE = ["groin", "left_thigh", "right_thigh"] 
-JACKET_COVERAGE = ["chest", "back", "abdomen", "left_arm", "right_arm"]
-GLOVES_COVERAGE = ["left_hand", "right_hand"]
-BOOTS_COVERAGE = ["left_foot", "right_foot"]
+PANTS_COVERAGE = ["groin", "lthigh", "rthigh"] 
+JACKET_COVERAGE = ["chest", "back", "abdomen", "larm", "rarm"]
+GLOVES_COVERAGE = ["lhand", "rhand"]
+BOOTS_COVERAGE = ["lfoot", "rfoot"]
 HAT_COVERAGE = ["head"]
-FULL_ROBE_COVERAGE = ["chest", "back", "abdomen", "groin", "left_arm", "right_arm", "left_thigh", "right_thigh"]
+FULL_ROBE_COVERAGE = ["chest", "back", "abdomen", "groin", "larm", "rarm", "lthigh", "rthigh"]
 
 # Style property names (generic for flexibility)
 STYLE_ADJUSTABLE = "adjustable"  # rollup/unroll commands

@@ -672,3 +672,74 @@ class CmdNPCNakeds(Command):
                 caller.msg(f"|gCleared {bodypart} description for {npc.key}.|n")
             else:
                 caller.msg(f"|r{npc.key} doesn't have a custom {bodypart} description.|n")
+
+
+class CmdNPCGender(Command):
+    """
+    Set NPC gender.
+    
+    Usage:
+      @npc-gender <npc>=<gender>
+      @npc-gender <npc>/info
+    
+    Valid genders: male, female, neutral
+    
+    Examples:
+      @npc-gender vendor=male
+      @npc-gender vendor=female
+      @npc-gender vendor=neutral
+      @npc-gender vendor/info
+    """
+    key = "@npc-gender"
+    aliases = ["@npcgender"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        """Set NPC gender."""
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: @npc-gender <npc>=<gender> or @npc-gender <npc>/info")
+            return
+        
+        # Parse arguments
+        if "/info" in self.args:
+            npc_name = self.args.split("/info")[0].strip()
+            show_info = True
+            gender = None
+        elif "=" in self.args:
+            npc_name, gender = self.args.split("=", 1)
+            npc_name = npc_name.strip()
+            gender = gender.strip().lower()
+            show_info = False
+        else:
+            caller.msg("Usage: @npc-gender <npc>=<gender> or @npc-gender <npc>/info")
+            return
+        
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"NPC '{npc_name}' not found.")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"{npc.key} is not an NPC.")
+            return
+        
+        if show_info:
+            current_gender = npc.db.gender or "not set"
+            caller.msg(f"|c=== Gender for {npc.key} ===|n")
+            caller.msg(f"|wGender:|n {current_gender}")
+            return
+        
+        # Valid genders
+        valid_genders = ['male', 'female', 'neutral']
+        if gender not in valid_genders:
+            caller.msg(f"|rUnknown gender: {gender}. Valid genders: {', '.join(valid_genders)}|n")
+            return
+        
+        # Set gender
+        npc.db.gender = gender
+        caller.msg(f"|gSet {npc.key}'s gender to {gender}.|n")
