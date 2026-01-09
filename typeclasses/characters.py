@@ -47,6 +47,43 @@ class Character(ObjectParent, DefaultCharacter):
             if pending_count > 0:
                 self.msg(f"  |c{pending_count} pending petition(s)|n - type |wlook pending|n to view")
 
+    def at_post_unpuppet(self, account=None, session=None, **kwargs):
+        """
+        Called when a character is unpuppeted. Suppress the "left the game" 
+        message if an admin was puppeting this character.
+        
+        Args:
+            account: The account that was controlling this character
+            session: The session that just disconnected
+            **kwargs: Additional arguments
+        """
+        # Check if the account controlling this character is an admin
+        is_admin_puppeted = False
+        if account:
+            # Check if the account has admin/staff permissions
+            is_admin_puppeted = account.is_superuser or account.is_staff
+        
+        if not self.sessions.count():
+            # Character no longer controlled by any session
+            if self.location and not is_admin_puppeted:
+                # Only show the "left game" message if NOT puppeted by admin
+                def message(obj, from_obj):
+                    from django.utils.translation import gettext as _
+                    obj.msg(
+                        _("{name} has left the game{reason}.").format(
+                            name=self.get_display_name(obj),
+                            reason=kwargs.get("reason", ""),
+                        ),
+                        from_obj=from_obj,
+                    )
+
+                self.location.for_contents(message, exclude=[self], from_obj=self)
+            
+            # Store prelogout location regardless
+            if self.location:
+                self.db.prelogout_location = self.location
+            self.location = None
+
         def at_server_start(self):
             """
             Called on every character at server reboot. Force mapper enabled for continuity.
