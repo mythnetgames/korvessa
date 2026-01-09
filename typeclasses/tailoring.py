@@ -214,7 +214,8 @@ class FreshMaterial(DefaultObject):
             reduction = 0.2 * (self.finalize_count - 1)  # 20% per re-finalization
             base_value = int(base_value * max(0.2, 1 - reduction))
         
-        self.base_value = max(1, base_value)
+        base_value = max(1, base_value)
+        self.base_value = base_value
         
         # Convert to proper clothing item
         from evennia import create_object
@@ -244,7 +245,7 @@ class FreshMaterial(DefaultObject):
                 ("msg_remove", self.msg_remove.replace("%color", colored_text)),
                 ("msg_oremove", self.msg_oremove.replace("%color", colored_text)),
                 ("creator_dbref", tailor.dbref),
-                ("base_value", self.base_value),
+                ("base_value", base_value),
                 ("is_tailored", True),
             ]
         )
@@ -252,7 +253,7 @@ class FreshMaterial(DefaultObject):
         # Delete the fresh material
         self.delete()
         
-        return True, f"You finish tailoring the {clothing.key}. (Value: {self.base_value})", clothing
+        return True, f"You finish tailoring the {clothing.key}. (Value: {base_value})", clothing
     
     def unfinalize(self):
         """Mark item as unfinalized (after editing)."""

@@ -2033,6 +2033,11 @@ class Character(ObjectParent, DefaultCharacter):
         current_region = None
         
         for location, description in longdesc_list:
+            # Strip trailing periods from descriptions to avoid double periods when joining
+            description = description.rstrip('.').strip()
+            if not description:
+                continue
+            
             # Determine which anatomical region this location belongs to
             location_region = self._get_anatomical_region(location)
             
@@ -2049,7 +2054,9 @@ class Character(ObjectParent, DefaultCharacter):
             
             if should_break and current_paragraph:
                 # Finish current paragraph and start new one
-                paragraphs.append(" ".join(current_paragraph))
+                # Add period to end of paragraph
+                paragraph_text = " ".join(current_paragraph) + "."
+                paragraphs.append(paragraph_text)
                 current_paragraph = []
                 current_char_count = 0
             
@@ -2058,9 +2065,10 @@ class Character(ObjectParent, DefaultCharacter):
             current_char_count += len(description) + 1  # +1 for space
             current_region = location_region
         
-        # Add final paragraph
+        # Add final paragraph with period
         if current_paragraph:
-            paragraphs.append(" ".join(current_paragraph))
+            paragraph_text = " ".join(current_paragraph) + "."
+            paragraphs.append(paragraph_text)
         
         return "\n\n".join(paragraphs)
 
@@ -2354,8 +2362,8 @@ class Character(ObjectParent, DefaultCharacter):
         """
         Convert percent-sign pronoun codes to template variable format.
         
-        Supports: %p (possessive), %s (subject), %o (object), %q (possessive absolute), %r (reflexive)
-        Capitalize % to capitalize the pronoun: %P, %S, %O, %Q, %R
+        Supports: %p (possessive), %s (subject), %o (object), %q (possessive absolute), %r (reflexive), %n (name)
+        Capitalize % to capitalize the pronoun: %P, %S, %O, %Q, %R, %N
         
         Args:
             desc (str): Description with percent-sign pronouns
@@ -2385,7 +2393,8 @@ class Character(ObjectParent, DefaultCharacter):
             's': self._get_pronoun('subject', character_gender),    # he/she/they
             'o': self._get_pronoun('object', character_gender),     # him/her/them
             'q': self._get_pronoun('possessive_absolute', character_gender),  # his/hers/theirs
-            'r': self._get_pronoun('reflexive', character_gender)   # himself/herself/themselves
+            'r': self._get_pronoun('reflexive', character_gender),  # himself/herself/themselves
+            'n': 'you' if is_self else self.get_display_name(looker)  # character's name
         }
         
         # For self viewing, swap pronouns
@@ -2395,10 +2404,11 @@ class Character(ObjectParent, DefaultCharacter):
                 's': 'you',
                 'o': 'you',
                 'q': 'yours',
-                'r': 'yourself'
+                'r': 'yourself',
+                'n': 'you'
             }
         
-        # Replace %p, %s, %o, %q, %r and their capitalized versions
+        # Replace %p, %s, %o, %q, %r, %n and their capitalized versions
         result = desc
         for code, pronoun in pronouns_dict.items():
             # Lowercase version
