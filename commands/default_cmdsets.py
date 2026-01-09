@@ -39,6 +39,7 @@ from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.nakeds import CmdNakeds
+from commands.wield import CmdWield
 from commands.who import CmdWho, CmdInvisible, CmdWhoLocation
 from commands.place import CmdLookPlace, CmdTempPlace, CmdTPEmote
 from commands.voice import CmdVoice
@@ -215,6 +216,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdMedicalInfo())
         # Add combat commands
         self.add(CombatCmdSet())
+        # Add wield command
+        self.add(CmdWield())
         # Add shop commands
         self.add(CmdBuy())
         # Add window observation commands (builder and up)
