@@ -116,15 +116,23 @@ class Character(ObjectParent, DefaultCharacter):
     @property
     def gender(self):
         """
-        Maps the existing sex attribute to Evennia's pronoun system.
+        Maps gender settings to Evennia's pronoun system.
         Returns a string suitable for use with $pron() functions.
         
-        Maps:
+        For NPCs with db.gender set (via @npc-gender), uses that directly.
+        For regular characters, maps the sex attribute:
         - "male", "man", "masculine" -> "male"
         - "female", "woman", "feminine" -> "female"  
         - "ambiguous", "neutral", "non-binary", "they" -> "neutral"
         - default -> "neutral"
         """
+        # Check for NPC gender setting first (set via @npc-gender command)
+        if hasattr(self.db, 'gender') and self.db.gender:
+            npc_gender = self.db.gender.lower().strip()
+            if npc_gender in ('male', 'female', 'neutral'):
+                return npc_gender
+        
+        # Fall back to sex attribute for regular characters
         sex_value = (self.sex or "ambiguous").lower().strip()
         
         # Male mappings
