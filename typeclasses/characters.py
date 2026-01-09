@@ -2056,9 +2056,8 @@ class Character(ObjectParent, DefaultCharacter):
             should_break = False
             
             if REGION_BREAK_PRIORITY and current_region and location_region != current_region:
-                # Region changed - check if we should break
-                if current_char_count >= PARAGRAPH_BREAK_THRESHOLD * 0.7:  # 70% threshold for region breaks
-                    should_break = True
+                # Region changed - always break on region change
+                should_break = True
             elif current_char_count + len(description) > PARAGRAPH_BREAK_THRESHOLD:
                 # Would exceed threshold - break now
                 should_break = True
