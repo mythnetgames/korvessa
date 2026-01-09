@@ -138,8 +138,6 @@ class CmdNPCUnpuppet(Command):
             caller.msg(msg)
         else:
             caller.msg(f"|r{msg}|n")
-        else:
-            caller.msg(f"|r{msg}|n")
 
 
 class CmdNPCReaction(Command):
