@@ -22,6 +22,7 @@ from commands import CmdAdmin
 from commands import CmdClothing
 from commands.CmdClothing import CmdWear, CmdRemove
 from commands import CmdMedical
+from commands.CmdMedical import CmdMedicalInfo
 from commands import CmdConsumption
 from commands import CmdMedicalItems
 from commands.CmdSpawnMob import CmdSpawnMob
@@ -210,6 +211,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdHelpMapping())
         self.add(CmdResetMedical())
         self.add(CmdMedicalAudit())
+        self.add(CmdMedicalInfo())
         # Add shop commands
         self.add(CmdBuy())
         # Add window observation commands (builder and up)
