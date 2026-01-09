@@ -120,8 +120,17 @@ class CmdNPCUnpuppet(Command):
         """Unpuppet the current NPC."""
         caller = self.caller
         
-        # Check if caller is the admin account that is puppeting an NPC
-        # Find any NPC in the caller's location that is being puppeted by this account
+        # Check if caller is an NPC being puppeted
+        if getattr(caller.db, 'is_npc', False) and caller.db.puppeted_by:
+            # Caller IS the NPC being puppeted
+            success, msg = caller.unpuppet_admin()
+            if success:
+                caller.msg(msg)
+            else:
+                caller.msg(f"|r{msg}|n")
+            return
+        
+        # Check if caller is the admin that is puppeting an NPC in this location
         npc_being_puppeted = None
         if caller.location:
             for obj in caller.location.contents:
