@@ -209,9 +209,12 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add mapping help command
         from commands.mapper import CmdHelpMapping
         self.add(CmdHelpMapping())
+        # Add medical commands
         self.add(CmdResetMedical())
         self.add(CmdMedicalAudit())
         self.add(CmdMedicalInfo())
+        # Add combat commands
+        self.add(CombatCmdSet())
         # Add shop commands
         self.add(CmdBuy())
         # Add window observation commands (builder and up)
