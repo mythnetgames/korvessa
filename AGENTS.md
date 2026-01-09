@@ -1,8 +1,8 @@
-# AGENTS.MD - G.R.I.M. Combat System Agent Reference
+# AGENTS.MD - Combat System Agent Reference
 
 ## Overview
 
-This document serves as a comprehensive reference for AI agents working on the G.R.I.M. (Grit, Resonance, Intellect, Motorics) combat system in Evennia. It provides detailed technical information about the architecture, components, and interactions within the combat system.
+This document serves as a comprehensive reference for AI agents working on the combat system in Evennia. It provides detailed technical information about the architecture, components, and interactions within the combat system.
 
 ## Table of Contents
 
@@ -133,11 +133,15 @@ Centralized constants prevent magic strings and improve maintainability.
 
 **Critical Constants:**
 ```python
-# G.R.I.M. System
-DEFAULT_GRIT = 1
-DEFAULT_RESONANCE = 1
-DEFAULT_INTELLECT = 1
-DEFAULT_MOTORICS = 1
+# Character Stats System
+DEFAULT_SMARTS = 1
+DEFAULT_BODY = 1
+DEFAULT_WILLPOWER = 1
+DEFAULT_DEXTERITY = 1
+DEFAULT_EDGE = 1
+DEFAULT_EMPATHY = 1
+DEFAULT_REFLEXES = 1
+DEFAULT_TECHNIQUE = 1
 
 # Combat Handler
 COMBAT_SCRIPT_KEY = "combat_handler_script"
@@ -177,7 +181,7 @@ def get_character_stat(character, stat_name, default=1):
 def roll_stat(character, stat_name, default=1):
     """Roll dice based on character stat"""
     
-def opposed_roll(char1, char2, stat1="motorics", stat2="motorics"):
+def opposed_roll(char1, char2, stat1="dexterity", stat2="dexterity"):
     """Perform opposed roll between characters"""
     
 def get_wielded_weapon(character):
@@ -224,7 +228,7 @@ Handles grappling mechanics and state management.
 
 **Key Concepts:**
 - **Exclusive Grappling**: Only one character can grapple another at a time
-- **Contest Mechanics**: Grapple takeover through motorics contests
+- **Contest Mechanics**: Grapple takeover through dexterity contests
 - **Auto-Yielding**: Successful grapples put both parties in restraint mode
 - **Escape Mechanics**: Automatic escape attempts for non-yielding victims
 
@@ -1052,7 +1056,7 @@ def monitor_combat_load():
 
 ## Conclusion
 
-This document provides a comprehensive reference for working with the G.R.I.M. combat system. The modular architecture, robust state management, and extensive debugging infrastructure make it a powerful and maintainable combat system.
+This document provides a comprehensive reference for working with the combat system. The modular architecture, robust state management, and extensive debugging infrastructure make it a powerful and maintainable combat system.
 
 ### Key Takeaways
 

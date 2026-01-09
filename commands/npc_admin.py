@@ -317,3 +317,271 @@ class CmdNPCConfig(Command):
         
         else:
             caller.msg(f"|rUnknown setting: {setting}|n")
+
+
+class CmdNPCStat(Command):
+    """
+    Adjust NPC stats (smarts, body, willpower, dexterity, edge, empathy, reflexes, technique, health, will).
+    
+    Usage:
+      @npc-stat <npc>=<stat>:<value>
+      @npc-stat <npc>/info
+    
+    Examples:
+      @npc-stat vendor=smarts:3
+      @npc-stat vendor=body:4
+      @npc-stat vendor=health:50
+      @npc-stat vendor/info
+    """
+    key = "@npc-stat"
+    aliases = ["@npc-stats", "@npcstat"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        """Set NPC stats."""
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: @npc-stat <npc>=<stat>:<value> or @npc-stat <npc>/info")
+            return
+        
+        # Parse arguments
+        if "/info" in self.args:
+            npc_name = self.args.split("/info")[0].strip()
+            show_info = True
+            stat = None
+            value = None
+        elif "=" in self.args:
+            npc_name, rest = self.args.split("=", 1)
+            npc_name = npc_name.strip()
+            show_info = False
+            if ":" in rest:
+                stat, value = rest.split(":", 1)
+                stat = stat.strip().lower()
+                try:
+                    value = int(value.strip())
+                except ValueError:
+                    caller.msg("|rStat value must be a number.|n")
+                    return
+            else:
+                caller.msg("Usage: @npc-stat <npc>=<stat>:<value>")
+                return
+        else:
+            caller.msg("Usage: @npc-stat <npc>=<stat>:<value> or @npc-stat <npc>/info")
+            return
+        
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"NPC '{npc_name}' not found.")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"{npc.key} is not an NPC.")
+            return
+        
+        # Show info
+        if show_info:
+            caller.msg(f"|c=== Stats for {npc.key} ===|n")
+            caller.msg(f"|wSmarts:|n {npc.db.smarts or 1}")
+            caller.msg(f"|wBody:|n {npc.db.body or 1}")
+            caller.msg(f"|wWillpower:|n {npc.db.willpower or 1}")
+            caller.msg(f"|wDexterity:|n {npc.db.dexterity or 1}")
+            caller.msg(f"|wEdge:|n {npc.db.edge or 1}")
+            caller.msg(f"|wEmpathy:|n {npc.db.empathy or 1}")
+            caller.msg(f"|wReflexes:|n {npc.db.reflexes or 1}")
+            caller.msg(f"|wTechnique:|n {npc.db.technique or 1}")
+            caller.msg(f"|wHealth:|n {npc.db.health or 10}")
+            caller.msg(f"|wWill:|n {npc.db.will or 10}")
+            return
+        
+        # Valid stats
+        valid_stats = ['smarts', 'body', 'willpower', 'dexterity', 'edge', 'empathy', 'reflexes', 'technique', 'health', 'will']
+        if stat not in valid_stats:
+            caller.msg(f"|rUnknown stat: {stat}. Valid stats: {', '.join(valid_stats)}|n")
+            return
+        
+        # Set stat
+        setattr(npc.db, stat, value)
+        caller.msg(f"|gSet {npc.key}'s {stat} to {value}.|n")
+
+
+class CmdNPCSkill(Command):
+    """
+    Adjust NPC skills.
+    
+    Usage:
+      @npc-skill <npc>=<skill>:<value>
+      @npc-skill <npc>/list
+      @npc-skill <npc>/remove=<skill>
+    
+    Examples:
+      @npc-skill vendor=barter:3
+      @npc-skill vendor=intimidation:2
+      @npc-skill vendor/list
+      @npc-skill vendor/remove=barter
+    """
+    key = "@npc-skill"
+    aliases = ["@npc-skills", "@npcskill"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        """Manage NPC skills."""
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: @npc-skill <npc>=<skill>:<value>")
+            return
+        
+        # Parse arguments
+        if "/list" in self.args:
+            npc_name = self.args.split("/list")[0].strip()
+            action = "list"
+        elif "/remove=" in self.args:
+            parts = self.args.split("/remove=", 1)
+            npc_name = parts[0].strip()
+            skill = parts[1].strip().lower()
+            action = "remove"
+        elif "=" in self.args:
+            npc_name, rest = self.args.split("=", 1)
+            npc_name = npc_name.strip()
+            action = "set"
+            if ":" in rest:
+                skill, value = rest.split(":", 1)
+                skill = skill.strip().lower()
+                try:
+                    value = int(value.strip())
+                except ValueError:
+                    caller.msg("|rSkill value must be a number.|n")
+                    return
+            else:
+                caller.msg("Usage: @npc-skill <npc>=<skill>:<value>")
+                return
+        else:
+            caller.msg("Usage: @npc-skill <npc>=<skill>:<value>")
+            return
+        
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"NPC '{npc_name}' not found.")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"{npc.key} is not an NPC.")
+            return
+        
+        # Initialize skills dict if needed
+        if not hasattr(npc.db, 'skills') or npc.db.skills is None:
+            npc.db.skills = {}
+        
+        if action == "list":
+            if not npc.db.skills:
+                caller.msg(f"{npc.key} has no skills configured.")
+                return
+            caller.msg(f"|c=== Skills for {npc.key} ===|n")
+            for skill_name, skill_value in sorted(npc.db.skills.items()):
+                caller.msg(f"|w{skill_name}:|n {skill_value}")
+        
+        elif action == "set":
+            npc.db.skills[skill] = value
+            caller.msg(f"|gSet {npc.key}'s {skill} skill to {value}.|n")
+        
+        elif action == "remove":
+            if skill in npc.db.skills:
+                del npc.db.skills[skill]
+                caller.msg(f"|gRemoved {skill} skill from {npc.key}.|n")
+            else:
+                caller.msg(f"|r{npc.key} doesn't have {skill} skill.|n")
+
+
+class CmdNPCChrome(Command):
+    """
+    Manage NPC chrome (implants/cybernetics).
+    
+    Usage:
+      @npc-chrome <npc>=add:<chrome_name>
+      @npc-chrome <npc>=remove:<chrome_name>
+      @npc-chrome <npc>/list
+    
+    Examples:
+      @npc-chrome guard=add:neural_jack
+      @npc-chrome guard=add:reinforced_skeleton
+      @npc-chrome guard/list
+      @npc-chrome guard=remove:neural_jack
+    """
+    key = "@npc-chrome"
+    aliases = ["@npcchrome", "@npc-implant"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        """Manage NPC chrome."""
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: @npc-chrome <npc>=add:<chrome> or @npc-chrome <npc>/list")
+            return
+        
+        # Parse arguments
+        if "/list" in self.args:
+            npc_name = self.args.split("/list")[0].strip()
+            action = "list"
+        elif "=" in self.args:
+            npc_name, rest = self.args.split("=", 1)
+            npc_name = npc_name.strip()
+            if ":" in rest:
+                action_type, chrome_name = rest.split(":", 1)
+                action_type = action_type.strip().lower()
+                chrome_name = chrome_name.strip().lower()
+                if action_type not in ['add', 'remove']:
+                    caller.msg("Usage: add:<chrome> or remove:<chrome>")
+                    return
+                action = action_type
+            else:
+                caller.msg("Usage: @npc-chrome <npc>=add:<chrome> or @npc-chrome <npc>=remove:<chrome>")
+                return
+        else:
+            caller.msg("Usage: @npc-chrome <npc>=add:<chrome>")
+            return
+        
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"NPC '{npc_name}' not found.")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"{npc.key} is not an NPC.")
+            return
+        
+        # Initialize chrome list if needed
+        if not hasattr(npc.db, 'chrome') or npc.db.chrome is None:
+            npc.db.chrome = []
+        
+        if action == "list":
+            if not npc.db.chrome:
+                caller.msg(f"{npc.key} has no chrome installed.")
+                return
+            caller.msg(f"|c=== Chrome for {npc.key} ===|n")
+            for chrome in npc.db.chrome:
+                caller.msg(f"  - {chrome}")
+        
+        elif action == "add":
+            if chrome_name not in npc.db.chrome:
+                npc.db.chrome.append(chrome_name)
+                caller.msg(f"|gInstalled {chrome_name} on {npc.key}.|n")
+            else:
+                caller.msg(f"|r{npc.key} already has {chrome_name} installed.|n")
+        
+        elif action == "remove":
+            if chrome_name in npc.db.chrome:
+                npc.db.chrome.remove(chrome_name)
+                caller.msg(f"|gRemoved {chrome_name} from {npc.key}.|n")
+            else:
+                caller.msg(f"|r{npc.key} doesn't have {chrome_name} installed.|n")

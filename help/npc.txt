@@ -20,11 +20,45 @@ Reaction Actions:
 - |cemote <action>|n: NPC performs a short action.
 - |cpose <action>|n: NPC performs a longer action.
 
-|wConfiguration|n
+|cConfiguration|n
 - |c@npc-config <npc>=wander:yes|n or |cno|n: Enable/disable wandering.
 - |c@npc-config <npc>=zone:<zone_name>|n: Set the zone NPC can wander in.
 - |c@npc-config <npc>=accent:<accent_name>|n: Set NPC's accent or dialect.
 - |c@npc-config <npc>/info|n: View NPC configuration.
+
+|wStats|n
+- |c@npc-stat <npc>=<stat>:<value>|n: Set an NPC stat.
+- |c@npc-stat <npc>/info|n: View all NPC stats.
+
+Valid stats: smarts, body, willpower, dexterity, edge, empathy, reflexes, technique, health, will
+
+Examples:
+  @npc-stat vendor=smarts:3
+  @npc-stat vendor=body:4
+  @npc-stat vendor=health:50
+  @npc-stat vendor/info
+
+|wSkills|n
+- |c@npc-skill <npc>=<skill>:<value>|n: Set an NPC skill.
+- |c@npc-skill <npc>/list|n: View all NPC skills.
+- |c@npc-skill <npc>/remove=<skill>|n: Remove a skill.
+
+Examples:
+  @npc-skill vendor=barter:3
+  @npc-skill vendor=intimidation:2
+  @npc-skill vendor/list
+  @npc-skill vendor/remove=barter
+
+|wChrome (Implants)|n
+- |c@npc-chrome <npc>=add:<chrome_name>|n: Install chrome on NPC.
+- |c@npc-chrome <npc>=remove:<chrome_name>|n: Remove chrome from NPC.
+- |c@npc-chrome <npc>/list|n: View installed chrome.
+
+Examples:
+  @npc-chrome guard=add:neural_jack
+  @npc-chrome guard=add:reinforced_skeleton
+  @npc-chrome guard/list
+  @npc-chrome guard=remove:neural_jack
 
 |wUsage Notes|n
 - Triggers are case-insensitive (hello matches HELLO, Hello, etc).
