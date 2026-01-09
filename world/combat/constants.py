@@ -759,3 +759,145 @@ CORPSE_DECAY_EARLY = 86400     # < 1 day - early decomposition
 CORPSE_DECAY_MODERATE = 259200 # < 3 days - moderate decomposition
 CORPSE_DECAY_ADVANCED = 604800 # < 1 week - advanced decomposition
 CORPSE_DECAY_COMPLETE = 1209600 # 2 weeks - complete decay and cleanup
+
+# ===================================================================
+# WEAPON SKILL MAPPING
+# ===================================================================
+
+# Skill constants
+SKILL_BLADES = "blades"
+SKILL_PISTOLS = "pistols"
+SKILL_RIFLES = "rifles"
+SKILL_MELEE = "melee"
+SKILL_BRAWLING = "brawling"
+SKILL_MARTIAL_ARTS = "martial_arts"
+
+# Maps weapon types to their associated combat skill
+# Used for hit chance and damage calculations
+WEAPON_SKILL_MAP = {
+    # === BLADES (edged weapons requiring blade technique) ===
+    "bokken": SKILL_BLADES,           # wooden sword - trains blade technique
+    "box_cutter": SKILL_BLADES,
+    "claymore": SKILL_BLADES,
+    "combat_knife": SKILL_BLADES,
+    "cutlass": SKILL_BLADES,
+    "falchion": SKILL_BLADES,
+    "gladius": SKILL_BLADES,
+    "glass_shard": SKILL_BLADES,      # improvised blade
+    "katana": SKILL_BLADES,
+    "knife": SKILL_BLADES,
+    "kukri": SKILL_BLADES,
+    "long_sword": SKILL_BLADES,
+    "machete": SKILL_BLADES,
+    "meat_cleaver": SKILL_BLADES,
+    "mirror_shard": SKILL_BLADES,     # improvised blade
+    "rapier": SKILL_BLADES,
+    "scalpel": SKILL_BLADES,
+    "scimitar": SKILL_BLADES,
+    "shiv": SKILL_BLADES,
+    "small_knife": SKILL_BLADES,
+    "straight_razor": SKILL_BLADES,
+    "tessen": SKILL_BLADES,           # iron war fan
+    
+    # === PISTOLS (handguns and pistol-like weapons) ===
+    "flare_gun": SKILL_PISTOLS,
+    "heavy_pistol": SKILL_PISTOLS,
+    "heavy_revolver": SKILL_PISTOLS,
+    "light_pistol": SKILL_PISTOLS,
+    "light_revolver": SKILL_PISTOLS,
+    "machine_pistol": SKILL_PISTOLS,
+    "nail_gun": SKILL_PISTOLS,        # pistol-like tool
+    "stun_gun": SKILL_PISTOLS,
+    
+    # === RIFLES (long guns, shotguns, heavy weapons) ===
+    "anti-material_rifle": SKILL_RIFLES,
+    "assault_rifle": SKILL_RIFLES,
+    "bolt-action_rifle": SKILL_RIFLES,
+    "bowel_disruptor": SKILL_RIFLES,  # sci-fi long gun
+    "break-action_shotgun": SKILL_RIFLES,
+    "flamethrower": SKILL_RIFLES,     # long gun style
+    "heavy_machine_gun": SKILL_RIFLES,
+    "lever-action_rifle": SKILL_RIFLES,
+    "lever-action_shotgun": SKILL_RIFLES,
+    "pump-action_shotgun": SKILL_RIFLES,
+    "semi-auto_rifle": SKILL_RIFLES,
+    "semi-auto_shotgun": SKILL_RIFLES,
+    "submachine_gun": SKILL_RIFLES,
+    
+    # === MELEE (blunt weapons, improvised weapons, tools) ===
+    "baseball_bat": SKILL_MELEE,
+    "baton": SKILL_MELEE,
+    "battle_axe": SKILL_MELEE,
+    "blowtorch": SKILL_MELEE,
+    "brick": SKILL_MELEE,
+    "broken_bottle": SKILL_MELEE,
+    "catchpole": SKILL_MELEE,
+    "cellphone": SKILL_MELEE,         # improvised
+    "chain": SKILL_MELEE,
+    "chainsaw": SKILL_MELEE,
+    "cricket_bat": SKILL_MELEE,
+    "crowbar": SKILL_MELEE,
+    "fire_axe": SKILL_MELEE,
+    "flare": SKILL_MELEE,
+    "garden_shears": SKILL_MELEE,
+    "hammer": SKILL_MELEE,
+    "hatchet": SKILL_MELEE,
+    "ice_pick": SKILL_MELEE,
+    "improvised_shield": SKILL_MELEE,
+    "large_axe": SKILL_MELEE,
+    "large_shield": SKILL_MELEE,
+    "meat_hook": SKILL_MELEE,
+    "melee": SKILL_MELEE,             # generic melee
+    "metal_club": SKILL_MELEE,
+    "nail_bat": SKILL_MELEE,
+    "nailed_board": SKILL_MELEE,
+    "nightstick": SKILL_MELEE,
+    "phonebook": SKILL_MELEE,         # improvised
+    "pipe": SKILL_MELEE,
+    "pipe_wrench": SKILL_MELEE,
+    "pool_cue": SKILL_MELEE,
+    "rebar": SKILL_MELEE,
+    "rock": SKILL_MELEE,
+    "screwdriver": SKILL_MELEE,
+    "shovel": SKILL_MELEE,
+    "sledgehammer": SKILL_MELEE,
+    "small_axe": SKILL_MELEE,
+    "small_shield": SKILL_MELEE,
+    "spraycan": SKILL_MELEE,          # improvised
+    "staff": SKILL_MELEE,
+    "stake": SKILL_MELEE,
+    "streetlight": SKILL_MELEE,       # improvised
+    "tennis_racket": SKILL_MELEE,
+    "throwing_axe": SKILL_MELEE,      # thrown melee weapon
+    "throwing_knife": SKILL_MELEE,    # thrown melee weapon
+    "tire_iron": SKILL_MELEE,
+    "whip": SKILL_MELEE,
+    
+    # === BRAWLING (unarmed street fighting, knuckle weapons) ===
+    "brass_knuckles": SKILL_BRAWLING,
+    "unarmed": SKILL_BRAWLING,
+    
+    # === MARTIAL ARTS (trained combat, traditional weapons) ===
+    "nunchaku": SKILL_MARTIAL_ARTS,
+    "shuriken": SKILL_MARTIAL_ARTS,   # traditional throwing star
+    "tiger_claws": SKILL_MARTIAL_ARTS,
+}
+
+# Reverse mapping: skill to list of weapons (auto-generated)
+SKILL_WEAPONS_MAP = {}
+for weapon, skill in WEAPON_SKILL_MAP.items():
+    if skill not in SKILL_WEAPONS_MAP:
+        SKILL_WEAPONS_MAP[skill] = []
+    SKILL_WEAPONS_MAP[skill].append(weapon)
+
+def get_weapon_skill(weapon_type):
+    """
+    Get the skill associated with a weapon type.
+    
+    Args:
+        weapon_type (str): The weapon type identifier
+        
+    Returns:
+        str: The skill name, defaults to 'melee' if not found
+    """
+    return WEAPON_SKILL_MAP.get(weapon_type, SKILL_MELEE)
