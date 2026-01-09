@@ -30,17 +30,10 @@ class CmdStats(Command):
         msg = "|ystats|n\n"
         # Get stat values (current/max)
         def stat_line(attr, name, abbr):
-            # Special calculation for Empathy stat
-            if attr == "emp":
-                # Empathy = 33% SMRT + 33% EDGE + 34% EMP
-                smrt = getattr(char, "smrt", 0)
-                edge = getattr(char, "edge", 0)
-                emp = getattr(char, "emp", 0)
-                val = int(0.33 * smrt + 0.33 * edge + 0.34 * emp)
-                maxval = int(0.33 * getattr(char, "max_smrt", smrt) + 0.33 * getattr(char, "max_edge", edge) + 0.34 * getattr(char, "max_emp", emp))
-            else:
-                val = getattr(char, attr, 0)
-                maxval = getattr(char, f"max_{attr}", val)
+            # Empathy is now calculated via property (edge + willpower) / 2
+            # All stats use the same logic now
+            val = getattr(char, attr, 0)
+            maxval = getattr(char, f"max_{attr}", val)
             return f"|#dfdf00{name:<10}|n [ |w{val}|n / |g{maxval}|n ]"
         # Build two columns
         for i in range(4):

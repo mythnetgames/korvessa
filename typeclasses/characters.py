@@ -80,9 +80,27 @@ class Character(ObjectParent, DefaultCharacter):
     ref = AttributeProperty(1, category='stat', autocreate=True)
     body = AttributeProperty(1, category='stat', autocreate=True)
     dex = AttributeProperty(1, category='stat', autocreate=True)
-    emp = AttributeProperty(1, category='stat', autocreate=True)
+    _emp = AttributeProperty(None, category='stat', autocreate=True)  # Override value, None = calculated
     tech = AttributeProperty(1, category='stat', autocreate=True)
     sex = AttributeProperty("ambiguous", category="biology", autocreate=True)
+    
+    @property
+    def emp(self):
+        """
+        Empathy is calculated as edge + willpower.
+        Can be overridden by admin setting _emp to a specific value.
+        """
+        if self._emp is not None:
+            return self._emp
+        # Calculate from edge + willpower
+        edge_val = getattr(self, 'edge', 1)
+        will_val = getattr(self, 'will', 1)
+        return edge_val + will_val
+    
+    @emp.setter
+    def emp(self, value):
+        """Set empathy override. Set to None to use calculated value."""
+        self._emp = value
     
     # Shop System Attributes
     is_merchant = AttributeProperty(False, category="shop", autocreate=True)

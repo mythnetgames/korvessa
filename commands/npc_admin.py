@@ -375,22 +375,44 @@ class CmdNPCConfig(Command):
 
 class CmdNPCStat(Command):
     """
-    Adjust NPC stats (smarts, body, willpower, dexterity, edge, empathy, reflexes, technique, health, will).
+    Adjust NPC stats (smarts, body, willpower, dexterity, edge, empathy, reflexes, technique).
     
     Usage:
       @npc-stat <npc>=<stat>:<value>
       @npc-stat <npc>/info
     
+    Stats use abbreviated internal names:
+      smarts -> smrt, willpower -> will, reflexes -> ref
+      dexterity -> dex, empathy -> emp, technique -> tech
+      body and edge stay the same
+    
     Examples:
       @npc-stat vendor=smarts:3
       @npc-stat vendor=body:4
-      @npc-stat vendor=health:50
       @npc-stat vendor/info
     """
     key = "@npc-stat"
     aliases = ["@npc-stats", "@npcstat"]
     locks = "cmd:perm(Builder)"
     help_category = "Admin"
+    
+    # Map user-friendly stat names to internal attribute names
+    STAT_MAP = {
+        'smarts': 'smrt',
+        'smrt': 'smrt',
+        'body': 'body',
+        'willpower': 'will',
+        'will': 'will',
+        'dexterity': 'dex',
+        'dex': 'dex',
+        'edge': 'edge',
+        'empathy': '_emp',  # Override the calculated empathy
+        'emp': '_emp',
+        'reflexes': 'ref',
+        'ref': 'ref',
+        'technique': 'tech',
+        'tech': 'tech',
+    }
     
     def func(self):
         """Set NPC stats."""
@@ -439,26 +461,31 @@ class CmdNPCStat(Command):
         # Show info
         if show_info:
             caller.msg(f"|c=== Stats for {npc.key} ===|n")
-            caller.msg(f"|wSmarts:|n {npc.db.smarts or 1}")
-            caller.msg(f"|wBody:|n {npc.db.body or 1}")
-            caller.msg(f"|wWillpower:|n {npc.db.willpower or 1}")
-            caller.msg(f"|wDexterity:|n {npc.db.dexterity or 1}")
-            caller.msg(f"|wEdge:|n {npc.db.edge or 1}")
-            caller.msg(f"|wEmpathy:|n {npc.db.empathy or 1}")
-            caller.msg(f"|wReflexes:|n {npc.db.reflexes or 1}")
-            caller.msg(f"|wTechnique:|n {npc.db.technique or 1}")
-            caller.msg(f"|wHealth:|n {npc.db.health or 10}")
-            caller.msg(f"|wWill:|n {npc.db.will or 10}")
+            caller.msg(f"|wSmarts:|n {getattr(npc, 'smrt', 1)}")
+            caller.msg(f"|wBody:|n {getattr(npc, 'body', 1)}")
+            caller.msg(f"|wWillpower:|n {getattr(npc, 'will', 1)}")
+            caller.msg(f"|wDexterity:|n {getattr(npc, 'dex', 1)}")
+            caller.msg(f"|wEdge:|n {getattr(npc, 'edge', 1)}")
+            emp_override = getattr(npc, '_emp', None)
+            emp_val = getattr(npc, 'emp', 1)
+            if emp_override is not None:
+                caller.msg(f"|wEmpathy:|n {emp_val} |y(override)|n")
+            else:
+                caller.msg(f"|wEmpathy:|n {emp_val} |c(calculated from edge+will)|n")
+            caller.msg(f"|wReflexes:|n {getattr(npc, 'ref', 1)}")
+            caller.msg(f"|wTechnique:|n {getattr(npc, 'tech', 1)}")
             return
         
-        # Valid stats
-        valid_stats = ['smarts', 'body', 'willpower', 'dexterity', 'edge', 'empathy', 'reflexes', 'technique', 'health', 'will']
-        if stat not in valid_stats:
-            caller.msg(f"|rUnknown stat: {stat}. Valid stats: {', '.join(valid_stats)}|n")
+        # Validate and map stat name
+        if stat not in self.STAT_MAP:
+            valid_names = ['smarts', 'body', 'willpower', 'dexterity', 'edge', 'empathy', 'reflexes', 'technique']
+            caller.msg(f"|rUnknown stat: {stat}. Valid stats: {', '.join(valid_names)}|n")
             return
         
-        # Set stat
-        setattr(npc.db, stat, value)
+        internal_stat = self.STAT_MAP[stat]
+        
+        # Set stat using setattr on the object (not db)
+        setattr(npc, internal_stat, value)
         caller.msg(f"|gSet {npc.key}'s {stat} to {value}.|n")
 
 
@@ -471,16 +498,36 @@ class CmdNPCSkill(Command):
       @npc-skill <npc>/list
       @npc-skill <npc>/remove=<skill>
     
+    Valid skills:
+      chemical, modern medicine, holistic medicine, surgery, science,
+      dodge, blades, pistols, rifles, melee, brawling, martial arts,
+      grappling, snooping, stealing, hiding, sneaking, disguise,
+      tailoring, tinkering, manufacturing, cooking, forensics,
+      decking, electronics, mercantile, streetwise, paint/draw/sculpt, instrument
+    
     Examples:
-      @npc-skill vendor=barter:3
-      @npc-skill vendor=intimidation:2
+      @npc-skill vendor=mercantile:5
+      @npc-skill guard=martial arts:8
       @npc-skill vendor/list
-      @npc-skill vendor/remove=barter
+      @npc-skill vendor/remove=mercantile
     """
     key = "@npc-skill"
     aliases = ["@npc-skills", "@npcskill"]
     locks = "cmd:perm(Builder)"
     help_category = "Admin"
+    
+    # Valid skill names (display name -> attribute name)
+    VALID_SKILLS = [
+        "chemical", "modern medicine", "holistic medicine", "surgery", "science",
+        "dodge", "blades", "pistols", "rifles", "melee", "brawling", "martial arts",
+        "grappling", "snooping", "stealing", "hiding", "sneaking", "disguise",
+        "tailoring", "tinkering", "manufacturing", "cooking", "forensics",
+        "decking", "electronics", "mercantile", "streetwise", "paint/draw/sculpt", "instrument"
+    ]
+    
+    def skill_to_attr(self, skill_name):
+        """Convert skill display name to attribute name."""
+        return skill_name.lower().replace("/", "_")
     
     def func(self):
         """Manage NPC skills."""
@@ -494,11 +541,14 @@ class CmdNPCSkill(Command):
         if "/list" in self.args:
             npc_name = self.args.split("/list")[0].strip()
             action = "list"
+            skill = None
+            value = None
         elif "/remove=" in self.args:
             parts = self.args.split("/remove=", 1)
             npc_name = parts[0].strip()
             skill = parts[1].strip().lower()
             action = "remove"
+            value = None
         elif "=" in self.args:
             npc_name, rest = self.args.split("=", 1)
             npc_name = npc_name.strip()
@@ -529,28 +579,34 @@ class CmdNPCSkill(Command):
             caller.msg(f"{npc.key} is not an NPC.")
             return
         
-        # Initialize skills dict if needed
-        if not hasattr(npc.db, 'skills') or npc.db.skills is None:
-            npc.db.skills = {}
-        
         if action == "list":
-            if not npc.db.skills:
-                caller.msg(f"{npc.key} has no skills configured.")
-                return
             caller.msg(f"|c=== Skills for {npc.key} ===|n")
-            for skill_name, skill_value in sorted(npc.db.skills.items()):
-                caller.msg(f"|w{skill_name}:|n {skill_value}")
+            for skill_name in self.VALID_SKILLS:
+                attr_name = self.skill_to_attr(skill_name)
+                skill_value = getattr(npc, attr_name, 0)
+                if skill_value > 0:
+                    caller.msg(f"|w{skill_name.title()}:|n {skill_value}")
         
         elif action == "set":
-            npc.db.skills[skill] = value
+            # Validate skill name
+            if skill not in self.VALID_SKILLS:
+                caller.msg(f"|rUnknown skill: {skill}|n")
+                caller.msg(f"|yValid skills:|n {', '.join(self.VALID_SKILLS)}")
+                return
+            
+            attr_name = self.skill_to_attr(skill)
+            setattr(npc, attr_name, value)
             caller.msg(f"|gSet {npc.key}'s {skill} skill to {value}.|n")
         
         elif action == "remove":
-            if skill in npc.db.skills:
-                del npc.db.skills[skill]
-                caller.msg(f"|gRemoved {skill} skill from {npc.key}.|n")
-            else:
-                caller.msg(f"|r{npc.key} doesn't have {skill} skill.|n")
+            # Validate skill name
+            if skill not in self.VALID_SKILLS:
+                caller.msg(f"|rUnknown skill: {skill}|n")
+                return
+            
+            attr_name = self.skill_to_attr(skill)
+            setattr(npc, attr_name, 0)
+            caller.msg(f"|gReset {npc.key}'s {skill} skill to 0.|n")
 
 
 class CmdNPCChrome(Command):
