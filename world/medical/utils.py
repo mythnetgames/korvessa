@@ -1100,3 +1100,66 @@ def get_medical_status_description(medical_state):
     
     # Good health with minor issues
     return ("HEALTHY", "|g")
+
+
+def full_heal(character):
+    """
+    Fully heal a character, restoring all organs and vital signs.
+    
+    Clears all medical conditions, restores all organs to full health,
+    and resets vital signs. Also clears any death/unconsciousness flags.
+    
+    Args:
+        character: The character to heal
+        
+    Returns:
+        bool: True if healing was successful, False otherwise
+    """
+    if not hasattr(character, 'medical_state') or not character.medical_state:
+        return False
+    
+    medical_state = character.medical_state
+    
+    # Clear all conditions
+    medical_state.conditions.clear()
+    
+    # Stop medical script since no conditions remain
+    from world.medical.script import stop_medical_script
+    stop_medical_script(character)
+    
+    # Restore all organs to full health
+    for organ in medical_state.organs.values():
+        organ.current_hp = organ.max_hp
+    
+    # Restore vital signs
+    medical_state.blood_level = 100.0
+    medical_state.pain_level = 0.0
+    medical_state.consciousness = 1.0
+    
+    # Clear any death or unconsciousness placement descriptions
+    if hasattr(character, 'override_place'):
+        character.override_place = None
+    
+    # Clear any death/unconsciousness processing flags
+    if hasattr(character, 'ndb'):
+        if hasattr(character.ndb, 'death_processed'):
+            character.ndb.death_processed = False
+        if hasattr(character.ndb, 'unconsciousness_processed'):
+            character.ndb.unconsciousness_processed = False
+    
+    # Clear persistent death flag
+    if hasattr(character.db, 'death_processed'):
+        del character.db.death_processed
+    
+    # Remove any medical state restrictions (death/unconscious cmdsets)
+    try:
+        character.remove_death_state()
+    except Exception:
+        pass
+    try:
+        character.remove_unconscious_state()
+    except Exception:
+        pass
+    
+    character.save_medical_state()
+    return True

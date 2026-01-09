@@ -859,12 +859,31 @@ class Character(ObjectParent, DefaultCharacter):
     
     # Legacy method take_anatomical_damage removed - functionality merged into take_damage()
     
+    def is_admin(self):
+        """
+        Check if this character's account has admin/builder permissions.
+        
+        Returns:
+            bool: True if character is controlled by an admin/builder account
+        """
+        # Check if we have an account with admin perms
+        if hasattr(self, 'account') and self.account:
+            return self.account.check_permstring("Builder") or self.account.check_permstring("Admin") or self.account.check_permstring("Developer")
+        return False
+    
     def is_dead(self):
         """
         Returns True if character should be considered dead.
         
         Uses pure medical system - death from vital organ failure or blood loss.
+        Admins are immortal and cannot die.
         """
+        # Admins are immortal - never considered dead
+        if self.is_admin():
+            # If admin somehow has death state, auto-heal them
+            self._admin_auto_heal()
+            return False
+        
         try:
             medical_state = self.medical_state
             if medical_state:
@@ -873,6 +892,33 @@ class Character(ObjectParent, DefaultCharacter):
             pass  # Medical system not available - character is alive
         
         return False
+    
+    def _admin_auto_heal(self):
+        """
+        Auto-heal admins if they have critical injuries that would cause death.
+        Called when an admin's death state is checked and they have fatal damage.
+        """
+        try:
+            medical_state = self.medical_state
+            if medical_state and medical_state.is_dead():
+                # Reset vital organs to functional state
+                from world.medical.utils import full_heal
+                full_heal(self)
+                self.msg("|y[Admin Protection] You have been automatically healed from fatal injuries.|n")
+                
+                # Clear death flags
+                if hasattr(self.db, 'death_processed'):
+                    del self.db.death_processed
+                if hasattr(self.ndb, 'death_processed'):
+                    del self.ndb.death_processed
+                if hasattr(self.ndb, 'death_curtain_pending'):
+                    del self.ndb.death_curtain_pending
+                    
+                # Clear override place if it was set for death
+                if hasattr(self, 'override_place') and 'deceased' in str(self.override_place).lower():
+                    self.override_place = None
+        except Exception:
+            pass  # Silently fail if medical system not available
         
     def is_unconscious(self):
         """
@@ -1208,11 +1254,22 @@ class Character(ObjectParent, DefaultCharacter):
         """
         Handles what happens when this character dies.
         Shows death curtain which will then start the death progression system.
+        Admins are immortal and will be auto-healed instead of dying.
         """
         from .curtain_of_death import show_death_curtain
         from evennia.comms.models import ChannelDB
         from world.combat.constants import SPLATTERCAST_CHANNEL, NDB_COMBAT_HANDLER
         from evennia.utils.utils import delay
+        
+        # Admins are immortal - auto-heal instead of dying
+        if self.is_admin():
+            self._admin_auto_heal()
+            try:
+                splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+                splattercast.msg(f"AT_DEATH_ADMIN: {self.key} is an admin - auto-healing instead of death")
+            except:
+                pass
+            return
         
         # Prevent double death processing using PERSISTENT db flag (survives server reload)
         if self.db.death_processed:
