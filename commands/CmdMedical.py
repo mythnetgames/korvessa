@@ -166,6 +166,7 @@ class CmdMedicalInfo(Command):
     """
     
     key = "medinfo"
+    aliases = ["diag", "diagnose", "health"]
     help_category = "Medical"
     
     def func(self):
