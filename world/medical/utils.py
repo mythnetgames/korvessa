@@ -98,12 +98,12 @@ def select_hit_location(character, success_margin=0, attacker=None):
     """
     import random
     
-    # Get all available body locations from character's longdesc
-    if not hasattr(character, 'longdesc') or not character.longdesc:
-        # Fallback to chest if no longdesc defined
+    # Get all available body locations from character's nakeds
+    if not hasattr(character, 'nakeds') or not character.nakeds:
+        # Fallback to chest if no nakeds defined
         return "chest"
     
-    available_locations = list(character.longdesc.keys())
+    available_locations = list(character.nakeds.keys())
     if not available_locations:
         return "chest"
     

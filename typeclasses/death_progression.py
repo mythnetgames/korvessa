@@ -541,8 +541,8 @@ class DeathProgressionScript(DefaultScript):
                     pass
         
         # Transfer character description data
-        if hasattr(character, 'longdesc') and character.longdesc:
-            corpse.db.longdesc_data = dict(character.longdesc)  # Copy the dictionary data
+        if hasattr(character, 'nakeds') and character.nakeds:
+            corpse.db.longdesc_data = dict(character.nakeds)  # Copy the dictionary data
         
         # Transfer inventory and worn items to corpse
         transferred_items = []

@@ -99,18 +99,18 @@ def get_standalone_wound_locations(character):
     wounds = get_character_wounds(character)
     
     # Get character's actual anatomy locations
-    if not hasattr(character, 'longdesc') or not character.longdesc:
+    if not hasattr(character, 'nakeds') or not character.nakeds:
         return []
     
-    longdescs = character.longdesc
+    nakeds = character.nakeds
     
     wound_locations = set(w['location'] for w in wounds)
     
     # Only consider locations that exist in character's anatomy but have no description
-    longdesc_locations = set(loc for loc, desc in longdescs.items() if desc is not None)
+    nakeds_locations = set(loc for loc, desc in nakeds.items() if desc is not None)
     
-    # Locations with wounds but no longdesc
-    standalone_locations = wound_locations - longdesc_locations
+    # Locations with wounds but no nakeds
+    standalone_locations = wound_locations - nakeds_locations
     
     return list(standalone_locations)
 

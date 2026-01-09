@@ -960,7 +960,7 @@ class CmdLongdesc(Command):
                     else:
                         actual_target = potential_target
                     
-                    if actual_target and hasattr(actual_target, 'longdesc'):
+                    if actual_target and hasattr(actual_target, 'nakeds'):
                         target_char = actual_target
                         remaining_args = parts[1] if len(parts) > 1 else ""
 
@@ -1056,7 +1056,7 @@ class CmdLongdesc(Command):
             if len(parts) >= 1:
                 # Use quiet=True to prevent "Could not find" messages
                 potential_target = caller.search(parts[0], global_search=True, quiet=True)
-                if potential_target and hasattr(potential_target, 'longdesc'):
+                if potential_target and hasattr(potential_target, 'nakeds'):
                     target_char = potential_target
                     location = parts[1] if len(parts) > 1 else ""
 
@@ -1132,8 +1132,8 @@ class CmdLongdesc(Command):
         if not target_char:
             target_char = caller
 
-        longdescs = target_char.longdesc or {}
-        set_descriptions = {loc: desc for loc, desc in longdescs.items() if desc}
+        nakeds = target_char.nakeds or {}
+        set_descriptions = {loc: desc for loc, desc in nakeds.items() if desc}
 
         if not set_descriptions:
             if target_char == caller:
@@ -1186,8 +1186,8 @@ class CmdLongdesc(Command):
         if not target_char:
             target_char = caller
 
-        longdescs = target_char.longdesc or {}
-        set_descriptions = {loc: desc for loc, desc in longdescs.items() if desc}
+        nakeds = target_char.nakeds or {}
+        set_descriptions = {loc: desc for loc, desc in nakeds.items() if desc}
 
         if not set_descriptions:
             if target_char == caller:

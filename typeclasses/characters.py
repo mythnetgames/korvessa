@@ -2187,8 +2187,8 @@ class Character(ObjectParent, DefaultCharacter):
         Returns:
             bool: True if character has this location
         """
-        longdescs = self.longdesc or {}
-        return location in longdescs
+        nakeds = self.nakeds or {}
+        return location in nakeds
 
     def get_available_locations(self):
         """
@@ -2197,8 +2197,8 @@ class Character(ObjectParent, DefaultCharacter):
         Returns:
             list: List of available body location names
         """
-        longdescs = self.longdesc or {}
-        return list(longdescs.keys())
+        nakeds = self.nakeds or {}
+        return list(nakeds.keys())
 
     def set_naked(self, location, description):
         """

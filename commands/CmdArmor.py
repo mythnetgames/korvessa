@@ -216,8 +216,8 @@ class CmdArmor(Command):
         
         # Get all possible body locations from character
         from world.combat.constants import ANATOMICAL_DISPLAY_ORDER
-        if hasattr(caller, 'longdesc') and caller.longdesc:
-            all_locations = [loc for loc in ANATOMICAL_DISPLAY_ORDER if loc in caller.longdesc]
+        if hasattr(caller, 'nakeds') and caller.nakeds:
+            all_locations = [loc for loc in ANATOMICAL_DISPLAY_ORDER if loc in caller.nakeds]
         else:
             all_locations = ANATOMICAL_DISPLAY_ORDER
         
@@ -481,12 +481,12 @@ class CmdArmor(Command):
         if hasattr(caller, 'worn_items') and caller.worn_items:
             worn_by_location = dict(caller.worn_items)
         
-        # Get character's valid locations from longdesc
+        # Get character's valid locations from nakeds
         valid_locations = []
-        if hasattr(caller, 'longdesc') and caller.longdesc:
-            # longdesc is a dict of {location: description}, check the keys
+        if hasattr(caller, 'nakeds') and caller.nakeds:
+            # nakeds is a dict of {location: description}, check the keys
             valid_locations = [loc for loc in ANATOMICAL_DISPLAY_ORDER 
-                             if loc in caller.longdesc]
+                             if loc in caller.nakeds]
         else:
             valid_locations = ANATOMICAL_DISPLAY_ORDER
         

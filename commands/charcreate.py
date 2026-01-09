@@ -267,8 +267,8 @@ def create_flash_clone(account, old_character):
     
     # INHERIT: Appearance
     char.db.desc = old_character.db.desc
-    if hasattr(old_character, 'longdesc') and old_character.longdesc:
-        char.longdesc = dict(old_character.longdesc)  # Copy dictionary
+    if hasattr(old_character, 'nakeds') and old_character.nakeds:
+        char.nakeds = dict(old_character.nakeds)  # Copy dictionary
     
     # INHERIT: Biology
     char.sex = old_character.sex

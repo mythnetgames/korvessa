@@ -558,15 +558,15 @@ class Corpse(Item):
         # Update main description
         self.db.desc = decay_descriptions.get(stage, base_desc)
         
-        # Update longdesc if it exists
-        if hasattr(self, 'longdesc') and self.longdesc:
+        # Update nakeds if it exists
+        if hasattr(self, 'nakeds') and self.nakeds:
             self._update_longdesc_for_decay(stage, decay_factor)
     
     def _update_longdesc_for_decay(self, stage, decay_factor):
-        """Update longdesc details based on decay stage."""
-        # This would modify specific longdesc body parts based on decay
+        """Update nakeds details based on decay stage."""
+        # This would modify specific nakeds body parts based on decay
         # For now, we'll just add a general decay note
-        if hasattr(self, 'longdesc') and self.longdesc:
+        if hasattr(self, 'nakeds') and self.nakeds:
             # Add decay information to longdesc
             decay_notes = {
                 "fresh": "appears fresh and recently deceased",
