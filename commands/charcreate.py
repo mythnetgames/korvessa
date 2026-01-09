@@ -1,20 +1,3 @@
-def validate_name(name):
-    """
-    Validate character name for profanity and uniqueness.
-    Args:
-        name (str): Full character name
-    Returns:
-        tuple: (is_valid: bool, error_message: str or None)
-    """
-    profanity_list = ['fuck', 'shit', 'damn', 'bitch', 'ass', 'cunt', 'dick', 'cock', 'pussy']
-    name_lower = name.lower()
-    for word in profanity_list:
-        if word in name_lower:
-            return (False, "That name is not allowed.")
-    from typeclasses.characters import Character
-    if Character.objects.filter(db_key__iexact=name).exists():
-        return (False, "That name is already taken.")
-    return (True, None)
 """
 Character Creation System for Kowloon Walled City RPI
 
@@ -32,6 +15,25 @@ from django.conf import settings
 import random
 import time
 import re
+
+
+def validate_name(name):
+    """
+    Validate character name for profanity and uniqueness.
+    Args:
+        name (str): Full character name
+    Returns:
+        tuple: (is_valid: bool, error_message: str or None)
+    """
+    profanity_list = ['fuck', 'shit', 'damn', 'bitch', 'ass', 'cunt', 'dick', 'cock', 'pussy']
+    name_lower = name.lower()
+    for word in profanity_list:
+        if word in name_lower:
+            return (False, "That name is not allowed.")
+    from typeclasses.characters import Character
+    if Character.objects.filter(db_key__iexact=name).exists():
+        return (False, "That name is already taken.")
+    return (True, None)
 
 
 # =============================================================================
