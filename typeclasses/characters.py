@@ -405,43 +405,35 @@ class Character(ObjectParent, DefaultCharacter):
         Override msg method to implement death curtain message filtering.
         
         Dead characters receive only essential messages for immersive death experience.
-        This catches ALL messages to characters, including combat, explosives, admin commands.
         """
         # If not dead, use normal messaging
         if not self.is_dead():
+            return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
+        
+        # ALWAYS allow death curtain messages (checked via ndb flag)
+        if getattr(self.ndb, '_death_curtain_active', False):
             return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
             
         # Death curtain filtering for dead characters
         if not text:
             return
             
-        # Allow death curtain animation messages (identified by sender)
-        if from_obj and hasattr(from_obj, 'key') and from_obj.key == 'death_curtain_animation':
-            return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
-            
-        # Block most system messages (from_obj=None)
-        if not from_obj:
-            # Block system messages (combat, explosives, medical, etc.)
-            return
-            
-        # Allow messages from staff (for admin commands, but not social)
-        if hasattr(from_obj, 'locks') and from_obj.locks.check(from_obj, "perm(Builder)"):
-            # Even staff social messages should be blocked for immersion
-            # But allow admin command messages through
-            if not self._is_social_message(text, kwargs):
-                return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
-            else:
-                return
-            
-        # Allow death progression messages from curtain of death
-        if hasattr(from_obj, 'key') and 'curtain' in str(from_obj.key).lower():
-            return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
+        # Allow messages from staff (for admin commands)
+        if from_obj and hasattr(from_obj, 'locks'):
+            try:
+                if from_obj.locks.check(from_obj, "perm(Builder)"):
+                    if not self._is_social_message(text, kwargs):
+                        return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
+            except:
+                pass
             
         # Allow death progression script messages
-        if hasattr(from_obj, 'key') and 'death_progression' in str(from_obj.key).lower():
-            return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
+        if from_obj and hasattr(from_obj, 'key'):
+            key_lower = str(from_obj.key).lower()
+            if 'death_progression' in key_lower or 'death_curtain' in key_lower:
+                return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
             
-        # Block all other messages (social commands, medical, etc.)
+        # Block all other messages for immersion
         return
         
     def _is_social_message(self, text, kwargs):
