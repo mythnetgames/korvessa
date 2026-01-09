@@ -183,11 +183,14 @@ def create_character_from_template(account, template, sex="ambiguous"):
         # Handle creation errors
         raise Exception(f"Character creation failed: {errors}")
     
-    # Set GRIM stats
-    char.grit = template['grit']
-    char.resonance = template['resonance']
-    char.intellect = template['intellect']
-    char.motorics = template['motorics']
+    # Set stats from template (8-stat system)
+    char.body = template.get('body', 1)
+    char.ref = template.get('reflexes', 1)  # Template uses 'reflexes' for ref
+    char.dex = template.get('dexterity', 1)  # Template uses 'dexterity' for dex
+    char.tech = template.get('technique', 1)  # Template uses 'technique' for tech
+    char.smrt = template.get('smarts', 1)  # Template uses 'smarts' for smrt
+    char.will = template.get('willpower', 1)  # Template uses 'willpower' for will
+    char.edge = template.get('edge', 1)
     
     # Set sex
     char.sex = sex
@@ -261,11 +264,14 @@ def create_flash_clone(account, old_character):
         # Handle creation errors
         raise Exception(f"Flash clone creation failed: {errors}")
     
-    # INHERIT: GRIM stats (with fallback defaults)
-    char.grit = old_character.grit if old_character.grit is not None else 1
-    char.resonance = old_character.resonance if old_character.resonance is not None else 1
-    char.intellect = old_character.intellect if old_character.intellect is not None else 1
-    char.motorics = old_character.motorics if old_character.motorics is not None else 1
+    # INHERIT: Stats (8-stat system with fallback defaults)
+    char.body = old_character.body if hasattr(old_character, 'body') and old_character.body is not None else 1
+    char.ref = old_character.ref if hasattr(old_character, 'ref') and old_character.ref is not None else 1
+    char.dex = old_character.dex if hasattr(old_character, 'dex') and old_character.dex is not None else 1
+    char.tech = old_character.tech if hasattr(old_character, 'tech') and old_character.tech is not None else 1
+    char.smrt = old_character.smrt if hasattr(old_character, 'smrt') and old_character.smrt is not None else 1
+    char.will = old_character.will if hasattr(old_character, 'will') and old_character.will is not None else 1
+    char.edge = old_character.edge if hasattr(old_character, 'edge') and old_character.edge is not None else 1
     
     # INHERIT: Appearance
     char.db.desc = old_character.db.desc
@@ -447,19 +453,25 @@ Select a consciousness vessel:
     # Display templates
     for i, template in enumerate(templates, 1):
         text += f"\n|w[{i}]|n |c{template['first_name']} {template['last_name']}|n\n"
-        text += f"    |gGrit:|n {template['grit']:3d}  "
-        text += f"|yResonance:|n {template['resonance']:3d}  "
-        text += f"|bIntellect:|n {template['intellect']:3d}  "
-        text += f"|mMotorics:|n {template['motorics']:3d}\n"
+        text += f"    |gBODY:|n {template.get('body', 5):3d}  "
+        text += f"|yREF:|n {template.get('reflexes', 5):3d}  "
+        text += f"|bDEX:|n {template.get('dexterity', 5):3d}  "
+        text += f"|mTECH:|n {template.get('technique', 5):3d}\n"
+        text += f"    |cSMRT:|n {template.get('smarts', 5):3d}  "
+        text += f"|wWILL:|n {template.get('willpower', 5):3d}  "
+        text += f"|rEDGE:|n {template.get('edge', 5):3d}\n"
     
     # Flash clone option
     old_char = caller.ndb.charcreate_old_character
     if old_char:
         text += f"\n|w[4]|n |rFLASH CLONE|n - |c{old_char.key}|n (preserve current identity)\n"
-        text += f"    |gGrit:|n {old_char.grit:3d}  "
-        text += f"|yResonance:|n {old_char.resonance:3d}  "
-        text += f"|bIntellect:|n {old_char.intellect:3d}  "
-        text += f"|mMotorics:|n {old_char.motorics:3d}\n"
+        text += f"    |gBODY:|n {getattr(old_char, 'body', 5):3d}  "
+        text += f"|yREF:|n {getattr(old_char, 'ref', 5):3d}  "
+        text += f"|bDEX:|n {getattr(old_char, 'dex', 5):3d}  "
+        text += f"|mTECH:|n {getattr(old_char, 'tech', 5):3d}\n"
+        text += f"    |cSMRT:|n {getattr(old_char, 'smrt', 5):3d}  "
+        text += f"|wWILL:|n {getattr(old_char, 'will', 5):3d}  "
+        text += f"|rEDGE:|n {getattr(old_char, 'edge', 5):3d}\n"
         text += f"    |wInherits appearance, stats, and memories from previous incarnation|n\n"
     
     # Build prompt based on available options

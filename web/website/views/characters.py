@@ -125,21 +125,30 @@ class CharacterCreateView(EvenniaCharacterCreateView):
                 # Test if we can access the character (it might be deleted/invalid)
                 _ = old_character.key
                 
-                # Safely check GRIM stats (with defaults for legacy characters)
-                grit = getattr(old_character, 'grit', 75)
-                resonance = getattr(old_character, 'resonance', 75)
-                intellect = getattr(old_character, 'intellect', 75)
-                motorics = getattr(old_character, 'motorics', 75)
+                # Safely check stats (with defaults for legacy characters using 8-stat system)
+                body = getattr(old_character, 'body', 5)
+                ref = getattr(old_character, 'ref', 5)
+                dex = getattr(old_character, 'dex', 5)
+                tech = getattr(old_character, 'tech', 5)
+                smrt = getattr(old_character, 'smrt', 5)
+                will = getattr(old_character, 'will', 5)
+                edge = getattr(old_character, 'edge', 5)
                 
                 # Set attributes if they don't exist (legacy character fix)
-                if not hasattr(old_character, 'grit'):
-                    old_character.grit = grit
-                if not hasattr(old_character, 'resonance'):
-                    old_character.resonance = resonance
-                if not hasattr(old_character, 'intellect'):
-                    old_character.intellect = intellect
-                if not hasattr(old_character, 'motorics'):
-                    old_character.motorics = motorics
+                if not hasattr(old_character, 'body'):
+                    old_character.body = body
+                if not hasattr(old_character, 'ref'):
+                    old_character.ref = ref
+                if not hasattr(old_character, 'dex'):
+                    old_character.dex = dex
+                if not hasattr(old_character, 'tech'):
+                    old_character.tech = tech
+                if not hasattr(old_character, 'smrt'):
+                    old_character.smrt = smrt
+                if not hasattr(old_character, 'will'):
+                    old_character.will = will
+                if not hasattr(old_character, 'edge'):
+                    old_character.edge = edge
                 
                 # Ensure old character has sex attribute (legacy data fix)
                 if not hasattr(old_character, 'sex'):
@@ -218,8 +227,8 @@ class CharacterCreateView(EvenniaCharacterCreateView):
                 messages.success(
                     request,
                     f"Character '{character.name}' decanted successfully! "
-                    f"GRIM: Grit {character.grit}, Resonance {character.resonance}, "
-                    f"Intellect {character.intellect}, Motorics {character.motorics}"
+                    f"Stats: BODY {character.body}, REF {character.ref}, "
+                    f"DEX {character.dex}, TECH {character.tech}"
                 )
             
             # WEB-CREATED CHARACTERS: Make invisible until puppeted
@@ -307,11 +316,15 @@ class CharacterCreateView(EvenniaCharacterCreateView):
             return self.form_invalid(form)
         
         if character:
-            # Set GRIM stats (using AttributeProperty) - ensure integers
-            character.grit = int(form.cleaned_data['grit'])
-            character.resonance = int(form.cleaned_data['resonance'])
-            character.intellect = int(form.cleaned_data['intellect'])
-            character.motorics = int(form.cleaned_data['motorics'])
+            # Set stats (using AttributeProperty) - ensure integers
+            # Note: Web form may need to be updated to use new stat names
+            character.body = int(form.cleaned_data.get('body', form.cleaned_data.get('grit', 5)))
+            character.ref = int(form.cleaned_data.get('ref', form.cleaned_data.get('resonance', 5)))
+            character.dex = int(form.cleaned_data.get('dex', form.cleaned_data.get('intellect', 5)))
+            character.tech = int(form.cleaned_data.get('tech', form.cleaned_data.get('motorics', 5)))
+            character.smrt = int(form.cleaned_data.get('smrt', 5))
+            character.will = int(form.cleaned_data.get('will', 5))
+            character.edge = int(form.cleaned_data.get('edge', 5))
             
             # Set sex (using AttributeProperty)
             character.sex = sex
@@ -347,8 +360,8 @@ class CharacterCreateView(EvenniaCharacterCreateView):
             messages.success(
                 self.request,
                 f"Character '{character.name}' decanted successfully! "
-                f"GRIM: Grit {character.grit}, Resonance {character.resonance}, "
-                f"Intellect {character.intellect}, Motorics {character.motorics}"
+                f"Stats: BODY {character.body}, REF {character.ref}, "
+                f"DEX {character.dex}, TECH {character.tech}"
             )
             return HttpResponseRedirect(self.success_url)
         else:

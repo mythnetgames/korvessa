@@ -771,6 +771,8 @@ SKILL_RIFLES = "rifles"
 SKILL_MELEE = "melee"
 SKILL_BRAWLING = "brawling"
 SKILL_MARTIAL_ARTS = "martial_arts"
+SKILL_DODGE = "dodge"
+SKILL_ATHLETICS = "athletics"
 
 # Maps weapon types to their associated combat skill
 # Used for hit chance and damage calculations

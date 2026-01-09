@@ -427,13 +427,13 @@ def validate_in_same_room(char1, char2):
 # STAT MANAGEMENT HELPERS
 # ===================================================================
 
-def get_highest_opponent_stat(opponents, stat_name="motorics", default=1):
+def get_highest_opponent_stat(opponents, stat_name="ref", default=1):
     """
     Get the highest stat value among a list of opponents.
     
     Args:
         opponents (list): List of character objects
-        stat_name (str): Name of the stat to check
+        stat_name (str): Name of the stat to check (defaults to 'ref')
         default (int): Default value if stat is missing or invalid
         
     Returns:
@@ -446,10 +446,14 @@ def get_highest_opponent_stat(opponents, stat_name="motorics", default=1):
     highest_char = None
     
     for opponent in opponents:
-        if not opponent or not hasattr(opponent, stat_name):
+        if not opponent:
             continue
-            
-        stat_value = getattr(opponent, stat_name, default)
+        
+        # Try db.stat_name first, then direct attribute
+        stat_value = getattr(opponent.db, stat_name, None) if hasattr(opponent, 'db') else None
+        if stat_value is None:
+            stat_value = getattr(opponent, stat_name, default)
+        
         numeric_value = stat_value if isinstance(stat_value, (int, float)) else default
         
         if numeric_value > highest_value:
@@ -490,7 +494,7 @@ def filter_valid_opponents(opponents):
     """
     return [
         opp for opp in opponents 
-        if opp and hasattr(opp, "motorics")  # Basic character validation
+        if opp and hasattr(opp, "location")  # Basic character validation
     ]
 
 
@@ -595,9 +599,12 @@ def add_combatant(handler, char, target=None, initial_grappling=None, initial_gr
     
     # Create combat entry
     target_dbref = get_character_dbref(target)
+    # Initiative: d10 + REF stat
+    ref_stat = getattr(char.db, "ref", 1) if hasattr(char, 'db') else 1
+    ref_stat = ref_stat if isinstance(ref_stat, (int, float)) else 1
     entry = {
         DB_CHAR: char,
-        "initiative": randint(1, 20) + get_numeric_stat(char, "motorics", 0),
+        "initiative": randint(1, 10) + int(ref_stat),
         DB_TARGET_DBREF: target_dbref,
         DB_GRAPPLING_DBREF: get_character_dbref(initial_grappling),
         DB_GRAPPLED_BY_DBREF: get_character_dbref(initial_grappled_by),

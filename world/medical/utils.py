@@ -83,7 +83,7 @@ def _get_vital_locations(character):
 def select_hit_location(character, success_margin=0, attacker=None):
     """
     Dynamically select a hit location based on character's anatomy and organ hit weights.
-    If attacker is provided, uses Intellect to bias selection toward less armored areas.
+    If attacker is provided, uses TECH to bias selection toward less armored areas.
     Otherwise, uses success margin to bias toward vital areas for skilled attacks.
     
     Vital areas are determined dynamically based on organ criticality, not hardcoded.
@@ -112,13 +112,16 @@ def select_hit_location(character, success_margin=0, attacker=None):
     
     # Calculate targeting parameters based on attacker's abilities
     if attacker:
-        from world.combat.utils import get_character_stat
-        attacker_grit = get_character_stat(attacker, "grit", 1)
-        attacker_motorics = get_character_stat(attacker, "motorics", 1)
-        attacker_intellect = get_character_stat(attacker, "intellect", 1)
+        # Use new stats: body (toughness), ref (reflexes), tech (technical skill)
+        attacker_body = getattr(attacker.db, "body", 1) if hasattr(attacker, 'db') else 1
+        attacker_body = attacker_body if isinstance(attacker_body, (int, float)) else 1
+        attacker_ref = getattr(attacker.db, "ref", 1) if hasattr(attacker, 'db') else 1
+        attacker_ref = attacker_ref if isinstance(attacker_ref, (int, float)) else 1
+        attacker_tech = getattr(attacker.db, "tech", 1) if hasattr(attacker, 'db') else 1
+        attacker_tech = attacker_tech if isinstance(attacker_tech, (int, float)) else 1
         
-        # Grit + Motorics determines ability to target vital areas effectively
-        vital_targeting_skill = attacker_grit + attacker_motorics
+        # BODY + REF determines ability to target vital areas effectively
+        vital_targeting_skill = int(attacker_body) + int(attacker_ref)
         
         # Calculate vital area bias based on skill + success margin
         if vital_targeting_skill <= 4:
@@ -137,9 +140,9 @@ def select_hit_location(character, success_margin=0, attacker=None):
         else:
             vital_bias = base_vital_bias
         
-        # Intellect determines tactical target selection wisdom
-        # High intellect = avoid heavily armored vitals in favor of unarmored vitals
-        tactical_wisdom = attacker_intellect
+        # TECH determines tactical target selection wisdom
+        # High tech = avoid heavily armored vitals in favor of unarmored vitals
+        tactical_wisdom = int(attacker_tech)
         
         # Dynamically determine vital areas based on organ criticality
         vital_areas = _get_vital_locations(character)
@@ -173,7 +176,7 @@ def select_hit_location(character, success_margin=0, attacker=None):
             
         # Apply targeting bias based on combat style
         if use_targeting_style == "tactical_vital":
-            # Tactical vital targeting: Intellect informs smart vital area selection
+            # Tactical vital targeting: TECH informs smart vital area selection
             is_vital = location in vital_areas
             armor_coverage = _get_location_armor_coverage(character, location)
             
@@ -181,9 +184,9 @@ def select_hit_location(character, success_margin=0, attacker=None):
                 # This is a vital area - apply base vital bias
                 adjusted_vital_bias = vital_bias
                 
-                # Intellect modifies targeting based on armor coverage
+                # TECH modifies targeting based on armor coverage
                 if tactical_wisdom >= 5:
-                    # High intellect: Heavily penalize armored vitals, boost unarmored vitals
+                    # High tech: Heavily penalize armored vitals, boost unarmored vitals
                     if armor_coverage == 0:
                         # Unarmored vital = excellent target
                         adjusted_vital_bias *= 1.5
@@ -191,14 +194,14 @@ def select_hit_location(character, success_margin=0, attacker=None):
                         # Heavily armored vital = poor target choice
                         adjusted_vital_bias *= 0.6
                 elif tactical_wisdom >= 3:
-                    # Moderate intellect: Some armor awareness
+                    # Moderate tech: Some armor awareness
                     if armor_coverage == 0:
                         # Unarmored vital = good target
                         adjusted_vital_bias *= 1.3
                     elif armor_coverage >= 4:
                         # Heavily armored vital = less ideal target
                         adjusted_vital_bias *= 0.8
-                # Low intellect: No armor consideration, just hit vitals
+                # Low tech: No armor consideration, just hit vitals
                 
                 total_weight = int(total_weight * adjusted_vital_bias)
             # Non-vital areas keep base weight (no special targeting)
@@ -713,9 +716,12 @@ def calculate_treatment_success(item, user, target, condition_type):
     """
     import random
     
-    # Get user's medical skill (based on Intellect)
-    user_intellect = getattr(user, 'intellect', 1)
-    medical_skill = user_intellect * 2  # Convert intellect to medical skill
+    # Get user's medical skill (TECH stat + first_aid skill)
+    user_tech = getattr(user.db, "tech", 1) if hasattr(user, 'db') else 1
+    user_tech = user_tech if isinstance(user_tech, (int, float)) else 1
+    user_first_aid = getattr(user.db, "first_aid", 0) if hasattr(user, 'db') else 0
+    user_first_aid = user_first_aid if isinstance(user_first_aid, (int, float)) else 0
+    medical_skill = int(user_tech) + int(user_first_aid)
     
     # Get item effectiveness for this condition
     effectiveness = get_effectiveness(item, condition_type)
@@ -1035,7 +1041,7 @@ def get_medical_item_info(item, viewer):
     # Requirements
     stat_req = get_stat_requirement(item)
     if stat_req > 0:
-        info.append(f"Intellect requirement: {stat_req}")
+        info.append(f"Tech requirement: {stat_req}")
     else:
         info.append("No skill requirements")
         

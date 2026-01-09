@@ -57,10 +57,14 @@ class CmdSpawnMob(Command):
         mob.db.desc = "A breathing body without an identity. Its eyes flicker, but it does not move."
         mob.sex = sex
 
-        mob.grit = roll_stat()
-        mob.resonance = roll_stat()
-        mob.intellect = roll_stat()
-        mob.motorics = roll_stat()
+        # Set 8-stat system stats (random rolls)
+        mob.body = roll_stat()
+        mob.ref = roll_stat()
+        mob.dex = roll_stat()
+        mob.tech = roll_stat()
+        mob.smrt = roll_stat()
+        mob.will = roll_stat()
+        mob.edge = roll_stat()
 
         mob.at_object_creation()
 

@@ -66,7 +66,7 @@ testdeathcurtain A red haze blurs your vision as the world slips away...
 
 The animation works through these steps:
 
-1. **Center the Message**: Place the death message in the center of a line filled with block characters (`▓`)
+1. **Center the Message**: Place the death message in the center of a line filled with block characters (`|`)
 2. **Create Removal Plan**: Generate a randomized sequence for removing characters
 3. **Progressive Removal**: Remove characters one by one according to the plan
 4. **Color Enhancement**: Apply random red-spectrum colors to remaining characters
@@ -95,10 +95,10 @@ The animation works through these steps:
 "A red haze blurs your vision as the world slips away..."
 
 # Frame progression example:
-"▓▓▓▓▓▓A red haze blurs your vision as the world slips away...▓▓▓▓▓▓"
-"▓▓▓▓▓▓A red h ze blurs your vision as the world slips away...▓▓▓▓▓▓"
-"▓▓▓▓▓▓A red h ze blur  your vision as the world slips away...▓▓▓▓▓▓"
-"▓▓▓▓▓▓A red h ze blur  your vision as the world slip  away...▓▓▓▓▓▓"
+"...A red haze blurs your vision as the world slips away..."
+"...A red haze blurs your vision as the world slips away..."
+"...A red haze blurs your vision as the world slips away..."
+"...A red haze blurs your vision as the world slips away..."
 # ... continues until message dissolves
 ```
 
@@ -115,8 +115,8 @@ self.delay_multiplier = 1.01    # Acceleration factor (gets slower)
 
 ```python
 _get_terminal_width()           # Width of animation area (default 78)
-sea_char = "▓"                  # Character surrounding the message
-replacement_char = "█"          # Character used during dripping
+sea_char = "["                  # Character surrounding the message
+replacement_char = "."          # Character used during dripping
 ```
 
 ### Color Customization
