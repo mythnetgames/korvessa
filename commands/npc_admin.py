@@ -585,3 +585,90 @@ class CmdNPCChrome(Command):
                 caller.msg(f"|gRemoved {chrome_name} from {npc.key}.|n")
             else:
                 caller.msg(f"|r{npc.key} doesn't have {chrome_name} installed.|n")
+
+
+class CmdNPCNakeds(Command):
+    """
+    Set NPC body part descriptions (nakeds).
+    
+    Usage:
+      @npc-naked <npc>=<bodypart>:<description>
+      @npc-naked <npc>/clear=<bodypart>
+      @npc-naked <npc>/info
+    
+    Examples:
+      @npc-naked vendor=torso:A weathered chest with faded scars
+      @npc-naked vendor=head:A weather-beaten face with kind eyes
+      @npc-naked vendor=info
+      @npc-naked vendor/clear=torso
+    """
+    key = "@npc-naked"
+    aliases = ["@npc-nakeds", "@npcnaked"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        """Set NPC nakeds."""
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: @npc-naked <npc>=<bodypart>:<description>")
+            return
+        
+        # Parse arguments
+        if "/clear=" in self.args:
+            parts = self.args.split("/clear=", 1)
+            npc_name = parts[0].strip()
+            bodypart = parts[1].strip().lower()
+            action = "clear"
+        elif "/info" in self.args:
+            npc_name = self.args.split("/info")[0].strip()
+            action = "info"
+        elif "=" in self.args:
+            npc_name, rest = self.args.split("=", 1)
+            npc_name = npc_name.strip()
+            if ":" in rest:
+                bodypart, description = rest.split(":", 1)
+                bodypart = bodypart.strip().lower()
+                description = description.strip()
+                action = "set"
+            else:
+                caller.msg("Usage: @npc-naked <npc>=<bodypart>:<description>")
+                return
+        else:
+            caller.msg("Usage: @npc-naked <npc>=<bodypart>:<description>")
+            return
+        
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"NPC '{npc_name}' not found.")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"{npc.key} is not an NPC.")
+            return
+        
+        # Initialize nakeds dict if needed
+        if not hasattr(npc.db, 'nakeds') or npc.db.nakeds is None:
+            npc.db.nakeds = {}
+        
+        if action == "info":
+            if not npc.db.nakeds:
+                caller.msg(f"{npc.key} has no custom body part descriptions.")
+                return
+            caller.msg(f"|c=== Nakeds for {npc.key} ===|n")
+            for part, desc in sorted(npc.db.nakeds.items()):
+                caller.msg(f"|w{part}:|n {desc}")
+        
+        elif action == "set":
+            npc.db.nakeds[bodypart] = description
+            caller.msg(f"|gSet {npc.key}'s {bodypart} description.|n")
+        
+        elif action == "clear":
+            if bodypart in npc.db.nakeds:
+                del npc.db.nakeds[bodypart]
+                caller.msg(f"|gCleared {bodypart} description for {npc.key}.|n")
+            else:
+                caller.msg(f"|r{npc.key} doesn't have a custom {bodypart} description.|n")

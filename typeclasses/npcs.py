@@ -38,6 +38,10 @@ class NPC(DefaultCharacter):
             "idle_chance": 0.05,  # 5% chance per round
         }
         
+        # Initialize nakeds system for body part descriptions
+        if not self.db.nakeds:
+            self.db.nakeds = {}
+        
         # Add NPC to npc_objects registry
         if not hasattr(self.location, 'npc_objects'):
             self.location.npc_objects = []

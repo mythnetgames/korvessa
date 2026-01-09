@@ -60,6 +60,18 @@ Examples:
   @npc-chrome guard/list
   @npc-chrome guard=remove:neural_jack
 
+|wNakeds (Body Descriptions)|n
+- |c@npc-naked <npc>=<bodypart>:<description>|n: Set body part description.
+- |c@npc-naked <npc>/info|n: View all body part descriptions.
+- |c@npc-naked <npc>/clear=<bodypart>|n: Clear a body part description.
+
+Examples:
+  @npc-naked vendor=torso:A weathered chest with faded scars
+  @npc-naked vendor=head:A weather-beaten face with kind eyes
+  @npc-naked vendor=arms:Muscular arms covered in tattoos
+  @npc-naked vendor/info
+  @npc-naked vendor/clear=torso
+
 |wUsage Notes|n
 - Triggers are case-insensitive (hello matches HELLO, Hello, etc).
 - Add multiple reactions to the same trigger for variety - NPCs randomly pick one.
