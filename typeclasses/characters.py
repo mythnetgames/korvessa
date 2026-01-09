@@ -428,9 +428,16 @@ class Character(ObjectParent, DefaultCharacter):
                 pass
             
         # Allow death progression script messages
-        if from_obj and hasattr(from_obj, 'key'):
-            key_lower = str(from_obj.key).lower()
-            if 'death_progression' in key_lower or 'death_curtain' in key_lower:
+        # Check for script key attribute (Evennia scripts use .key property)
+        if from_obj:
+            from_obj_key = getattr(from_obj, 'key', None)
+            if from_obj_key:
+                key_lower = str(from_obj_key).lower()
+                if 'death_progression' in key_lower or 'death_curtain' in key_lower:
+                    return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
+            # Also check typeclass name for scripts
+            from_obj_class = type(from_obj).__name__.lower()
+            if 'deathprogression' in from_obj_class:
                 return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
             
         # Block all other messages for immersion
