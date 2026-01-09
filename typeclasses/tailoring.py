@@ -221,11 +221,15 @@ class FreshMaterial(DefaultObject):
         
         # Build the colored text substitution: |#RRGGBB color name|n
         colored_text = f"|#{self.clothing_color_code}{self.clothing_color_name}|n"
-        
+        # Only substitute %color in name if present
+        if "%color" in self.clothing_name:
+            item_name = self.clothing_name.replace("%color", colored_text)
+        else:
+            item_name = self.clothing_name
         # Create the actual clothing item
         clothing = create_object(
             Item,
-            key=self.clothing_name.replace("%color", colored_text),
+            key=item_name,
             location=tailor,
             attributes=[
                 ("desc", self.clothing_desc.replace("%color", colored_text)),
