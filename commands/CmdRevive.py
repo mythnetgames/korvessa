@@ -47,7 +47,7 @@ class CmdRevive(Command):
             from typeclasses.characters import Character
             dead_chars = [
                 obj for obj in caller.location.contents 
-                if isinstance(obj, Character) and obj.is_dead()
+                if isinstance(obj, Character) and self._is_dead_or_needs_revive(obj)
             ]
             
             if not dead_chars:
@@ -71,8 +71,8 @@ class CmdRevive(Command):
             caller.msg(f"|r{target.key} is not a character.|n")
             return
         
-        # Check if target is actually dead
-        if not target.is_dead():
+        # Check if target is actually dead or needs revival
+        if not self._is_dead_or_needs_revive(target):
             caller.msg(f"|y{target.key} is not dead.|n")
             # Offer to heal them anyway
             caller.msg(f"|yUse |w@heal {target.key}|y to heal them if injured.|n")
@@ -81,6 +81,36 @@ class CmdRevive(Command):
         # Revive the character
         self._revive_character(target)
         caller.msg(f"|g✓ {target.key} has been revived and fully healed.|n")
+    
+    def _is_dead_or_needs_revive(self, target):
+        """
+        Check if a character is dead or has death-related flags that need clearing.
+        
+        More robust than just is_dead() - catches edge cases where death flags
+        are set but medical state might not reflect it.
+        """
+        # Check standard is_dead()
+        if target.is_dead():
+            return True
+        
+        # Check for death_processed flag
+        if getattr(target.db, 'death_processed', False):
+            return True
+        
+        if hasattr(target, 'ndb') and getattr(target.ndb, 'death_processed', False):
+            return True
+        
+        # Check for death-related override_place
+        if hasattr(target, 'override_place') and target.override_place:
+            place_str = str(target.override_place).lower()
+            if 'deceased' in place_str or 'dead' in place_str or 'motionless' in place_str:
+                return True
+        
+        # Check for death curtain pending
+        if hasattr(target, 'ndb') and getattr(target.ndb, 'death_curtain_pending', False):
+            return True
+        
+        return False
     
     def _revive_character(self, target):
         """
