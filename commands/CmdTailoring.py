@@ -88,6 +88,7 @@ class CmdSpawnMaterial(Command):
                 ("material_type", material_type),
                 ("desc", f"A piece of fresh {material_type} ready to be tailored into clothing."),
                 ("creator_dbref", caller.dbref),
+                ("base_value", 0),
             ]
         )
         
