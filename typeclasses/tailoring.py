@@ -225,7 +225,7 @@ class FreshMaterial(DefaultObject):
         # Create the actual clothing item
         clothing = create_object(
             Item,
-            key=self.clothing_name,
+            key=self.clothing_name.replace("%color", colored_text),
             location=tailor,
             attributes=[
                 ("desc", self.clothing_desc.replace("%color", colored_text)),
