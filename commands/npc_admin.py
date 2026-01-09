@@ -148,9 +148,18 @@ class CmdNPCUnpuppet(Command):
                 sessions = caller.sessions.get()
                 if sessions:
                     session = sessions[0]
+                    # Save NPC's current location before unpuppeting
+                    npc_location = caller.location
+                    npc = caller  # Keep reference to the NPC
+                    
                     # Unpuppet the NPC and puppet the original character
                     account.unpuppet_object(session)
                     account.puppet_object(session, original_char)
+                    
+                    # Ensure the NPC stays in its location
+                    if npc_location and npc.location != npc_location:
+                        npc.location = npc_location
+                    
                     original_char.msg(f"|gYou have released {npc_name}.|n")
                 else:
                     caller.msg("|rNo active session found.|n")
