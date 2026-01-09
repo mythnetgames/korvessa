@@ -1,0 +1,77 @@
+|cNPC System (Builder+)|n
+
+This helpfile describes how to create and manage Non-Player Characters (NPCs) with reactions, puppeting, and zone management.
+
+|wCreation|n
+- |c@create-npc <name>|n: Create an NPC at your location.
+- |c@create-npc <name>=<description>|n: Create an NPC with a description.
+
+|wPuppeting (Admin Only)|n
+- |c@puppet <npc>|n: Take control of an NPC. Your admin character is saved and you move to the NPC's location.
+- |c@unpuppet|n: Stop controlling the NPC and return to your admin character's previous location.
+
+|wReactions|n
+- |c@npc-react <npc>=<trigger>/<action>|n: Add a reaction to a trigger word.
+- |c@npc-react <npc>/list|n: View all reactions for an NPC.
+- |c@npc-react <npc>/remove=<trigger>|n: Remove all reactions for a trigger.
+
+Reaction Actions:
+- |csay <message>|n: NPC speaks.
+- |cemote <action>|n: NPC performs a short action.
+- |cpose <action>|n: NPC performs a longer action.
+
+|wConfiguration|n
+- |c@npc-config <npc>=wander:yes|n or |cno|n: Enable/disable wandering.
+- |c@npc-config <npc>=zone:<zone_name>|n: Set the zone NPC can wander in.
+- |c@npc-config <npc>=accent:<accent_name>|n: Set NPC's accent or dialect.
+- |c@npc-config <npc>/info|n: View NPC configuration.
+
+|wUsage Notes|n
+- Triggers are case-insensitive (hello matches HELLO, Hello, etc).
+- Add multiple reactions to the same trigger for variety - NPCs randomly pick one.
+- NPCs inherit all player character capabilities (combat, items, commands).
+- Zones are text names (e.g., "market", "fortress", "tavern").
+- Rooms must have |croom.db.zone = "zone_name"|n to be part of a zone.
+- Idle emotes trigger randomly each turn (configurable in |cnpc.db.npc_personality|n).
+
+|wExamples|n
+
+Create a street vendor:
+  @create-npc street vendor=A weathered merchant with kind eyes.
+  @npc-react street vendor=hello/say Welcome to my stall!
+  @npc-react street vendor=wares/say I've got quality goods at fair prices.
+  @npc-config street vendor=zone:market
+
+Create a suspicious guard:
+  @create-npc guard=A stern watchman.
+  @npc-react guard=who/say State your business!
+  @npc-react guard=who/emote eyes you suspiciously
+  @npc-config guard=zone:fortress
+
+Puppet an NPC:
+  @puppet street vendor
+  say Thanks for stopping by!
+  emote arranges the merchandise
+  @unpuppet
+
+|wAdvanced|n
+- You can execute any command you have permission for while puppeting an NPC.
+- NPCs can participate in combat if equipped with weapons.
+- Multiple reactions per trigger create natural variation in NPC behavior.
+- Use |c@puppet|n to perform complex scripted scenes with NPCs.
+- NPC state persists across server restarts.
+- Admin account state is preserved while puppeting.
+
+|wPermissions|n
+- |c@create-npc|n: Admin only
+- |c@puppet|n: Admin only
+- |c@unpuppet|n: Admin only (while puppeted)
+- |c@npc-react|n: Builder+ 
+- |c@npc-config|n: Builder+
+
+|wTroubleshooting|n
+- NPC not reacting? Check: |c@npc-react <npc>/list|n
+- Can't puppet? Ensure you're Admin and have an active puppet.
+- Reactions not saving? Verify command syntax matches examples.
+
+See the full documentation in |cNPC_SYSTEM.md|n for more details and examples.
