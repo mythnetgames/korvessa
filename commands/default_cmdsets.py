@@ -277,6 +277,21 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add control command
         from commands.control import CmdControl
         self.add(CmdControl())
+        # Add tailoring commands
+        from commands.CmdTailoring import (
+            CmdSpawnMaterial, CmdTailorName, CmdTailorCoverage, CmdTailorColor,
+            CmdTailorSeeThru, CmdTailorDescribe, CmdTailorMessages, 
+            CmdTailorCheck, CmdTailorFinalize
+        )
+        self.add(CmdSpawnMaterial())
+        self.add(CmdTailorName())
+        self.add(CmdTailorCoverage())
+        self.add(CmdTailorColor())
+        self.add(CmdTailorSeeThru())
+        self.add(CmdTailorDescribe())
+        self.add(CmdTailorMessages())
+        self.add(CmdTailorCheck())
+        self.add(CmdTailorFinalize())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
