@@ -2427,7 +2427,12 @@ class Character(ObjectParent, DefaultCharacter):
         for code, pronoun in pronouns_dict.items():
             # Lowercase version
             result = result.replace(f'%{code}', pronoun)
-            # Capitalized version
-            result = result.replace(f'%{code.upper()}', pronoun.capitalize())
+            # Capitalized version - use title() for multi-word names
+            if code == 'n':
+                # For names, use title case to capitalize each word
+                result = result.replace(f'%{code.upper()}', pronoun.title())
+            else:
+                # For pronouns, just capitalize first letter
+                result = result.replace(f'%{code.upper()}', pronoun.capitalize())
         
         return result
