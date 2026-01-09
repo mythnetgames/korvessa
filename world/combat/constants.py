@@ -64,7 +64,7 @@ MAX_LONGDESC_LOCATIONS = 50  # Very high, accommodates extensive modifications
 MAX_DESCRIPTION_LENGTH = 1000  # Generous limit, allows detailed descriptions
 
 # Paragraph formatting thresholds
-PARAGRAPH_BREAK_THRESHOLD = 400  # Characters before automatic paragraph break
+PARAGRAPH_BREAK_THRESHOLD = 1200  # Characters before automatic paragraph break (within same region)
 REGION_BREAK_PRIORITY = True     # Prefer breaking between anatomical regions
 
 # Valid location validation set (expandable)
