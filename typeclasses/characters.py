@@ -37,7 +37,8 @@ class Character(ObjectParent, DefaultCharacter):
     def at_post_puppet(self, **kwargs):
         """
         Called just after puppeting has been completed. Suppress the "has entered
-        the game" message if an admin is puppeting this character.
+        the game" message if an admin is puppeting this character. Also ensure the
+        puppet is in a location so the admin can see room activity.
         
         Args:
             **kwargs: Arbitrary, optional arguments
@@ -52,6 +53,13 @@ class Character(ObjectParent, DefaultCharacter):
         is_admin_puppeted = False
         if self.account:
             is_admin_puppeted = self.account.is_superuser or self.account.is_staff
+        
+        # If puppet is in None location (was stored), try to restore their previous location
+        if not self.location and is_admin_puppeted:
+            prelogout_location = self.db.prelogout_location
+            if prelogout_location:
+                self.location = prelogout_location
+                self.msg(f"Restored to |c{self.location.name}|n.")
         
         # Only show "has entered the game" if NOT puppeted by an admin
         if self.location and not is_admin_puppeted:

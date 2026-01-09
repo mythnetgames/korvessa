@@ -29,10 +29,11 @@ class Account(DefaultAccount):
     def puppet_object(self, session, obj):
         """
         Called when this Account puppets a Character (obj) on a session.
-        We override to force @mapon logic silently when 'You become ...' is echoed.
+        Override to force @mapon logic and handle location following.
         """
         # Call the original Evennia logic
         super().puppet_object(session, obj)
+        
         # Force @mapon logic silently
         if hasattr(self, 'db'):
             self.db.mapper_enabled = True
@@ -42,7 +43,13 @@ class Account(DefaultAccount):
             session.ndb.mapper_enabled = True
         if hasattr(obj, 'ndb'):
             obj.ndb.mapper_enabled = True
-    """
+
+    def unpuppet_object(self, session):
+        """
+        Called when an account stops puppeting an object.
+        """
+        # Call the original unpuppet
+        super().unpuppet_object(session)
     An Account is the actual OOC player entity. It doesn't exist in the game,
     but puppets characters.
 
