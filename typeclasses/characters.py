@@ -2044,10 +2044,14 @@ class Character(ObjectParent, DefaultCharacter):
         current_region = None
         
         for location, description in sorted_longdesc_list:
-            # Strip trailing periods from descriptions to avoid double periods when joining
-            description = description.rstrip('.').strip()
+            # Clean up whitespace but preserve periods within descriptions
+            description = description.strip()
             if not description:
                 continue
+            
+            # Ensure description ends with a period if it doesn't already
+            if not description.endswith('.'):
+                description = description + '.'
             
             # Determine which anatomical region this location belongs to
             location_region = self._get_anatomical_region(location)
@@ -2064,8 +2068,8 @@ class Character(ObjectParent, DefaultCharacter):
             
             if should_break and current_paragraph:
                 # Finish current paragraph and start new one
-                # Add period to end of paragraph
-                paragraph_text = " ".join(current_paragraph) + "."
+                # Join descriptions (each already has its own period)
+                paragraph_text = " ".join(current_paragraph)
                 paragraphs.append(paragraph_text)
                 current_paragraph = []
                 current_char_count = 0
@@ -2075,9 +2079,9 @@ class Character(ObjectParent, DefaultCharacter):
             current_char_count += len(description) + 1  # +1 for space
             current_region = location_region
         
-        # Add final paragraph with period
+        # Add final paragraph
         if current_paragraph:
-            paragraph_text = " ".join(current_paragraph) + "."
+            paragraph_text = " ".join(current_paragraph)
             paragraphs.append(paragraph_text)
         
         return "\n\n".join(paragraphs)
