@@ -104,7 +104,6 @@ class Guest(DefaultGuest):
                       quiet=False, **kwargs)
      - is_typeclass(typeclass, exact=False)
      - swap_typeclass(new_typeclass, clean_attributes=False, no_default=True)
-    """
      - access(accessing_obj, access_type='read', default=False, no_superuser_bypass=False, **kwargs)
      - check_permstring(permstring)
      - get_cmdsets(caller, current, **kwargs)
@@ -128,6 +127,7 @@ class Guest(DefaultGuest):
      - get_character_slots()
      - get_available_character_slots()
      - create_character(*args, **kwargs)
+    """
      - create(*args, **kwargs)
      - delete(*args, **kwargs)
      - channel_msg(message, channel, senders=None, **kwargs)
