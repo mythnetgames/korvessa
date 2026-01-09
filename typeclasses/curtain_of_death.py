@@ -66,7 +66,7 @@ def _strip_color_codes(text):
 
 def curtain_of_death(text, width=None, session=None):
     """
-    Create a "dripping blood" death curtain animation.
+    Create a fading death animation using punctuation.
     
     Args:
         text (str): The message to animate
@@ -79,116 +79,70 @@ def curtain_of_death(text, width=None, session=None):
     if width is None:
         width = _get_terminal_width(session)
     
-    # Reserve small buffer for color codes in curtain animation
-    # Since we add color codes to padding blocks, we need to account for them
-    curtain_width = width - 1  # Small buffer for color code overhead
-    
-    # Calculate visible text length (without color codes)
+    curtain_width = width - 1
     visible_text = _strip_color_codes(text)
     
-    # For the first frame, use the text as-is (with its color codes)
-    # Center it with colored blocks, but ensure total doesn't exceed width
-    padding_needed = curtain_width - len(visible_text)
+    frames = []
     
-    if padding_needed <= 0:
-        # Message is too long for terminal, use as-is without padding
-        first_frame = text
-    else:
+    # Phase 1: Full message with punctuation border
+    padding_needed = curtain_width - len(visible_text)
+    if padding_needed > 0:
         left_padding = padding_needed // 2
         right_padding = padding_needed - left_padding
-        
-        # Create colored padding blocks
-        left_blocks = _colorize_evennia("<" * left_padding)
-        right_blocks = _colorize_evennia(">" * right_padding)
-        
-        first_frame = left_blocks + text + right_blocks
+        left_border = _colorize_evennia("." * left_padding)
+        right_border = _colorize_evennia("." * right_padding)
+        frames.append(left_border + text + right_border)
+    else:
+        frames.append(text)
     
-    # For subsequent frames, work with a plain version for character removal
-    plain_padded = visible_text.center(curtain_width, ".")
-    chars = list(plain_padded)
+    # Phase 2: Message gradually fades by replacing characters with dots (12 frames)
+    chars = list(visible_text)
+    char_indices = [i for i in range(len(chars)) if chars[i] != " "]
     
-    # Build the "plan": a shuffled list of (index, drop-distance) pairs
-    plan = [(i, random.randint(1, i + 1)) for i in range(len(chars))]
-    random.shuffle(plan)
+    for fade_step in range(12):
+        # Calculate how many characters to replace with dots this frame
+        fade_ratio = (fade_step + 1) / 12
+        chars_to_fade = int(len(char_indices) * fade_ratio)
+        
+        # Replace random characters with dots
+        indices_to_remove = random.sample(char_indices, min(chars_to_fade, len(char_indices)))
+        for idx in indices_to_remove:
+            if idx in char_indices:
+                chars[idx] = "."
+                char_indices.remove(idx)
+        
+        # Build frame with remaining text and colored dots
+        frame_text = "".join(chars)
+        if padding_needed > 0:
+            left_border = _colorize_evennia("." * left_padding)
+            right_border = _colorize_evennia("." * right_padding)
+            frame = left_border + _colorize_evennia(frame_text) + right_border
+        else:
+            frame = _colorize_evennia(frame_text)
+        
+        frames.append(frame)
     
-    frames = [first_frame]  # First frame with proper colors
+    # Phase 3: Final fade to empty (5 frames of increasingly sparse text)
+    for final_step in range(5):
+        remaining = [i for i in range(len(chars)) if chars[i] != " " and chars[i] != "."]
+        remove_count = max(1, len(remaining) // (5 - final_step))
+        
+        for idx in random.sample(remaining, min(remove_count, len(remaining))):
+            chars[idx] = "."
+        
+        frame_text = "".join(chars)
+        if padding_needed > 0:
+            left_border = _colorize_evennia("." * left_padding)
+            right_border = _colorize_evennia("." * right_padding)
+            frame = left_border + _colorize_evennia(frame_text) + right_border
+        else:
+            frame = _colorize_evennia(frame_text)
+        
+        frames.append(frame)
     
-    # Create dripping effect by removing characters in planned sequence
-    # Process every 3rd character initially for the main text removal
-    text_chars = [i for i, c in enumerate(chars) if c not in [" ", "|", "I"]]  # Track text chars from start
-    
-    for frame_num, (idx, _) in enumerate(plan[::3]):  # Skip every 3rd character to reduce frame count
-        if chars[idx] == " ":  # Skip spaces
-            continue
-        chars[idx] = " "  # 'Erase' the character
-        
-        # After a few frames, start also removing text characters exponentially
-        if frame_num > len(plan) // 6:  # Start text removal after 1/6 of main dripping
-            # Exponentially increase text character removal as dripping progresses
-            text_removal_rate = min(0.4, 0.05 * (frame_num - len(plan) // 6) ** 1.3)
-            chars_to_remove = int(len(text_chars) * text_removal_rate)
-            
-            for _ in range(min(chars_to_remove, len(text_chars))):
-                if text_chars:
-                    text_idx = text_chars.pop(random.randint(0, len(text_chars) - 1))
-                    chars[text_idx] = " "
-        
-        frame = "".join(chars).center(curtain_width, ".")  # Replace the sea with different char
-        frames.append(_colorize_evennia(frame))
-    
-    # Clean up any remaining text characters more gently
-    # Find all remaining non-space, non-block characters (the text)
-    remaining_text_chars = [i for i, c in enumerate(chars) if c not in [" ", "|", "l"]]
-    
-    # More gradually remove remaining text in fewer frames since most should be gone
-    text_removal_frames = 4  # Reduced since most text should already be removed
-    for frame_num in range(text_removal_frames):
-        if not remaining_text_chars:
-            break
-        
-        # Remove remaining text each frame 
-        chars_per_frame = max(1, len(remaining_text_chars) // (text_removal_frames - frame_num + 1))
-        
-        for _ in range(min(chars_per_frame, len(remaining_text_chars))):
-            if remaining_text_chars:
-                idx = remaining_text_chars.pop(random.randint(0, len(remaining_text_chars) - 1))
-                chars[idx] = " "
-        
-        frame = "".join(chars).center(curtain_width, ".")
-        frames.append(_colorize_evennia(frame))
-
-    # Add several more frames of continued dripping
-    # Create trailing drip effect - scattered blocks that continue falling
-    remaining_blocks = [i for i, c in enumerate(chars) if c == "|"]    # Create 8-12 trailing frames with sparse dripping
-    trailing_frames = 12
-    for frame_num in range(trailing_frames):
-        # Gradually remove more blocks with each frame, but not all at once
-        removal_rate = 0.15 + (frame_num * 0.05)  # Start slow, speed up
-        blocks_to_remove = max(1, int(len(remaining_blocks) * removal_rate))
-        
-        # Remove random blocks with some clustering for more organic feel
-        for _ in range(min(blocks_to_remove, len(remaining_blocks))):
-            if remaining_blocks:
-                # Sometimes remove clustered blocks for streaky drip effect
-                if random.random() < 0.3 and len(remaining_blocks) > 1:
-                    # Find adjacent blocks occasionally
-                    idx = random.choice(remaining_blocks)
-                    adjacent = [i for i in remaining_blocks if abs(i - idx) <= 2]
-                    if adjacent:
-                        idx = random.choice(adjacent)
-                else:
-                    idx = random.choice(remaining_blocks)
-                remaining_blocks.remove(idx)
-                chars[idx] = " "
-        
-        # Create sparse frame with remaining blocks
-        frame = "".join(chars)
-        frames.append(_colorize_evennia(frame))
-    
-    # Add a few final empty frames for smooth transition
-    for i in range(3):
-        final_frame = " " * curtain_width
-        frames.append(_colorize_evennia(final_frame))
+    # Phase 4: Blank frame for transition (2 frames)
+    for _ in range(2):
+        frames.append(_colorize_evennia(" " * curtain_width))
     
     return frames
 
