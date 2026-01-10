@@ -662,12 +662,25 @@ Are you sure you want to quit? Your recipe will not be saved.
         if raw_string in ('y', 'yes'):
             if hasattr(caller.ndb, '_recipe_design'):
                 del caller.ndb._recipe_design
+            if hasattr(caller.ndb, '_admin_recipe_design'):
+                del caller.ndb._admin_recipe_design
             caller.msg("|yRecipe designer closed without saving.|n")
             return None  # Exit menu
         
+        # Check if we're in admin mode to return to the right menu
+        if getattr(caller.ndb, '_admin_recipe_design', False):
+            return "node_admin_main_menu"
         return "node_main_menu"
     
-    options = ({"key": "_default", "goto": _confirm_quit},)
+    options = (
+        {"key": "y", "goto": _confirm_quit},
+        {"key": "Y", "goto": _confirm_quit},
+        {"key": "yes", "goto": _confirm_quit},
+        {"key": "n", "goto": _confirm_quit},
+        {"key": "N", "goto": _confirm_quit},
+        {"key": "no", "goto": _confirm_quit},
+        {"key": "_default", "goto": _confirm_quit},
+    )
     return text, options
 
 
