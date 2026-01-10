@@ -197,6 +197,13 @@ def _present_death_choice(character, account, session, has_backup, backup_data):
     account.ndb._death_choice_backup_data = backup_data
     account.ndb._death_choice_has_backup = has_backup
     
+    # Add the death choice cmdset to the account AND session
+    # (session is the actual command receiver when unpuppeted)
+    from commands.death_choice import DeathChoiceCmdSet
+    account.cmdset.add(DeathChoiceCmdSet, persistent=False)
+    if session:
+        session.cmdset.add(DeathChoiceCmdSet, persistent=False)
+    
     # Small delay then show the choice
     delay(2.0, _show_death_choice_menu, account, session, has_backup)
 
@@ -243,11 +250,25 @@ def _show_death_choice_menu(account, session, has_backup):
     account.msg("|WType |cCLONE|W or |rDIE|W to make your choice.|n")
     account.msg("")
     
-    # Commands are handled directly in Account.execute_cmd() - no cmdset needed
+    # Death choice cmdset is added in _present_death_choice
 
 
 def _process_death_choice(account, choice):
     """Process the player's death choice."""
+    # Get session first
+    session = account.sessions.all()[0] if account.sessions.count() else None
+    
+    # Remove the death choice cmdset from both account and session
+    try:
+        account.cmdset.remove("death_choice_cmdset")
+    except Exception:
+        pass
+    if session:
+        try:
+            session.cmdset.remove("death_choice_cmdset")
+        except Exception:
+            pass
+    
     # Get stored state
     character = getattr(account.ndb, '_death_choice_character', None)
     backup_data = getattr(account.ndb, '_death_choice_backup_data', None)
@@ -262,8 +283,6 @@ def _process_death_choice(account, choice):
         del account.ndb._death_choice_backup_data
     if hasattr(account.ndb, '_death_choice_has_backup'):
         del account.ndb._death_choice_has_backup
-    
-    session = account.sessions.all()[0] if account.sessions.count() else None
     
     _log(f"DEATH_CHOICE: {account.key} chose {choice} (has_backup={has_backup})")
     
@@ -835,14 +854,19 @@ def cancel_death_progression(character):
         if hasattr(account.ndb, '_death_choice_has_backup'):
             del account.ndb._death_choice_has_backup
         
-        # Clear session flags
+        # Clear session flags and cmdsets
         for session in account.sessions.all():
             if hasattr(session.ndb, '_clone_awakening_locked'):
                 del session.ndb._clone_awakening_locked
+            # Remove cmdset from session
+            try:
+                session.cmdset.remove("death_choice_cmdset")
+            except Exception:
+                pass
         
-        # Remove the death choice cmdset if it exists
+        # Remove the death choice cmdset from account if it exists
         try:
-            account.cmdset.remove("death_choice")
+            account.cmdset.remove("death_choice_cmdset")
         except Exception:
             pass
     

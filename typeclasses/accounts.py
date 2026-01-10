@@ -75,33 +75,6 @@ class Account(DefaultAccount):
             return ""
         return super().at_look(target=target, session=session, **kwargs)
 
-    def execute_cmd(self, raw_string, session=None, **kwargs):
-        """
-        Called when the account tries to execute a command.
-        Block most commands during clone awakening, allow CLONE/DIE during choice.
-        """
-        # During death choice, handle clone/die commands directly
-        if self._is_death_choice_pending():
-            cmd = raw_string.strip().lower()
-            if cmd == "clone":
-                from typeclasses.death_progression import _process_death_choice
-                _process_death_choice(self, "clone")
-                return
-            elif cmd == "die":
-                from typeclasses.death_progression import _process_death_choice
-                _process_death_choice(self, "die")
-                return
-            else:
-                self.msg("|WType |cCLONE|W or |rDIE|W to make your choice.|n")
-                return
-        
-        # During awakening cutscene, block all commands
-        if self._is_clone_awakening_locked():
-            self.msg("|xYour motor functions have not yet been restored...|n")
-            return
-        
-        return super().execute_cmd(raw_string, session=session, **kwargs)
-
     def msg(self, text=None, from_obj=None, session=None, options=None, **kwargs):
         """
         Override msg to allow messages during awakening, but block OOC menu.
