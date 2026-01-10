@@ -45,11 +45,10 @@ class IPGrantScript(DefaultScript):
     
     def at_script_creation(self):
         """Initialize the script."""
-        # Run every hour to check if it's grant time
-        # (More precise timing would require complex scheduling)
-        self.interval = 3600  # 1 hour in seconds
+        # Run every 10 minutes to ensure we don't miss grant windows
+        self.interval = 600  # 10 minutes in seconds
         self.persistent = True
-        self.start_delay = True
+        self.start_delay = False  # Run immediately on creation
         
         # Track last grant hour to prevent double-grants
         self.db.last_grant_hour = None
@@ -70,7 +69,8 @@ class IPGrantScript(DefaultScript):
             if last_grant != grant_key:
                 self._grant_ip_to_online_players()
                 self.db.last_grant_hour = grant_key
-    
+                self._debug_log(f"IP grant triggered at {now.strftime('%Y-%m-%d %H:%M:%S')} for hour {current_hour}")
+        
     def _grant_ip_to_online_players(self):
         """Grant IP to all online players who are puppeting characters."""
         try:
