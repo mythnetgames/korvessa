@@ -58,10 +58,16 @@ class Account(DefaultAccount):
         """
         # During clone awakening, commands are blocked
         if getattr(self.ndb, '_clone_awakening_locked', False):
-            # Return early - user can't execute commands during awakening
             self.msg("|xYour motor functions have not yet been restored...|n")
             return None
-        
+        session = None
+        try:
+            session = self.sessions.get()[0]
+        except Exception:
+            pass
+        if session and getattr(session.ndb, '_clone_awakening_locked', False):
+            self.msg("|xYour motor functions have not yet been restored...|n")
+            return None
         return super().at_cmdset_get(**kwargs)
 
 
@@ -241,6 +247,12 @@ class Guest(DefaultGuest):
         - Starting character creation for new accounts
         - Handling archived characters
         """
+        # Block OOC menu if clone awakening is in progress
+        if getattr(self.ndb, '_clone_awakening_locked', False):
+            if session:
+                session.ndb._clone_awakening_locked = True
+            return  # Do not show OOC menu
+        
         # Force map display ON for every account and session on login
         # Force @mapon logic on login, but do not echo any output or check coordinates
         self.db.mapper_enabled = True
