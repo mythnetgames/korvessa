@@ -1,0 +1,1527 @@
+"""
+Cooking Commands - Food crafting system
+
+Commands for designing recipes, cooking food, and admin approval.
+
+Player Commands:
+- design: Start the recipe design menu
+- cook: Cook a recipe at a kitchenette
+- eat/drink: Consume food/drinks
+- taste: Get a preview of food taste
+- smell: Smell food/drink
+
+Admin Commands:
+- spawnkitchen: Create a kitchenette
+- spawningredients: Create ingredients for testing
+- recipes: View and manage recipe queue
+- approverecipe: Approve a pending recipe
+- rejectrecipe: Reject a pending recipe
+"""
+
+from evennia import Command, create_object
+from evennia.utils.evmenu import EvMenu
+from evennia.utils.search import search_object
+from datetime import datetime
+from random import randint
+import math
+
+from typeclasses.cooking import (
+    Ingredients, Kitchenette, FoodItem,
+    get_recipe_storage, get_all_approved_recipes, get_pending_recipes,
+    get_recipe_by_id, add_pending_recipe, approve_recipe, reject_recipe,
+    search_recipes, DIFFICULTY_SCALE
+)
+
+
+# =============================================================================
+# PRONOUN SUBSTITUTION HELPER
+# =============================================================================
+
+def substitute_pronouns(text, char):
+    """
+    Substitute pronoun placeholders in text.
+    
+    Placeholders:
+        %s - subjective (he/she/they)
+        %o - objective (him/her/them)
+        %p - possessive (his/her/their)
+        %a - absolute possessive (his/hers/theirs)
+        %r - reflexive (himself/herself/themselves)
+        %n - character name
+    """
+    if not text or not char:
+        return text
+    
+    # Get character's gender/pronouns
+    gender = getattr(char.db, 'gender', 'ambiguous') or 'ambiguous'
+    gender = gender.lower()
+    
+    pronoun_map = {
+        'male': {'s': 'he', 'o': 'him', 'p': 'his', 'a': 'his', 'r': 'himself'},
+        'female': {'s': 'she', 'o': 'her', 'p': 'her', 'a': 'hers', 'r': 'herself'},
+        'ambiguous': {'s': 'they', 'o': 'them', 'p': 'their', 'a': 'theirs', 'r': 'themselves'},
+    }
+    
+    pronouns = pronoun_map.get(gender, pronoun_map['ambiguous'])
+    
+    # Replace placeholders
+    text = text.replace('%s', pronouns['s'])
+    text = text.replace('%S', pronouns['s'].capitalize())
+    text = text.replace('%o', pronouns['o'])
+    text = text.replace('%O', pronouns['o'].capitalize())
+    text = text.replace('%p', pronouns['p'])
+    text = text.replace('%P', pronouns['p'].capitalize())
+    text = text.replace('%a', pronouns['a'])
+    text = text.replace('%A', pronouns['a'].capitalize())
+    text = text.replace('%r', pronouns['r'])
+    text = text.replace('%R', pronouns['r'].capitalize())
+    text = text.replace('%n', char.key)
+    text = text.replace('%N', char.key)
+    
+    return text
+
+
+# =============================================================================
+# EVMENU RECIPE DESIGNER
+# =============================================================================
+
+class RecipeDesignMenu(EvMenu):
+    """Custom EvMenu for recipe design that suppresses auto option display."""
+    
+    def options_formatter(self, optionlist):
+        """Suppress automatic option display."""
+        return ""
+
+
+def _recipe_data(caller):
+    """Get or initialize recipe data from caller's ndb."""
+    if not hasattr(caller.ndb, '_recipe_design'):
+        caller.ndb._recipe_design = {
+            "name": "",
+            "is_food": True,
+            "description": "",
+            "taste": "",
+            "smell": "",
+            "msg_eat_self": "",
+            "msg_eat_others": "",
+            "msg_finish_self": "",
+            "msg_finish_others": "",
+            "keywords": [],
+        }
+    return caller.ndb._recipe_design
+
+
+def node_main_menu(caller, raw_string, **kwargs):
+    """Main menu for recipe design."""
+    data = _recipe_data(caller)
+    
+    # Build status display
+    def status(field):
+        return "|g[SET]|n" if data.get(field) else "|r[---]|n"
+    
+    item_type = "Food" if data.get("is_food", True) else "Drink"
+    
+    text = f"""
+|c=== Recipe Designer ===|n
+
+Design a new {item_type.lower()} recipe. Set all required fields before submitting.
+
+|wCurrent Recipe:|n {data.get('name') or '(unnamed)'}
+
+|w1.|n {status('name')} Name
+|w2.|n {status('is_food')} Type: |w{item_type}|n
+|w3.|n {status('description')} Description
+|w4.|n {status('taste')} Taste
+|w5.|n {status('smell')} Smell
+|w6.|n {status('msg_eat_self')} Consume Message (1st person)
+|w7.|n {status('msg_eat_others')} Consume Message (3rd person)
+|w8.|n {status('msg_finish_self')} Finish Message (1st person)
+|w9.|n {status('msg_finish_others')} Finish Message (3rd person)
+|w10.|n Keywords: {', '.join(data.get('keywords', [])) or '(none)'}
+
+|w[R]|n Review before submission
+|w[S]|n Submit for approval
+|w[Q]|n Quit without saving
+"""
+    
+    options = (
+        {"key": "1", "goto": "node_set_name"},
+        {"key": "2", "goto": "node_set_type"},
+        {"key": "3", "goto": "node_set_description"},
+        {"key": "4", "goto": "node_set_taste"},
+        {"key": "5", "goto": "node_set_smell"},
+        {"key": "6", "goto": "node_set_eat_self"},
+        {"key": "7", "goto": "node_set_eat_others"},
+        {"key": "8", "goto": "node_set_finish_self"},
+        {"key": "9", "goto": "node_set_finish_others"},
+        {"key": "10", "goto": "node_set_keywords"},
+        {"key": "r", "goto": "node_review"},
+        {"key": "R", "goto": "node_review"},
+        {"key": "s", "goto": "node_submit"},
+        {"key": "S", "goto": "node_submit"},
+        {"key": "q", "goto": "node_quit"},
+        {"key": "Q", "goto": "node_quit"},
+    )
+    
+    return text, options
+
+
+def node_set_name(caller, raw_string, **kwargs):
+    """Set recipe name."""
+    text = """
+|c=== Set Recipe Name ===|n
+
+Enter the name for your recipe. This is what the food/drink will be called.
+
+Examples: |wSteaming Bowl of Ramen|n, |wSynthetic Protein Shake|n, |wNeon District Street Tacos|n
+
+|wType your name and press Enter, or type 'back' to return.|n
+"""
+    
+    def _set_name(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip()
+        if raw_string.lower() == 'back':
+            return "node_main_menu"
+        if len(raw_string) < 3:
+            caller.msg("|rName must be at least 3 characters.|n")
+            return "node_set_name"
+        if len(raw_string) > 80:
+            caller.msg("|rName must be 80 characters or less.|n")
+            return "node_set_name"
+        
+        data = _recipe_data(caller)
+        data["name"] = raw_string
+        caller.msg(f"|gName set to:|n {raw_string}")
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _set_name},)
+    return text, options
+
+
+def node_set_type(caller, raw_string, **kwargs):
+    """Set food or drink type."""
+    data = _recipe_data(caller)
+    current = "Food" if data.get("is_food", True) else "Drink"
+    
+    text = f"""
+|c=== Set Item Type ===|n
+
+Current type: |w{current}|n
+
+|w1.|n Food (consumed with 'eat')
+|w2.|n Drink (consumed with 'drink')
+|w[B]|n Back to main menu
+"""
+    
+    def _set_type(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip().lower()
+        data = _recipe_data(caller)
+        
+        if raw_string == '1':
+            data["is_food"] = True
+            caller.msg("|gType set to:|n Food")
+        elif raw_string == '2':
+            data["is_food"] = False
+            caller.msg("|gType set to:|n Drink")
+        elif raw_string in ('b', 'back'):
+            pass
+        else:
+            caller.msg("|rInvalid choice.|n")
+            return "node_set_type"
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _set_type},)
+    return text, options
+
+
+def node_set_description(caller, raw_string, **kwargs):
+    """Set recipe description."""
+    text = """
+|c=== Set Description ===|n
+
+Enter the description of your food/drink as it appears when examined.
+This should describe how it looks.
+
+Example: |wA steaming bowl of rich broth with thick noodles, sliced pork,|n
+|wsoft-boiled egg, and fresh green onions floating on top.|n
+
+|wType your description and press Enter, or type 'back' to return.|n
+"""
+    
+    def _set_desc(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip()
+        if raw_string.lower() == 'back':
+            return "node_main_menu"
+        if len(raw_string) < 10:
+            caller.msg("|rDescription must be at least 10 characters.|n")
+            return "node_set_description"
+        
+        data = _recipe_data(caller)
+        data["description"] = raw_string
+        caller.msg("|gDescription set.|n")
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _set_desc},)
+    return text, options
+
+
+def node_set_taste(caller, raw_string, **kwargs):
+    """Set taste description."""
+    text = """
+|c=== Set Taste ===|n
+
+Enter what your food/drink tastes like.
+
+Example: |wRich, savory umami with hints of soy and miso, the noodles|n
+|wperfectly chewy and the broth deeply satisfying.|n
+
+|wType your taste description and press Enter, or type 'back' to return.|n
+"""
+    
+    def _set_taste(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip()
+        if raw_string.lower() == 'back':
+            return "node_main_menu"
+        if len(raw_string) < 10:
+            caller.msg("|rTaste must be at least 10 characters.|n")
+            return "node_set_taste"
+        
+        data = _recipe_data(caller)
+        data["taste"] = raw_string
+        caller.msg("|gTaste set.|n")
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _set_taste},)
+    return text, options
+
+
+def node_set_smell(caller, raw_string, **kwargs):
+    """Set smell description."""
+    text = """
+|c=== Set Smell ===|n
+
+Enter what your food/drink smells like.
+
+Example: |wThe aroma of slow-simmered pork broth wafts up, mingling with|n
+|wthe sharp scent of green onions and a hint of garlic.|n
+
+|wType your smell description and press Enter, or type 'back' to return.|n
+"""
+    
+    def _set_smell(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip()
+        if raw_string.lower() == 'back':
+            return "node_main_menu"
+        if len(raw_string) < 10:
+            caller.msg("|rSmell must be at least 10 characters.|n")
+            return "node_set_smell"
+        
+        data = _recipe_data(caller)
+        data["smell"] = raw_string
+        caller.msg("|gSmell set.|n")
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _set_smell},)
+    return text, options
+
+
+def node_set_eat_self(caller, raw_string, **kwargs):
+    """Set 1st person consumption message."""
+    data = _recipe_data(caller)
+    action = "eat" if data.get("is_food", True) else "drink"
+    
+    text = f"""
+|c=== Set Consume Message (1st Person) ===|n
+
+Enter the message YOU see when you {action} this item.
+Use pronoun substitutions: %s (he/she/they), %o (him/her/them), 
+%p (his/her/their), %r (himself/herself/themselves), %n (name)
+
+Example for food: |wYou lift the bowl to your lips and slurp the rich broth,|n
+|wsavoring each noodle as it slides down.|n
+
+Example for drink: |wYou take a long sip, the cool liquid refreshing you instantly.|n
+
+|wType your message and press Enter, or type 'back' to return.|n
+"""
+    
+    def _set_msg(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip()
+        if raw_string.lower() == 'back':
+            return "node_main_menu"
+        if len(raw_string) < 10:
+            caller.msg("|rMessage must be at least 10 characters.|n")
+            return "node_set_eat_self"
+        
+        data = _recipe_data(caller)
+        data["msg_eat_self"] = raw_string
+        caller.msg("|gConsume message (1st person) set.|n")
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _set_msg},)
+    return text, options
+
+
+def node_set_eat_others(caller, raw_string, **kwargs):
+    """Set 3rd person consumption message."""
+    data = _recipe_data(caller)
+    action = "eats" if data.get("is_food", True) else "drinks"
+    
+    text = f"""
+|c=== Set Consume Message (3rd Person) ===|n
+
+Enter the message OTHERS see when someone {action} this item.
+Use pronoun substitutions: %s (he/she/they), %o (him/her/them), 
+%p (his/her/their), %r (himself/herself/themselves), %n (name)
+
+Example for food: |w%n lifts the bowl to %p lips and slurps the rich broth.|n
+
+Example for drink: |w%n takes a long sip from %p drink.|n
+
+|wType your message and press Enter, or type 'back' to return.|n
+"""
+    
+    def _set_msg(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip()
+        if raw_string.lower() == 'back':
+            return "node_main_menu"
+        if len(raw_string) < 10:
+            caller.msg("|rMessage must be at least 10 characters.|n")
+            return "node_set_eat_others"
+        
+        data = _recipe_data(caller)
+        data["msg_eat_others"] = raw_string
+        caller.msg("|gConsume message (3rd person) set.|n")
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _set_msg},)
+    return text, options
+
+
+def node_set_finish_self(caller, raw_string, **kwargs):
+    """Set 1st person finish message."""
+    data = _recipe_data(caller)
+    action = "eating" if data.get("is_food", True) else "drinking"
+    
+    text = f"""
+|c=== Set Finish Message (1st Person) ===|n
+
+Enter the message YOU see when you finish {action} this item.
+Use pronoun substitutions if needed.
+
+Example for food: |wYou set down the empty bowl, deeply satisfied.|n
+
+Example for drink: |wYou drain the last drop and set down the empty glass.|n
+
+|wType your message and press Enter, or type 'back' to return.|n
+"""
+    
+    def _set_msg(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip()
+        if raw_string.lower() == 'back':
+            return "node_main_menu"
+        if len(raw_string) < 10:
+            caller.msg("|rMessage must be at least 10 characters.|n")
+            return "node_set_finish_self"
+        
+        data = _recipe_data(caller)
+        data["msg_finish_self"] = raw_string
+        caller.msg("|gFinish message (1st person) set.|n")
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _set_msg},)
+    return text, options
+
+
+def node_set_finish_others(caller, raw_string, **kwargs):
+    """Set 3rd person finish message."""
+    data = _recipe_data(caller)
+    action = "eating" if data.get("is_food", True) else "drinking"
+    
+    text = f"""
+|c=== Set Finish Message (3rd Person) ===|n
+
+Enter the message OTHERS see when someone finishes {action} this item.
+Use pronoun substitutions: %s, %o, %p, %r, %n
+
+Example for food: |w%n sets down the empty bowl with a satisfied expression.|n
+
+Example for drink: |w%n drains the last drop and sets down the empty glass.|n
+
+|wType your message and press Enter, or type 'back' to return.|n
+"""
+    
+    def _set_msg(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip()
+        if raw_string.lower() == 'back':
+            return "node_main_menu"
+        if len(raw_string) < 10:
+            caller.msg("|rMessage must be at least 10 characters.|n")
+            return "node_set_finish_others"
+        
+        data = _recipe_data(caller)
+        data["msg_finish_others"] = raw_string
+        caller.msg("|gFinish message (3rd person) set.|n")
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _set_msg},)
+    return text, options
+
+
+def node_set_keywords(caller, raw_string, **kwargs):
+    """Set searchable keywords."""
+    data = _recipe_data(caller)
+    current = ', '.join(data.get('keywords', [])) or '(none)'
+    
+    text = f"""
+|c=== Set Keywords ===|n
+
+Current keywords: |w{current}|n
+
+Enter comma-separated keywords to help players find this recipe.
+Good keywords include ingredients, cuisine type, meal type, etc.
+
+Example: |wramen, noodles, japanese, soup, pork, asian|n
+
+|wType your keywords and press Enter, or type 'back' to return.|n
+|wType 'clear' to remove all keywords.|n
+"""
+    
+    def _set_keywords(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip()
+        if raw_string.lower() == 'back':
+            return "node_main_menu"
+        if raw_string.lower() == 'clear':
+            data = _recipe_data(caller)
+            data["keywords"] = []
+            caller.msg("|gKeywords cleared.|n")
+            return "node_main_menu"
+        
+        # Parse keywords
+        keywords = [kw.strip().lower() for kw in raw_string.split(',') if kw.strip()]
+        
+        data = _recipe_data(caller)
+        data["keywords"] = keywords
+        caller.msg(f"|gKeywords set:|n {', '.join(keywords)}")
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _set_keywords},)
+    return text, options
+
+
+def node_review(caller, raw_string, **kwargs):
+    """Review recipe before submission."""
+    data = _recipe_data(caller)
+    
+    item_type = "Food" if data.get("is_food", True) else "Drink"
+    action = "eat" if data.get("is_food", True) else "drink"
+    
+    text = f"""
+|c=== Recipe Review ===|n
+
+|wName:|n {data.get('name') or '|r(not set)|n'}
+|wType:|n {item_type}
+
+|wDescription:|n
+{data.get('description') or '|r(not set)|n'}
+
+|wTaste:|n
+{data.get('taste') or '|r(not set)|n'}
+
+|wSmell:|n
+{data.get('smell') or '|r(not set)|n'}
+
+|wConsume Message (you see when you {action}):|n
+{data.get('msg_eat_self') or '|r(not set)|n'}
+
+|wConsume Message (others see):|n
+{data.get('msg_eat_others') or '|r(not set)|n'}
+
+|wFinish Message (you see):|n
+{data.get('msg_finish_self') or '|r(not set)|n'}
+
+|wFinish Message (others see):|n
+{data.get('msg_finish_others') or '|r(not set)|n'}
+
+|wKeywords:|n {', '.join(data.get('keywords', [])) or '(none)'}
+
+|w[B]|n Back to main menu
+"""
+    
+    options = (
+        {"key": "b", "goto": "node_main_menu"},
+        {"key": "B", "goto": "node_main_menu"},
+        {"key": "_default", "goto": "node_main_menu"},
+    )
+    return text, options
+
+
+def node_submit(caller, raw_string, **kwargs):
+    """Submit recipe for approval."""
+    data = _recipe_data(caller)
+    
+    # Validate all required fields
+    required = ['name', 'description', 'taste', 'smell', 
+                'msg_eat_self', 'msg_eat_others', 'msg_finish_self', 'msg_finish_others']
+    missing = [f for f in required if not data.get(f)]
+    
+    if missing:
+        text = f"""
+|r=== Cannot Submit ===|n
+
+The following required fields are not set:
+{', '.join(missing)}
+
+Please complete all fields before submitting.
+
+|w[B]|n Back to main menu
+"""
+        options = (
+            {"key": "b", "goto": "node_main_menu"},
+            {"key": "B", "goto": "node_main_menu"},
+            {"key": "_default", "goto": "node_main_menu"},
+        )
+        return text, options
+    
+    # Confirm submission
+    text = f"""
+|c=== Confirm Submission ===|n
+
+You are about to submit |w{data.get('name')}|n for admin approval.
+
+Once submitted, an admin will review your recipe and set its difficulty.
+You will be notified when your recipe is approved or rejected.
+
+|w[Y]|n Yes, submit for approval
+|w[N]|n No, go back
+"""
+    
+    def _confirm_submit(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip().lower()
+        
+        if raw_string in ('y', 'yes'):
+            data = _recipe_data(caller)
+            
+            # Create recipe entry
+            recipe_data = {
+                "name": data["name"],
+                "is_food": data["is_food"],
+                "description": data["description"],
+                "taste": data["taste"],
+                "smell": data["smell"],
+                "msg_eat_self": data["msg_eat_self"],
+                "msg_eat_others": data["msg_eat_others"],
+                "msg_finish_self": data["msg_finish_self"],
+                "msg_finish_others": data["msg_finish_others"],
+                "keywords": data.get("keywords", []),
+                "creator_dbref": caller.dbref,
+                "creator_name": caller.key,
+                "created_at": datetime.now(),
+            }
+            
+            # Add to pending queue
+            recipe_id = add_pending_recipe(recipe_data)
+            
+            # Notify admins
+            notify_admins_new_recipe(caller, recipe_data, recipe_id)
+            
+            caller.msg(f"|g=== Recipe Submitted ===|n")
+            caller.msg(f"Your recipe |w{data['name']}|n has been submitted for approval.")
+            caller.msg(f"Recipe ID: |w#{recipe_id}|n")
+            caller.msg("You will be notified when it is reviewed.")
+            
+            # Clear design data
+            if hasattr(caller.ndb, '_recipe_design'):
+                del caller.ndb._recipe_design
+            
+            return None  # Exit menu
+        
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _confirm_submit},)
+    return text, options
+
+
+def node_quit(caller, raw_string, **kwargs):
+    """Quit without saving."""
+    text = """
+|y=== Quit Recipe Designer ===|n
+
+Are you sure you want to quit? Your recipe will not be saved.
+
+|w[Y]|n Yes, quit
+|w[N]|n No, go back
+"""
+    
+    def _confirm_quit(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip().lower()
+        
+        if raw_string in ('y', 'yes'):
+            if hasattr(caller.ndb, '_recipe_design'):
+                del caller.ndb._recipe_design
+            caller.msg("|yRecipe designer closed without saving.|n")
+            return None  # Exit menu
+        
+        return "node_main_menu"
+    
+    options = ({"key": "_default", "goto": _confirm_quit},)
+    return text, options
+
+
+def notify_admins_new_recipe(creator, recipe_data, recipe_id):
+    """Notify admins of a new pending recipe."""
+    from evennia.comms.models import ChannelDB
+    from evennia.accounts.models import AccountDB
+    
+    msg = f"|y[RECIPE #{recipe_id}]|n {creator.key} submitted: {recipe_data['name']}"
+    
+    # Notify via Staff channel
+    try:
+        staff_channel = ChannelDB.objects.get_channel("Staff")
+        if staff_channel:
+            staff_channel.msg(msg)
+    except Exception:
+        pass
+    
+    # Also notify online admins
+    for account in AccountDB.objects.filter(db_is_connected=True):
+        if account.is_superuser:
+            if account.character:
+                account.character.msg(msg)
+
+
+# =============================================================================
+# PLAYER COMMANDS
+# =============================================================================
+
+class CmdDesignRecipe(Command):
+    """
+    Design a new food or drink recipe.
+    
+    Usage:
+        design
+    
+    Opens the recipe designer menu where you can create a new recipe.
+    Once completed, your recipe will be submitted for admin approval.
+    When approved, you can cook it at any kitchenette.
+    """
+    key = "design"
+    aliases = ["designrecipe", "design recipe", "recipe design"]
+    locks = "cmd:all()"
+    help_category = "Cooking"
+    
+    def func(self):
+        caller = self.caller
+        
+        # Start the EvMenu
+        RecipeDesignMenu(
+            caller,
+            "commands.CmdCooking",
+            startnode="node_main_menu",
+            cmdset_mergetype="Replace",
+            cmd_on_exit=None,
+        )
+
+
+class CmdCook(Command):
+    """
+    Cook a recipe at a kitchenette.
+    
+    Usage:
+        cook                    - Browse all available recipes
+        cook <search term>      - Search for recipes by keyword
+        cook #<recipe_id>       - Cook a specific recipe by ID
+    
+    You must be at a kitchenette and have ingredients to cook.
+    Your cooking skill determines the quality of the result.
+    
+    Difficulty scale:
+        0-20:   Novice - simple preparations
+        21-45:  Competent - home cooking
+        46-75:  Seasoned - professional level
+        76-89:  Advanced - high-end restaurant
+        90-100: Mastery - world-class chef
+    """
+    key = "cook"
+    aliases = ["prepare", "make food"]
+    locks = "cmd:all()"
+    help_category = "Cooking"
+    
+    def func(self):
+        caller = self.caller
+        
+        # Check for kitchenette
+        kitchenette = None
+        for obj in caller.location.contents:
+            if getattr(obj, 'is_kitchenette', False):
+                kitchenette = obj
+                break
+        
+        if not kitchenette:
+            caller.msg("|rYou need to be at a kitchenette to cook.|n")
+            return
+        
+        # Check for ingredients
+        ingredients = None
+        for obj in caller.contents:
+            if getattr(obj, 'is_ingredients', False):
+                ingredients = obj
+                break
+        
+        if not ingredients:
+            caller.msg("|rYou need ingredients to cook. Buy some from a shop or ask an admin.|n")
+            return
+        
+        # Get approved recipes
+        recipes = get_all_approved_recipes()
+        
+        if not recipes:
+            caller.msg("|yNo approved recipes available yet. Try designing one!|n")
+            return
+        
+        args = self.args.strip()
+        
+        # Cook specific recipe by ID
+        if args.startswith('#'):
+            try:
+                recipe_id = int(args[1:])
+                recipe = get_recipe_by_id(recipe_id)
+                if not recipe or recipe.get("status") != "approved":
+                    caller.msg(f"|rRecipe #{recipe_id} not found or not approved.|n")
+                    return
+                self.attempt_cooking(caller, recipe, ingredients, kitchenette)
+                return
+            except ValueError:
+                caller.msg("|rInvalid recipe ID. Use cook #<number>|n")
+                return
+        
+        # Search recipes
+        if args:
+            results = search_recipes(args)
+            if not results:
+                caller.msg(f"|yNo recipes found matching '{args}'.|n")
+                return
+            recipes = results
+        
+        # Display recipe list
+        self.display_recipe_list(caller, recipes)
+    
+    def display_recipe_list(self, caller, recipes):
+        """Display a paginated list of recipes."""
+        caller.msg("|c=== Available Recipes ===|n")
+        caller.msg(f"|wFound {len(recipes)} recipe(s).|n")
+        caller.msg("")
+        
+        for recipe in recipes[:20]:  # Show first 20
+            difficulty = recipe.get("difficulty", 0)
+            diff_color = self.get_difficulty_color(difficulty)
+            item_type = "Food" if recipe.get("is_food", True) else "Drink"
+            
+            caller.msg(f"|w#{recipe['id']}|n {recipe['name']} ({item_type}) - Difficulty: {diff_color}{difficulty}|n")
+        
+        if len(recipes) > 20:
+            caller.msg(f"|y... and {len(recipes) - 20} more. Use 'cook <keyword>' to narrow search.|n")
+        
+        caller.msg("")
+        caller.msg("|cUse 'cook #<id>' to cook a recipe.|n")
+    
+    def get_difficulty_color(self, difficulty):
+        """Get color code for difficulty."""
+        if difficulty <= 20:
+            return "|g"
+        elif difficulty <= 45:
+            return "|y"
+        elif difficulty <= 75:
+            return "|m"
+        elif difficulty <= 89:
+            return "|r"
+        else:
+            return "|R"
+    
+    def attempt_cooking(self, caller, recipe, ingredients, kitchenette):
+        """Attempt to cook a recipe."""
+        difficulty = recipe.get("difficulty", 50)
+        recipe_name = recipe.get("name", "Unknown")
+        
+        # Get cooking skill
+        cooking_skill = getattr(caller.db, 'cooking', 0) or 0
+        
+        # Roll cooking check (skill + random vs difficulty)
+        roll = randint(1, 20)
+        total = cooking_skill + roll
+        
+        # Calculate success margin
+        margin = total - (difficulty / 2)  # Divide difficulty for balance
+        
+        # Determine quality based on margin
+        if margin < -20:
+            quality = "inedible"
+        elif margin < -5:
+            quality = "poor"
+        elif margin < 10:
+            quality = "average"
+        elif margin < 25:
+            quality = "good"
+        else:
+            quality = "excellent"
+        
+        # Consume ingredients
+        caller.msg(f"|cYou begin preparing {recipe_name}...|n")
+        
+        if quality == "inedible":
+            # Critical failure - ingredients wasted, no food produced
+            caller.msg(f"|rDisaster! Your attempt at {recipe_name} is a complete failure.|n")
+            caller.msg("|rThe result is utterly inedible. Your ingredients are wasted.|n")
+            ingredients.delete()
+            caller.location.msg_contents(
+                f"{caller.key} attempts to cook but produces something that looks toxic.",
+                exclude=[caller]
+            )
+            return
+        
+        # Success - create food item
+        ingredients.delete()
+        
+        food = create_object(
+            FoodItem,
+            key=recipe_name,
+            location=caller,
+            attributes=[
+                ("is_food", recipe.get("is_food", True)),
+                ("recipe_id", recipe.get("id")),
+                ("quality_rating", quality),
+                ("food_name", recipe_name),
+                ("food_desc", recipe.get("description", "")),
+                ("food_taste", recipe.get("taste", "")),
+                ("food_smell", recipe.get("smell", "")),
+                ("msg_eat_self", recipe.get("msg_eat_self", "")),
+                ("msg_eat_others", recipe.get("msg_eat_others", "")),
+                ("msg_finish_self", recipe.get("msg_finish_self", "")),
+                ("msg_finish_others", recipe.get("msg_finish_others", "")),
+                ("creator_dbref", caller.dbref),
+                ("created_at", datetime.now()),
+            ]
+        )
+        
+        # Quality messages
+        quality_msgs = {
+            "poor": f"|yYou manage to produce {recipe_name}, though it looks a bit sad.|n",
+            "average": f"|gYou successfully prepare {recipe_name}.|n",
+            "good": f"|gYou expertly craft a delicious {recipe_name}!|n",
+            "excellent": f"|G|*You create a masterpiece! This {recipe_name} is perfection!|n",
+        }
+        
+        caller.msg(quality_msgs.get(quality, f"|gYou prepare {recipe_name}.|n"))
+        caller.msg(f"|cQuality: {quality.capitalize()}|n")
+        
+        caller.location.msg_contents(
+            f"{caller.key} finishes cooking and produces {food.get_display_name(caller)}.",
+            exclude=[caller]
+        )
+
+
+class CmdEat(Command):
+    """
+    Eat food.
+    
+    Usage:
+        eat <food>
+    
+    Consumes a food item, displaying the appropriate messages.
+    """
+    key = "eat"
+    locks = "cmd:all()"
+    help_category = "Cooking"
+    
+    def func(self):
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: eat <food>")
+            return
+        
+        # Find the food
+        item = caller.search(self.args.strip(), location=caller, quiet=True)
+        if not item:
+            caller.msg(f"You don't have '{self.args.strip()}'.")
+            return
+        if isinstance(item, list):
+            item = item[0]
+        
+        # Check if it's food
+        if not getattr(item, 'is_food_item', False):
+            caller.msg(f"You can't eat {item.key}.")
+            return
+        
+        if not getattr(item, 'is_food', True):
+            caller.msg(f"That's a drink. Use 'drink {item.key}' instead.")
+            return
+        
+        # Consume the food
+        self.consume_item(caller, item)
+    
+    def consume_item(self, caller, item):
+        """Consume the food item."""
+        # Get messages
+        msg_self = item.msg_eat_self or f"You eat the {item.key}."
+        msg_others = item.msg_eat_others or f"%n eats the {item.key}."
+        msg_finish_self = item.msg_finish_self or "You finish eating."
+        msg_finish_others = item.msg_finish_others or "%n finishes eating."
+        
+        # Substitute pronouns
+        msg_self = substitute_pronouns(msg_self, caller)
+        msg_others = substitute_pronouns(msg_others, caller)
+        msg_finish_self = substitute_pronouns(msg_finish_self, caller)
+        msg_finish_others = substitute_pronouns(msg_finish_others, caller)
+        
+        # Show taste
+        if item.food_taste:
+            taste_msg = f"|cTaste:|n {item.food_taste}"
+        else:
+            taste_msg = ""
+        
+        # Send messages
+        caller.msg(msg_self)
+        if taste_msg:
+            caller.msg(taste_msg)
+        caller.msg(msg_finish_self)
+        
+        caller.location.msg_contents(msg_others, exclude=[caller])
+        caller.location.msg_contents(msg_finish_others, exclude=[caller])
+        
+        # Delete the food
+        item.delete()
+
+
+class CmdDrink(Command):
+    """
+    Drink a beverage.
+    
+    Usage:
+        drink <drink>
+    
+    Consumes a drink item, displaying the appropriate messages.
+    """
+    key = "drink"
+    locks = "cmd:all()"
+    help_category = "Cooking"
+    
+    def func(self):
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: drink <beverage>")
+            return
+        
+        # Find the drink
+        item = caller.search(self.args.strip(), location=caller, quiet=True)
+        if not item:
+            caller.msg(f"You don't have '{self.args.strip()}'.")
+            return
+        if isinstance(item, list):
+            item = item[0]
+        
+        # Check if it's a drink
+        if not getattr(item, 'is_food_item', False):
+            caller.msg(f"You can't drink {item.key}.")
+            return
+        
+        if getattr(item, 'is_food', True):
+            caller.msg(f"That's food. Use 'eat {item.key}' instead.")
+            return
+        
+        # Consume the drink
+        self.consume_item(caller, item)
+    
+    def consume_item(self, caller, item):
+        """Consume the drink item."""
+        # Get messages
+        msg_self = item.msg_eat_self or f"You drink the {item.key}."
+        msg_others = item.msg_eat_others or f"%n drinks the {item.key}."
+        msg_finish_self = item.msg_finish_self or "You finish drinking."
+        msg_finish_others = item.msg_finish_others or "%n finishes drinking."
+        
+        # Substitute pronouns
+        msg_self = substitute_pronouns(msg_self, caller)
+        msg_others = substitute_pronouns(msg_others, caller)
+        msg_finish_self = substitute_pronouns(msg_finish_self, caller)
+        msg_finish_others = substitute_pronouns(msg_finish_others, caller)
+        
+        # Show taste
+        if item.food_taste:
+            taste_msg = f"|cTaste:|n {item.food_taste}"
+        else:
+            taste_msg = ""
+        
+        # Send messages
+        caller.msg(msg_self)
+        if taste_msg:
+            caller.msg(taste_msg)
+        caller.msg(msg_finish_self)
+        
+        caller.location.msg_contents(msg_others, exclude=[caller])
+        caller.location.msg_contents(msg_finish_others, exclude=[caller])
+        
+        # Delete the drink
+        item.delete()
+
+
+class CmdTaste(Command):
+    """
+    Get a preview of what food tastes like.
+    
+    Usage:
+        taste <food/drink>
+    
+    Gives you a hint of the taste without consuming the item.
+    """
+    key = "taste"
+    locks = "cmd:all()"
+    help_category = "Cooking"
+    
+    def func(self):
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: taste <food/drink>")
+            return
+        
+        item = caller.search(self.args.strip(), location=caller, quiet=True)
+        if not item:
+            # Also check room
+            item = caller.search(self.args.strip(), location=caller.location, quiet=True)
+        
+        if not item:
+            caller.msg(f"You can't find '{self.args.strip()}'.")
+            return
+        if isinstance(item, list):
+            item = item[0]
+        
+        if not getattr(item, 'is_food_item', False):
+            caller.msg(f"You can't taste {item.key}.")
+            return
+        
+        if item.food_taste:
+            action = "take a small taste of" if item.is_food else "take a small sip of"
+            caller.msg(f"You {action} the {item.key}.")
+            caller.msg(f"|cTaste:|n {item.food_taste}")
+        else:
+            caller.msg(f"The {item.key} doesn't have a distinct taste description.")
+
+
+class CmdSmellFood(Command):
+    """
+    Smell food or drink.
+    
+    Usage:
+        sniff <food/drink>
+    
+    Get a description of how the item smells.
+    """
+    key = "sniff"
+    aliases = ["smell food"]
+    locks = "cmd:all()"
+    help_category = "Cooking"
+    
+    def func(self):
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: sniff <food/drink>")
+            return
+        
+        item = caller.search(self.args.strip(), location=caller, quiet=True)
+        if not item:
+            item = caller.search(self.args.strip(), location=caller.location, quiet=True)
+        
+        if not item:
+            caller.msg(f"You can't find '{self.args.strip()}'.")
+            return
+        if isinstance(item, list):
+            item = item[0]
+        
+        if not getattr(item, 'is_food_item', False):
+            caller.msg(f"You sniff {item.key} but it's not food.")
+            return
+        
+        if item.food_smell:
+            caller.msg(f"You lean in and sniff the {item.key}.")
+            caller.msg(f"|cSmell:|n {item.food_smell}")
+        else:
+            caller.msg(f"The {item.key} doesn't have a particularly notable smell.")
+
+
+# =============================================================================
+# ADMIN COMMANDS
+# =============================================================================
+
+class CmdSpawnKitchenette(Command):
+    """
+    Create a kitchenette for cooking.
+    
+    Usage:
+        spawnkitchen [name]
+    
+    Creates a kitchenette object in the current room.
+    """
+    key = "spawnkitchen"
+    aliases = ["spawn kitchen", "spawnkitchenette"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    
+    def func(self):
+        caller = self.caller
+        name = self.args.strip() or "kitchenette"
+        
+        kitchenette = create_object(
+            Kitchenette,
+            key=name,
+            location=caller.location,
+        )
+        
+        caller.msg(f"|gCreated {name} in {caller.location.key}.|n")
+
+
+class CmdSpawnIngredients(Command):
+    """
+    Spawn cooking ingredients.
+    
+    Usage:
+        spawningredients [quality]
+        spawningredients [quality] to <character>
+    
+    Quality can be: standard, premium, exotic
+    """
+    key = "spawningredients"
+    aliases = ["spawn ingredients"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    
+    VALID_QUALITIES = ["standard", "premium", "exotic"]
+    
+    def func(self):
+        caller = self.caller
+        args = self.args.strip()
+        target = caller
+        quality = "standard"
+        
+        # Parse arguments
+        if " to " in args.lower():
+            parts = args.lower().split(" to ", 1)
+            quality_arg = parts[0].strip()
+            target_name = parts[1].strip()
+            
+            # Find target
+            targets = search_object(target_name, typeclass="typeclasses.characters.Character")
+            if not targets:
+                caller.msg(f"Character '{target_name}' not found.")
+                return
+            target = targets[0]
+            
+            if quality_arg in self.VALID_QUALITIES:
+                quality = quality_arg
+        elif args:
+            if args.lower() in self.VALID_QUALITIES:
+                quality = args.lower()
+        
+        # Create ingredients
+        ingredients = create_object(
+            Ingredients,
+            key=f"{quality} ingredients",
+            location=target,
+            attributes=[
+                ("quality", quality),
+                ("desc", f"A package of {quality} cooking ingredients."),
+            ]
+        )
+        
+        caller.msg(f"|gCreated {quality} ingredients in {target.key}'s inventory.|n")
+        if target != caller:
+            target.msg(f"|y{caller.key} has given you some {quality} cooking ingredients.|n")
+
+
+class CmdRecipes(Command):
+    """
+    View and manage the recipe queue.
+    
+    Usage:
+        recipes                 - View pending recipes
+        recipes all             - View all recipes (approved and pending)
+        recipes #<id>           - View specific recipe details
+        recipes scale           - Show difficulty scale reference
+    """
+    key = "recipes"
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        caller = self.caller
+        args = self.args.strip().lower()
+        
+        if args == "scale":
+            caller.msg(DIFFICULTY_SCALE)
+            return
+        
+        if args.startswith('#'):
+            try:
+                recipe_id = int(args[1:])
+                self.show_recipe_details(caller, recipe_id)
+                return
+            except ValueError:
+                caller.msg("|rInvalid recipe ID.|n")
+                return
+        
+        if args == "all":
+            self.show_all_recipes(caller)
+        else:
+            self.show_pending_recipes(caller)
+    
+    def show_pending_recipes(self, caller):
+        """Show pending recipes."""
+        pending = get_pending_recipes()
+        
+        if not pending:
+            caller.msg("|yNo pending recipes.|n")
+            return
+        
+        caller.msg("|c=== Pending Recipe Submissions ===|n")
+        caller.msg("")
+        
+        for recipe in pending:
+            creator = recipe.get("creator_name", "Unknown")
+            created = recipe.get("created_at")
+            if hasattr(created, 'strftime'):
+                created = created.strftime('%Y-%m-%d %H:%M')
+            
+            caller.msg(f"|w#{recipe['id']}|n {recipe['name']}")
+            caller.msg(f"    Creator: {creator} | Submitted: {created}")
+            caller.msg(f"    Type: {'Food' if recipe.get('is_food', True) else 'Drink'}")
+            caller.msg(f"    |wapproverecipe #{recipe['id']} <difficulty>|n to approve")
+            caller.msg(f"    |wrejectrecipe #{recipe['id']} <reason>|n to reject")
+            caller.msg("")
+    
+    def show_all_recipes(self, caller):
+        """Show all recipes."""
+        storage = get_recipe_storage()
+        all_recipes = (storage.db.recipes or []) + (storage.db.pending_recipes or [])
+        
+        if not all_recipes:
+            caller.msg("|yNo recipes in the system.|n")
+            return
+        
+        caller.msg("|c=== All Recipes ===|n")
+        
+        for recipe in all_recipes:
+            status = recipe.get("status", "unknown")
+            status_color = "|g" if status == "approved" else "|y" if status == "pending" else "|r"
+            difficulty = recipe.get("difficulty", "N/A")
+            
+            caller.msg(f"|w#{recipe['id']}|n {recipe['name']} - {status_color}{status.upper()}|n - Difficulty: {difficulty}")
+    
+    def show_recipe_details(self, caller, recipe_id):
+        """Show detailed info for a specific recipe."""
+        recipe = get_recipe_by_id(recipe_id)
+        
+        if not recipe:
+            caller.msg(f"|rRecipe #{recipe_id} not found.|n")
+            return
+        
+        item_type = "Food" if recipe.get("is_food", True) else "Drink"
+        status = recipe.get("status", "unknown")
+        
+        caller.msg(f"|c=== Recipe #{recipe_id}: {recipe.get('name')} ===|n")
+        caller.msg(f"|wStatus:|n {status.upper()}")
+        caller.msg(f"|wType:|n {item_type}")
+        caller.msg(f"|wDifficulty:|n {recipe.get('difficulty', 'Not set')}")
+        caller.msg(f"|wCreator:|n {recipe.get('creator_name', 'Unknown')}")
+        caller.msg(f"|wCreated:|n {recipe.get('created_at', 'Unknown')}")
+        caller.msg("")
+        caller.msg(f"|wDescription:|n {recipe.get('description', 'N/A')}")
+        caller.msg(f"|wTaste:|n {recipe.get('taste', 'N/A')}")
+        caller.msg(f"|wSmell:|n {recipe.get('smell', 'N/A')}")
+        caller.msg("")
+        caller.msg(f"|wConsume (self):|n {recipe.get('msg_eat_self', 'N/A')}")
+        caller.msg(f"|wConsume (others):|n {recipe.get('msg_eat_others', 'N/A')}")
+        caller.msg(f"|wFinish (self):|n {recipe.get('msg_finish_self', 'N/A')}")
+        caller.msg(f"|wFinish (others):|n {recipe.get('msg_finish_others', 'N/A')}")
+        caller.msg(f"|wKeywords:|n {', '.join(recipe.get('keywords', []))}")
+        
+        if status == "pending":
+            caller.msg("")
+            caller.msg(f"|wapproverecipe #{recipe_id} <difficulty>|n to approve")
+            caller.msg(f"|wrejectrecipe #{recipe_id} <reason>|n to reject")
+
+
+class CmdApproveRecipe(Command):
+    """
+    Approve a pending recipe.
+    
+    Usage:
+        approverecipe #<id> <difficulty>
+    
+    Difficulty should be 0-100:
+        0-20:   Novice - simple preparations
+        21-45:  Competent - home cooking
+        46-75:  Seasoned - professional level
+        76-89:  Advanced - high-end restaurant
+        90-100: Mastery - world-class chef
+    
+    Example:
+        approverecipe #5 35
+    """
+    key = "approverecipe"
+    aliases = ["approve recipe"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: approverecipe #<id> <difficulty>")
+            caller.msg("Use 'recipes scale' to see the difficulty scale.")
+            return
+        
+        parts = self.args.strip().split()
+        if len(parts) < 2:
+            caller.msg("Usage: approverecipe #<id> <difficulty>")
+            return
+        
+        # Parse recipe ID
+        id_str = parts[0]
+        if id_str.startswith('#'):
+            id_str = id_str[1:]
+        
+        try:
+            recipe_id = int(id_str)
+        except ValueError:
+            caller.msg("|rInvalid recipe ID.|n")
+            return
+        
+        # Parse difficulty
+        try:
+            difficulty = int(parts[1])
+            if not 0 <= difficulty <= 100:
+                caller.msg("|rDifficulty must be 0-100.|n")
+                return
+        except ValueError:
+            caller.msg("|rDifficulty must be a number 0-100.|n")
+            return
+        
+        # Get recipe to find creator
+        recipe = get_recipe_by_id(recipe_id)
+        if not recipe:
+            caller.msg(f"|rRecipe #{recipe_id} not found.|n")
+            return
+        
+        if recipe.get("status") != "pending":
+            caller.msg(f"|rRecipe #{recipe_id} is not pending approval.|n")
+            return
+        
+        # Approve
+        if approve_recipe(recipe_id, caller, difficulty):
+            caller.msg(f"|gRecipe #{recipe_id} '{recipe['name']}' approved with difficulty {difficulty}.|n")
+            
+            # Notify creator if online
+            creator_dbref = recipe.get("creator_dbref")
+            if creator_dbref:
+                from evennia.utils.search import search_object
+                creators = search_object(creator_dbref)
+                if creators:
+                    creator = creators[0]
+                    creator.msg(f"|g[RECIPE APPROVED]|n Your recipe '{recipe['name']}' has been approved! You can now cook it at any kitchenette.|n")
+        else:
+            caller.msg(f"|rFailed to approve recipe #{recipe_id}.|n")
+
+
+class CmdRejectRecipe(Command):
+    """
+    Reject a pending recipe.
+    
+    Usage:
+        rejectrecipe #<id> <reason>
+    
+    Example:
+        rejectrecipe #5 Description too vague, please add more detail.
+    """
+    key = "rejectrecipe"
+    aliases = ["reject recipe"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: rejectrecipe #<id> <reason>")
+            return
+        
+        parts = self.args.strip().split(None, 1)
+        if len(parts) < 2:
+            caller.msg("Usage: rejectrecipe #<id> <reason>")
+            return
+        
+        # Parse recipe ID
+        id_str = parts[0]
+        if id_str.startswith('#'):
+            id_str = id_str[1:]
+        
+        try:
+            recipe_id = int(id_str)
+        except ValueError:
+            caller.msg("|rInvalid recipe ID.|n")
+            return
+        
+        reason = parts[1]
+        
+        # Get recipe to find creator
+        recipe = get_recipe_by_id(recipe_id)
+        if not recipe:
+            caller.msg(f"|rRecipe #{recipe_id} not found.|n")
+            return
+        
+        if recipe.get("status") != "pending":
+            caller.msg(f"|rRecipe #{recipe_id} is not pending approval.|n")
+            return
+        
+        recipe_name = recipe.get("name", "Unknown")
+        
+        # Reject
+        if reject_recipe(recipe_id, reason):
+            caller.msg(f"|yRecipe #{recipe_id} '{recipe_name}' rejected.|n")
+            
+            # Notify creator if online
+            creator_dbref = recipe.get("creator_dbref")
+            if creator_dbref:
+                from evennia.utils.search import search_object
+                creators = search_object(creator_dbref)
+                if creators:
+                    creator = creators[0]
+                    creator.msg(f"|r[RECIPE REJECTED]|n Your recipe '{recipe_name}' was not approved.")
+                    creator.msg(f"|wReason:|n {reason}")
+        else:
+            caller.msg(f"|rFailed to reject recipe #{recipe_id}.|n")
+
+
+# =============================================================================
+# COMMAND SET CONTAINER
+# =============================================================================
+
+class CookingCmdSet:
+    """Container for cooking commands."""
+    
+    @staticmethod
+    def get_commands():
+        return [
+            CmdDesignRecipe,
+            CmdCook,
+            CmdEat,
+            CmdDrink,
+            CmdTaste,
+            CmdSmellFood,
+            CmdSpawnKitchenette,
+            CmdSpawnIngredients,
+            CmdRecipes,
+            CmdApproveRecipe,
+            CmdRejectRecipe,
+        ]

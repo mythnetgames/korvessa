@@ -319,6 +319,23 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdIP())        # Admin: grant/subtract IP
         self.add(CmdSetSkill())  # Admin: directly set skills
         self.add(CmdInvest())    # Player: invest IP into skills
+        # Add cooking system commands
+        from commands.CmdCooking import (
+            CmdDesignRecipe, CmdCook, CmdEat, CmdDrink, CmdTaste, CmdSmellFood,
+            CmdSpawnKitchenette, CmdSpawnIngredients, CmdRecipes, 
+            CmdApproveRecipe, CmdRejectRecipe
+        )
+        self.add(CmdDesignRecipe())      # Player: design new recipes
+        self.add(CmdCook())              # Player: cook at kitchenettes
+        self.add(CmdEat())               # Player: eat food
+        self.add(CmdDrink())             # Player: drink beverages
+        self.add(CmdTaste())             # Player: taste food/drink
+        self.add(CmdSmellFood())         # Player: smell food/drink
+        self.add(CmdSpawnKitchenette())  # Admin: create kitchenettes
+        self.add(CmdSpawnIngredients())  # Admin: create ingredients
+        self.add(CmdRecipes())           # Admin: manage recipe queue
+        self.add(CmdApproveRecipe())     # Admin: approve recipes
+        self.add(CmdRejectRecipe())      # Admin: reject recipes
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
