@@ -428,6 +428,11 @@ class CmdGet(Command):
             caller.msg(f"You can't pick up {item.get_display_name(caller)}.")
             return
 
+        # Check if the item is marked as not pickupable
+        if getattr(item.db, 'no_pick', False):
+            caller.msg(f"You can't pick up {item.get_display_name(caller)} — it seems fixed in place.")
+            return
+
         self._give_item_to_character(caller, item)
 
     def _get_from_container(self, caller, item_name, container_name):
@@ -476,6 +481,11 @@ class CmdGet(Command):
             from typeclasses.items import Item
             if not isinstance(item, Item):
                 caller.msg(f"You can't take {item.get_display_name(caller)} from the {container.get_display_name(caller)}.")
+                return None
+
+            # Check if the item is marked as not pickupable
+            if getattr(item.db, 'no_pick', False):
+                caller.msg(f"You can't take {item.get_display_name(caller)} — it seems fixed in place.")
                 return None
                 
             return item
