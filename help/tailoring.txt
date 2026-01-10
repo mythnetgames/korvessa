@@ -2,7 +2,7 @@ TAILORING & CLOTHING
 
 Tailoring is a knowledge skill that allows you to design valuable, wearable clothing. Your TAILORING skill affects the quality and value of finished garments. Low skill means lower value items.
 
-Changing any messages on a @finalize'd article will render it unfinalized and unwearable until @finalize'd again.
+Changing any messages on a finalize'd article will render it unfinalized and unwearable until finalize'd again.
 
 PRONOUN TOKENS
 
@@ -33,15 +33,15 @@ Layer 5 (Top Layer): tie, boots, cane, umbrella, blindfold, habit, shawl, scarf,
 
 TAILORING COMMANDS
 
-@tname <material>=<name>
+tname <material>=<name>
   Set the name of your fresh material. The name determines the layer.
 
-@coverage <material>=<locations>
+coverage <material>=<locations>
   Configure which body locations the clothing covers.
-  Use @coverage/list to see all valid locations.
-  Example: @coverage fresh cloth=chest,back,abdomen
+  Use coverage/list to see all valid locations.
+  Example: coverage fresh cloth=chest,back,abdomen
 
-@color <material>=<hex_code>:<color_name>
+color <material>=<hex_code>:<color_name>
   Set the primary color using xterm 256 hex codes.
   The hex code is RRGGBB format (6 characters).
   Use %color in descriptions to insert the colored text.
@@ -53,20 +53,20 @@ TAILORING COMMANDS
     5f0000 = dark red    5f5f5f = gray        af8700 = gold
     870087 = purple      d75f00 = orange      00afaf = teal
   
-  Example: @color fresh cloth=005f00:forest green
+  Example: color fresh cloth=005f00:forest green
 
-@see-thru <material>
+see-thru <material>
   Toggle see-through state. Allows underlying clothing/nakeds to show through.
   Useful for jewelry, mesh, glasses, etc.
 
-@tdescribe <material>=<description>
+tdescribe <material>=<description>
   Set the item's description (seen when examining it, not when worn).
   Must include %color or the color word.
 
-@messages <material>
+messages <material>
   View all messages configured for the material.
 
-@messages <material>=<type>:<message>
+messages <material>=<type>:<message>
   Set a specific message. Types:
     wear    - Message wearer sees when putting it on
     owear   - Message others see when someone wears it
@@ -74,31 +74,31 @@ TAILORING COMMANDS
     oremove - Message others see when someone removes it
     worn    - Description shown on character (MUST include %color)
 
-@check <material>
+check <material>
   Verify all requirements are met before finalizing.
   Green = set, Red = not set.
 
-@finalize <material>
+finalize <material>
   Complete the clothing item. Your tailoring skill determines value.
   First finalization gives best value. Each re-finalization reduces value by 20%.
 
 ADMIN COMMANDS
 
-@spawnmaterial <type> [to <character>]
+spawnmaterial <type> [to <character>]
   Create fresh material for tailoring.
   Types: cloth, leather, silk, denim, wool, synthetic, mesh, cotton, linen, velvet, satin, lace, nylon, polyester, kevlar
 
 EXAMPLE WORKFLOW
 
-1. @spawnmaterial silk
-2. @tname fresh silk=crimson silk blouse
-3. @coverage fresh silk=chest,back,abdomen
-4. @color fresh silk=870000:crimson
-5. @tdescribe fresh silk=An elegant blouse made of %color silk with delicate embroidery.
-6. @messages fresh silk=wear:You slip into the elegant %color blouse.
-7. @messages fresh silk=owear:%n slips into an elegant %color blouse.
-8. @messages fresh silk=remove:You take off the %color silk blouse.
-9. @messages fresh silk=oremove:%n takes off %p %color silk blouse.
-10. @messages fresh silk=worn:An elegant %color silk blouse with delicate embroidery.
-11. @check fresh silk
-12. @finalize fresh silk
+1. spawnmaterial silk
+2. tname fresh silk=crimson silk blouse
+3. coverage fresh silk=chest,back,abdomen
+4. color fresh silk=870000:crimson
+5. tdescribe fresh silk=An elegant blouse made of %color silk with delicate embroidery.
+6. messages fresh silk=wear:You slip into the elegant %color blouse.
+7. messages fresh silk=owear:%n slips into an elegant %color blouse.
+8. messages fresh silk=remove:You take off the %color silk blouse.
+9. messages fresh silk=oremove:%n takes off %p %color silk blouse.
+10. messages fresh silk=worn:An elegant %color silk blouse with delicate embroidery.
+11. check fresh silk
+12. finalize fresh silk

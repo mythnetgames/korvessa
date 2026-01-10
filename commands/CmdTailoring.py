@@ -2,15 +2,15 @@
 Tailoring Commands - Create custom clothing through the tailoring skill system.
 
 Commands:
-- @spawnmaterial: Admin command to create fresh material
-- @tname: Set the name of fresh material
-- @coverage: Configure body coverage for clothing
-- @color: Set the primary color
-- @see-thru: Toggle see-through state
-- @tdescribe: Set the item description
-- @messages: Set wear/remove/worn messages
-- @check: Verify requirements before finalizing
-- @finalize: Complete the clothing item
+- spawnmaterial: Admin command to create fresh material
+- tname: Set the name of fresh material
+- coverage: Configure body coverage for clothing
+- color: Set the primary color
+- see-thru: Toggle see-through state
+- tdescribe: Set the item description
+- messages: Set wear/remove/worn messages
+- check: Verify requirements before finalizing
+- finalize: Complete the clothing item
 """
 
 from evennia import Command
@@ -27,18 +27,18 @@ class CmdSpawnMaterial(Command):
     Create fresh material for tailoring.
     
     Usage:
-        @spawnmaterial <material_type>
-        @spawnmaterial <material_type> to <character>
+        spawnmaterial <material_type>
+        spawnmaterial <material_type> to <character>
     
     Material types: cloth, leather, silk, denim, wool, synthetic, mesh
     
     Examples:
-        @spawnmaterial cloth
-        @spawnmaterial leather to John
-        @spawnmaterial silk
+        spawnmaterial cloth
+        spawnmaterial leather to John
+        spawnmaterial silk
     """
-    key = "@spawnmaterial"
-    aliases = ["@spawn-material", "@creatematerial"]
+    key = "spawnmaterial"
+    aliases = ["spawn-material", "creatematerial"]
     locks = "cmd:perm(Builder)"
     help_category = "Building"
     
@@ -48,7 +48,7 @@ class CmdSpawnMaterial(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: @spawnmaterial <material_type> [to <character>]")
+            caller.msg("Usage: spawnmaterial <material_type> [to <character>]")
             caller.msg(f"Valid materials: {', '.join(self.VALID_MATERIALS)}")
             return
         
@@ -102,7 +102,7 @@ class CmdTailorName(Command):
     Set the name of your fresh material.
     
     Usage:
-        @tname <material>=<name>
+        tname <material>=<name>
     
     The name will be used to target the item and will be utilized in
     several messages. Do not include 'pair of' - the command will 
@@ -117,11 +117,11 @@ class CmdTailorName(Command):
     - Layer 5: tie, boots, scarf, belt, badge
     
     Examples:
-        @tname fresh cloth=silk blouse
-        @tname fresh leather=black leather jacket
+        tname fresh cloth=silk blouse
+        tname fresh leather=black leather jacket
     """
-    key = "@tname"
-    aliases = ["@tailor-name", "@tailorname"]
+    key = "tname"
+    aliases = ["tailor-name", "tailorname"]
     locks = "cmd:all()"
     help_category = "Tailoring"
     
@@ -129,7 +129,7 @@ class CmdTailorName(Command):
         caller = self.caller
         
         if not self.args or "=" not in self.args:
-            caller.msg("Usage: @tname <material>=<name>")
+            caller.msg("Usage: tname <material>=<name>")
             return
         
         material_name, clothing_name = self.args.split("=", 1)
@@ -174,21 +174,21 @@ class CmdTailorCoverage(Command):
     Configure what body locations a piece of clothing covers.
     
     Usage:
-        @coverage <material>=<locations>
-        @coverage <material>                  - View current coverage
-        @coverage/list                        - List all valid locations
+        coverage <material>=<locations>
+        coverage <material>                  - View current coverage
+        coverage/list                        - List all valid locations
     
     Locations should be comma-separated. It's fine to avoid setting
     locations that your article may cover partially, allowing underlying
     articles to show through.
     
     Examples:
-        @coverage fresh cloth=chest,back,abdomen
-        @coverage fresh leather=chest,back,abdomen,larm,rarm
-        @coverage fresh cloth=head,face
+        coverage fresh cloth=chest,back,abdomen
+        coverage fresh leather=chest,back,abdomen,larm,rarm
+        coverage fresh cloth=head,face
     """
-    key = "@coverage"
-    aliases = ["@tailor-coverage"]
+    key = "coverage"
+    aliases = ["tailor-coverage"]
     locks = "cmd:all()"
     help_category = "Tailoring"
     
@@ -204,8 +204,8 @@ class CmdTailorCoverage(Command):
             return
         
         if not self.args:
-            caller.msg("Usage: @coverage <material>=<locations>")
-            caller.msg("       @coverage/list to see valid locations")
+            caller.msg("Usage: coverage <material>=<locations>")
+            caller.msg("       coverage/list to see valid locations")
             return
         
         # Check if viewing or setting
@@ -260,7 +260,7 @@ class CmdTailorCoverage(Command):
         
         if invalid_locations:
             caller.msg(f"|rInvalid locations:|n {', '.join(invalid_locations)}")
-            caller.msg("Use |w@coverage/list|n to see valid locations.")
+            caller.msg("Use |wcoverage/list|n to see valid locations.")
             return
         
         if not valid_locations:
@@ -284,7 +284,7 @@ class CmdTailorColor(Command):
     Set the primary color of your clothing using xterm 256 colors.
     
     Usage:
-        @color <material>=<hex_code>:<color_name>
+        color <material>=<hex_code>:<color_name>
     
     The hex code is a 6-character xterm 256 color (RRGGBB format).
     The color name is what will be displayed in descriptions.
@@ -298,13 +298,13 @@ class CmdTailorColor(Command):
         870087 = purple      d75f00 = orange      00afaf = teal
     
     Examples:
-        @color fresh cloth=870000:crimson
-        @color fresh leather=000000:black
-        @color fresh silk=ffffaf:ivory
-        @color fresh cloth=005f00:forest green
+        color fresh cloth=870000:crimson
+        color fresh leather=000000:black
+        color fresh silk=ffffaf:ivory
+        color fresh cloth=005f00:forest green
     """
-    key = "@color"
-    aliases = ["@tailor-color"]
+    key = "color"
+    aliases = ["tailor-color"]
     locks = "cmd:all()"
     help_category = "Tailoring"
     
@@ -312,8 +312,8 @@ class CmdTailorColor(Command):
         caller = self.caller
         
         if not self.args or "=" not in self.args:
-            caller.msg("Usage: @color <material>=<hex_code>:<color_name>")
-            caller.msg("Example: @color fresh cloth=005f00:forest green")
+            caller.msg("Usage: color <material>=<hex_code>:<color_name>")
+            caller.msg("Example: color fresh cloth=005f00:forest green")
             return
         
         material_name, color_spec = self.args.split("=", 1)
@@ -321,8 +321,8 @@ class CmdTailorColor(Command):
         color_spec = color_spec.strip()
         
         if ":" not in color_spec:
-            caller.msg("Usage: @color <material>=<hex_code>:<color_name>")
-            caller.msg("Example: @color fresh cloth=005f00:forest green")
+            caller.msg("Usage: color <material>=<hex_code>:<color_name>")
+            caller.msg("Example: color fresh cloth=005f00:forest green")
             return
         
         color_code, color_name = color_spec.split(":", 1)
@@ -331,7 +331,7 @@ class CmdTailorColor(Command):
         
         if not color_code or not color_name:
             caller.msg("You must specify both a hex code and a color name.")
-            caller.msg("Example: @color fresh cloth=005f00:forest green")
+            caller.msg("Example: color fresh cloth=005f00:forest green")
             return
         
         # Validate hex code (should be 6 hex characters)
@@ -371,7 +371,7 @@ class CmdTailorColor(Command):
         # Show preview with actual color
         colored_preview = f"|#{color_code}{color_name}|n"
         caller.msg(f"|gSet primary color to:|n {colored_preview}")
-        caller.msg("|cRemember:|n Use %color in your @describe and @messages worn to insert this colored text.")
+        caller.msg("|cRemember:|n Use %color in your describe and messages worn to insert this colored text.")
 
 
 class CmdTailorSeeThru(Command):
@@ -379,18 +379,18 @@ class CmdTailorSeeThru(Command):
     Toggle the see-through state of a piece of clothing.
     
     Usage:
-        @see-thru <material>
+        see-thru <material>
     
     Toggles whether underlying clothing, nakeds, tattoos, and cyberware
     show through this piece of clothing. Useful for jewelry, watches,
     eyeglasses, mesh clothing, etc.
     
     Examples:
-        @see-thru fresh mesh
-        @see-thru fresh cloth
+        see-thru fresh mesh
+        see-thru fresh cloth
     """
-    key = "@see-thru"
-    aliases = ["@seethru", "@seethrough", "@see-through"]
+    key = "see-thru"
+    aliases = ["seethru", "seethrough", "see-through"]
     locks = "cmd:all()"
     help_category = "Tailoring"
     
@@ -398,7 +398,7 @@ class CmdTailorSeeThru(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: @see-thru <material>")
+            caller.msg("Usage: see-thru <material>")
             return
         
         material_name = self.args.strip()
@@ -434,7 +434,7 @@ class CmdTailorDescribe(Command):
     Set the description of your clothing item.
     
     Usage:
-        @tdescribe <material>=<description>
+        tdescribe <material>=<description>
     
     This is what you see when you look AT the article of clothing,
     not when you look at someone wearing it. You MUST include the
@@ -449,11 +449,11 @@ class CmdTailorDescribe(Command):
         %r - reflexive (himself/herself/themselves)
     
     Examples:
-        @tdescribe fresh cloth=This elegant blouse is made of %color silk, with delicate embroidery along the collar.
-        @tdescribe fresh leather=A well-crafted %color leather jacket with brass buttons.
+        tdescribe fresh cloth=This elegant blouse is made of %color silk, with delicate embroidery along the collar.
+        tdescribe fresh leather=A well-crafted %color leather jacket with brass buttons.
     """
-    key = "@tdescribe"
-    aliases = ["@tailor-describe", "@tdesc"]
+    key = "tdescribe"
+    aliases = ["tailor-describe", "tdesc"]
     locks = "cmd:all()"
     help_category = "Tailoring"
     
@@ -461,7 +461,7 @@ class CmdTailorDescribe(Command):
         caller = self.caller
         
         if not self.args or "=" not in self.args:
-            caller.msg("Usage: @tdescribe <material>=<description>")
+            caller.msg("Usage: tdescribe <material>=<description>")
             return
         
         material_name, description = self.args.split("=", 1)
@@ -506,8 +506,8 @@ class CmdTailorMessages(Command):
     View and set the various messages for your clothing.
     
     Usage:
-        @messages <material>                      - View all messages
-        @messages <material>=<type>:<message>     - Set a specific message
+        messages <material>                      - View all messages
+        messages <material>=<type>:<message>     - Set a specific message
     
     Message types:
         wear    - Message wearer sees when putting it on
@@ -524,12 +524,12 @@ class CmdTailorMessages(Command):
         %n - character's name
     
     Examples:
-        @messages fresh cloth=wear:You slip into the elegant blouse.
-        @messages fresh cloth=owear:%n slips into an elegant blouse.
-        @messages fresh cloth=worn:An elegant %color silk blouse with delicate embroidery.
+        messages fresh cloth=wear:You slip into the elegant blouse.
+        messages fresh cloth=owear:%n slips into an elegant blouse.
+        messages fresh cloth=worn:An elegant %color silk blouse with delicate embroidery.
     """
-    key = "@messages"
-    aliases = ["@tailor-messages", "@msg"]
+    key = "messages"
+    aliases = ["tailor-messages", "msg"]
     locks = "cmd:all()"
     help_category = "Tailoring"
     
@@ -537,7 +537,7 @@ class CmdTailorMessages(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: @messages <material> or @messages <material>=<type>:<message>")
+            caller.msg("Usage: messages <material> or messages <material>=<type>:<message>")
             return
         
         # Check if setting or viewing
@@ -568,7 +568,7 @@ class CmdTailorMessages(Command):
         rest = rest.strip()
         
         if ":" not in rest:
-            caller.msg("Usage: @messages <material>=<type>:<message>")
+            caller.msg("Usage: messages <material>=<type>:<message>")
             caller.msg("Types: wear, owear, remove, oremove, worn")
             return
         
@@ -618,18 +618,18 @@ class CmdTailorCheck(Command):
     Check if your clothing is ready to be finalized.
     
     Usage:
-        @check <material>
+        check <material>
     
     Shows a checklist of all required fields. Green means set,
     red means not set. Use this to verify your work before
     finalizing.
     
     Examples:
-        @check fresh cloth
-        @check fresh leather
+        check fresh cloth
+        check fresh leather
     """
-    key = "@check"
-    aliases = ["@tailor-check"]
+    key = "check"
+    aliases = ["tailor-check"]
     locks = "cmd:all()"
     help_category = "Tailoring"
     
@@ -637,7 +637,7 @@ class CmdTailorCheck(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: @check <material>")
+            caller.msg("Usage: check <material>")
             return
         
         material_name = self.args.strip()
@@ -661,13 +661,13 @@ class CmdTailorCheck(Command):
         for req_name, req_info in requirements.items():
             desc = req_info['description']
             if req_name == "name":
-                desc = desc.replace("@name", "@tname")
+                desc = desc.replace("@name", "tname")
             status = "|g✓|n" if req_info["set"] else "|r✗|n"
             caller.msg(f"  {status} {desc}")
         
         caller.msg("")
         if all_valid:
-            caller.msg("|g✓ Ready to @finalize!|n")
+            caller.msg("|g✓ Ready to finalize!|n")
         else:
             caller.msg("|r✗ Not ready - complete the red items above.|n")
         
@@ -687,19 +687,19 @@ class CmdTailorFinalize(Command):
     Complete your work on an article of clothing.
     
     Usage:
-        @finalize <material>
+        finalize <material>
     
-    Use @check to validate your work before finalizing. When you
+    Use check to validate your work before finalizing. When you
     finalize, your tailoring skill determines the value of the
     article. The first time you finalize gives the best value -
     each subsequent finalization reduces the value by 20%.
     
     Examples:
-        @finalize fresh cloth
-        @finalize fresh leather
+        finalize fresh cloth
+        finalize fresh leather
     """
-    key = "@finalize"
-    aliases = ["@tailor-finalize"]
+    key = "finalize"
+    aliases = ["tailor-finalize"]
     locks = "cmd:all()"
     help_category = "Tailoring"
     
@@ -707,7 +707,7 @@ class CmdTailorFinalize(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: @finalize <material>")
+            caller.msg("Usage: finalize <material>")
             return
         
         material_name = self.args.strip()
@@ -740,7 +740,7 @@ class CmdTailorFinalize(Command):
                 caller.msg(f"|cThe {clothing.key} is now in your inventory and ready to wear.|n")
         else:
             caller.msg(f"|r{message}|n")
-            caller.msg("Use |w@check|n to see what's missing.")
+            caller.msg("Use |wcheck|n to see what's missing.")
 
 
 # Command set for easy importing
