@@ -18,6 +18,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 from evennia import default_cmds, CmdSet
 from commands import CmdCharacter
 from commands import CmdInventory
+from commands.CmdInventory import CmdGet
 from commands import CmdAdmin
 from commands import CmdClothing
 from commands.CmdClothing import CmdWear, CmdRemove
@@ -144,6 +145,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Remove default look and add custom one with petition support
         self.remove("look")
         self.add(CmdLook())
+        # Remove default get and add custom one with no_pick support
+        self.remove("get")
+        self.add(CmdGet())
         # Add individual attach/remove/program/show commands for doors/locks/keypads
         from commands.door import (
             CmdAttachDoor, CmdAttachLock, CmdAttachKeypad, CmdRemoveDoor, CmdRemoveLock, CmdRemoveKeypad,
