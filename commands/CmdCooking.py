@@ -117,6 +117,9 @@ def node_main_menu(caller, raw_string, **kwargs):
     
     # Build status display
     def status(field):
+        # Special handling for boolean fields - they're always "set"
+        if field == 'is_food':
+            return "|g[SET]|n"
         return "|g[SET]|n" if data.get(field) else "|r[---]|n"
     
     item_type = "Food" if data.get("is_food", True) else "Drink"
@@ -1618,6 +1621,288 @@ class CmdAdminCreateFood(Command):
             caller.msg(f"|rError creating food: {e}|n")
 
 
+class CmdAdminDesignRecipe(Command):
+    """
+    Admin recipe designer - creates recipes that are auto-approved.
+    
+    Usage:
+        adesign
+    
+    Opens the recipe designer menu where admins can create a recipe.
+    Unlike player-designed recipes, admin recipes are automatically approved
+    and immediately available for cooking.
+    """
+    key = "adesign"
+    aliases = ["admindesign", "admin design"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        caller = self.caller
+        
+        # Mark this as an admin design session
+        caller.ndb._admin_recipe_design = True
+        
+        # Start the EvMenu
+        RecipeDesignMenu(
+            caller,
+            "commands.CmdCooking",
+            startnode="node_admin_main_menu",
+            cmdset_mergetype="Replace",
+            cmd_on_exit=None,
+        )
+
+
+def node_admin_main_menu(caller, raw_string, **kwargs):
+    """Admin main menu for recipe design."""
+    data = _recipe_data(caller)
+    
+    # Build status display
+    def status(field):
+        if field == 'is_food':
+            return "|g[SET]|n"
+        return "|g[SET]|n" if data.get(field) else "|r[---]|n"
+    
+    item_type = "Food" if data.get("is_food", True) else "Drink"
+    
+    text = f"""
+|c=== Admin Recipe Designer ===|n
+
+Design a new {item_type.lower()} recipe. Admin recipes are |gauto-approved|n.
+
+|wCurrent Recipe:|n {data.get('name') or '(unnamed)'}
+
+|w1.|n {status('name')} Name
+|w2.|n {status('is_food')} Type: |w{item_type}|n
+|w3.|n {status('description')} Description
+|w4.|n {status('taste')} Taste
+|w5.|n {status('smell')} Smell
+|w6.|n {status('msg_eat_self')} Consume Message (1st person)
+|w7.|n {status('msg_eat_others')} Consume Message (3rd person)
+|w8.|n {status('msg_finish_self')} Finish Message (1st person)
+|w9.|n {status('msg_finish_others')} Finish Message (3rd person)
+|w10.|n Keywords: {', '.join(data.get('keywords', [])) or '(none)'}
+|w11.|n Difficulty: |w{data.get('difficulty', 50)}|n
+
+|w[R]|n Review before saving
+|w[S]|n Save recipe (auto-approved)
+|w[Q]|n Quit without saving
+"""
+    
+    options = (
+        {"key": "1", "goto": "node_set_name"},
+        {"key": "2", "goto": "node_set_type"},
+        {"key": "3", "goto": "node_set_description"},
+        {"key": "4", "goto": "node_set_taste"},
+        {"key": "5", "goto": "node_set_smell"},
+        {"key": "6", "goto": "node_set_eat_self"},
+        {"key": "7", "goto": "node_set_eat_others"},
+        {"key": "8", "goto": "node_set_finish_self"},
+        {"key": "9", "goto": "node_set_finish_others"},
+        {"key": "10", "goto": "node_set_keywords"},
+        {"key": "11", "goto": "node_admin_set_difficulty"},
+        {"key": "r", "goto": "node_admin_review"},
+        {"key": "R", "goto": "node_admin_review"},
+        {"key": "s", "goto": "node_admin_submit"},
+        {"key": "S", "goto": "node_admin_submit"},
+        {"key": "q", "goto": "node_quit"},
+        {"key": "Q", "goto": "node_quit"},
+        {"key": "_default", "goto": "node_admin_main_menu"},
+    )
+    return text, options
+
+
+def node_admin_set_difficulty(caller, raw_string, **kwargs):
+    """Set recipe difficulty (admin only)."""
+    data = _recipe_data(caller)
+    current = data.get("difficulty", 50)
+    
+    text = f"""
+|c=== Set Difficulty ===|n
+
+Current difficulty: |w{current}|n
+
+Difficulty scale:
+  |g0-20|n:   Novice - simple preparations
+  |y21-45|n:  Competent - home cooking
+  |m46-75|n:  Seasoned - professional level
+  |r76-89|n:  Advanced - high-end restaurant
+  |R90-100|n: Mastery - world-class chef
+
+Enter a number from 0-100, or |w[B]|n to go back.
+"""
+    
+    def _set_difficulty(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip().lower()
+        data = _recipe_data(caller)
+        
+        if raw_string in ('b', 'back'):
+            return "node_admin_main_menu"
+        
+        try:
+            difficulty = int(raw_string)
+            if 0 <= difficulty <= 100:
+                data["difficulty"] = difficulty
+                caller.msg(f"|gDifficulty set to:|n {difficulty}")
+                return "node_admin_main_menu"
+            else:
+                caller.msg("|rDifficulty must be between 0 and 100.|n")
+                return "node_admin_set_difficulty"
+        except ValueError:
+            caller.msg("|rPlease enter a valid number.|n")
+            return "node_admin_set_difficulty"
+    
+    options = ({"key": "_default", "goto": _set_difficulty},)
+    return text, options
+
+
+def node_admin_review(caller, raw_string, **kwargs):
+    """Review recipe before saving (admin)."""
+    data = _recipe_data(caller)
+    
+    item_type = "Food" if data.get("is_food", True) else "Drink"
+    action = "eat" if data.get("is_food", True) else "drink"
+    
+    text = f"""
+|c=== Admin Recipe Review ===|n
+
+|wName:|n {data.get('name') or '|r(not set)|n'}
+|wType:|n {item_type}
+|wDifficulty:|n {data.get('difficulty', 50)}
+
+|wDescription:|n
+{data.get('description') or '|r(not set)|n'}
+
+|wTaste:|n
+{data.get('taste') or '|r(not set)|n'}
+
+|wSmell:|n
+{data.get('smell') or '|r(not set)|n'}
+
+|wConsume Message (you see when you {action}):|n
+{data.get('msg_eat_self') or '|r(not set)|n'}
+
+|wConsume Message (others see):|n
+{data.get('msg_eat_others') or '|r(not set)|n'}
+
+|wFinish Message (you see):|n
+{data.get('msg_finish_self') or '|r(not set)|n'}
+
+|wFinish Message (others see):|n
+{data.get('msg_finish_others') or '|r(not set)|n'}
+
+|wKeywords:|n {', '.join(data.get('keywords', [])) or '(none)'}
+
+|w[B]|n Back to main menu
+"""
+    
+    options = (
+        {"key": "b", "goto": "node_admin_main_menu"},
+        {"key": "B", "goto": "node_admin_main_menu"},
+        {"key": "_default", "goto": "node_admin_main_menu"},
+    )
+    return text, options
+
+
+def node_admin_submit(caller, raw_string, **kwargs):
+    """Save and auto-approve recipe (admin)."""
+    data = _recipe_data(caller)
+    
+    # Validate all required fields
+    required = ['name', 'description', 'taste', 'smell', 
+                'msg_eat_self', 'msg_eat_others', 'msg_finish_self', 'msg_finish_others']
+    missing = [f for f in required if not data.get(f)]
+    
+    if missing:
+        text = f"""
+|r=== Cannot Save ===|n
+
+The following required fields are not set:
+{', '.join(missing)}
+
+Please complete all fields before saving.
+
+|w[B]|n Back to main menu
+"""
+        options = (
+            {"key": "b", "goto": "node_admin_main_menu"},
+            {"key": "B", "goto": "node_admin_main_menu"},
+            {"key": "_default", "goto": "node_admin_main_menu"},
+        )
+        return text, options
+    
+    # Confirm save
+    text = f"""
+|c=== Confirm Save ===|n
+
+You are about to save |w{data.get('name')}|n as an |gauto-approved|n recipe.
+
+This recipe will be immediately available for cooking by all players.
+
+|w[Y]|n Yes, save and approve
+|w[N]|n No, go back
+"""
+    
+    def _confirm_save(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip().lower()
+        
+        if raw_string in ('y', 'yes'):
+            data = _recipe_data(caller)
+            
+            # Create recipe entry (auto-approved)
+            recipe_data = {
+                "name": data["name"],
+                "is_food": data["is_food"],
+                "description": data["description"],
+                "taste": data["taste"],
+                "smell": data["smell"],
+                "msg_eat_self": data["msg_eat_self"],
+                "msg_eat_others": data["msg_eat_others"],
+                "msg_finish_self": data["msg_finish_self"],
+                "msg_finish_others": data["msg_finish_others"],
+                "keywords": data.get("keywords", []),
+                "creator_dbref": caller.dbref,
+                "creator_name": caller.key,
+                "created_at": datetime.now(),
+                "difficulty": data.get("difficulty", 50),
+                "status": "approved",
+                "is_admin_created": True,
+            }
+            
+            # Add directly to approved recipes
+            storage = get_recipe_storage()
+            recipes = storage.db.recipes or []
+            
+            # Generate ID
+            all_ids = [r.get("id", 0) for r in recipes]
+            pending = storage.db.pending_recipes or []
+            all_ids.extend([r.get("id", 0) for r in pending])
+            recipe_id = max(all_ids) + 1 if all_ids else 1
+            
+            recipe_data["id"] = recipe_id
+            recipes.append(recipe_data)
+            storage.db.recipes = recipes
+            
+            caller.msg(f"|g=== Recipe Saved ===|n")
+            caller.msg(f"Your recipe |w{data['name']}|n has been saved and auto-approved.")
+            caller.msg(f"Recipe ID: |w#{recipe_id}|n")
+            caller.msg(f"Difficulty: |w{data.get('difficulty', 50)}|n")
+            caller.msg("Players can now cook this recipe at any kitchenette.")
+            
+            # Clear design data
+            if hasattr(caller.ndb, '_recipe_design'):
+                del caller.ndb._recipe_design
+            if hasattr(caller.ndb, '_admin_recipe_design'):
+                del caller.ndb._admin_recipe_design
+            
+            return None  # Exit menu
+        
+        return "node_admin_main_menu"
+    
+    options = ({"key": "_default", "goto": _confirm_save},)
+    return text, options
+
+
 # =============================================================================
 # COMMAND SET CONTAINER
 # =============================================================================
@@ -1640,4 +1925,5 @@ class CookingCmdSet:
             CmdApproveRecipe,
             CmdRejectRecipe,
             CmdAdminCreateFood,
+            CmdAdminDesignRecipe,
         ]

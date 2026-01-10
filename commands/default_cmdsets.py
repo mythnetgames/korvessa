@@ -328,7 +328,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         from commands.CmdCooking import (
             CmdDesignRecipe, CmdCook, CmdEat, CmdDrink, CmdTaste, CmdSmellFood,
             CmdSpawnKitchenette, CmdSpawnIngredients, CmdRecipes, 
-            CmdApproveRecipe, CmdRejectRecipe
+            CmdApproveRecipe, CmdRejectRecipe, CmdAdminDesignRecipe
         )
         self.add(CmdDesignRecipe())      # Player: design new recipes
         self.add(CmdCook())              # Player: cook at kitchenettes
@@ -341,6 +341,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRecipes())           # Admin: manage recipe queue
         self.add(CmdApproveRecipe())     # Admin: approve recipes
         self.add(CmdRejectRecipe())      # Admin: reject recipes
+        self.add(CmdAdminDesignRecipe()) # Admin: design auto-approved recipes
+        from commands.CmdDeleteRecipe import CmdDeleteRecipe
+        self.add(CmdDeleteRecipe())      # Admin: delete approved recipes
         # Add pickup toggle command
         self.add(CmdTogglePickup())      # Admin: toggle if objects can be picked up
 
