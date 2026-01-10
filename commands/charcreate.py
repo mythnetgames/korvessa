@@ -284,11 +284,7 @@ def create_flash_clone(account, old_character):
     """
     Create a flash clone from a dead character.
     Inherits: GRIM stats, longdesc, desc, sex, skintone
-    Name: Built from base name + Roman numeral based on old_character's death_count
-    
-    Note: death_count is incremented on the OLD character at death (at_death()).
-    The Roman numeral in the name reflects this death_count value.
-    The NEW clone starts with default death_count=1 from AttributeProperty.
+    Name: Uses the base name (strips any existing Roman numerals, does NOT add new ones)
     
     Args:
         account: Account object
@@ -297,19 +293,16 @@ def create_flash_clone(account, old_character):
     Returns:
         Character: New cloned character
     """
+    import re
     from typeclasses.characters import Character
     
     # Get spawn location
     start_location = get_start_location()
     
-    # Get old character's death_count (already incremented at death)
-    # Use AttributeProperty directly to access the correct categorized attribute
-    old_death_count = old_character.death_count
-    if old_death_count is None:
-        old_death_count = 1  # Default from AttributeProperty
-    
-    # Build name using death_count as Roman numeral source
-    new_name = build_name_from_death_count(old_character.key, old_death_count)
+    # Strip any existing Roman numeral from the name - we never add them
+    roman_pattern = r'\s+(M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))$'
+    base_name = re.sub(roman_pattern, '', old_character.key, flags=re.IGNORECASE).strip()
+    new_name = base_name  # Use base name only, NO Roman numerals
     
     # CRITICAL: Remove the old archived character from account.characters
     # This is necessary because MAX_NR_CHARACTERS=1, and we need to replace the old char

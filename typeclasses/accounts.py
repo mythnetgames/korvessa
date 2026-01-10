@@ -51,24 +51,42 @@ class Account(DefaultAccount):
         # Call the original unpuppet
         super().unpuppet_object(session)
 
-    def at_cmdset_get(self, **kwargs):
-        """
-        Called when cmdsets are being gathered.
-        Check for clone awakening lock.
-        """
-        # During clone awakening, commands are blocked
+    def _is_clone_awakening_locked(self):
+        """Check if this account is locked during clone awakening."""
         if getattr(self.ndb, '_clone_awakening_locked', False):
+            return True
+        # Also check all sessions
+        for session in self.sessions.all():
+            if getattr(session.ndb, '_clone_awakening_locked', False):
+                return True
+        return False
+
+    def at_look(self, target=None, session=None, **kwargs):
+        """
+        Called when this object performs a look.
+        Block OOC menu during clone awakening.
+        """
+        if self._is_clone_awakening_locked():
+            # Return empty string - don't show OOC menu during awakening
+            return ""
+        return super().at_look(target=target, session=session, **kwargs)
+
+    def execute_cmd(self, raw_string, session=None, **kwargs):
+        """
+        Called when the account tries to execute a command.
+        Block ALL commands during clone awakening.
+        """
+        if self._is_clone_awakening_locked():
             self.msg("|xYour motor functions have not yet been restored...|n")
-            return None
-        session = None
-        try:
-            session = self.sessions.get()[0]
-        except Exception:
-            pass
-        if session and getattr(session.ndb, '_clone_awakening_locked', False):
-            self.msg("|xYour motor functions have not yet been restored...|n")
-            return None
-        return super().at_cmdset_get(**kwargs)
+            return
+        return super().execute_cmd(raw_string, session=session, **kwargs)
+
+    def msg(self, text=None, from_obj=None, session=None, options=None, **kwargs):
+        """
+        Override msg to allow messages during awakening, but block OOC menu.
+        """
+        # Always allow messages through - the cutscene needs to display
+        super().msg(text=text, from_obj=from_obj, session=session, options=options, **kwargs)
 
 
 class Guest(DefaultGuest):

@@ -271,8 +271,10 @@ def _start_clone_restoration(account, old_character, session, backup_data):
     """
     from evennia.utils import delay
     
-    # Lock commands during the cutscene by setting flag on account
+    # Lock commands during the cutscene by setting flag on account and session
     account.ndb._clone_awakening_locked = True
+    if session:
+        session.ndb._clone_awakening_locked = True
     
     # Play the unnerving awakening sequence
     _play_clone_awakening(account, old_character, session, backup_data)
@@ -281,6 +283,7 @@ def _start_clone_restoration(account, old_character, session, backup_data):
 def _play_clone_awakening(account, old_character, session, backup_data):
     """Play the unnerving Matrix-style pod extraction sequence."""
     from datetime import datetime
+    from evennia.utils import delay
     
     # Get the backup timestamp for the voice to read
     backup_timestamp = backup_data.get('timestamp', 0)
@@ -424,23 +427,113 @@ def _create_restored_clone(account, old_character, session, backup_data):
         import traceback
         _log(f"CLONE_RESTORE_TRACE: {traceback.format_exc()}")
         
-        # Fallback to regular character creation
-        account.msg("|rClone restoration failed. Starting manual character creation.|n")
-        _start_new_character(account, old_character, session)
+        # Unlock on failure
+        if hasattr(account.ndb, '_clone_awakening_locked'):
+            del account.ndb._clone_awakening_locked
+        if session and hasattr(session.ndb, '_clone_awakening_locked'):
+            del session.ndb._clone_awakening_locked
+        
+        # Show error and let them try again
+        account.msg("|rCLONE RESTORATION CRITICAL FAILURE.|n")
+        account.msg("|rPlease contact staff for assistance.|n")
 
 
 def _start_new_character(account, old_character, session):
-    """Start character creation for the account (no clone backup)."""
-    account.msg("|r" + "=" * 60 + "|n")
-    account.msg("|rYour character has died.|n")
-    account.msg("|rNo consciousness backup was found on file.|n")
-    account.msg("|rA corpse has been left behind for investigation.|n")
-    account.msg("|r" + "=" * 60 + "|n")
+    """
+    Start character creation for the account (no clone backup).
+    Shows an unnerving clone malfunction cutscene before character creation.
+    """
+    from evennia.utils import delay
+    
+    # Lock commands during the cutscene
+    account.ndb._clone_awakening_locked = True
+    if session:
+        session.ndb._clone_awakening_locked = True
+    
+    # Play the clone malfunction cutscene
+    _play_clone_malfunction(account, old_character, session)
+
+
+def _play_clone_malfunction(account, old_character, session):
+    """Play the unnerving clone malfunction sequence before character creation."""
+    from evennia.utils import delay
+    
+    # Clear screen
+    account.msg("\n" * 5)
+    
+    # Start sequence - same initial pod experience
+    delay(0.5, account.msg, "|X" + "=" * 70 + "|n")
+    delay(1.0, account.msg, "")
+    delay(1.5, account.msg, "|xYou can't move.|n")
+    delay(2.5, account.msg, "|xYou can't see.|n")
+    delay(3.5, account.msg, "|xYou can't breathe.|n")
+    delay(5.0, account.msg, "")
+    delay(5.5, account.msg, "|xThere is pressure. All around you. Thick. Viscous.|n")
+    delay(7.0, account.msg, "|xYou are suspended in something warm and wet.|n")
+    delay(8.5, account.msg, "")
+    
+    # Something goes wrong
+    delay(9.5, account.msg, "|rA loud THUNK echoes through your skull.|n")
+    delay(11.0, account.msg, "|xThe liquid begins to drain.|n")
+    delay(12.5, account.msg, "|rBut something is... wrong.|n")
+    delay(14.0, account.msg, "")
+    
+    # Error state
+    delay(15.5, account.msg, "|R[ERROR KLAXON - Harsh, repeating]|n")
+    delay(17.0, account.msg, "")
+    delay(18.0, account.msg, "|r    \"CRITICAL ERROR. CRITICAL ERROR.\"|n")
+    delay(19.5, account.msg, "|r    \"CONSCIOUSNESS BACKUP NOT FOUND.\"|n")
+    delay(21.0, account.msg, "|r    \"NEURAL PATTERN INTEGRITY: 0%\"|n")
+    delay(22.5, account.msg, "")
+    delay(24.0, account.msg, "|xThe liquid drains completely.|n")
+    delay(25.5, account.msg, "|xYou gasp. Choke. Breathe.|n")
+    delay(27.0, account.msg, "")
+    delay(28.5, account.msg, "|xThe pod opens. Light floods in.|n")
+    delay(30.0, account.msg, "|xYou collapse onto cold tile.|n")
+    delay(31.5, account.msg, "")
+    
+    # The voice - cold, clinical
+    delay(33.0, account.msg, "|X" + "-" * 70 + "|n")
+    delay(34.0, account.msg, "")
+    delay(35.0, account.msg, "|c[SYSTEM VOICE - Cold, clinical]|n")
+    delay(36.5, account.msg, "")
+    delay(38.0, account.msg, "|W    \"Clone activation failed.\"|n")
+    delay(40.0, account.msg, "|W    \"No consciousness backup on file for this identity.\"|n")
+    delay(42.0, account.msg, "|W    \"Sleeve resources have been... reallocated.\"|n")
+    delay(44.0, account.msg, "")
+    delay(45.5, account.msg, "|W    \"A fresh identity will be assigned.\"|n")
+    delay(47.5, account.msg, "|W    \"Please stand by for neural imprinting.\"|n")
+    delay(49.5, account.msg, "")
+    delay(51.0, account.msg, "|X" + "-" * 70 + "|n")
+    delay(52.0, account.msg, "")
+    
+    # Final state
+    delay(53.5, account.msg, "|xYou lie there. Naked. Shivering. Empty.|n")
+    delay(55.0, account.msg, "|xYou don't remember who you were.|n")
+    delay(56.5, account.msg, "|xYou don't remember anything at all.|n")
+    delay(58.0, account.msg, "")
+    delay(59.0, account.msg, "|X" + "=" * 70 + "|n")
+    
+    # Start character creation after the cutscene
+    delay(61.0, _begin_character_creation, account, old_character, session)
+
+
+def _begin_character_creation(account, old_character, session):
+    """Actually begin character creation after the malfunction cutscene."""
+    # Unlock commands
+    if hasattr(account.ndb, '_clone_awakening_locked'):
+        del account.ndb._clone_awakening_locked
+    if session and hasattr(session.ndb, '_clone_awakening_locked'):
+        del session.ndb._clone_awakening_locked
+    
+    account.msg("")
+    account.msg("|y[Your previous character has died without a consciousness backup.|n")
+    account.msg("|y You must create a new character.]|n")
     account.msg("")
     
     try:
         from commands.charcreate import start_character_creation
-        start_character_creation(account, is_respawn=True, old_character=old_character)
+        start_character_creation(account, is_respawn=False, old_character=None)
     except ImportError:
         account.msg("|yCharacter creation is under development.|n")
         account.msg("|yPlease contact staff for a new character.|n")
