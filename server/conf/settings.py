@@ -53,7 +53,7 @@ LOCKDOWN_MODE = False
 # (October 18, 2025: Enabled for Cloudflare Turnstile integration testing)
 NEW_ACCOUNT_REGISTRATION_ENABLED = True
 #Time Zone
-TIME_ZONE = "CDT"
+TIME_ZONE = "America/Chicago"
 # Activate telnet service
 TELNET_ENABLED = True
 # A list of ports the Evennia telnet server listens on Can be one or many.
