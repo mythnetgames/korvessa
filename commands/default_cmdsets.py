@@ -55,6 +55,7 @@ from commands.window import CmdAttachWindow, CmdRemoveWindow, CmdWindowCoord, Cm
 from commands.debugroomcoords import CmdDebugRoomCoords
 from commands.debugsensors import CmdDebugSensors
 from commands.mapper import CmdMapColor
+from commands.adminkill import CmdAdminKill
 
 
 class UnconsciousCmdSet(CmdSet):

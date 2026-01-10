@@ -826,6 +826,21 @@ def _begin_character_creation(account, old_character, session):
     if session and hasattr(session.ndb, '_clone_awakening_locked'):
         del session.ndb._clone_awakening_locked
     
+    # Delete the old character if marked for deletion (permanent death path)
+    char_to_delete = getattr(account.ndb, '_character_to_delete', None)
+    if char_to_delete:
+        char_name = char_to_delete.key
+        try:
+            # Actually delete the character object
+            char_to_delete.delete()
+            _log(f"PERMANENT_DEATH: Deleted character {char_name}")
+        except Exception as e:
+            _log(f"PERMANENT_DEATH: Error deleting character {char_name}: {e}")
+        
+        # Clear the reference
+        if hasattr(account.ndb, '_character_to_delete'):
+            del account.ndb._character_to_delete
+    
     account.msg("")
     account.msg("|y[Your previous character has died without a consciousness backup.|n")
     account.msg("|y You must create a new character.]|n")

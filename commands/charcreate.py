@@ -17,14 +17,16 @@ import time
 import re
 
 
-def validate_name(name):
+def validate_name(name, account=None):
     """
-    Validate character name for profanity and uniqueness.
+    Validate character name for profanity, uniqueness, and deceased character names.
     Args:
         name (str): Full character name
+        account: Optional account to check for deceased character names
     Returns:
         tuple: (is_valid: bool, error_message: str or None)
     """
+    import re
     profanity_list = ['fuck', 'shit', 'damn', 'bitch', 'ass', 'cunt', 'dick', 'cock', 'pussy']
     name_lower = name.lower()
     for word in profanity_list:
@@ -33,6 +35,19 @@ def validate_name(name):
     from typeclasses.characters import Character
     if Character.objects.filter(db_key__iexact=name).exists():
         return (False, "That name is already taken.")
+    
+    # Check against deceased character names (permanent deaths)
+    if account:
+        deceased_names = account.db.deceased_character_names or []
+        # Strip Roman numerals from input name for comparison
+        roman_pattern = r'\s+(?:I{1,3}|IV|V|VI{1,3}|IX|X|XI{1,3}|XIV|XV)$'
+        base_name = re.sub(roman_pattern, '', name.strip())
+        base_name_lower = base_name.lower()
+        
+        for deceased_name in deceased_names:
+            if deceased_name.lower() == base_name_lower:
+                return (False, "That name belonged to a character who has permanently died and cannot be reused.")
+    
     return (True, None)
 
 
@@ -815,7 +830,7 @@ def first_char_name_last(caller, raw_string, **kwargs):
         
         # Check full name uniqueness
         full_name = f"{first_name} {name}"
-        is_valid, error = validate_name(full_name)
+        is_valid, error = validate_name(full_name, account=caller)
         if not is_valid:
             caller.msg(f"|r{error}|n")
             # Return None to re-display current node

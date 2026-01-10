@@ -40,6 +40,12 @@ class CharacterCreateView(EvenniaCharacterCreateView):
     # Use our extended form with GRIM fields (Evennia pattern: forms.ClassName)
     form_class = forms.CharacterForm
     
+    def get_form_kwargs(self):
+        """Pass account to form for deceased name validation."""
+        kwargs = super().get_form_kwargs()
+        kwargs['account'] = self.request.user
+        return kwargs
+    
     def get(self, request, *args, **kwargs):
         """Determine which character creation flow to show."""
         account = request.user

@@ -210,11 +210,20 @@ class CharacterForm(EvenniaCharacterForm):
         
         return name
     
+    def __init__(self, *args, **kwargs):
+        """Store account for deceased name validation."""
+        self.account = kwargs.pop('account', None)
+        super().__init__(*args, **kwargs)
+    
     def clean(self):
             """
             Validate that custom stats total exactly 68 points.
+            Also validate full name against deceased character names.
             """
+            import re
             cleaned_data = super().clean()
+            
+            # Stat validation
             stat_names = ['smarts', 'body', 'willpower', 'dexterity', 'edge', 'empathy', 'reflexes', 'technique']
             stats = [int(cleaned_data.get(name, 0)) for name in stat_names]
             total = sum(stats)
@@ -222,6 +231,25 @@ class CharacterForm(EvenniaCharacterForm):
                 raise forms.ValidationError(
                     f"Stats must total exactly {STAT_TOTAL_POINTS} points. Current total: {total} points."
                 )
+            
+            # Check full name against deceased character names
+            if self.account:
+                first_name = cleaned_data.get('first_name', '')
+                last_name = cleaned_data.get('last_name', '')
+                full_name = f"{first_name} {last_name}"
+                
+                deceased_names = getattr(self.account.db, 'deceased_character_names', None) or []
+                # Strip Roman numerals from input name for comparison
+                roman_pattern = r'\s+(?:I{1,3}|IV|V|VI{1,3}|IX|X|XI{1,3}|XIV|XV)$'
+                base_name = re.sub(roman_pattern, '', full_name.strip())
+                base_name_lower = base_name.lower()
+                
+                for deceased_name in deceased_names:
+                    if deceased_name.lower() == base_name_lower:
+                        raise forms.ValidationError(
+                            "That name belonged to a character who has permanently died and cannot be reused."
+                        )
+            
             return cleaned_data
 
 
