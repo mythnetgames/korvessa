@@ -437,7 +437,7 @@ class CmdStats(Command):
     detailed risk evaluation and resource allocation purposes.
     """
 
-    key = "@stats"
+    key = "stats"
     aliases = ["score"]
     locks = "cmd:all()"
 
@@ -662,8 +662,8 @@ class CmdLookPlace(Command):
     Use 'clear' to remove your look_place and return to default display.
     """
     
-    key = "@look_place"
-    aliases = ["@lookplace"]
+    key = "look_place"
+    aliases = ["lookplace"]
     locks = "cmd:all()"
     help_category = "Character"
     
@@ -776,7 +776,7 @@ class CmdTempPlace(Command):
     Use 'clear' to remove your temp_place immediately.
     """
     
-    key = "@temp_place"
+    key = "temp_place"
     aliases = ["@tempplace"]
     locks = "cmd:all()"
     help_category = "Character"
@@ -886,7 +886,7 @@ class CmdLongdesc(Command):
     Descriptions appear when others look at you, integrated with your base description.
     """
 
-    key = "@longdesc"
+    key = "longdesc"
     aliases = []
     locks = "cmd:all()"
     help_category = "Character"
@@ -1082,7 +1082,7 @@ class CmdLongdesc(Command):
             caller.msg(f"'{location}' is not a valid body location for {target_char.get_display_name(caller)}.")
             available = ", ".join(target_char.get_available_locations()[:10])  # Show first 10
             caller.msg(f"Available locations include: {available}...")
-            caller.msg("Use '@longdesc/list' to see all available locations.")
+            caller.msg("Use 'longdesc/list' to see all available locations.")
             return
 
         # Validate description length
@@ -1212,11 +1212,11 @@ class CmdSkintone(Command):
     Set your character's skintone for longdesc display coloring.
 
     Usage:
-      @skintone <tone>
-      @skintone list
-      @skintone clear
-      @skintone <character> <tone>    (staff only)
-      @skintone <character> clear     (staff only)
+      skintone <tone>
+      skintone list
+      skintone clear
+      skintone <character> <tone>    (staff only)
+      skintone <character> clear     (staff only)
 
     Sets the color tone used for your character's longdesc descriptions.
     This creates visual distinction between your character's body/skin
@@ -1225,12 +1225,12 @@ class CmdSkintone(Command):
     Available tones: porcelain, pale, fair, light, medium, olive, tan, brown, dark, deep
 
     Examples:
-      @skintone tan
-      @skintone list
-      @skintone clear
+      skintone tan
+      skintone list
+      skintone clear
     """
     
-    key = "@skintone"
+    key = "skintone"
     aliases = ["skintone"]
     locks = "cmd:all()"
 
@@ -1296,13 +1296,13 @@ class CmdSkintone(Command):
             caller.msg("  " + tone.ljust(10) + " - " + f"{color_code}Sample text|n")
             
         caller.msg("")
-        caller.msg("Use: |w@skintone <tone>|n to set your skintone")
-        caller.msg("Use: |w@skintone clear|n to remove coloring")
+        caller.msg("Use: |wskintone <tone>|n to set your skintone")
+        caller.msg("Use: |wskintone clear|n to remove coloring")
 
     def _set_skintone(self, caller, target, tone):
         """Set skintone on target character"""
         if tone not in VALID_SKINTONES:
-            caller.msg(f"'{tone}' is not a valid skintone. Use '@skintone list' to see available options.")
+            caller.msg(f"'{tone}' is not a valid skintone. Use 'skintone list' to see available options.")
             return
             
         target.db.skintone = tone

@@ -1,7 +1,7 @@
 """
 Bug reporting command for creating GitHub issues directly from in-game.
 
-This module provides the @bug command that allows players to submit bug reports
+This module provides the bug command that allows players to submit bug reports
 that automatically create GitHub issues in the repository. Includes rate limiting,
 input validation, and privacy-conscious reporting.
 """
@@ -18,17 +18,17 @@ class CmdBug(MuxCommand):
     Report a bug to the development team.
     
     Usage:
-        @bug
-        @bug/list
-        @bug/show <number>
+        bug
+        bug/list
+        bug/show <number>
     
     Opens an interactive bug report workflow that will guide you through:
     1. Entering a title/summary for the bug
     2. Selecting a category
     3. Writing a detailed description in a multi-line editor
     
-    Use @bug/list to view recent bug reports from the GitHub repository.
-    Use @bug/show <number> to view full details of a specific bug report.
+    Use bug/list to view recent bug reports from the GitHub repository.
+    Use bug/show <number> to view full details of a specific bug report.
     
     Your report will be created as a GitHub issue for the development team
     to review. All players can submit up to 30 bug reports per day.
@@ -36,8 +36,8 @@ class CmdBug(MuxCommand):
     Be clear and descriptive - good bug reports help us fix issues faster!
     """
     
-    key = "@bug"
-    aliases = ["bug"]
+    key = "bug"
+    aliases = ["report", "bugreport"]
     locks = "cmd:all()"
     help_category = "General"
     switch_options = ("list", "show")
@@ -66,8 +66,8 @@ class CmdBug(MuxCommand):
         # Handle /show switch
         if "show" in self.switches:
             if not self.args:
-                caller.msg("|yUsage: @bug/show <number>|n")
-                caller.msg("Example: @bug/show 15")
+                caller.msg("|yUsage: bug/show <number>|n")
+                caller.msg("Example: bug/show 15")
                 return
             
             # Strip # prefix if present
@@ -86,7 +86,7 @@ class CmdBug(MuxCommand):
         
         # Any other arguments show usage
         if self.args:
-            caller.msg("|yUsage:|n @bug  or  @bug/list")
+            caller.msg("|yUsage:|n bug  or  bug/list")
             return
         
         # Open the detailed bug report workflow
@@ -228,7 +228,7 @@ class CmdBug(MuxCommand):
             # Title was provided separately (from detail editor)
             title = title[:100]  # Truncate if too long
         else:
-            # Extract title from description (for regular @bug command)
+            # Extract title from description (for regular bug command)
             title = description.split('\n')[0][:100]  # First line, truncated
         
         # Build issue body
