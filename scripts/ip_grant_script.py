@@ -161,3 +161,71 @@ def grant_ip_to_all_online(amount):
                 break  # Only once per account
     
     return count
+
+
+def grant_missed_ip_on_login(character):
+    """
+    Check if character is logging in within 3 hours of the last IP tick.
+    If so, grant them the IP they missed.
+    
+    Args:
+        character: The character object logging in
+    
+    Returns:
+        bool: True if IP was granted, False otherwise
+    """
+    now = timezone.now()
+    current_hour = now.hour
+    
+    # Find the last IP grant hour (working backwards from current time)
+    # GRANT_HOURS = [0, 4, 8, 12, 16, 20]
+    last_grant_hour = None
+    for grant_hour in sorted(GRANT_HOURS, reverse=True):
+        if grant_hour <= current_hour:
+            last_grant_hour = grant_hour
+            break
+    
+    # If no grant hour found in current day, use the last one from yesterday
+    if last_grant_hour is None:
+        last_grant_hour = GRANT_HOURS[-1]  # 20:00 from yesterday
+    
+    # Calculate when the last grant was supposed to happen
+    if last_grant_hour > current_hour:
+        # Last grant was yesterday
+        last_grant_time = now.replace(hour=last_grant_hour, minute=0, second=0, microsecond=0) - timedelta(days=1)
+    else:
+        # Last grant was today
+        last_grant_time = now.replace(hour=last_grant_hour, minute=0, second=0, microsecond=0)
+    
+    # Check if within 3 hours of last grant
+    time_since_last_grant = now - last_grant_time
+    three_hours = timedelta(hours=3)
+    
+    if time_since_last_grant <= three_hours:
+        # Check if player hasn't already received this interval's IP
+        if not hasattr(character.db, 'last_ip_login_grant'):
+            character.db.last_ip_login_grant = None
+        
+        # Use date + hour as the key to prevent multiple grants in same interval
+        grant_key = f"{last_grant_time.date()}_{last_grant_hour}"
+        
+        if character.db.last_ip_login_grant != grant_key:
+            # Grant the IP
+            ip_amount = IP_GRANT_MAX  # Use max amount for catch-up
+            current_ip = getattr(character.db, 'ip', 0) or 0
+            character.db.ip = current_ip + ip_amount
+            character.db.last_ip_login_grant = grant_key
+            
+            character.msg(f"|g[+{ip_amount} IP]|n Welcome back! Catch-up Investment Points for {last_grant_time.strftime('%H:%M')} interval. Total: |y{character.db.ip}|n IP")
+            
+            # Log to Splattercast
+            try:
+                splattercast = ChannelDB.objects.get_channel("Splattercast")
+                if splattercast:
+                    splattercast.msg(f"IP_LOGIN_GRANT: {character.key} received {ip_amount} IP catch-up grant")
+            except Exception:
+                pass
+            
+            return True
+    
+    return False

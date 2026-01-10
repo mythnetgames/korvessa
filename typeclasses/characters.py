@@ -20,10 +20,20 @@ class Character(ObjectParent, DefaultCharacter):
     def at_post_login(self, session=None, **kwargs):
         """
         Called every time a player logs in. Force mapper enabled for continuity and show map immediately.
+        Also checks if player is within 3 hours of an IP grant tick and grants missed IP if applicable.
         """
         if self.account and hasattr(self.account, 'db'):
             self.account.db.mapper_enabled = True
         self.ndb.mapper_enabled = True
+        
+        # Check for missed IP grant from login catch-up
+        try:
+            from scripts.ip_grant_script import grant_missed_ip_on_login
+            grant_missed_ip_on_login(self)
+        except Exception as e:
+            # Silently fail if IP grant system not ready
+            pass
+        
         # Show map and room description immediately
         from commands.mapper import CmdMap
         cmd = CmdMap()
