@@ -95,7 +95,7 @@ class RecipeDesignMenu(EvMenu):
 
 def _recipe_data(caller):
     """Get or initialize recipe data from caller's ndb."""
-    if not hasattr(caller.ndb, '_recipe_design'):
+    if not hasattr(caller.ndb, '_recipe_design') or caller.ndb._recipe_design is None:
         caller.ndb._recipe_design = {
             "name": "",
             "is_food": True,
