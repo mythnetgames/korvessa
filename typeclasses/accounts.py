@@ -61,24 +61,39 @@ class Account(DefaultAccount):
                 return True
         return False
 
+    def _is_death_choice_pending(self):
+        """Check if this account is waiting for a death choice."""
+        return getattr(self.ndb, '_death_choice_pending', False)
+
     def at_look(self, target=None, session=None, **kwargs):
         """
         Called when this object performs a look.
-        Block OOC menu during clone awakening.
+        Block OOC menu during clone awakening or death choice.
         """
-        if self._is_clone_awakening_locked():
-            # Return empty string - don't show OOC menu during awakening
+        if self._is_clone_awakening_locked() or self._is_death_choice_pending():
+            # Return empty string - don't show OOC menu during awakening/choice
             return ""
         return super().at_look(target=target, session=session, **kwargs)
 
     def execute_cmd(self, raw_string, session=None, **kwargs):
         """
         Called when the account tries to execute a command.
-        Block ALL commands during clone awakening.
+        Block most commands during clone awakening, allow CLONE/DIE during choice.
         """
+        # During death choice, allow clone/die commands through
+        if self._is_death_choice_pending():
+            cmd = raw_string.strip().lower()
+            if cmd in ("clone", "die"):
+                return super().execute_cmd(raw_string, session=session, **kwargs)
+            else:
+                self.msg("|WType |cCLONE|W or |rDIE|W to make your choice.|n")
+                return
+        
+        # During awakening cutscene, block all commands
         if self._is_clone_awakening_locked():
             self.msg("|xYour motor functions have not yet been restored...|n")
             return
+        
         return super().execute_cmd(raw_string, session=session, **kwargs)
 
     def msg(self, text=None, from_obj=None, session=None, options=None, **kwargs):
