@@ -52,6 +52,9 @@ LOCKDOWN_MODE = False
 # Allow new account registration via the website and the `create` command
 # (October 18, 2025: Enabled for Cloudflare Turnstile integration testing)
 NEW_ACCOUNT_REGISTRATION_ENABLED = True
+#Time Zone
+TIME_ZONE = "CST"
+USE_TZ = True
 # Activate telnet service
 TELNET_ENABLED = True
 # A list of ports the Evennia telnet server listens on Can be one or many.
@@ -140,9 +143,6 @@ IDLE_TIMEOUT = 86400
 # Prevents phantom sessions from disconnects
 SESSION_DISCONNECT_TIMEOUT = 5  # 5 seconds to detect disconnect
 
-
-#Time Zone
-TIME_ZONE = "CST"
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.
