@@ -358,7 +358,6 @@ def _play_clone_awakening(account, old_character, session, backup_data):
 def _create_restored_clone(account, old_character, session, backup_data):
     """Create the actual restored clone character."""
     from typeclasses.cloning_pod import restore_from_clone
-    from commands.charcreate import build_name_from_death_count
     from evennia import search_object
     
     try:
@@ -370,17 +369,16 @@ def _create_restored_clone(account, old_character, session, backup_data):
             from commands.charcreate import get_start_location
             start_location = get_start_location()
         
-        # Build name with Roman numeral
-        account.ndb._clone_awakening_locked = True
-        if session:
-            session.ndb._clone_awakening_locked = True
+        # Use base_name directly - NO Roman numerals (death count is private meta info)
+        char_name = backup_data.get('base_name', old_character.key)
+        
         # Remove old character from account (MAX_NR_CHARACTERS=1)
         if old_character in account.characters:
             account.characters.remove(old_character)
         
-        # Create new character
+        # Create new character with same name
         char, errors = account.create_character(
-            key=new_name,
+            key=char_name,
             location=start_location,
             home=start_location,
             typeclass="typeclasses.characters.Character"
@@ -392,12 +390,11 @@ def _create_restored_clone(account, old_character, session, backup_data):
         # Restore from backup (stats, skills, appearance)
         restore_from_clone(char, backup_data)
         
-        # Unlock commands - the awakening sequence is complete
+        # Unlock commands and OOC menu - awakening sequence is complete
         if hasattr(account.ndb, '_clone_awakening_locked'):
             del account.ndb._clone_awakening_locked
-            # Unlock commands and OOC menu - awakening sequence is complete
-            if hasattr(account.ndb, '_clone_awakening_locked'):
-                del account.ndb._clone_awakening_locked
+        if session and hasattr(session.ndb, '_clone_awakening_locked'):
+            del session.ndb._clone_awakening_locked
         
         # Note: Chrome and inventory are NOT restored - they were lost
         account.msg("|y[Note: Cybernetic implants and inventory were not backed up.|n")
@@ -420,7 +417,7 @@ def _create_restored_clone(account, old_character, session, backup_data):
                 exclude=[char]
             )
         
-        _log(f"CLONE_RESTORE: {new_name} restored from backup for {account.key}")
+        _log(f"CLONE_RESTORE: {char_name} restored from backup for {account.key}")
         
     except Exception as e:
         _log(f"CLONE_RESTORE_ERROR: {e}")

@@ -115,7 +115,7 @@ def create_clone_backup(character):
         
         # Appearance
         'desc': getattr(character.db, 'desc', ''),
-        'nakeds': dict(getattr(character, 'nakeds', {}) or {}),
+        'nakeds': dict(getattr(character.db, 'nakeds', {}) or {}),
         'skintone': getattr(character.db, 'skintone', None),
         'sex': getattr(character, 'sex', 'ambiguous'),
         
@@ -175,7 +175,7 @@ def restore_from_clone(new_character, backup_data):
     
     # Restore appearance
     new_character.db.desc = backup_data.get('desc', '')
-    new_character.nakeds = dict(backup_data.get('nakeds', {}))
+    new_character.db.nakeds = dict(backup_data.get('nakeds', {}))
     new_character.db.skintone = backup_data.get('skintone')
     new_character.sex = backup_data.get('sex', 'ambiguous')
     
