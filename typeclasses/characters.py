@@ -1106,6 +1106,16 @@ class Character(ObjectParent, DefaultCharacter):
         # Set account's last_character for respawn flow
         if self.account:
             self.account.db.last_character = self
+            
+            # CRITICAL: Remove character from account's character list
+            # This allows a new character to be created (MAX_NR_CHARACTERS=1)
+            if self in self.account.characters:
+                self.account.characters.remove(self)
+                try:
+                    splattercast = ChannelDB.objects.get_channel("Splattercast")
+                    splattercast.msg(f"ARCHIVE: Removed {self.key} from {self.account.key}'s character list")
+                except:
+                    pass
         
         # Increment death_count for proper Roman numeral naming on respawn
         # (This ensures "Jorge Jackson" -> "Jorge Jackson II" etc.)
