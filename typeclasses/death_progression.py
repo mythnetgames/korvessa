@@ -243,46 +243,11 @@ def _show_death_choice_menu(account, session, has_backup):
     account.msg("|WType |cCLONE|W or |rDIE|W to make your choice.|n")
     account.msg("")
     
-    # Add the death choice command set
-    from evennia import CmdSet
-    from evennia import Command
-    
-    class CmdDeathClone(Command):
-        """Choose to clone."""
-        key = "clone"
-        locks = "cmd:all()"
-        
-        def func(self):
-            account = self.caller
-            _process_death_choice(account, "clone")
-    
-    class CmdDeathDie(Command):
-        """Choose to die."""
-        key = "die"
-        locks = "cmd:all()"
-        
-        def func(self):
-            account = self.caller
-            _process_death_choice(account, "die")
-    
-    class DeathChoiceCmdSet(CmdSet):
-        key = "death_choice"
-        priority = 200
-        mergetype = "Replace"
-        
-        def at_cmdset_creation(self):
-            self.add(CmdDeathClone())
-            self.add(CmdDeathDie())
-    
-    # Add the command set
-    account.cmdset.add(DeathChoiceCmdSet)
+    # Commands are handled directly in Account.execute_cmd() - no cmdset needed
 
 
 def _process_death_choice(account, choice):
     """Process the player's death choice."""
-    # Remove the choice command set
-    account.cmdset.remove("death_choice")
-    
     # Get stored state
     character = getattr(account.ndb, '_death_choice_character', None)
     backup_data = getattr(account.ndb, '_death_choice_backup_data', None)
@@ -838,13 +803,50 @@ def _begin_character_creation(account, old_character, session):
 def cancel_death_progression(character):
     """
     Cancel death progression (e.g., if character is revived).
+    Clears ALL death-related flags on the character and their account.
     """
     if not character:
         return
     
-    if getattr(character.ndb, '_death_progression_active', False):
-        character.ndb._death_progression_active = False
-        _log(f"DEATH_PROG: Cancelled for {character.key}")
+    _log(f"DEATH_PROG: Cancelling death progression for {character.key}")
+    
+    # Clear character flags
+    if hasattr(character.ndb, '_death_progression_active'):
+        del character.ndb._death_progression_active
+    if hasattr(character.ndb, '_death_curtain_active'):
+        del character.ndb._death_curtain_active
+    if hasattr(character.ndb, '_death_progression_start'):
+        del character.ndb._death_progression_start
+    
+    # Clear account flags if account exists
+    account = character.account
+    if account:
+        # Clear awakening lock
+        if hasattr(account.ndb, '_clone_awakening_locked'):
+            del account.ndb._clone_awakening_locked
+        
+        # Clear death choice state
+        if hasattr(account.ndb, '_death_choice_pending'):
+            del account.ndb._death_choice_pending
+        if hasattr(account.ndb, '_death_choice_character'):
+            del account.ndb._death_choice_character
+        if hasattr(account.ndb, '_death_choice_backup_data'):
+            del account.ndb._death_choice_backup_data
+        if hasattr(account.ndb, '_death_choice_has_backup'):
+            del account.ndb._death_choice_has_backup
+        
+        # Clear session flags
+        for session in account.sessions.all():
+            if hasattr(session.ndb, '_clone_awakening_locked'):
+                del session.ndb._clone_awakening_locked
+        
+        # Remove the death choice cmdset if it exists
+        try:
+            account.cmdset.remove("death_choice")
+        except Exception:
+            pass
+    
+    _log(f"DEATH_PROG: Cancelled all death state for {character.key}")
 
 
 def get_death_progression_status(character):

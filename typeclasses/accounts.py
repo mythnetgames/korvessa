@@ -80,11 +80,17 @@ class Account(DefaultAccount):
         Called when the account tries to execute a command.
         Block most commands during clone awakening, allow CLONE/DIE during choice.
         """
-        # During death choice, allow clone/die commands through
+        # During death choice, handle clone/die commands directly
         if self._is_death_choice_pending():
             cmd = raw_string.strip().lower()
-            if cmd in ("clone", "die"):
-                return super().execute_cmd(raw_string, session=session, **kwargs)
+            if cmd == "clone":
+                from typeclasses.death_progression import _process_death_choice
+                _process_death_choice(self, "clone")
+                return
+            elif cmd == "die":
+                from typeclasses.death_progression import _process_death_choice
+                _process_death_choice(self, "die")
+                return
             else:
                 self.msg("|WType |cCLONE|W or |rDIE|W to make your choice.|n")
                 return
