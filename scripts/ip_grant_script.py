@@ -25,7 +25,7 @@ from random import randint
 
 
 # IP grant amounts
-IP_GRANT_MIN = 3
+IP_GRANT_MIN = 5
 IP_GRANT_MAX = 5
 
 # Target hours for IP grants (24-hour format)
