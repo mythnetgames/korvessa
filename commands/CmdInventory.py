@@ -180,10 +180,20 @@ class CmdInventory(Command):
     Usage:
       inventory
       inv
+      
+    Shows items organized by category: Weapons, Clothing, Medical, 
+    Consumables, Containers, and Misc.
     """
 
     key = "inventory"
     aliases = ["inv", "i"]
+    
+    # Number words for stacking display
+    NUMBER_WORDS = {
+        1: "a", 2: "two", 3: "three", 4: "four", 5: "five",
+        6: "six", 7: "seven", 8: "eight", 9: "nine", 10: "ten",
+        11: "eleven", 12: "twelve"
+    }
 
     def func(self):
         caller = self.caller
@@ -193,91 +203,292 @@ class CmdInventory(Command):
         # Get worn items
         worn_items = caller.get_worn_items() if hasattr(caller, 'get_worn_items') else []
 
-        held_items = set(item for item in hands.values() if item)
+        # Build set of wielded items for reference
+        wielded_items = {item for item in hands.values() if item}
         worn_items_set = set(worn_items)
-        inventory_items = [obj for obj in items if obj not in held_items and obj not in worn_items_set]
+        
+        # All items (including worn for categorization purposes)
+        all_items = list(items)
 
-        if not inventory_items and all(v is None for v in hands.values()) and not worn_items:
-            caller.msg("You aren't carrying, holding, or wearing anything.")
+        if not all_items and not worn_items:
+            caller.msg("You aren't carrying or wearing anything.")
             return
 
         lines = []
 
-        # Worn items (with style states)
-        if worn_items:
-            lines.append("|wWearing:|n")
-            
-            # Show worn items with style states
-            for item in worn_items:
-                item_name = item.get_display_name(caller)
-                style_states = self._get_style_state_display(item)
-                if style_states:
-                    lines.append(f"  {item_name} ({style_states})")
-                else:
-                    lines.append(f"  {item_name}")
-            lines.append("")
-
-        # Carried (not wielded or worn)
-        if inventory_items:
-            lines.append("|wCarrying:|n")
-            
-            # Consolidate identical items and count them
-            item_counts = {}
-            for obj in inventory_items:
-                item_name = obj.get_display_name(caller)
-                if item_name in item_counts:
-                    item_counts[item_name] += 1
-                else:
-                    item_counts[item_name] = 1
-            
-            # Display items with counts
-            for item_name, count in item_counts.items():
-                if count > 1:
-                    lines.append(f"  {item_name} ({count})")
-                else:
-                    lines.append(f"  {item_name}")
-            lines.append("")
-
-        # Held (in hands)
-        lines.append("|wHeld:|n")
-        for hand, item in hands.items():
-            if item:
-                lines.append(f"A {item.get_display_name(caller)} is held in your {hand.lower()} hand.")
-            else:
-                lines.append(f"Nothing is in your {hand.lower()} hand.")
+        # Categorize all items (including wielded and worn)
+        categories = self._categorize_items(all_items)
+        
+        # Add worn items to Clothing category if not already there
+        for worn_item in worn_items:
+            if worn_item not in all_items:
+                # Item is worn but not in contents (shouldn't happen, but be safe)
+                categories["Clothing"].append(worn_item)
+        
+        # Display each category in order
+        category_order = ["Weapons", "Clothing", "Medical", "Consumables", "Containers", "Misc"]
+        
+        for category_name in category_order:
+            category_items = categories.get(category_name, [])
+            if category_items:
+                lines.append(f"|c{category_name}:|n")
+                
+                # Group items by base name for stacking
+                # Items with special status (wielded/worn) are shown separately
+                stacks = {}  # key: base_name, value: {"items": [], "wielded": [], "worn": []}
+                
+                for obj in category_items:
+                    base_name = obj.key  # Use the key for grouping
+                    is_wielded = obj in wielded_items
+                    is_worn = obj in worn_items_set
+                    
+                    if base_name not in stacks:
+                        stacks[base_name] = {"items": [], "wielded": [], "worn": [], "display_name": obj.get_display_name(caller)}
+                    
+                    if is_wielded:
+                        stacks[base_name]["wielded"].append(obj)
+                    elif is_worn:
+                        stacks[base_name]["worn"].append(obj)
+                    else:
+                        stacks[base_name]["items"].append(obj)
+                
+                # Display each stack
+                for base_name, data in stacks.items():
+                    display_name = data["display_name"]
+                    
+                    # Show wielded items individually
+                    for obj in data["wielded"]:
+                        lines.append(f"  {display_name} |y(wielded)|n")
+                    
+                    # Show worn items individually
+                    for obj in data["worn"]:
+                        lines.append(f"  {display_name} |y(worn)|n")
+                    
+                    # Stack regular items
+                    count = len(data["items"])
+                    if count > 0:
+                        if count == 1:
+                            lines.append(f"  {display_name}")
+                        else:
+                            # Use number words for small counts
+                            count_str = self.NUMBER_WORDS.get(count, str(count))
+                            # Pluralize if needed - simple approach
+                            plural_name = self._pluralize(display_name, count)
+                            lines.append(f"  {count_str} {plural_name}")
 
         caller.msg("\n".join(lines))
     
-    def _get_style_state_display(self, item):
-        """Get display string for non-default style states"""
-        if not hasattr(item, 'style_properties') or not item.style_properties:
-            return ""
+    def _pluralize(self, name, count):
+        """Simple pluralization for item names."""
+        if count <= 1:
+            return name
         
-        if not hasattr(item, 'style_configs') or not item.style_configs:
-            return ""
+        # Remove leading article if present
+        name_lower = name.lower()
+        for article in ["a ", "an ", "the "]:
+            if name_lower.startswith(article):
+                name = name[len(article):]
+                break
         
-        # Collect non-default style states by comparing to item's style_configs
-        non_default_states = []
-        for property_name, current_state in item.style_properties.items():
-            if property_name in item.style_configs:
-                # Find what the default state should be for this property
-                # by looking for the state with empty coverage_mod and desc_mod
-                default_state = None
-                for state_name, config in item.style_configs[property_name].items():
-                    if (config.get("coverage_mod", []) == [] and 
-                        config.get("desc_mod", "") == ""):
-                        default_state = state_name
-                        break
-                
-                # If we found a default state and current state is different, show it
-                if default_state and current_state != default_state:
-                    if property_name == "adjustable" and current_state == "rolled":
-                        non_default_states.append("rolled up")
-                    elif property_name == "closure" and current_state == "unzipped":
-                        non_default_states.append("unzipped")
-                    # Add other non-default states as needed
+        # Simple pluralization rules
+        if name.endswith("s") or name.endswith("x") or name.endswith("ch") or name.endswith("sh"):
+            return name + "es"
+        elif name.endswith("y") and len(name) > 1 and name[-2] not in "aeiou":
+            return name[:-1] + "ies"
+        else:
+            return name + "s"
+    
+    def _categorize_items(self, items):
+        """
+        Categorize items into their respective inventory categories.
         
-        return ", ".join(non_default_states)
+        Categories:
+        - Weapons: Has weapon_type, is_ranged, damage_bonus, or is_explosive
+        - Clothing: Has coverage and worn_desc (wearable items)
+        - Medical: Has medical_item tag, is_chrome, or is_medical_item attribute
+        - Consumables: Has is_food_item, is_ingredients, or consumable-related attributes
+        - Containers: Has contents that can hold things (not player inventory)
+        - Misc: Everything else
+        """
+        categories = {
+            "Weapons": [],
+            "Clothing": [],
+            "Medical": [],
+            "Consumables": [],
+            "Containers": [],
+            "Misc": []
+        }
+        
+        for obj in items:
+            category = self._get_item_category(obj)
+            categories[category].append(obj)
+        
+        return categories
+    
+    def _get_item_category(self, obj):
+        """
+        Determine the category for a single item.
+        Also applies appropriate tags if missing.
+        """
+        # Check for Weapons
+        if self._is_weapon(obj):
+            self._ensure_tag(obj, "weapon", "item_category")
+            return "Weapons"
+        
+        # Check for Medical (including chrome) - check BEFORE clothing
+        if self._is_medical(obj):
+            self._ensure_tag(obj, "medical", "item_category")
+            return "Medical"
+        
+        # Check for Consumables (including ingredients and food)
+        if self._is_consumable(obj):
+            self._ensure_tag(obj, "consumable", "item_category")
+            return "Consumables"
+        
+        # Check for Containers
+        if self._is_container(obj):
+            self._ensure_tag(obj, "container", "item_category")
+            return "Containers"
+        
+        # Check for Clothing - check AFTER medical so chrome isn't caught
+        if self._is_clothing(obj):
+            self._ensure_tag(obj, "clothing", "item_category")
+            return "Clothing"
+        
+        # Check for tailoring materials -> Misc
+        if self._is_tailoring_material(obj):
+            self._ensure_tag(obj, "material", "item_category")
+            return "Misc"
+        
+        # Default to Misc
+        self._ensure_tag(obj, "misc", "item_category")
+        return "Misc"
+    
+    def _is_weapon(self, obj):
+        """Check if item is a weapon."""
+        # Has weapon_type attribute
+        if hasattr(obj, 'db') and getattr(obj.db, 'weapon_type', None):
+            return True
+        # Has damage_bonus
+        if hasattr(obj, 'db') and getattr(obj.db, 'damage_bonus', 0) > 0:
+            return True
+        # Has is_ranged
+        if hasattr(obj, 'db') and getattr(obj.db, 'is_ranged', False):
+            return True
+        # Is explosive
+        if hasattr(obj, 'db') and getattr(obj.db, 'is_explosive', False):
+            return True
+        # Has weapon tag
+        if obj.tags.has("weapon", category="item_category"):
+            return True
+        return False
+    
+    def _is_clothing(self, obj):
+        """Check if item is wearable clothing."""
+        # Has coverage and worn_desc (standard clothing check)
+        coverage = getattr(obj, 'coverage', None) or (hasattr(obj, 'db') and getattr(obj.db, 'coverage', None))
+        worn_desc = getattr(obj, 'worn_desc', None) or (hasattr(obj, 'db') and getattr(obj.db, 'worn_desc', None))
+        
+        if coverage and worn_desc:
+            return True
+        
+        # Is wearable method check
+        if hasattr(obj, 'is_wearable') and callable(obj.is_wearable):
+            try:
+                if obj.is_wearable():
+                    return True
+            except:
+                pass
+        
+        # Has clothing tag
+        if obj.tags.has("clothing", category="item_category"):
+            return True
+        
+        return False
+    
+    def _is_medical(self, obj):
+        """Check if item is medical (including chrome/cyberware)."""
+        # Has medical_item tag
+        if obj.tags.has("medical_item", category="item_type"):
+            return True
+        # Is chrome
+        if hasattr(obj, 'db') and getattr(obj.db, 'is_chrome', False):
+            return True
+        # Has is_medical_item attribute
+        if hasattr(obj, 'db') and getattr(obj.db, 'is_medical_item', False):
+            return True
+        # Has chrome tag
+        if obj.tags.has("chrome", category="cyberware"):
+            return True
+        # Has medical tag
+        if obj.tags.has("medical", category="item_category"):
+            return True
+        # Has medical_type attribute
+        if hasattr(obj, 'db') and getattr(obj.db, 'medical_type', None):
+            return True
+        return False
+    
+    def _is_consumable(self, obj):
+        """Check if item is consumable (food, drink, ingredients)."""
+        # Is food item
+        if getattr(obj, 'is_food_item', False):
+            return True
+        # Is ingredients
+        if getattr(obj, 'is_ingredients', False):
+            return True
+        # Has consumable tag
+        if obj.tags.has("consumable", category="item_category"):
+            return True
+        # Check typeclass name
+        typeclass_name = obj.typeclass_path if hasattr(obj, 'typeclass_path') else ""
+        if "FoodItem" in typeclass_name or "Ingredients" in typeclass_name:
+            return True
+        return False
+    
+    def _is_container(self, obj):
+        """Check if item is a container."""
+        # Has is_container attribute
+        if hasattr(obj, 'db') and getattr(obj.db, 'is_container', False):
+            return True
+        # Has container tag
+        if obj.tags.has("container", category="item_category"):
+            return True
+        # Check typeclass name for container types
+        typeclass_name = obj.typeclass_path if hasattr(obj, 'typeclass_path') else ""
+        container_types = ["Container", "Backpack", "Bag", "Pack", "Cooler", "Box", "Crate"]
+        for ctype in container_types:
+            if ctype.lower() in typeclass_name.lower():
+                return True
+        # Check key for common container words
+        key_lower = obj.key.lower()
+        container_keywords = ["cooler", "backpack", "pack", "bag", "satchel", "pouch", 
+                            "box", "crate", "chest", "case", "kit", "package"]
+        for keyword in container_keywords:
+            if keyword in key_lower:
+                return True
+        return False
+    
+    def _is_tailoring_material(self, obj):
+        """Check if item is tailoring/crafting material for clothing."""
+        # Check typeclass
+        typeclass_name = obj.typeclass_path if hasattr(obj, 'typeclass_path') else ""
+        if "FreshMaterial" in typeclass_name or "tailoring" in typeclass_name.lower():
+            return True
+        # Has material-related attributes
+        if hasattr(obj, 'clothing_name') and hasattr(obj, 'is_finalized'):
+            return True
+        # Check key for material keywords
+        key_lower = obj.key.lower()
+        material_keywords = ["cloth", "fabric", "leather", "material", "thread", "needle"]
+        for keyword in material_keywords:
+            if keyword in key_lower:
+                return True
+        return False
+    
+    def _ensure_tag(self, obj, tag_name, category):
+        """Ensure an item has the appropriate category tag."""
+        if not obj.tags.has(tag_name, category=category):
+            obj.tags.add(tag_name, category=category)
 
 from evennia import Command
 
