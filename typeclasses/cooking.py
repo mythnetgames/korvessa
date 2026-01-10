@@ -77,6 +77,7 @@ class FoodItem(ObjectParent, DefaultObject):
         is_food: True if food, False if drink
         recipe_id: ID of the recipe this was created from
         quality_rating: How well it was made (affects messages)
+        consumes_remaining: How many bites/sips left (default 4)
         
         # Display properties
         food_name: Name of the food/drink
@@ -99,6 +100,7 @@ class FoodItem(ObjectParent, DefaultObject):
     is_food = AttributeProperty(True, autocreate=True)  # True = food, False = drink
     recipe_id = AttributeProperty(None, autocreate=True)
     quality_rating = AttributeProperty("average", autocreate=True)  # poor, average, good, excellent
+    consumes_remaining = AttributeProperty(4, autocreate=True)  # 4 bites/sips by default
     
     # Display properties
     food_name = AttributeProperty("", autocreate=True)
@@ -159,6 +161,14 @@ class FoodItem(ObjectParent, DefaultObject):
             "excellent": "This looks like it was crafted by a master chef."
         }
         string += f"\n\n|w{quality_descs.get(self.quality_rating, '')}|n"
+        
+        # Show remaining consumes
+        remaining = self.consumes_remaining
+        action = "bite" if self.is_food else "sip"
+        if remaining > 1:
+            string += f"\n|c{remaining} {action}s remaining.|n"
+        elif remaining == 1:
+            string += f"\n|y1 {action} remaining.|n"
         
         # Consumption hint
         action = "eat" if self.is_food else "drink"

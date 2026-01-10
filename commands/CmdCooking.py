@@ -637,6 +637,9 @@ You will be notified when your recipe is approved or rejected.
             if hasattr(caller.ndb, '_recipe_design'):
                 del caller.ndb._recipe_design
             
+            # Explicitly close the menu
+            if hasattr(caller.ndb, '_evmenu'):
+                caller.ndb._evmenu.close_menu()
             return None  # Exit menu
         
         return "node_main_menu"
@@ -665,6 +668,9 @@ Are you sure you want to quit? Your recipe will not be saved.
             if hasattr(caller.ndb, '_admin_recipe_design'):
                 del caller.ndb._admin_recipe_design
             caller.msg("|yRecipe designer closed without saving.|n")
+            # Explicitly close the menu
+            if hasattr(caller.ndb, '_evmenu'):
+                caller.ndb._evmenu.close_menu()
             return None  # Exit menu
         
         # Check if we're in admin mode to return to the right menu
@@ -750,13 +756,6 @@ class CmdCook(Command):
     
     You must be at a kitchenette and have ingredients to cook.
     Your cooking skill determines the quality of the result.
-    
-    Difficulty scale:
-        0-20:   Novice - simple preparations
-        21-45:  Competent - home cooking
-        46-75:  Seasoned - professional level
-        76-89:  Advanced - high-end restaurant
-        90-100: Mastery - world-class chef
     """
     key = "cook"
     aliases = ["prepare", "make food"]
@@ -978,6 +977,11 @@ class CmdEat(Command):
     
     def consume_item(self, caller, item):
         """Consume the food item."""
+        # Get current consumes remaining
+        consumes = getattr(item, 'consumes_remaining', 1)
+        if consumes is None:
+            consumes = 1
+        
         # Get messages
         msg_self = item.msg_eat_self or f"You eat the {item.key}."
         msg_others = item.msg_eat_others or f"%n eats the {item.key}."
@@ -996,17 +1000,25 @@ class CmdEat(Command):
         else:
             taste_msg = ""
         
-        # Send messages
+        # Send consume messages
         caller.msg(msg_self)
         if taste_msg:
             caller.msg(taste_msg)
-        caller.msg(msg_finish_self)
-        
         caller.location.msg_contents(msg_others, exclude=[caller])
-        caller.location.msg_contents(msg_finish_others, exclude=[caller])
         
-        # Delete the food
-        item.delete()
+        # Decrement consumes
+        consumes -= 1
+        
+        if consumes <= 0:
+            # Finished - show finish messages and delete
+            caller.msg(msg_finish_self)
+            caller.location.msg_contents(msg_finish_others, exclude=[caller])
+            item.delete()
+        else:
+            # Still has bites left
+            item.consumes_remaining = consumes
+            bite_word = "bite" if consumes > 1 else "bite"
+            caller.msg(f"|c({consumes} {bite_word} remaining)|n")
 
 
 class CmdDrink(Command):
@@ -1051,6 +1063,11 @@ class CmdDrink(Command):
     
     def consume_item(self, caller, item):
         """Consume the drink item."""
+        # Get current consumes remaining
+        consumes = getattr(item, 'consumes_remaining', 1)
+        if consumes is None:
+            consumes = 1
+        
         # Get messages
         msg_self = item.msg_eat_self or f"You drink the {item.key}."
         msg_others = item.msg_eat_others or f"%n drinks the {item.key}."
@@ -1069,17 +1086,25 @@ class CmdDrink(Command):
         else:
             taste_msg = ""
         
-        # Send messages
+        # Send consume messages
         caller.msg(msg_self)
         if taste_msg:
             caller.msg(taste_msg)
-        caller.msg(msg_finish_self)
-        
         caller.location.msg_contents(msg_others, exclude=[caller])
-        caller.location.msg_contents(msg_finish_others, exclude=[caller])
         
-        # Delete the drink
-        item.delete()
+        # Decrement consumes
+        consumes -= 1
+        
+        if consumes <= 0:
+            # Finished - show finish messages and delete
+            caller.msg(msg_finish_self)
+            caller.location.msg_contents(msg_finish_others, exclude=[caller])
+            item.delete()
+        else:
+            # Still has sips left
+            item.consumes_remaining = consumes
+            sip_word = "sip" if consumes > 1 else "sip"
+            caller.msg(f"|c({consumes} {sip_word} remaining)|n")
 
 
 class CmdTaste(Command):
@@ -1908,6 +1933,9 @@ This recipe will be immediately available for cooking by all players.
             if hasattr(caller.ndb, '_admin_recipe_design'):
                 del caller.ndb._admin_recipe_design
             
+            # Explicitly close the menu
+            if hasattr(caller.ndb, '_evmenu'):
+                caller.ndb._evmenu.close_menu()
             return None  # Exit menu
         
         return "node_admin_main_menu"
