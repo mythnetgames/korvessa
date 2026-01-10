@@ -252,7 +252,13 @@ class Character(ObjectParent, DefaultCharacter):
         """
         Called before the character moves to a new location.
         Notifies windows that observe the character's current room about departure.
+        Blocks movement if character is in a cloning pod procedure.
         """
+        # Block movement if in cloning pod
+        if getattr(self.ndb, '_movement_locked', False):
+            self.msg("|yYou cannot move during the cloning procedure.|n")
+            return False
+        
         # Notify windows that observe this current room about the character leaving
         if self.location:
             self._notify_window_observers('leave', None)

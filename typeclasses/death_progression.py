@@ -175,6 +175,13 @@ def _complete_death(character):
 def _handle_death_completion(character):
     """Handle corpse creation and character transition to limbo."""
     try:
+        # Check if character has a clone backup
+        from typeclasses.cloning_pod import has_clone_backup, get_clone_backup
+        has_backup = has_clone_backup(character)
+        backup_data = get_clone_backup(character) if has_backup else None
+        
+        _log(f"DEATH_PROG: {character.key} has clone backup: {has_backup}")
+        
         # Create corpse
         corpse = _create_corpse(character)
         
@@ -187,10 +194,16 @@ def _handle_death_completion(character):
         # Move character to limbo
         _move_to_limbo(character)
         
-        # Unpuppet and start character creation
+        # Unpuppet and start character creation/restoration
         if account and session:
             account.unpuppet_object(session)
-            _start_new_character(account, character, session)
+            
+            if has_backup and backup_data:
+                # Has clone backup - restore from it
+                _start_clone_restoration(account, character, session, backup_data)
+            else:
+                # No clone backup - full character creation
+                _start_new_character(account, character, session)
         
         # Archive the character
         if hasattr(character, 'archive_character'):
@@ -248,10 +261,180 @@ def _move_to_limbo(character):
         _log(f"DEATH_PROG_ERROR: Move to limbo failed: {e}")
 
 
+def _start_clone_restoration(account, old_character, session, backup_data):
+    """
+    Restore character from clone backup - the unnerving Matrix-style awakening.
+    
+    This is only called when the character HAS a clone backup.
+    They are pulled from a pod with their backed-up stats/skills/appearance.
+    Chrome and inventory are LOST.
+    """
+    from evennia.utils import delay
+    
+    # Lock commands during the cutscene by setting flag on account
+    account.ndb._clone_awakening_locked = True
+    
+    # Play the unnerving awakening sequence
+    _play_clone_awakening(account, old_character, session, backup_data)
+
+
+def _play_clone_awakening(account, old_character, session, backup_data):
+    """Play the unnerving Matrix-style pod extraction sequence."""
+    from datetime import datetime
+    
+    # Get the backup timestamp for the voice to read
+    backup_timestamp = backup_data.get('timestamp', 0)
+    backup_datetime = datetime.fromtimestamp(backup_timestamp)
+    last_backup_str = backup_datetime.strftime("%B %d, %Y at %H:%M")
+    
+    # Current time for the voice to announce
+    current_datetime = datetime.now()
+    current_time_str = current_datetime.strftime("%B %d, %Y. %H:%M hours")
+    
+    # Clear screen and start the unnerving sequence
+    account.msg("\n" * 5)
+    
+    # Darkness and sensory confusion
+    delay(0.5, account.msg, "|X" + "=" * 70 + "|n")
+    delay(1.0, account.msg, "")
+    delay(1.5, account.msg, "|xYou can't move.|n")
+    delay(2.5, account.msg, "|xYou can't see.|n")
+    delay(3.5, account.msg, "|xYou can't breathe.|n")
+    delay(5.0, account.msg, "")
+    delay(5.5, account.msg, "|xThere is pressure. All around you. Thick. Viscous.|n")
+    delay(7.0, account.msg, "|xYou are suspended in something warm and wet.|n")
+    delay(8.5, account.msg, "")
+    
+    # The drainage
+    delay(9.5, account.msg, "|rA loud THUNK echoes through your skull.|n")
+    delay(11.0, account.msg, "|xThe liquid begins to drain.|n")
+    delay(12.5, account.msg, "|xSlowly at first. Then rushing.|n")
+    delay(14.0, account.msg, "|xYou feel yourself... settling. Heavy.|n")
+    delay(15.5, account.msg, "")
+    
+    # The opening
+    delay(16.5, account.msg, "|xA seam of light. Blinding.|n")
+    delay(18.0, account.msg, "|xGlass parts with a hydraulic hiss.|n")
+    delay(19.5, account.msg, "|xCold air hits wet skin.|n")
+    delay(21.0, account.msg, "")
+    delay(21.5, account.msg, "|xYou fall forward.|n")
+    delay(23.0, account.msg, "|xHands catch you. Mechanical. Precise.|n")
+    delay(24.5, account.msg, "")
+    
+    # The voice
+    delay(26.0, account.msg, "|X" + "-" * 70 + "|n")
+    delay(27.0, account.msg, "")
+    delay(28.0, account.msg, "|c[SYSTEM VOICE - Pleasant, synthetic, wrong]|n")
+    delay(29.5, account.msg, "")
+    delay(30.5, account.msg, f"|W    \"Good morning. The current date and time is:|n")
+    delay(32.0, account.msg, f"|W     {current_time_str}.\"|n")
+    delay(34.0, account.msg, "")
+    delay(35.5, account.msg, f"|W    \"Your last consciousness backup was recorded:|n")
+    delay(37.0, account.msg, f"|W     {last_backup_str}.\"|n")
+    delay(39.0, account.msg, "")
+    delay(40.5, account.msg, "|W    \"Your previous body has been... discontinued.\"|n")
+    delay(42.5, account.msg, "|W    \"This is your new sleeve. Please take a moment.\"|n")
+    delay(44.5, account.msg, "|W    \"Motor functions will normalize shortly.\"|n")
+    delay(46.5, account.msg, "")
+    delay(47.5, account.msg, "|W    \"Welcome back.\"|n")
+    delay(49.0, account.msg, "")
+    delay(50.0, account.msg, "|X" + "-" * 70 + "|n")
+    delay(51.0, account.msg, "")
+    
+    # Coming to
+    delay(52.5, account.msg, "|xYour vision clears.|n")
+    delay(54.0, account.msg, "|xYou are kneeling on cold tile. Naked. Shivering.|n")
+    delay(55.5, account.msg, "|xBiosynthetic amniotic fluid drips from your body.|n")
+    delay(57.0, account.msg, "")
+    delay(58.0, account.msg, "|yThe memories of your death are... |rfragmented|y. Distant.|n")
+    delay(59.5, account.msg, "|yLike something that happened to someone else.|n")
+    delay(61.0, account.msg, "")
+    delay(62.0, account.msg, "|X" + "=" * 70 + "|n")
+    
+    # Actually create the new character after the sequence
+    delay(64.0, _create_restored_clone, account, old_character, session, backup_data)
+
+
+def _create_restored_clone(account, old_character, session, backup_data):
+    """Create the actual restored clone character."""
+    from typeclasses.cloning_pod import restore_from_clone
+    from commands.charcreate import build_name_from_death_count
+    from evennia import search_object
+    
+    try:
+        # Get clone spawn location - room #53 (clone decanting room)
+        try:
+            start_location = search_object("#53")[0]
+        except (IndexError, AttributeError):
+            # Fallback to regular start location
+            from commands.charcreate import get_start_location
+            start_location = get_start_location()
+        
+        # Build name with Roman numeral
+        old_death_count = old_character.death_count or 0
+        base_name = backup_data.get('base_name', old_character.key)
+        new_name = build_name_from_death_count(base_name, old_death_count)
+        
+        # Remove old character from account (MAX_NR_CHARACTERS=1)
+        if old_character in account.characters:
+            account.characters.remove(old_character)
+        
+        # Create new character
+        char, errors = account.create_character(
+            key=new_name,
+            location=start_location,
+            home=start_location,
+            typeclass="typeclasses.characters.Character"
+        )
+        
+        if errors:
+            raise Exception(f"Clone restoration failed: {errors}")
+        
+        # Restore from backup (stats, skills, appearance)
+        restore_from_clone(char, backup_data)
+        
+        # Unlock commands - the awakening sequence is complete
+        if hasattr(account.ndb, '_clone_awakening_locked'):
+            del account.ndb._clone_awakening_locked
+        
+        # Note: Chrome and inventory are NOT restored - they were lost
+        account.msg("|y[Note: Cybernetic implants and inventory were not backed up.|n")
+        account.msg("|y Your belongings remain with your previous body.]|n")
+        account.msg("")
+        
+        # Puppet the new character
+        account.puppet_object(session, char)
+        
+        # Final release message
+        char.msg("|xYou feel control returning to your limbs.|n")
+        char.msg("|xYour fingers twitch. Then curl. Then grip.|n")
+        char.msg("")
+        char.msg("|W\"Motor functions restored. You are free to proceed.\"|n")
+        char.msg("")
+        
+        if char.location:
+            char.location.msg_contents(
+                f"|x{char.key} stirs on the cold tile, biosynthetic fluid pooling beneath them, eyes slowly focusing.|n",
+                exclude=[char]
+            )
+        
+        _log(f"CLONE_RESTORE: {new_name} restored from backup for {account.key}")
+        
+    except Exception as e:
+        _log(f"CLONE_RESTORE_ERROR: {e}")
+        import traceback
+        _log(f"CLONE_RESTORE_TRACE: {traceback.format_exc()}")
+        
+        # Fallback to regular character creation
+        account.msg("|rClone restoration failed. Starting manual character creation.|n")
+        _start_new_character(account, old_character, session)
+
+
 def _start_new_character(account, old_character, session):
-    """Start character creation for the account."""
+    """Start character creation for the account (no clone backup)."""
     account.msg("|r" + "=" * 60 + "|n")
-    account.msg("|rYour character has died and cannot be revived.|n")
+    account.msg("|rYour character has died.|n")
+    account.msg("|rNo consciousness backup was found on file.|n")
     account.msg("|rA corpse has been left behind for investigation.|n")
     account.msg("|r" + "=" * 60 + "|n")
     account.msg("")

@@ -51,6 +51,19 @@ class Account(DefaultAccount):
         # Call the original unpuppet
         super().unpuppet_object(session)
 
+    def at_cmdset_get(self, **kwargs):
+        """
+        Called when cmdsets are being gathered.
+        Check for clone awakening lock.
+        """
+        # During clone awakening, commands are blocked
+        if getattr(self.ndb, '_clone_awakening_locked', False):
+            # Return early - user can't execute commands during awakening
+            self.msg("|xYour motor functions have not yet been restored...|n")
+            return None
+        
+        return super().at_cmdset_get(**kwargs)
+
 
 class Guest(DefaultGuest):
     """

@@ -36,6 +36,76 @@ def validate_name(name):
     return (True, None)
 
 
+def int_to_roman(num):
+    """
+    Convert an integer to a Roman numeral string.
+    
+    Args:
+        num: Integer to convert (1-3999)
+        
+    Returns:
+        str: Roman numeral representation
+    """
+    val = [
+        1000, 900, 500, 400,
+        100, 90, 50, 40,
+        10, 9, 5, 4,
+        1
+    ]
+    syms = [
+        'M', 'CM', 'D', 'CD',
+        'C', 'XC', 'L', 'XL',
+        'X', 'IX', 'V', 'IV',
+        'I'
+    ]
+    roman_num = ''
+    i = 0
+    while num > 0:
+        for _ in range(num // val[i]):
+            roman_num += syms[i]
+            num -= val[i]
+        i += 1
+    return roman_num
+
+
+def build_name_from_death_count(old_name, death_count):
+    """
+    Build a new character name with Roman numeral suffix based on death count.
+    
+    For flash clones, the name gets a Roman numeral indicating incarnation:
+    - death_count=1 → "John Doe II" (first death, second body)
+    - death_count=2 → "John Doe III" (second death, third body)
+    
+    If the old name already has a Roman numeral suffix, it's replaced.
+    
+    Args:
+        old_name: Previous character's name
+        death_count: Number of deaths (used for numeral)
+        
+    Returns:
+        str: New name with Roman numeral suffix
+    """
+    import re
+    
+    # Roman numeral pattern at end of name
+    roman_pattern = r'\s+(M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))$'
+    
+    # Strip any existing Roman numeral from old name
+    base_name = re.sub(roman_pattern, '', old_name, flags=re.IGNORECASE).strip()
+    
+    # death_count represents how many times they've died
+    # Incarnation number is death_count + 1 (original body was incarnation 1)
+    incarnation = death_count + 1
+    
+    # Build new name with Roman numeral
+    if incarnation >= 2:
+        new_name = f"{base_name} {int_to_roman(incarnation)}"
+    else:
+        new_name = base_name
+    
+    return new_name
+
+
 # =============================================================================
 # CUSTOM EV MENU CLASS
 # =============================================================================

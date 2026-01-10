@@ -309,6 +309,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add clothing commands (wear/remove)
         self.add(CmdWear())
         self.add(CmdRemove())
+        # Add clone/backup commands
+        from typeclasses.cloning_pod import CmdCloneStatus, CmdSpawnPod
+        self.add(CmdCloneStatus())
+        self.add(CmdSpawnPod())
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """

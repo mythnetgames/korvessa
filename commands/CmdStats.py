@@ -1,4 +1,6 @@
 from evennia import Command
+import time
+from datetime import datetime
 
 class CmdStats(Command):
     """
@@ -40,6 +42,19 @@ class CmdStats(Command):
             left = left_stats[i]
             right = right_stats[i]
             msg += f"{stat_line(*left):<25}{stat_line(*right):<25}\n"
+        
+        # Clone backup status - shown right below stats
+        clone_backup = getattr(char.db, 'clone_backup', None)
+        if clone_backup:
+            # Has clone backup - show in bright green with timestamp
+            backup_timestamp = clone_backup.get('timestamp', 0)
+            backup_datetime = datetime.fromtimestamp(backup_timestamp)
+            formatted_time = backup_datetime.strftime("%Y-%m-%d %H:%M:%S")
+            msg += f"\n|G[ CLONE BACKUP ACTIVE ]|n |gLast Updated: {formatted_time}|n\n"
+        else:
+            # No clone backup - show warning in bright red
+            msg += f"\n|R[ NO CLONE BACKUP - DEATH IS PERMANENT ]|n\n"
+        
         # Chrome/augmentations section
         msg += "\n|#870000No chrome or augmentations.|n\n"
         # Skill table
