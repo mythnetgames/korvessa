@@ -1503,6 +1503,121 @@ class CmdRejectRecipe(Command):
             caller.msg(f"|rFailed to reject recipe #{recipe_id}.|n")
 
 
+class CmdAdminCreateFood(Command):
+    """
+    Create a food/drink item for shops, stores, and restaurants (admin only).
+    
+    Usage:
+        admincreatefood <name> = <description>
+        admincreatefood <name> = <description> | <taste>
+        admincreatefood <name> = <description> | <taste> | <smell>
+        admincreatefood <name> = <description> | <taste> | <smell> | <type>
+    
+    Type: 'food' (default) or 'drink'
+    
+    This creates consumable food/drink items for shops, stores, and restaurants.
+    They can be purchased and consumed by players but don't have a difficulty rating.
+    
+    Custom Consume Messages:
+    To set custom consume messages, edit the item after creation with:
+        @set <item>/msg_eat_self = "Your custom message"
+        @set <item>/msg_eat_others = "$Your message where $ is the consumer"
+    
+    For Shops:
+    Set the value/price with:
+        @set <item>/value = <number>
+    
+    Examples:
+        admincreatefood burger = A juicy burger | Savory and delicious | Meat aroma
+        admincreatefood wine = A glass of fine wine | Fruity and smooth | Earthy | drink
+        admincreatefood ramen = Steaming hot ramen | Umami-rich | Broth aroma
+    """
+    key = "admincreatefood"
+    aliases = ["createfood", "makefood"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        caller = self.caller
+        
+        if not self.args or '=' not in self.args:
+            caller.msg("Usage: admincreatefood <name> = <description> | <taste> | <smell> | <type>")
+            caller.msg("Type: 'food' (default) or 'drink'")
+            caller.msg("\nExample: admincreatefood burger = A juicy burger | Savory | Meat aroma")
+            return
+        
+        # Parse arguments
+        name_part, desc_part = self.args.split('=', 1)
+        name = name_part.strip()
+        
+        if not name:
+            caller.msg("|rFood name cannot be empty.|n")
+            return
+        
+        # Parse description, taste, smell, and type
+        parts = [p.strip() for p in desc_part.split('|')]
+        description = parts[0] if len(parts) > 0 else ""
+        taste = parts[1] if len(parts) > 1 else ""
+        smell = parts[2] if len(parts) > 2 else ""
+        item_type = parts[3].lower() if len(parts) > 3 else "food"
+        
+        if item_type not in ("food", "drink"):
+            caller.msg("|rType must be 'food' or 'drink'.|n")
+            return
+        
+        is_food = (item_type == "food")
+        action = "eat" if is_food else "drink"
+        
+        # Create the food item
+        try:
+            food = create_object(
+                FoodItem,
+                key=name,
+                location=caller,
+                attributes=[
+                    ("is_food", is_food),
+                    ("food_name", name),
+                    ("food_desc", description),
+                    ("food_taste", taste),
+                    ("food_smell", smell),
+                    ("msg_eat_self", f"You {action} the {name}."),
+                    ("msg_eat_others", f"$You {action} the {name}."),
+                    ("msg_finish_self", f"You finish the {name}."),
+                    ("msg_finish_others", f"$You finish the {name}."),
+                    ("creator_dbref", caller.dbref),
+                    ("creator_name", caller.key),
+                    ("created_at", datetime.now()),
+                    ("is_shop_item", True),
+                ]
+            )
+            
+            caller.msg(f"|g=== Food Item Created ===|n")
+            caller.msg(f"|wName:|n {name}")
+            caller.msg(f"|wType:|n {item_type.capitalize()}")
+            caller.msg(f"|wDescription:|n {description}")
+            if taste:
+                caller.msg(f"|wTaste:|n {taste}")
+            if smell:
+                caller.msg(f"|wSmell:|n {smell}")
+            caller.msg(f"|wCreated by:|n {caller.key}")
+            
+            caller.msg(f"\n|c[To add to a shop]:|n")
+            caller.msg(f"Use your shop system to add this item. Players can now purchase and consume it.")
+            
+            caller.msg(f"\n|c[To customize]:|n")
+            caller.msg(f"@set {food.dbref}/msg_eat_self = Your custom message")
+            caller.msg(f"@set {food.dbref}/msg_eat_others = Custom message with $")
+            caller.msg(f"@set {food.dbref}/value = <price>")
+            
+            caller.location.msg_contents(
+                f"{caller.key} creates {food.get_display_name(caller)}.",
+                exclude=[caller]
+            )
+            
+        except Exception as e:
+            caller.msg(f"|rError creating food: {e}|n")
+
+
 # =============================================================================
 # COMMAND SET CONTAINER
 # =============================================================================
@@ -1524,4 +1639,5 @@ class CookingCmdSet:
             CmdRecipes,
             CmdApproveRecipe,
             CmdRejectRecipe,
+            CmdAdminCreateFood,
         ]
