@@ -330,15 +330,14 @@ class CmdInventory(Command):
         Determine the category for a single item.
         Also applies appropriate tags if missing.
         """
+        # Check for Medical (including chrome) - check BEFORE weapon/clothing
+        if self._is_medical(obj):
+            self._ensure_tag(obj, "medical", "item_category")
+            return "Medical"
         # Check for Weapons
         if self._is_weapon(obj):
             self._ensure_tag(obj, "weapon", "item_category")
             return "Weapons"
-        
-        # Check for Medical (including chrome) - check BEFORE clothing
-        if self._is_medical(obj):
-            self._ensure_tag(obj, "medical", "item_category")
-            return "Medical"
         
         # Check for Consumables (including ingredients and food)
         if self._is_consumable(obj):
