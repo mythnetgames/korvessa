@@ -56,6 +56,7 @@ from commands.debugroomcoords import CmdDebugRoomCoords
 from commands.debugsensors import CmdDebugSensors
 from commands.mapper import CmdMapColor
 from commands.adminkill import CmdAdminKill
+from commands.CmdTogglePickup import CmdTogglePickup
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -336,6 +337,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRecipes())           # Admin: manage recipe queue
         self.add(CmdApproveRecipe())     # Admin: approve recipes
         self.add(CmdRejectRecipe())      # Admin: reject recipes
+        # Add pickup toggle command
+        self.add(CmdTogglePickup())      # Admin: toggle if objects can be picked up
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
