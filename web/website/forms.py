@@ -15,18 +15,18 @@ from evennia.web.website.forms import (
 # Constants for character stat system
 STAT_TOTAL_POINTS = 68  # Total points available for all stats
 STAT_MIN = 1
-STAT_MAX = 10
+STAT_MAX = 100
 
 # Stats with their max values
 STATS = {
-    'smarts': {'max': 10, 'label': 'Smarts', 'help': 'Logic, memory, reasoning'},
-    'body': {'max': 10, 'label': 'Body', 'help': 'Physical strength and health'},
-    'willpower': {'max': 10, 'label': 'Willpower', 'help': 'Mental fortitude and determination'},
-    'dexterity': {'max': 10, 'label': 'Dexterity', 'help': 'Agility and hand coordination'},
-    'edge': {'max': 10, 'label': 'Edge', 'help': 'Luck, cunning, and instinct'},
-    'empathy': {'max': 6, 'label': 'Empathy', 'help': 'Understanding and compassion'},
-    'reflexes': {'max': 10, 'label': 'Reflexes', 'help': 'Speed and reaction time'},
-    'technique': {'max': 10, 'label': 'Technique', 'help': 'Skill and precision'},
+    'smarts': {'max': 100, 'label': 'Smarts', 'help': 'Logic, memory, reasoning (0-100, can exceed with buffs)'},
+    'body': {'max': 100, 'label': 'Body', 'help': 'Physical strength and health (0-100, can exceed with buffs)'},
+    'willpower': {'max': 100, 'label': 'Willpower', 'help': 'Mental fortitude and determination (0-100, can exceed with buffs)'},
+    'dexterity': {'max': 100, 'label': 'Dexterity', 'help': 'Agility and hand coordination (0-100, can exceed with buffs)'},
+    'edge': {'max': 100, 'label': 'Edge', 'help': 'Luck, cunning, and instinct (0-100, can exceed with buffs)'},
+    'empathy': {'max': 100, 'label': 'Empathy', 'help': 'Understanding and compassion (0-100, can exceed with buffs)'},
+    'reflexes': {'max': 100, 'label': 'Reflexes', 'help': 'Speed and reaction time (0-100, can exceed with buffs)'},
+    'technique': {'max': 100, 'label': 'Technique', 'help': 'Skill and precision (0-100, can exceed with buffs)'},
 }
 
 SEX_CHOICES = [
@@ -88,10 +88,10 @@ class CharacterForm(EvenniaCharacterForm):
     # Custom Stats
     smarts = forms.IntegerField(
         min_value=STAT_MIN,
-        max_value=10,
+        max_value=STAT_MAX,
         initial=8,
         label="Smarts",
-        help_text="Logic, memory, reasoning (1-10)",
+        help_text="Logic, memory, reasoning (0-100, can exceed with buffs)",
         widget=forms.NumberInput(attrs={
             'class': 'form-control stat-field',
             'data-stat': 'smarts',
@@ -100,10 +100,10 @@ class CharacterForm(EvenniaCharacterForm):
     
     body = forms.IntegerField(
         min_value=STAT_MIN,
-        max_value=10,
+        max_value=STAT_MAX,
         initial=8,
         label="Body",
-        help_text="Physical strength and health (1-10)",
+        help_text="Physical strength and health (0-100, can exceed with buffs)",
         widget=forms.NumberInput(attrs={
             'class': 'form-control stat-field',
             'data-stat': 'body',
@@ -112,10 +112,10 @@ class CharacterForm(EvenniaCharacterForm):
     
     willpower = forms.IntegerField(
         min_value=STAT_MIN,
-        max_value=10,
+        max_value=STAT_MAX,
         initial=8,
         label="Willpower",
-        help_text="Mental fortitude and determination (1-10)",
+        help_text="Mental fortitude and determination (0-100, can exceed with buffs)",
         widget=forms.NumberInput(attrs={
             'class': 'form-control stat-field',
             'data-stat': 'willpower',
@@ -124,10 +124,10 @@ class CharacterForm(EvenniaCharacterForm):
     
     dexterity = forms.IntegerField(
         min_value=STAT_MIN,
-        max_value=10,
+        max_value=STAT_MAX,
         initial=8,
         label="Dexterity",
-        help_text="Agility and hand coordination (1-10)",
+        help_text="Agility and hand coordination (0-100, can exceed with buffs)",
         widget=forms.NumberInput(attrs={
             'class': 'form-control stat-field',
             'data-stat': 'dexterity',
@@ -136,10 +136,10 @@ class CharacterForm(EvenniaCharacterForm):
     
     edge = forms.IntegerField(
         min_value=STAT_MIN,
-        max_value=10,
+        max_value=STAT_MAX,
         initial=8,
         label="Edge",
-        help_text="Luck, cunning, and instinct (1-10)",
+        help_text="Luck, cunning, and instinct (0-100, can exceed with buffs)",
         widget=forms.NumberInput(attrs={
             'class': 'form-control stat-field',
             'data-stat': 'edge',
@@ -148,10 +148,10 @@ class CharacterForm(EvenniaCharacterForm):
     
     empathy = forms.IntegerField(
         min_value=STAT_MIN,
-        max_value=6,
+        max_value=STAT_MAX,
         initial=4,
         label="Empathy",
-        help_text="Understanding and compassion (1-6)",
+        help_text="Understanding and compassion (0-100, can exceed with buffs)",
         widget=forms.NumberInput(attrs={
             'class': 'form-control stat-field',
             'data-stat': 'empathy',
@@ -160,10 +160,10 @@ class CharacterForm(EvenniaCharacterForm):
     
     reflexes = forms.IntegerField(
         min_value=STAT_MIN,
-        max_value=10,
+        max_value=STAT_MAX,
         initial=8,
         label="Reflexes",
-        help_text="Speed and reaction time (1-10)",
+        help_text="Speed and reaction time (0-100, can exceed with buffs)",
         widget=forms.NumberInput(attrs={
             'class': 'form-control stat-field',
             'data-stat': 'reflexes',
@@ -172,10 +172,10 @@ class CharacterForm(EvenniaCharacterForm):
     
     technique = forms.IntegerField(
         min_value=STAT_MIN,
-        max_value=10,
+        max_value=STAT_MAX,
         initial=8,
         label="Technique",
-        help_text="Skill and precision (1-10)",
+        help_text="Skill and precision (0-100, can exceed with buffs)",
         widget=forms.NumberInput(attrs={
             'class': 'form-control stat-field',
             'data-stat': 'technique',

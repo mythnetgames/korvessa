@@ -314,6 +314,11 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         from typeclasses.cloning_pod import CmdCloneStatus, CmdSpawnPod
         self.add(CmdCloneStatus())
         self.add(CmdSpawnPod())
+        # Add IP (Investment Points) commands
+        from commands.CmdIP import CmdIP, CmdSetSkill, CmdInvest
+        self.add(CmdIP())        # Admin: grant/subtract IP
+        self.add(CmdSetSkill())  # Admin: directly set skills
+        self.add(CmdInvest())    # Player: invest IP into skills
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """

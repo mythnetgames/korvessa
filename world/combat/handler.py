@@ -37,7 +37,9 @@ from .utils import (
     get_weapon_damage, add_combatant, remove_combatant, cleanup_combatant_state,
     cleanup_all_combatants, get_combatant_target, get_combatant_grappling_target,
     get_combatant_grappled_by, get_character_dbref, get_character_by_dbref,
-    resolve_bonus_attack, get_combatants_safe
+    resolve_bonus_attack, get_combatants_safe,
+    # New 0-100 skill system
+    skill_to_bonus, skill_roll, opposed_skill_roll, get_combat_skill_value, combat_roll
 )
 from .grappling import (
     break_grapple, establish_grapple, resolve_grapple_initiate,
@@ -664,10 +666,25 @@ class CombatHandler(DefaultScript):
                 splattercast.msg(f"{char.key} is being grappled by {grappler.key} and automatically attempts to escape.")
                 char.msg(f"|yYou struggle against {grappler.key}'s grip!|n")
                 
-                # Setup an escape attempt
-                escaper_roll = randint(1, max(1, get_numeric_stat(char, "dex", 1)))
-                grappler_roll = randint(1, max(1, get_numeric_stat(grappler, "dex", 1)))
-                splattercast.msg(f"AUTO_ESCAPE_ATTEMPT: {char.key} (DEX roll {escaper_roll}) vs {grappler.key} (DEX roll {grappler_roll}).")
+                # Setup an escape attempt using new 0-100 skill system
+                # Auto-escape uses athletics vs brawling
+                escaper_athletics = getattr(char.db, "athletics", 0) or 0
+                escaper_ref = getattr(char.db, "ref", 1) or 1
+                grappler_brawling = getattr(grappler.db, "brawling", 0) or 0
+                grappler_ref = getattr(grappler.db, "ref", 1) or 1
+                
+                escape_result = combat_roll(
+                    attacker_skill=escaper_athletics,
+                    defender_skill=grappler_brawling,
+                    attacker_stat=escaper_ref,
+                    defender_stat=grappler_ref
+                )
+                escaper_roll = escape_result['attacker_roll']
+                grappler_roll = escape_result['defender_roll']
+                esc_dice, esc_bonus = escape_result['attacker_details']
+                grp_dice, grp_bonus = escape_result['defender_details']
+                
+                splattercast.msg(f"AUTO_ESCAPE_ATTEMPT: {char.key} [athletics:{escaper_athletics}+REF*5:{escaper_ref*5}=d20:{esc_dice}+bonus:{esc_bonus}=roll {escaper_roll}] vs {grappler.key} [brawling:{grappler_brawling}+REF*5:{grappler_ref*5}=d20:{grp_dice}+bonus:{grp_bonus}=roll {grappler_roll}].")
 
                 if escaper_roll > grappler_roll:
                     # Success - clear grapple
@@ -787,15 +804,24 @@ class CombatHandler(DefaultScript):
                                 splattercast.msg(f"GRAPPLE FAIL (PROXIMITY): {char.key} not in proximity with {action_target_char.key}.")
                                 continue
 
-                            # Grapple roll: d10 + REF + Brawling vs d10 + REF + Athletics
+                            # Grapple roll: Using new 0-100 skill system
+                            # Brawling vs Athletics with REF modifier
                             attacker_ref = getattr(char.db, "ref", 1) or 1
                             attacker_brawling = getattr(char.db, "brawling", 0) or 0
                             defender_ref = getattr(action_target_char.db, "ref", 1) or 1
                             defender_athletics = getattr(action_target_char.db, "athletics", 0) or 0
                             
-                            attacker_roll = randint(1, 10) + attacker_ref + attacker_brawling
-                            defender_roll = randint(1, 10) + defender_ref + defender_athletics
-                            splattercast.msg(f"GRAPPLE ATTEMPT: {char.key} [brawling:{attacker_brawling}+REF:{attacker_ref}=roll {attacker_roll}] vs {action_target_char.key} [athletics:{defender_athletics}+REF:{defender_ref}=roll {defender_roll}].")
+                            grapple_result = combat_roll(
+                                attacker_skill=attacker_brawling,
+                                defender_skill=defender_athletics,
+                                attacker_stat=attacker_ref,
+                                defender_stat=defender_ref
+                            )
+                            attacker_roll = grapple_result['attacker_roll']
+                            defender_roll = grapple_result['defender_roll']
+                            atk_dice, atk_bonus = grapple_result['attacker_details']
+                            def_dice, def_bonus = grapple_result['defender_details']
+                            splattercast.msg(f"GRAPPLE ATTEMPT: {char.key} [brawling:{attacker_brawling}+REF*5:{attacker_ref*5}=d20:{atk_dice}+bonus:{atk_bonus}=roll {attacker_roll}] vs {action_target_char.key} [athletics:{defender_athletics}+REF*5:{defender_ref*5}=d20:{def_dice}+bonus:{def_bonus}=roll {defender_roll}].")
 
                             if attacker_roll > defender_roll:
                                 # Store dbrefs for persistence
@@ -836,15 +862,24 @@ class CombatHandler(DefaultScript):
                     elif intent_type == "escape_grapple":
                         grappler = self.get_grappled_by_obj(current_char_combat_entry)
                         if grappler and any(e[DB_CHAR] == grappler for e in combatants_list):
-                            # Escape roll: d10 + REF + Athletics vs d10 + REF + Brawling
+                            # Escape roll: Using new 0-100 skill system
+                            # Athletics vs Brawling with REF modifier
                             escaper_ref = getattr(char.db, "ref", 1) or 1
                             escaper_athletics = getattr(char.db, "athletics", 0) or 0
                             grappler_ref = getattr(grappler.db, "ref", 1) or 1
                             grappler_brawling = getattr(grappler.db, "brawling", 0) or 0
                             
-                            escaper_roll = randint(1, 10) + escaper_ref + escaper_athletics
-                            grappler_roll = randint(1, 10) + grappler_ref + grappler_brawling
-                            splattercast.msg(f"ESCAPE ATTEMPT: {char.key} [athletics:{escaper_athletics}+REF:{escaper_ref}=roll {escaper_roll}] vs {grappler.key} [brawling:{grappler_brawling}+REF:{grappler_ref}=roll {grappler_roll}].")
+                            escape_result = combat_roll(
+                                attacker_skill=escaper_athletics,
+                                defender_skill=grappler_brawling,
+                                attacker_stat=escaper_ref,
+                                defender_stat=grappler_ref
+                            )
+                            escaper_roll = escape_result['attacker_roll']
+                            grappler_roll = escape_result['defender_roll']
+                            esc_dice, esc_bonus = escape_result['attacker_details']
+                            grp_dice, grp_bonus = escape_result['defender_details']
+                            splattercast.msg(f"ESCAPE ATTEMPT: {char.key} [athletics:{escaper_athletics}+REF*5:{escaper_ref*5}=d20:{esc_dice}+bonus:{esc_bonus}=roll {escaper_roll}] vs {grappler.key} [brawling:{grappler_brawling}+REF*5:{grappler_ref*5}=d20:{grp_dice}+bonus:{grp_bonus}=roll {grappler_roll}].")
 
                             if escaper_roll > grappler_roll:
                                 current_char_combat_entry[DB_GRAPPLED_BY_DBREF] = None
@@ -1218,30 +1253,39 @@ class CombatHandler(DefaultScript):
         from world.combat.constants import get_weapon_skill, SKILL_BRAWLING
         weapon_skill_name = get_weapon_skill(weapon_type)
         
-        # Get attacker's weapon skill level (stored as db attribute)
+        # Get attacker's weapon skill level (stored as db attribute, 0-100 scale)
         # Convert skill name to db attribute format (e.g., "blades" -> character.db.blades)
         attacker_weapon_skill = getattr(attacker.db, weapon_skill_name, 0) or 0
         
-        # Get target's dodge skill
+        # Get target's dodge skill (0-100 scale)
         target_dodge_skill = getattr(target.db, "dodge", 0) or 0
         
-        # Get base stats (REF for attack, REF for defense)
+        # Get base stats (REF for attack, REF for defense) - stats are 1-10, scaled to add to skill
         attacker_ref = get_numeric_stat(attacker, "ref", 1)
         target_ref = get_numeric_stat(target, "ref", 1)
         
-        # Attack roll: d10 + REF + Weapon Skill
-        # Defense roll: d10 + REF + Dodge Skill
-        attacker_roll = randint(1, 10) + attacker_ref + attacker_weapon_skill
-        target_roll = randint(1, 10) + target_ref + target_dodge_skill
+        # NEW 0-100 SKILL SYSTEM with exponential scaling
+        # Uses combat_roll() which applies exponential bonus from skills
+        # Stats contribute: each point adds 5 effective skill points
+        roll_result = combat_roll(
+            attacker_skill=attacker_weapon_skill,
+            defender_skill=target_dodge_skill,
+            attacker_stat=attacker_ref,
+            defender_stat=target_ref
+        )
+        attacker_roll = roll_result['attacker_roll']
+        target_roll = roll_result['defender_roll']
+        atk_dice, atk_bonus = roll_result['attacker_details']
+        def_dice, def_bonus = roll_result['defender_details']
         
-        # Check for charge bonus
+        # Check for charge bonus (flat +10 to roll in new system)
         has_attr = hasattr(attacker.ndb, "charge_attack_bonus_active")
         attr_value = getattr(attacker.ndb, "charge_attack_bonus_active", "MISSING")
         splattercast.msg(f"ATTACK_BONUS_DEBUG_DETAILED: {attacker.key} hasattr={has_attr}, value={attr_value}")
         
         if has_attr and getattr(attacker.ndb, "charge_attack_bonus_active", False):
-            attacker_roll += 2
-            splattercast.msg(f"ATTACK_BONUS: {attacker.key} gets +2 charge attack bonus.")
+            attacker_roll += 10  # Charge bonus scaled for 0-100 system
+            splattercast.msg(f"ATTACK_BONUS: {attacker.key} gets +10 charge attack bonus.")
             splattercast.msg(f"ATTACK_BONUS_DEBUG: {attacker.key} had charge_attack_bonus_active set - this should only happen after using the 'charge' command.")
             # Ensure complete attribute removal - delattr might leave None in Evennia ndb
             try:
@@ -1255,11 +1299,15 @@ class CombatHandler(DefaultScript):
         else:
             splattercast.msg(f"ATTACK_BONUS_DEBUG: {attacker.key} does not have charge_attack_bonus_active - no bonus applied.")
         
-        splattercast.msg(f"ATTACK: {attacker.key} [{weapon_skill_name}:{attacker_weapon_skill}+REF:{attacker_ref}=roll {attacker_roll}] vs {target.key} [dodge:{target_dodge_skill}+REF:{target_ref}=roll {target_roll}] with {weapon_name}")
+        splattercast.msg(f"ATTACK: {attacker.key} [{weapon_skill_name}:{attacker_weapon_skill}+REF*5:{attacker_ref*5}=d20:{atk_dice}+bonus:{atk_bonus}=roll {attacker_roll}] vs {target.key} [dodge:{target_dodge_skill}+REF*5:{target_ref*5}=d20:{def_dice}+bonus:{def_bonus}=roll {target_roll}] with {weapon_name}")
         
         if attacker_roll > target_roll:
-            # Hit - calculate damage
-            damage = randint(1, 6)  # Base damage
+            # Hit - calculate damage with skill scaling
+            # Base damage scales with skill: higher skill = more consistent high damage
+            base_damage = randint(1, 6)
+            skill_damage_bonus = int(skill_to_bonus(attacker_weapon_skill) / 10)  # Up to +10 damage at skill 100
+            damage = base_damage + skill_damage_bonus
+            
             if weapon:
                 # Add weapon damage if applicable
                 weapon_damage = get_weapon_damage(weapon, 0)
@@ -1499,24 +1547,27 @@ class CombatHandler(DefaultScript):
             char.msg("|yYou are not in melee with anyone to retreat from.|n")
             return
         
-        # Find the highest opponent athletics + REF for retreat difficulty
-        highest_opponent_roll = 0
+        # Find the highest opponent athletics + REF for retreat difficulty (0-100 system)
+        highest_opponent_skill = 0
         for opponent in opponents:
             opp_ref = getattr(opponent.db, "ref", 1) or 1
             opp_athletics = getattr(opponent.db, "athletics", 0) or 0
-            opp_total = opp_ref + opp_athletics
-            if opp_total > highest_opponent_roll:
-                highest_opponent_roll = opp_total
+            # In new system: skill + (stat * 5)
+            opp_total = opp_athletics + (opp_ref * 5)
+            if opp_total > highest_opponent_skill:
+                highest_opponent_skill = opp_total
         
-        # Make opposed roll: d10 + REF + Athletics vs d10 + highest opponent (REF + Athletics)
+        # Make opposed roll using new 0-100 skill system
         char_ref = getattr(char.db, "ref", 1) or 1
         char_athletics = getattr(char.db, "athletics", 0) or 0
-        char_roll = randint(1, 10) + char_ref + char_athletics
-        opponent_roll = randint(1, 10) + highest_opponent_roll
         
-        splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RETREAT: {char.key} [athletics:{char_athletics}+REF:{char_ref}=roll {char_roll}] vs highest opponent [total:{highest_opponent_roll}=roll {opponent_roll}]")
+        # Use skill_roll for each side
+        char_total, char_dice, char_bonus = skill_roll(char_athletics + (char_ref * 5))
+        opp_total, opp_dice, opp_bonus = skill_roll(highest_opponent_skill)
         
-        if char_roll > opponent_roll:
+        splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RETREAT: {char.key} [athletics:{char_athletics}+REF*5:{char_ref*5}=d20:{char_dice}+bonus:{char_bonus}=roll {char_total}] vs highest opponent [total_skill:{highest_opponent_skill}=d20:{opp_dice}+bonus:{opp_bonus}=roll {opp_total}]")
+        
+        if char_total > opp_total:
             # Success - break proximity with opponents but maintain with grappled victim
             for opponent in opponents:
                 if is_in_proximity(char, opponent):
@@ -1569,15 +1620,24 @@ class CombatHandler(DefaultScript):
                 char.msg(f"|yYou are already in melee proximity with {target.key}.|n")
                 return
             
-            # Make opposed roll for proximity: d10 + REF + Athletics vs d10 + REF + Athletics
+            # Make opposed roll for proximity using new 0-100 skill system
             char_ref = getattr(char.db, "ref", 1) or 1
             char_athletics = getattr(char.db, "athletics", 0) or 0
             target_ref = getattr(target.db, "ref", 1) or 1
             target_athletics = getattr(target.db, "athletics", 0) or 0
-            char_roll = randint(1, 10) + char_ref + char_athletics
-            target_roll = randint(1, 10) + target_ref + target_athletics
             
-            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE: {char.key} [athletics:{char_athletics}+REF:{char_ref}=roll {char_roll}] vs {target.key} [athletics:{target_athletics}+REF:{target_ref}=roll {target_roll}]")
+            advance_result = combat_roll(
+                attacker_skill=char_athletics,
+                defender_skill=target_athletics,
+                attacker_stat=char_ref,
+                defender_stat=target_ref
+            )
+            char_roll = advance_result['attacker_roll']
+            target_roll = advance_result['defender_roll']
+            char_dice, char_bonus = advance_result['attacker_details']
+            tgt_dice, tgt_bonus = advance_result['defender_details']
+            
+            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE: {char.key} [athletics:{char_athletics}+REF*5:{char_ref*5}=d20:{char_dice}+bonus:{char_bonus}=roll {char_roll}] vs {target.key} [athletics:{target_athletics}+REF*5:{target_ref*5}=d20:{tgt_dice}+bonus:{tgt_bonus}=roll {target_roll}]")
             
             if char_roll > target_roll:
                 # Success - establish proximity
@@ -1641,15 +1701,24 @@ class CombatHandler(DefaultScript):
                 char.msg(f"|rYou cannot find a way to {target.key}'s location.|n")
                 return
             
-            # Make opposed roll for movement: d10 + REF + Athletics vs d10 + REF + Athletics
+            # Make opposed roll for movement using new 0-100 skill system
             char_ref = getattr(char.db, "ref", 1) or 1
             char_athletics = getattr(char.db, "athletics", 0) or 0
             target_ref = getattr(target.db, "ref", 1) or 1
             target_athletics = getattr(target.db, "athletics", 0) or 0
-            char_roll = randint(1, 10) + char_ref + char_athletics
-            target_roll = randint(1, 10) + target_ref + target_athletics
             
-            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_MOVE: {char.key} [athletics:{char_athletics}+REF:{char_ref}=roll {char_roll}] vs {target.key} [athletics:{target_athletics}+REF:{target_ref}=roll {target_roll}]")
+            advance_result = combat_roll(
+                attacker_skill=char_athletics,
+                defender_skill=target_athletics,
+                attacker_stat=char_ref,
+                defender_stat=target_ref
+            )
+            char_roll = advance_result['attacker_roll']
+            target_roll = advance_result['defender_roll']
+            char_dice, char_bonus = advance_result['attacker_details']
+            tgt_dice, tgt_bonus = advance_result['defender_details']
+            
+            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_MOVE: {char.key} [athletics:{char_athletics}+REF*5:{char_ref*5}=d20:{char_dice}+bonus:{char_bonus}=roll {char_roll}] vs {target.key} [athletics:{target_athletics}+REF*5:{target_ref*5}=d20:{tgt_dice}+bonus:{tgt_bonus}=roll {target_roll}]")
             
             if char_roll > target_roll:
                 # Success - move to target's room
@@ -1761,20 +1830,30 @@ class CombatHandler(DefaultScript):
         
         # Handle same room vs different room charge
         if target.location == char.location:
-            # Same room charge - use disadvantage on athletics
-            # Charge roll: 2d10 (take lowest) + REF + Athletics vs d10 + REF + Athletics
+            # Same room charge - use disadvantage on athletics with new 0-100 skill system
             char_ref = getattr(char.db, "ref", 1) or 1
             char_athletics = getattr(char.db, "athletics", 0) or 0
             target_ref = getattr(target.db, "ref", 1) or 1
             target_athletics = getattr(target.db, "athletics", 0) or 0
             
-            # Roll with disadvantage: roll 2d10, take lowest, add REF + Athletics
-            roll1 = randint(1, 10)
-            roll2 = randint(1, 10)
-            charge_roll = min(roll1, roll2) + char_ref + char_athletics
-            resist_roll = randint(1, 10) + target_ref + target_athletics
+            # Roll with disadvantage: roll 2d20, take lowest, add exponential skill bonus
+            # Charger's effective skill = athletics + ref*5
+            from .utils import skill_to_bonus, skill_roll
+            charger_effective_skill = char_athletics + (char_ref * 5)
+            defender_effective_skill = target_athletics + (target_ref * 5)
             
-            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE_SAME_ROOM: {char.key} [athletics:{char_athletics}+REF:{char_ref}, disadvantage:{roll1},{roll2}>>roll {charge_roll}] vs {target.key} [athletics:{target_athletics}+REF:{target_ref}=roll {resist_roll}]")
+            roll1 = randint(1, 20)
+            roll2 = randint(1, 20)
+            charger_dice = min(roll1, roll2)  # Disadvantage - take lowest
+            charger_bonus = skill_to_bonus(charger_effective_skill)
+            charge_roll = charger_dice + charger_bonus
+            
+            # Defender rolls normally
+            defender_dice = randint(1, 20)
+            defender_bonus = skill_to_bonus(defender_effective_skill)
+            resist_roll = defender_dice + defender_bonus
+            
+            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE_SAME_ROOM: {char.key} [athletics:{char_athletics}+REF*5:{char_ref*5}, disadvantage:{roll1},{roll2}>>d20:{charger_dice}+bonus:{charger_bonus}=roll {charge_roll}] vs {target.key} [athletics:{target_athletics}+REF*5:{target_ref*5}=d20:{defender_dice}+bonus:{defender_bonus}=roll {resist_roll}]")
             
             if charge_roll > resist_roll:
                 # Success - establish proximity and charge bonus
@@ -1848,18 +1927,29 @@ class CombatHandler(DefaultScript):
             # Check if target has ranged weapon
             target_has_ranged = is_wielding_ranged_weapon(target)
             
-            # Charge uses disadvantage for cross-room: 2d10 (take lowest) + REF + Athletics
+            # Charge uses disadvantage for cross-room with new 0-100 skill system
             char_ref = getattr(char.db, "ref", 1) or 1
             char_athletics = getattr(char.db, "athletics", 0) or 0
             target_ref = getattr(target.db, "ref", 1) or 1
             target_athletics = getattr(target.db, "athletics", 0) or 0
             
-            roll1 = randint(1, 10)
-            roll2 = randint(1, 10)
-            charge_roll = min(roll1, roll2) + char_ref + char_athletics
-            resist_roll = randint(1, 10) + target_ref + target_athletics
+            # Roll with disadvantage: roll 2d20, take lowest, add exponential skill bonus
+            from .utils import skill_to_bonus
+            charger_effective_skill = char_athletics + (char_ref * 5)
+            defender_effective_skill = target_athletics + (target_ref * 5)
             
-            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE_CROSS_ROOM: {char.key} [athletics:{char_athletics}+REF:{char_ref}, disadvantage:{roll1},{roll2}>>roll {charge_roll}] vs {target.key} [athletics:{target_athletics}+REF:{target_ref}=roll {resist_roll}]")
+            roll1 = randint(1, 20)
+            roll2 = randint(1, 20)
+            charger_dice = min(roll1, roll2)  # Disadvantage - take lowest
+            charger_bonus = skill_to_bonus(charger_effective_skill)
+            charge_roll = charger_dice + charger_bonus
+            
+            # Defender rolls normally
+            defender_dice = randint(1, 20)
+            defender_bonus = skill_to_bonus(defender_effective_skill)
+            resist_roll = defender_dice + defender_bonus
+            
+            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE_CROSS_ROOM: {char.key} [athletics:{char_athletics}+REF*5:{char_ref*5}, disadvantage:{roll1},{roll2}>>d20:{charger_dice}+bonus:{charger_bonus}=roll {charge_roll}] vs {target.key} [athletics:{target_athletics}+REF*5:{target_ref*5}=d20:{defender_dice}+bonus:{defender_bonus}=roll {resist_roll}]")
             
             if charge_roll > resist_roll:
                 # Success - move and establish proximity

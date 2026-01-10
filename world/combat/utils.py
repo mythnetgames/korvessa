@@ -6,21 +6,334 @@ Extracted from repeated patterns in the codebase to improve
 maintainability and consistency.
 
 Functions:
-- Dice rolling and stat validation
+- Dice rolling and stat validation (0-100 scale with exponential scaling)
 - Debug logging helpers
 - Character attribute access
 - NDB state management
 - Proximity validation
 - Message formatting
+
+Skill System (0-100 scale with Investment Points):
+- Skills range from 0-100 base, can exceed 100 with buffs
+- Skills are raised by spending IP (Investment Points) earned through gameplay
+- Higher skills provide exponentially better results in rolls
+- Skill progression uses tiered exponential IP costs:
+    - 0-20: Novice (everyday learning)
+    - 21-45: Competent / above average
+    - 46-75: Seasoned professional
+    - 76-89: Very advanced (prodigy-like)
+    - 90-100: Near-perfect mastery, best in the world
 """
 
 from random import randint
+import math
 from evennia.comms.models import ChannelDB
 from .constants import (
     DEFAULT_BODY, DEFAULT_REF, DEFAULT_DEX, DEFAULT_TECH, DEFAULT_SMRT, DEFAULT_WILL, DEFAULT_EDGE, DEFAULT_EMP,
     MIN_DICE_VALUE, SPLATTERCAST_CHANNEL,
     DEBUG_TEMPLATE, NDB_PROXIMITY, COLOR_NORMAL
 )
+
+# ===================================================================
+# SKILL SCALING SYSTEM (0-100, exponential)
+# ===================================================================
+
+# Skill system constants
+SKILL_MIN = 0
+SKILL_MAX = 100  # Base cap, can exceed with buffs
+SKILL_SCALING_EXPONENT = 2.0  # Controls curve steepness for roll bonuses
+
+# ===================================================================
+# IP (Investment Points) SKILL PROGRESSION SYSTEM
+# ===================================================================
+
+# Tier definitions for IP costs: (start_inclusive, end_inclusive, base_cost, growth_rate)
+# The tier used for cost is determined by the CURRENT skill value (before increasing)
+IP_SKILL_TIERS = [
+    (0, 20, 1.0, 1.04),     # Novice - everyday learning
+    (21, 45, 2.0, 1.06),    # Competent - above average
+    (46, 75, 4.0, 1.075),   # Seasoned professional
+    (76, 89, 8.0, 1.09),    # Very advanced - prodigy-like
+    (90, 99, 16.0, 1.12),   # Near-perfect mastery
+]
+
+
+def get_ip_tier(skill_value):
+    """
+    Get the IP cost tier for a given skill value.
+    
+    Args:
+        skill_value (int): Current skill level (0-99)
+        
+    Returns:
+        tuple: (tier_start, tier_end, base_cost, growth_rate)
+        
+    Raises:
+        ValueError: If skill_value is not in any tier
+    """
+    for start, end, base, growth in IP_SKILL_TIERS:
+        if start <= skill_value <= end:
+            return start, end, base, growth
+    raise ValueError(f"Skill value {skill_value} not in any tier")
+
+
+def ip_cost_for_next_point(skill_value):
+    """
+    Calculate the IP cost to raise a skill from skill_value to skill_value+1.
+    
+    Uses tiered exponential growth where each tier has its own base cost
+    and growth rate. The exponent resets at the start of each tier.
+    
+    Args:
+        skill_value (int): Current skill level (0-99 are valid for increasing)
+        
+    Returns:
+        int: IP cost to raise to next level, or 0 if at/above cap
+    """
+    if skill_value < 0 or skill_value >= SKILL_MAX:
+        return 0
+    
+    tier_start, tier_end, base_cost, growth_rate = get_ip_tier(skill_value)
+    
+    # Exponent is position within the tier (resets at tier boundaries)
+    x = skill_value - tier_start
+    
+    # Calculate cost with exponential growth, always round up
+    return math.ceil(base_cost * (growth_rate ** x))
+
+
+def spend_ip_to_raise_skill(skill_value, ip_pool):
+    """
+    Spend IP to raise a skill as high as possible.
+    
+    Automatically stops when IP is insufficient for the next point
+    or when skill reaches the cap.
+    
+    Args:
+        skill_value (int): Current skill level
+        ip_pool (int): Available IP to spend
+        
+    Returns:
+        tuple: (new_skill_value, remaining_ip, total_ip_spent)
+    """
+    total_spent = 0
+    
+    while skill_value < SKILL_MAX:
+        cost = ip_cost_for_next_point(skill_value)
+        if ip_pool < cost:
+            break
+        ip_pool -= cost
+        total_spent += cost
+        skill_value += 1
+    
+    return skill_value, ip_pool, total_spent
+
+
+def total_ip_to_reach(target_skill):
+    """
+    Calculate the total IP required to raise a skill from 0 to target_skill.
+    
+    Args:
+        target_skill (int): Target skill level
+        
+    Returns:
+        int: Total IP cost to reach target from 0
+    """
+    target_skill = max(0, min(SKILL_MAX, target_skill))
+    total = 0
+    
+    for s in range(0, target_skill):
+        total += ip_cost_for_next_point(s)
+    
+    return total
+
+
+def ip_spent_in_skill(current_skill):
+    """
+    Calculate how much IP has been invested in a skill at its current level.
+    
+    Equivalent to total_ip_to_reach(current_skill).
+    
+    Args:
+        current_skill (int): Current skill level
+        
+    Returns:
+        int: Total IP invested to reach current level
+    """
+    return total_ip_to_reach(current_skill)
+
+
+def ip_remaining_to_cap(current_skill):
+    """
+    Calculate how much more IP is needed to reach the skill cap (100).
+    
+    Args:
+        current_skill (int): Current skill level
+        
+    Returns:
+        int: IP needed to go from current to 100
+    """
+    if current_skill >= SKILL_MAX:
+        return 0
+    return total_ip_to_reach(SKILL_MAX) - total_ip_to_reach(current_skill)
+
+
+# ===================================================================
+# SKILL ROLL BONUS SYSTEM (for combat/skill checks)
+# ===================================================================
+
+def skill_to_bonus(skill_value):
+    """
+    Convert a 0-100 skill value to an exponentially scaling bonus for rolls.
+    
+    Uses quadratic scaling where higher skills provide exponentially 
+    better returns in skill checks and combat rolls.
+    
+    Formula: bonus = (skill / 100) ^ exponent * 100
+    
+    Examples at exponent 2.0:
+        Skill 1   -> bonus ~0.01 (1%)
+        Skill 10  -> bonus ~1.0 (1%)
+        Skill 25  -> bonus ~6.25 (6%)
+        Skill 50  -> bonus ~25.0 (25%)
+        Skill 75  -> bonus ~56.25 (56%)
+        Skill 100 -> bonus 100.0 (100%)
+        Skill 120 -> bonus 144.0 (144% - with buffs exceeding cap)
+    
+    Args:
+        skill_value (int/float): Skill level (0-100+, can exceed 100 with buffs)
+        
+    Returns:
+        float: Exponentially scaled bonus value
+    """
+    if skill_value <= 0:
+        return 0.0
+    
+    # Normalize to 0-1 range, then apply exponential scaling
+    normalized = skill_value / SKILL_MAX
+    scaled = math.pow(normalized, SKILL_SCALING_EXPONENT)
+    
+    # Return as a percentage-like bonus (0-100+ range)
+    return scaled * SKILL_MAX
+
+
+def skill_roll(skill_value, base_dice=20):
+    """
+    Make a skill-based roll using the 0-100 exponential scaling system.
+    
+    The roll combines:
+    1. A random d20 base roll (provides variance)
+    2. An exponentially scaled skill bonus
+    
+    Higher skills dramatically increase both minimum and average outcomes.
+    
+    Args:
+        skill_value (int/float): The skill level (0-100+)
+        base_dice (int): Size of the random dice (default d20)
+        
+    Returns:
+        tuple: (total_roll, dice_roll, skill_bonus) for debugging
+    """
+    dice_roll = randint(1, base_dice)
+    skill_bonus = skill_to_bonus(skill_value)
+    
+    # Scale the bonus to be comparable to d20 range
+    # At skill 100, bonus adds up to +20 to the roll
+    scaled_bonus = int(skill_bonus * base_dice / SKILL_MAX)
+    
+    total = dice_roll + scaled_bonus
+    return total, dice_roll, scaled_bonus
+
+
+def opposed_skill_roll(skill1, skill2, base_dice=20):
+    """
+    Perform an opposed skill roll between two skill values.
+    
+    Both sides roll d20 + exponentially scaled skill bonus.
+    Higher skills have dramatically better chances.
+    
+    Args:
+        skill1 (int/float): First combatant's skill (0-100+)
+        skill2 (int/float): Second combatant's skill (0-100+)
+        base_dice (int): Size of random dice (default d20)
+        
+    Returns:
+        tuple: (roll1_total, roll2_total, char1_wins, roll1_details, roll2_details)
+    """
+    total1, dice1, bonus1 = skill_roll(skill1, base_dice)
+    total2, dice2, bonus2 = skill_roll(skill2, base_dice)
+    
+    return total1, total2, total1 > total2, (dice1, bonus1), (dice2, bonus2)
+
+
+def get_combat_skill_value(character, skill_name, stat_name=None):
+    """
+    Get a character's effective combat skill value for the 0-100 system.
+    
+    Combines:
+    1. The character's skill level (e.g., brawling, blades, dodge)
+    2. Optionally adds a relevant stat modifier
+    
+    Args:
+        character: The character object
+        skill_name (str): Name of the skill (e.g., "brawling", "dodge", "athletics")
+        stat_name (str): Optional stat to add as modifier (e.g., "ref", "dex")
+        
+    Returns:
+        int: Combined skill value (can exceed 100 with high stats/buffs)
+    """
+    # Get base skill value (0-100 scale)
+    skill_value = getattr(character.db, skill_name, 0) or 0
+    
+    # Add stat modifier if specified (stats are typically 1-10, scaled up)
+    if stat_name:
+        stat_value = getattr(character, stat_name, 1) or 1
+        # Scale stat contribution: each point of stat adds ~5 effective skill
+        # A stat of 10 adds 50 to the skill roll
+        skill_value += stat_value * 5
+    
+    return max(0, skill_value)
+
+
+def combat_roll(attacker_skill, defender_skill, attacker_stat=0, defender_stat=0):
+    """
+    Perform a full combat roll with exponential skill scaling.
+    
+    This is the primary function for resolving combat actions.
+    
+    Args:
+        attacker_skill (int): Attacker's relevant skill (0-100+)
+        defender_skill (int): Defender's relevant skill (0-100+)
+        attacker_stat (int): Attacker's stat bonus (scaled: stat * 5)
+        defender_stat (int): Defender's stat bonus (scaled: stat * 5)
+        
+    Returns:
+        dict: {
+            'attacker_roll': int,
+            'defender_roll': int,
+            'attacker_wins': bool,
+            'margin': int,  # How much attacker won/lost by
+            'attacker_details': (dice, bonus),
+            'defender_details': (dice, bonus)
+        }
+    """
+    # Combine skills with stat bonuses
+    total_attacker = attacker_skill + (attacker_stat * 5)
+    total_defender = defender_skill + (defender_stat * 5)
+    
+    # Make opposed rolls
+    atk_total, def_total, atk_wins, atk_details, def_details = opposed_skill_roll(
+        total_attacker, total_defender
+    )
+    
+    return {
+        'attacker_roll': atk_total,
+        'defender_roll': def_total,
+        'attacker_wins': atk_wins,
+        'margin': atk_total - def_total,
+        'attacker_details': atk_details,
+        'defender_details': def_details
+    }
 
 
 # ===================================================================
@@ -78,7 +391,10 @@ def get_character_stat(character, stat_name, default=1):
 
 def roll_stat(character, stat_name, default=DEFAULT_BODY):
     """
-    Roll a die based on a character's stat value.
+    Roll a die based on a character's stat value using the new 0-100 skill system.
+    
+    Uses the exponential skill system: stat * 5 gives effective skill (0-50 range for stats 1-10),
+    then applies exponential bonus to d20 roll.
     
     Args:
         character: The character object
@@ -86,15 +402,18 @@ def roll_stat(character, stat_name, default=DEFAULT_BODY):
         default (int): Default stat value if missing
         
     Returns:
-        int: Random value from 1 to stat_value
+        int: d20 roll + exponential bonus based on stat
     """
     stat_value = get_character_stat(character, stat_name, default)
-    return randint(MIN_DICE_VALUE, max(MIN_DICE_VALUE, stat_value))
+    # Convert stat (1-10) to effective skill (5-50)
+    effective_skill = stat_value * 5
+    bonus = skill_to_bonus(effective_skill)
+    return randint(MIN_DICE_VALUE, 20) + bonus
 
 
 def opposed_roll(char1, char2, stat1="body", stat2="body"):
     """
-    Perform an opposed roll between two characters.
+    Perform an opposed roll between two characters using the new 0-100 skill system.
     
     Args:
         char1: First character
@@ -113,48 +432,63 @@ def opposed_roll(char1, char2, stat1="body", stat2="body"):
 
 def roll_with_advantage(stat_value):
     """
-    Roll with advantage: roll twice, take the higher result.
+    Roll with advantage using new 0-100 skill system: roll 2d20, take the higher, add skill bonus.
     
     Args:
-        stat_value (int): The stat value to roll against
+        stat_value (int): The stat value (1-10 scale) or effective skill (0-100)
         
     Returns:
         tuple: (final_roll, roll1, roll2) for debugging
     """
-    roll1 = randint(1, max(1, stat_value))
-    roll2 = randint(1, max(1, stat_value))
-    final_roll = max(roll1, roll2)
+    # Convert stat to effective skill if it's in the 1-10 range
+    effective_skill = stat_value * 5 if stat_value <= 10 else stat_value
+    bonus = skill_to_bonus(effective_skill)
+    
+    roll1 = randint(1, 20)
+    roll2 = randint(1, 20)
+    dice_result = max(roll1, roll2)  # Advantage - take higher
+    final_roll = dice_result + bonus
     return final_roll, roll1, roll2
 
 
 def roll_with_disadvantage(stat_value):
     """
-    Roll with disadvantage: roll twice, take the lower result.
+    Roll with disadvantage using new 0-100 skill system: roll 2d20, take the lower, add skill bonus.
     
     Args:
-        stat_value (int): The stat value to roll against
+        stat_value (int): The stat value (1-10 scale) or effective skill (0-100)
         
     Returns:
         tuple: (final_roll, roll1, roll2) for debugging
     """
-    roll1 = randint(1, max(1, stat_value))
-    roll2 = randint(1, max(1, stat_value))
-    final_roll = min(roll1, roll2)
+    # Convert stat to effective skill if it's in the 1-10 range
+    effective_skill = stat_value * 5 if stat_value <= 10 else stat_value
+    bonus = skill_to_bonus(effective_skill)
+    
+    roll1 = randint(1, 20)
+    roll2 = randint(1, 20)
+    dice_result = min(roll1, roll2)  # Disadvantage - take lower
+    final_roll = dice_result + bonus
     return final_roll, roll1, roll2
 
 
 def standard_roll(stat_value):
     """
-    Standard single roll.
+    Standard single roll using new 0-100 skill system.
     
     Args:
-        stat_value (int): The stat value to roll against
+        stat_value (int): The stat value (1-10 scale) or effective skill (0-100)
         
     Returns:
         tuple: (final_roll, roll, roll) for consistent interface
     """
-    roll = randint(1, max(1, stat_value))
-    return roll, roll, roll
+    # Convert stat to effective skill if it's in the 1-10 range
+    effective_skill = stat_value * 5 if stat_value <= 10 else stat_value
+    bonus = skill_to_bonus(effective_skill)
+    
+    roll = randint(1, 20)
+    final_roll = roll + bonus
+    return final_roll, roll, roll
 
 
 # ===================================================================
@@ -599,12 +933,16 @@ def add_combatant(handler, char, target=None, initial_grappling=None, initial_gr
     
     # Create combat entry
     target_dbref = get_character_dbref(target)
-    # Initiative: d10 + REF stat
+    # Initiative: d20 + REF-based bonus (using new 0-100 skill system)
+    # REF*5 gives effective skill for initiative, then apply exponential bonus
     ref_stat = getattr(char.db, "ref", 1) if hasattr(char, 'db') else 1
     ref_stat = ref_stat if isinstance(ref_stat, (int, float)) else 1
+    initiative_effective_skill = int(ref_stat) * 5  # REF contributes 5 points per level
+    initiative_bonus = skill_to_bonus(initiative_effective_skill)
+    initiative_roll = randint(1, 20) + initiative_bonus
     entry = {
         DB_CHAR: char,
-        "initiative": randint(1, 10) + int(ref_stat),
+        "initiative": initiative_roll,
         DB_TARGET_DBREF: target_dbref,
         DB_GRAPPLING_DBREF: get_character_dbref(initial_grappling),
         DB_GRAPPLED_BY_DBREF: get_character_dbref(initial_grappled_by),
@@ -612,7 +950,7 @@ def add_combatant(handler, char, target=None, initial_grappling=None, initial_gr
         "combat_action": None
     }
     
-    splattercast.msg(f"ADD_COMBATANT_ENTRY: {char.key} -> target_dbref={target_dbref}, initiative={entry['initiative']}")
+    splattercast.msg(f"ADD_COMBATANT_ENTRY: {char.key} -> target_dbref={target_dbref}, initiative={entry['initiative']} (REF:{ref_stat}, skill:{initiative_effective_skill}, bonus:{initiative_bonus})")
     
     combatants.append(entry)
     setattr(handler.db, DB_COMBATANTS, combatants)

@@ -302,9 +302,26 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
     # Grappling inherently allows "rush in" - proximity will be established on success
     # No proximity check needed here since grapple commands handle their own proximity logic
     
-    # Roll for grapple
-    attacker_roll = randint(1, max(1, get_numeric_stat(char, "body", 1)))
-    defender_roll = randint(1, max(1, get_numeric_stat(target, "body", 1)))
+    # Roll for grapple using new 0-100 skill system
+    # Grapple uses brawling skill + body stat
+    from .utils import combat_roll
+    attacker_brawling = getattr(char.db, "brawling", 0) or 0
+    attacker_body = getattr(char.db, "body", 1) or 1
+    defender_athletics = getattr(target.db, "athletics", 0) or 0
+    defender_body = getattr(target.db, "body", 1) or 1
+    
+    grapple_result = combat_roll(
+        attacker_skill=attacker_brawling,
+        defender_skill=defender_athletics,
+        attacker_stat=attacker_body,
+        defender_stat=defender_body
+    )
+    attacker_roll = grapple_result['attacker_roll']
+    defender_roll = grapple_result['defender_roll']
+    att_dice, att_bonus = grapple_result['attacker_details']
+    def_dice, def_bonus = grapple_result['defender_details']
+    
+    splattercast.msg(f"GRAPPLE_INITIATE: {char.key} [brawling:{attacker_brawling}+BODY*5:{attacker_body*5}=d20:{att_dice}+bonus:{att_bonus}=roll {attacker_roll}] vs {target.key} [athletics:{defender_athletics}+BODY*5:{defender_body*5}=d20:{def_dice}+bonus:{def_bonus}=roll {defender_roll}]")
     
     if attacker_roll > defender_roll:
         # Success
@@ -426,11 +443,25 @@ def resolve_grapple_join(char_entry, combatants_list, handler):
         char.msg(f"You need to be in melee proximity with {target.key} to contest the grapple.")
         return
     
-    # Contest: new grappler vs current grappler (both using BODY)
-    new_grappler_roll = randint(1, max(1, get_numeric_stat(char, "body", 1)))
-    current_grappler_roll = randint(1, max(1, get_numeric_stat(current_grappler, "body", 1)))
+    # Contest: new grappler vs current grappler using new 0-100 skill system
+    from .utils import combat_roll
+    new_brawling = getattr(char.db, "brawling", 0) or 0
+    new_body = getattr(char.db, "body", 1) or 1
+    current_brawling = getattr(current_grappler.db, "brawling", 0) or 0
+    current_body = getattr(current_grappler.db, "body", 1) or 1
     
-    splattercast.msg(f"GRAPPLE_CONTEST: {char.key} ({new_grappler_roll}) vs {current_grappler.key} ({current_grappler_roll}) for {target.key}")
+    contest_result = combat_roll(
+        attacker_skill=new_brawling,
+        defender_skill=current_brawling,
+        attacker_stat=new_body,
+        defender_stat=current_body
+    )
+    new_grappler_roll = contest_result['attacker_roll']
+    current_grappler_roll = contest_result['defender_roll']
+    new_dice, new_bonus = contest_result['attacker_details']
+    cur_dice, cur_bonus = contest_result['defender_details']
+    
+    splattercast.msg(f"GRAPPLE_CONTEST: {char.key} [brawling:{new_brawling}+BODY*5:{new_body*5}=d20:{new_dice}+bonus:{new_bonus}=roll {new_grappler_roll}] vs {current_grappler.key} [brawling:{current_brawling}+BODY*5:{current_body*5}=d20:{cur_dice}+bonus:{cur_bonus}=roll {current_grappler_roll}] for {target.key}")
     
     if new_grappler_roll > current_grappler_roll:
         # New grappler wins - they take over the grapple
@@ -535,11 +566,25 @@ def resolve_grapple_takeover(char_entry, combatants_list, handler):
         # For takeover, we allow rush-in behavior like regular grapple initiation
         splattercast.msg(f"GRAPPLE_TAKEOVER_RUSH: {char.key} rushing in to grapple {target.key}")
     
-    # Contest: new grappler vs current grappler (both using BODY)
-    new_grappler_roll = randint(1, max(1, get_numeric_stat(char, "body", 1)))
-    current_grappler_roll = randint(1, max(1, get_numeric_stat(target, "body", 1)))
+    # Contest: new grappler vs current grappler using new 0-100 skill system
+    from .utils import combat_roll
+    new_brawling = getattr(char.db, "brawling", 0) or 0
+    new_body = getattr(char.db, "body", 1) or 1
+    current_brawling = getattr(target.db, "brawling", 0) or 0
+    current_body = getattr(target.db, "body", 1) or 1
     
-    splattercast.msg(f"GRAPPLE_TAKEOVER_CONTEST: {char.key} ({new_grappler_roll}) vs {target.key} ({current_grappler_roll}) - forcing release of {victim.key}")
+    takeover_result = combat_roll(
+        attacker_skill=new_brawling,
+        defender_skill=current_brawling,
+        attacker_stat=new_body,
+        defender_stat=current_body
+    )
+    new_grappler_roll = takeover_result['attacker_roll']
+    current_grappler_roll = takeover_result['defender_roll']
+    new_dice, new_bonus = takeover_result['attacker_details']
+    cur_dice, cur_bonus = takeover_result['defender_details']
+    
+    splattercast.msg(f"GRAPPLE_TAKEOVER_CONTEST: {char.key} [brawling:{new_brawling}+BODY*5:{new_body*5}=d20:{new_dice}+bonus:{new_bonus}=roll {new_grappler_roll}] vs {target.key} [brawling:{current_brawling}+BODY*5:{current_body*5}=d20:{cur_dice}+bonus:{cur_bonus}=roll {current_grappler_roll}] - forcing release of {victim.key}")
     
     if new_grappler_roll > current_grappler_roll:
         # Success: Force target to release victim, then establish new grapple
