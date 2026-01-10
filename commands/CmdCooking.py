@@ -828,11 +828,8 @@ class CmdCook(Command):
         caller.msg("")
         
         for recipe in recipes[:20]:  # Show first 20
-            difficulty = recipe.get("difficulty", 0)
-            diff_color = self.get_difficulty_color(difficulty)
             item_type = "Food" if recipe.get("is_food", True) else "Drink"
-            
-            caller.msg(f"|w#{recipe['id']}|n {recipe['name']} ({item_type}) - Difficulty: {diff_color}{difficulty}|n")
+            caller.msg(f"|w#{recipe['id']}|n {recipe['name']} ({item_type})|n")
         
         if len(recipes) > 20:
             caller.msg(f"|y... and {len(recipes) - 20} more. Use 'cook <keyword>' to narrow search.|n")
@@ -994,16 +991,8 @@ class CmdEat(Command):
         msg_finish_self = substitute_pronouns(msg_finish_self, caller)
         msg_finish_others = substitute_pronouns(msg_finish_others, caller)
         
-        # Show taste
-        if item.food_taste:
-            taste_msg = f"|cTaste:|n {item.food_taste}"
-        else:
-            taste_msg = ""
-        
         # Send consume messages
         caller.msg(msg_self)
-        if taste_msg:
-            caller.msg(taste_msg)
         caller.location.msg_contents(msg_others, exclude=[caller])
         
         # Decrement consumes
@@ -1018,7 +1007,7 @@ class CmdEat(Command):
             # Still has bites left
             item.consumes_remaining = consumes
             bite_word = "bite" if consumes > 1 else "bite"
-            caller.msg(f"|c({consumes} {bite_word} remaining)|n")
+            caller.msg(f"({consumes} {bite_word} remaining)|n")
 
 
 class CmdDrink(Command):
@@ -1080,16 +1069,8 @@ class CmdDrink(Command):
         msg_finish_self = substitute_pronouns(msg_finish_self, caller)
         msg_finish_others = substitute_pronouns(msg_finish_others, caller)
         
-        # Show taste
-        if item.food_taste:
-            taste_msg = f"|cTaste:|n {item.food_taste}"
-        else:
-            taste_msg = ""
-        
         # Send consume messages
         caller.msg(msg_self)
-        if taste_msg:
-            caller.msg(taste_msg)
         caller.location.msg_contents(msg_others, exclude=[caller])
         
         # Decrement consumes
@@ -1355,9 +1336,8 @@ class CmdRecipes(Command):
         for recipe in all_recipes:
             status = recipe.get("status", "unknown")
             status_color = "|g" if status == "approved" else "|y" if status == "pending" else "|r"
-            difficulty = recipe.get("difficulty", "N/A")
             
-            caller.msg(f"|w#{recipe['id']}|n {recipe['name']} - {status_color}{status.upper()}|n - Difficulty: {difficulty}")
+            caller.msg(f"|w#{recipe['id']}|n {recipe['name']} - {status_color}{status.upper()}|n")
     
     def show_recipe_details(self, caller, recipe_id):
         """Show detailed info for a specific recipe."""
@@ -1373,7 +1353,6 @@ class CmdRecipes(Command):
         caller.msg(f"|c=== Recipe #{recipe_id}: {recipe.get('name')} ===|n")
         caller.msg(f"|wStatus:|n {status.upper()}")
         caller.msg(f"|wType:|n {item_type}")
-        caller.msg(f"|wDifficulty:|n {recipe.get('difficulty', 'Not set')}")
         caller.msg(f"|wCreator:|n {recipe.get('creator_name', 'Unknown')}")
         caller.msg(f"|wCreated:|n {recipe.get('created_at', 'Unknown')}")
         caller.msg("")

@@ -166,13 +166,13 @@ class FoodItem(ObjectParent, DefaultObject):
         remaining = self.consumes_remaining
         action = "bite" if self.is_food else "sip"
         if remaining > 1:
-            string += f"\n|c{remaining} {action}s remaining.|n"
+            string += f"\n{remaining} {action}s remaining.|n"
         elif remaining == 1:
             string += f"\n|y1 {action} remaining.|n"
         
         # Consumption hint
         action = "eat" if self.is_food else "drink"
-        string += f"\n\n|cType |w{action} {self.key}|c to consume.|n"
+        string += f"\n\nType |w{action} {self.key} to consume.|n"
         
         return string
 
