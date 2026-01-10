@@ -342,6 +342,25 @@ def _handle_permanent_death_path(account, character, session):
     """Handle the permanent death path (player chose DIE)."""
     from evennia.utils import delay
     
+    # Store the character name in deceased names list BEFORE any deletion
+    # This prevents the name from being reused
+    char_name = character.key if character else None
+    if char_name and account:
+        # Strip any Roman numerals from the name to get base name
+        import re
+        roman_pattern = r'\s+(M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))$'
+        base_name = re.sub(roman_pattern, '', char_name, flags=re.IGNORECASE).strip()
+        
+        # Add to deceased names list
+        if not account.db.deceased_character_names:
+            account.db.deceased_character_names = []
+        if base_name not in account.db.deceased_character_names:
+            account.db.deceased_character_names.append(base_name)
+            _log(f"PERMANENT_DEATH: Added '{base_name}' to deceased names for {account.key}")
+    
+    # Store character reference for deletion after cutscene
+    account.ndb._character_to_delete = character
+    
     # Create corpse first
     corpse = _create_corpse(character)
     
@@ -352,9 +371,10 @@ def _handle_permanent_death_path(account, character, session):
     if session:
         account.unpuppet_object(session)
     
-    # Archive the character
-    if hasattr(character, 'archive_character'):
-        character.archive_character(reason="death_permanent")
+    # Remove character from account's character list (allows new char creation)
+    if character and account and character in account.characters:
+        account.characters.remove(character)
+        _log(f"PERMANENT_DEATH: Removed {character.key} from {account.key}'s character list")
     
     # Lock commands during the death sequence
     account.ndb._clone_awakening_locked = True
