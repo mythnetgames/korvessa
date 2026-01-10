@@ -16,14 +16,14 @@ MESSAGES = {
             "observer_msg": "One flick and the dust lifts off {attacker_name}'s blade. {attacker_name} lifts it higher still."
         },
         {
-            "attacker_msg": "Steel scrapes against stone as you drag your axe forward — a promise of ruin.",
-            "victim_msg": "Steel scrapes against stone as {attacker_name} drags their axe forward — a promise of ruin.",
-            "observer_msg": "Steel scrapes against stone as {attacker_name} drags their axe forward — a promise of ruin."
+            "attacker_msg": "Steel scrapes against stone as you drag your axe forward - a promise of ruin.",
+            "victim_msg": "Steel scrapes against stone as {attacker_name} drags their axe forward - a promise of ruin.",
+            "observer_msg": "Steel scrapes against stone as {attacker_name} drags their axe forward - a promise of ruin."
         },
         {
-            "attacker_msg": "The air seems to bend around the metal of your axe. You don’t notice. Or care.",
-            "victim_msg": "The air seems to bend around the metal of {attacker_name}'s axe. {attacker_name} doesn’t notice. Or care.",
-            "observer_msg": "The air seems to bend around the metal of {attacker_name}'s axe. {attacker_name} doesn’t notice. Or care."
+            "attacker_msg": "The air seems to bend around the metal of your axe. You don't notice. Or care.",
+            "victim_msg": "The air seems to bend around the metal of {attacker_name}'s axe. {attacker_name} doesn't notice. Or care.",
+            "observer_msg": "The air seems to bend around the metal of {attacker_name}'s axe. {attacker_name} doesn't notice. Or care."
         },
         {
             "attacker_msg": "Your axe drags behind you, leaving gouges in the floor and fear in the air.",
@@ -51,19 +51,19 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s axe sings low when it spins. {attacker_name} only hums when it hits."
         },
         {
-            "attacker_msg": "Your battle axe hums low as it moves. Or maybe that’s the air fleeing the moment.",
-            "victim_msg": "{attacker_name}'s battle axe hums low as it moves. Or maybe that’s the air fleeing the moment.",
-            "observer_msg": "{attacker_name}'s battle axe hums low as it moves. Or maybe that’s the air fleeing the moment."
+            "attacker_msg": "Your battle axe hums low as it moves. Or maybe that's the air fleeing the moment.",
+            "victim_msg": "{attacker_name}'s battle axe hums low as it moves. Or maybe that's the air fleeing the moment.",
+            "observer_msg": "{attacker_name}'s battle axe hums low as it moves. Or maybe that's the air fleeing the moment."
         },
         {
-            "attacker_msg": "The edge of your axe is chipped, dulled in places — and still, it gleams like intention.",
-            "victim_msg": "The edge of {attacker_name}'s axe is chipped, dulled in places — and still, it gleams like intention.",
-            "observer_msg": "The edge of {attacker_name}'s axe is chipped, dulled in places — and still, it gleams like intention."
+            "attacker_msg": "The edge of your axe is chipped, dulled in places - and still, it gleams like intention.",
+            "victim_msg": "The edge of {attacker_name}'s axe is chipped, dulled in places - and still, it gleams like intention.",
+            "observer_msg": "The edge of {attacker_name}'s axe is chipped, dulled in places - and still, it gleams like intention."
         },
         {
-            "attacker_msg": "The edge of your axe gleams with neglect. Your grip says it won’t be neglected long.",
-            "victim_msg": "The edge of {attacker_name}'s axe gleams with neglect. Their grip says it won’t be neglected long.",
-            "observer_msg": "The edge of {attacker_name}'s axe gleams with neglect. {attacker_name}'s grip says it won’t be neglected long."
+            "attacker_msg": "The edge of your axe gleams with neglect. Your grip says it won't be neglected long.",
+            "victim_msg": "The edge of {attacker_name}'s axe gleams with neglect. Their grip says it won't be neglected long.",
+            "observer_msg": "The edge of {attacker_name}'s axe gleams with neglect. {attacker_name}'s grip says it won't be neglected long."
         },
         {
             "attacker_msg": "The haft of your axe creaks as you adjust your grip. The blade wants blood.",
@@ -91,9 +91,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s weapon is as tall as a man, and heavier. {attacker_name} lifts it like spite."
         },
         {
-            "attacker_msg": "With a grunt, you rest your axe on one shoulder. The other shoulder’s for later.",
-            "victim_msg": "With a grunt, {attacker_name} rests their axe on one shoulder. The other shoulder’s for later.",
-            "observer_msg": "With a grunt, {attacker_name} rests their axe on one shoulder. The other shoulder’s for later."
+            "attacker_msg": "With a grunt, you rest your axe on one shoulder. The other shoulder's for later.",
+            "victim_msg": "With a grunt, {attacker_name} rests their axe on one shoulder. The other shoulder's for later.",
+            "observer_msg": "With a grunt, {attacker_name} rests their axe on one shoulder. The other shoulder's for later."
         },
         {
             "attacker_msg": "With a slow inhale, you raise your axe. The silence is sharper than the blade.",
@@ -131,9 +131,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} pulls their battle axe from their back with a grunt. It's less a weapon, more a reckoning."
         },
         {
-            "attacker_msg": "You rest your axe against your shoulder. It’s not rest. It’s warning.",
-            "victim_msg": "{attacker_name} rests their axe against their shoulder. It’s not rest. It’s warning.",
-            "observer_msg": "{attacker_name} rests their axe against their shoulder. It’s not rest. It’s warning."
+            "attacker_msg": "You rest your axe against your shoulder. It's not rest. It's warning.",
+            "victim_msg": "{attacker_name} rests their axe against their shoulder. It's not rest. It's warning.",
+            "observer_msg": "{attacker_name} rests their axe against their shoulder. It's not rest. It's warning."
         },
         {
             "attacker_msg": "You shoulder your blade and glare. The rest is muscle and inevitability.",
@@ -163,9 +163,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s brutal upswing lifts {target_name} off their feet. Gravity and pain do the rest."
         },
         {
-            "attacker_msg": "A jab with your shaft, a spin, then blade — it all ends in red for {target_name}.",
-            "victim_msg": "A jab with {attacker_name}'s shaft, a spin, then blade — it all ends in red for you.",
-            "observer_msg": "A jab with {attacker_name}'s shaft, a spin, then blade — it all ends in red for {target_name}."
+            "attacker_msg": "A jab with your shaft, a spin, then blade - it all ends in red for {target_name}.",
+            "victim_msg": "A jab with {attacker_name}'s shaft, a spin, then blade - it all ends in red for you.",
+            "observer_msg": "A jab with {attacker_name}'s shaft, a spin, then blade - it all ends in red for {target_name}."
         },
         {
             "attacker_msg": "Your rising cleave opens {target_name}'s {hit_location} like a door kicked in.",
@@ -183,9 +183,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s short arc takes {target_name}'s {hit_location} sideways. They drop with a horrible sound."
         },
         {
-            "attacker_msg": "Your sideways strike caves {target_name}'s {hit_location}. The scream is long — and last.",
-            "victim_msg": "{attacker_name}'s {hit_location}ways strike caves your {hit_location}. Your scream is long — and last.",
-            "observer_msg": "{attacker_name}'s {hit_location}ways strike caves {target_name}'s {hit_location}. The scream is long — and last."
+            "attacker_msg": "Your sideways strike caves {target_name}'s {hit_location}. The scream is long - and last.",
+            "victim_msg": "{attacker_name}'s {hit_location}ways strike caves your {hit_location}. Your scream is long - and last.",
+            "observer_msg": "{attacker_name}'s {hit_location}ways strike caves {target_name}'s {hit_location}. The scream is long - and last."
         },
         {
             "attacker_msg": "Your one heavy blow cracks {target_name}'s skull. They twitch and fall without dignity.",
@@ -243,9 +243,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s axe lands square on {target_name}'s {hit_location}. They howl and clutch a mangled fist."
         },
         {
-            "attacker_msg": "Your axe lands with a splatter on {target_name}. They are less certain now — of anything.",
-            "victim_msg": "{attacker_name}'s axe lands with a splatter on you. You are less certain now — of anything.",
-            "observer_msg": "{attacker_name}'s axe lands with a splatter on {target_name}. They are less certain now — of anything."
+            "attacker_msg": "Your axe lands with a splatter on {target_name}. They are less certain now - of anything.",
+            "victim_msg": "{attacker_name}'s axe lands with a splatter on you. You are less certain now - of anything.",
+            "observer_msg": "{attacker_name}'s axe lands with a splatter on {target_name}. They are less certain now - of anything."
         },
         {
             "attacker_msg": "Your axe slams down on {target_name}'s {hit_location}. They drop, howling and leaking.",
@@ -268,9 +268,9 @@ MESSAGES = {
             "observer_msg": "The flat of {attacker_name}'s axe smashes {target_name}'s mouth. Teeth scatter. So does confidence."
         },
         {
-            "attacker_msg": "The haft of your axe jabs into {target_name}'s {hit_location}, then the blade follows. It’s brutal punctuation.",
-            "victim_msg": "The haft of {attacker_name}'s axe jabs into your {hit_location}, then the blade follows. It’s brutal punctuation.",
-            "observer_msg": "The haft of {attacker_name}'s axe jabs into {target_name}'s {hit_location}, then the blade follows. It’s brutal punctuation."
+            "attacker_msg": "The haft of your axe jabs into {target_name}'s {hit_location}, then the blade follows. It's brutal punctuation.",
+            "victim_msg": "The haft of {attacker_name}'s axe jabs into your {hit_location}, then the blade follows. It's brutal punctuation.",
+            "observer_msg": "The haft of {attacker_name}'s axe jabs into {target_name}'s {hit_location}, then the blade follows. It's brutal punctuation."
         },
         {
             "attacker_msg": "The {hit_location} of your blade clips {target_name}'s {hit_location}. They reel, red staining their breath.",
@@ -360,9 +360,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s axe bites the ground. Dust chokes the air. {target_name} doesn't bleed."
         },
         {
-            "attacker_msg": "Your axe crashes against shelving. Metal bends, {target_name} doesn’t.",
-            "victim_msg": "{attacker_name}'s axe crashes against shelving. Metal bends, you don’t.",
-            "observer_msg": "{attacker_name}'s axe crashes against shelving. Metal bends, {target_name} doesn’t."
+            "attacker_msg": "Your axe crashes against shelving. Metal bends, {target_name} doesn't.",
+            "victim_msg": "{attacker_name}'s axe crashes against shelving. Metal bends, you don't.",
+            "observer_msg": "{attacker_name}'s axe crashes against shelving. Metal bends, {target_name} doesn't."
         },
         {
             "attacker_msg": "Your axe digs into a pipe. Steam erupts. The moment to strike {target_name} is lost.",
@@ -375,9 +375,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s axe smashes a crate into splinters. None of them are {target_name}'s flesh."
         },
         {
-            "attacker_msg": "Your axe thunders down on empty floor. Dust leaps up, but {target_name} doesn’t.",
-            "victim_msg": "{attacker_name}'s axe thunders down on empty floor. Dust leaps up, but you don’t.",
-            "observer_msg": "{attacker_name}'s axe thunders down on empty floor. Dust leaps up, but {target_name} doesn’t."
+            "attacker_msg": "Your axe thunders down on empty floor. Dust leaps up, but {target_name} doesn't.",
+            "victim_msg": "{attacker_name}'s axe thunders down on empty floor. Dust leaps up, but you don't.",
+            "observer_msg": "{attacker_name}'s axe thunders down on empty floor. Dust leaps up, but {target_name} doesn't."
         },
         {
             "attacker_msg": "The blade of your axe crashes into a support beam. The structure holds. {target_name} is safe, barely.",
@@ -395,9 +395,9 @@ MESSAGES = {
             "observer_msg": "The blade of {attacker_name}'s axe whistles by {target_name}. Air splits. {target_name} survives a second longer."
         },
         {
-            "attacker_msg": "The blade of your axe whistles past {target_name}. They blink — still whole.",
-            "victim_msg": "The blade of {attacker_name}'s axe whistles past you. You blink — still whole.",
-            "observer_msg": "The blade of {attacker_name}'s axe whistles past {target_name}. They blink — still whole."
+            "attacker_msg": "The blade of your axe whistles past {target_name}. They blink - still whole.",
+            "victim_msg": "The blade of {attacker_name}'s axe whistles past you. You blink - still whole.",
+            "observer_msg": "The blade of {attacker_name}'s axe whistles past {target_name}. They blink - still whole."
         },
         {
             "attacker_msg": "The edge of your axe scrapes a wall. Sparks scream in frustration as {target_name} avoids the blow.",
@@ -410,9 +410,9 @@ MESSAGES = {
             "observer_msg": "The floor shakes from {attacker_name}'s missed impact. {target_name} rides that tremor to safety."
         },
         {
-            "attacker_msg": "The haft of your axe catches on a cord. Your momentum stalls. Your rage doesn’t, but {target_name} is safe for now.",
-            "victim_msg": "The haft of {attacker_name}'s axe catches on a cord. Their momentum stalls. Their rage doesn’t, but you are safe for now.",
-            "observer_msg": "The haft of {attacker_name}'s axe catches on a cord. Their momentum stalls. Their rage doesn’t, but {target_name} is safe for now."
+            "attacker_msg": "The haft of your axe catches on a cord. Your momentum stalls. Your rage doesn't, but {target_name} is safe for now.",
+            "victim_msg": "The haft of {attacker_name}'s axe catches on a cord. Their momentum stalls. Their rage doesn't, but you are safe for now.",
+            "observer_msg": "The haft of {attacker_name}'s axe catches on a cord. Their momentum stalls. Their rage doesn't, but {target_name} is safe for now."
         },
         {
             "attacker_msg": "The haft of your axe slips slightly in your hands. The edge lands inches from {target_name}'s flesh.",
@@ -425,14 +425,14 @@ MESSAGES = {
             "observer_msg": "The haft of {attacker_name}'s axe strikes the floor mid-spin. {attacker_name} curses. {target_name} retreats."
         },
         {
-            "attacker_msg": "Your swing carves a bench in half. It was in the way — {target_name} wasn’t.",
-            "victim_msg": "{attacker_name}'s swing carves a bench in half. It was in the way — you weren’t.",
-            "observer_msg": "{attacker_name}'s swing carves a bench in half. It was in the way — {target_name} wasn’t."
+            "attacker_msg": "Your swing carves a bench in half. It was in the way - {target_name} wasn't.",
+            "victim_msg": "{attacker_name}'s swing carves a bench in half. It was in the way - you weren't.",
+            "observer_msg": "{attacker_name}'s swing carves a bench in half. It was in the way - {target_name} wasn't."
         },
         {
-            "attacker_msg": "You bring your axe down. The floor splits. {target_name} doesn’t.",
-            "victim_msg": "{attacker_name} brings their axe down. The floor splits. You don’t.",
-            "observer_msg": "{attacker_name} brings their axe down. The floor splits. {target_name} doesn’t."
+            "attacker_msg": "You bring your axe down. The floor splits. {target_name} doesn't.",
+            "victim_msg": "{attacker_name} brings their axe down. The floor splits. You don't.",
+            "observer_msg": "{attacker_name} brings their axe down. The floor splits. {target_name} doesn't."
         },
         {
             "attacker_msg": "You overcommit. Your axe buries itself in wood, stuck. {target_name} is safe.",
@@ -467,19 +467,19 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s backswing decapitates {target_name} clean. The silence is immediate and justified."
         },
         {
-            "attacker_msg": "Your backswing tears across {target_name}'s face. Their body hesitates — then collapses.",
-            "victim_msg": "{attacker_name}'s backswing tears across your face. Your body hesitates — then collapses.",
-            "observer_msg": "{attacker_name}'s backswing tears across {target_name}'s face. Their body hesitates — then collapses."
+            "attacker_msg": "Your backswing tears across {target_name}'s face. Their body hesitates - then collapses.",
+            "victim_msg": "{attacker_name}'s backswing tears across your face. Your body hesitates - then collapses.",
+            "observer_msg": "{attacker_name}'s backswing tears across {target_name}'s face. Their body hesitates - then collapses."
         },
         {
-            "attacker_msg": "Your downward strike caves in {target_name}'s chest. Breathing isn’t an option anymore.",
-            "victim_msg": "{attacker_name}'s downward strike caves in your chest. Breathing isn’t an option anymore.",
-            "observer_msg": "{attacker_name}'s downward strike caves in {target_name}'s chest. Breathing isn’t an option anymore."
+            "attacker_msg": "Your downward strike caves in {target_name}'s chest. Breathing isn't an option anymore.",
+            "victim_msg": "{attacker_name}'s downward strike caves in your chest. Breathing isn't an option anymore.",
+            "observer_msg": "{attacker_name}'s downward strike caves in {target_name}'s chest. Breathing isn't an option anymore."
         },
         {
-            "attacker_msg": "Your horizontal slash takes off {target_name}'s jaw. What’s left chokes to death.",
-            "victim_msg": "{attacker_name}'s horizontal slash takes off your jaw. What’s left chokes to death.",
-            "observer_msg": "{attacker_name}'s horizontal slash takes off {target_name}'s jaw. What’s left chokes to death."
+            "attacker_msg": "Your horizontal slash takes off {target_name}'s jaw. What's left chokes to death.",
+            "victim_msg": "{attacker_name}'s horizontal slash takes off your jaw. What's left chokes to death.",
+            "observer_msg": "{attacker_name}'s horizontal slash takes off {target_name}'s jaw. What's left chokes to death."
         },
         {
             "attacker_msg": "Your spinning arc cuts deep into {target_name}'s chest. They drop, still mid-motion.",
@@ -487,9 +487,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s spinning arc cuts deep into {target_name}'s chest. They drop, still mid-motion."
         },
         {
-            "attacker_msg": "One clean swing of your axe — chest to hip. {target_name} falls in pieces, not pain.",
-            "victim_msg": "One clean swing of {attacker_name}'s axe — chest to hip. You fall in pieces, not pain.",
-            "observer_msg": "One clean swing of {attacker_name}'s axe — chest to hip. {target_name} falls in pieces, not pain."
+            "attacker_msg": "One clean swing of your axe - chest to hip. {target_name} falls in pieces, not pain.",
+            "victim_msg": "One clean swing of {attacker_name}'s axe - chest to hip. You fall in pieces, not pain.",
+            "observer_msg": "One clean swing of {attacker_name}'s axe - chest to hip. {target_name} falls in pieces, not pain."
         },
         {
             "attacker_msg": "One crushing overhand from your axe splits {target_name}'s head. The scream never forms.",
@@ -497,9 +497,9 @@ MESSAGES = {
             "observer_msg": "One crushing overhand from {attacker_name}'s axe splits {target_name}'s head. The scream never forms."
         },
         {
-            "attacker_msg": "One mighty swing of your axe crushes {target_name}'s skull sideways. What’s left isn’t much.",
-            "victim_msg": "One mighty swing of {attacker_name}'s axe crushes your skull sideways. What’s left isn’t much.",
-            "observer_msg": "One mighty swing of {attacker_name}'s axe crushes {target_name}'s skull sideways. What’s left isn’t much."
+            "attacker_msg": "One mighty swing of your axe crushes {target_name}'s skull sideways. What's left isn't much.",
+            "victim_msg": "One mighty swing of {attacker_name}'s axe crushes your skull sideways. What's left isn't much.",
+            "observer_msg": "One mighty swing of {attacker_name}'s axe crushes {target_name}'s skull sideways. What's left isn't much."
         },
         {
             "attacker_msg": "One swing of your axe slices through {target_name}'s ribs like paper. The collapse is immediate and sincere.",
@@ -507,14 +507,14 @@ MESSAGES = {
             "observer_msg": "One swing of {attacker_name}'s axe slices through {target_name}'s ribs like paper. The collapse is immediate and sincere."
         },
         {
-            "attacker_msg": "Your steel axe buries in {target_name}'s stomach. You twist. What’s left isn’t anyone.",
-            "victim_msg": "{attacker_name}'s steel axe buries in your stomach. {attacker_name} twists. What’s left isn’t anyone.",
-            "observer_msg": "{attacker_name}'s steel axe buries in {target_name}'s stomach. {attacker_name} twists. What’s left isn’t anyone."
+            "attacker_msg": "Your steel axe buries in {target_name}'s stomach. You twist. What's left isn't anyone.",
+            "victim_msg": "{attacker_name}'s steel axe buries in your stomach. {attacker_name} twists. What's left isn't anyone.",
+            "observer_msg": "{attacker_name}'s steel axe buries in {target_name}'s stomach. {attacker_name} twists. What's left isn't anyone."
         },
         {
-            "attacker_msg": "Your steel axe embeds in {target_name}'s gut. A twist, a jerk — {target_name} ends mid-grimace.",
-            "victim_msg": "{attacker_name}'s steel axe embeds in your gut. A twist, a jerk — you end mid-grimace.",
-            "observer_msg": "{attacker_name}'s steel axe embeds in {target_name}'s gut. A twist, a jerk — {target_name} ends mid-grimace."
+            "attacker_msg": "Your steel axe embeds in {target_name}'s gut. A twist, a jerk - {target_name} ends mid-grimace.",
+            "victim_msg": "{attacker_name}'s steel axe embeds in your gut. A twist, a jerk - you end mid-grimace.",
+            "observer_msg": "{attacker_name}'s steel axe embeds in {target_name}'s gut. A twist, a jerk - {target_name} ends mid-grimace."
         },
         {
             "attacker_msg": "Your axe bites deep into {target_name}'s neck. They crumple as red geysers upward.",
@@ -527,14 +527,14 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s axe connects mid-sentence. {target_name} never finishes the thought or the breath."
         },
         {
-            "attacker_msg": "Your axe hits {target_name}'s neck and doesn’t stop. They topple, wet and wordless.",
-            "victim_msg": "{attacker_name}'s axe hits your neck and doesn’t stop. You topple, wet and wordless.",
-            "observer_msg": "{attacker_name}'s axe hits {target_name}'s neck and doesn’t stop. They topple, wet and wordless."
+            "attacker_msg": "Your axe hits {target_name}'s neck and doesn't stop. They topple, wet and wordless.",
+            "victim_msg": "{attacker_name}'s axe hits your neck and doesn't stop. You topple, wet and wordless.",
+            "observer_msg": "{attacker_name}'s axe hits {target_name}'s neck and doesn't stop. They topple, wet and wordless."
         },
         {
-            "attacker_msg": "Your axe lands square in {target_name}'s clavicle. They don’t scream. There’s no time.",
-            "victim_msg": "{attacker_name}'s axe lands square in your clavicle. You don’t scream. There’s no time.",
-            "observer_msg": "{attacker_name}'s axe lands square in {target_name}'s clavicle. They don’t scream. There’s no time."
+            "attacker_msg": "Your axe lands square in {target_name}'s clavicle. They don't scream. There's no time.",
+            "victim_msg": "{attacker_name}'s axe lands square in your clavicle. You don't scream. There's no time.",
+            "observer_msg": "{attacker_name}'s axe lands square in {target_name}'s clavicle. They don't scream. There's no time."
         },
         {
             "attacker_msg": "Your axe lands with a crunch that silences everything. {target_name}'s blood finishes the sentence.",
@@ -552,9 +552,9 @@ MESSAGES = {
             "observer_msg": "The blade of {attacker_name}'s axe drops from above and cleaves {target_name}'s shoulder to lung. They fold inward."
         },
         {
-            "attacker_msg": "The blade of your axe severs {target_name}'s spine at the neck. They jerk once — then fall wrong.",
-            "victim_msg": "The blade of {attacker_name}'s axe severs your spine at the neck. You jerk once — then fall wrong.",
-            "observer_msg": "The blade of {attacker_name}'s axe severs {target_name}'s spine at the neck. They jerk once — then fall wrong."
+            "attacker_msg": "The blade of your axe severs {target_name}'s spine at the neck. They jerk once - then fall wrong.",
+            "victim_msg": "The blade of {attacker_name}'s axe severs your spine at the neck. You jerk once - then fall wrong.",
+            "observer_msg": "The blade of {attacker_name}'s axe severs {target_name}'s spine at the neck. They jerk once - then fall wrong."
         },
         {
             "attacker_msg": "The blade of your axe slams into {target_name}'s spine. The result is twitchless collapse.",
@@ -587,9 +587,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} cleaves down into {target_name}'s shoulder with their axe. Their body caves beneath the blade."
         },
         {
-            "attacker_msg": "You drive the blade of your axe into {target_name}'s chest. The axe doesn't stop — neither does gravity.",
-            "victim_msg": "{attacker_name} drives the blade of their axe into your chest. The axe doesn't stop — neither does gravity.",
-            "observer_msg": "{attacker_name} drives the blade of their axe into {target_name}'s chest. The axe doesn't stop — neither does gravity."
+            "attacker_msg": "You drive the blade of your axe into {target_name}'s chest. The axe doesn't stop - neither does gravity.",
+            "victim_msg": "{attacker_name} drives the blade of their axe into your chest. The axe doesn't stop - neither does gravity.",
+            "observer_msg": "{attacker_name} drives the blade of their axe into {target_name}'s chest. The axe doesn't stop - neither does gravity."
         },
         {
             "attacker_msg": "You slash your axe across {target_name}'s face. Half of it lands first. The rest follows.",
@@ -602,9 +602,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} splits {target_name}'s skull from crown to thought with their axe. They twitch and fold."
         },
         {
-            "attacker_msg": "You split {target_name}'s spine with one cut of your axe. There’s no protest. Just aftermath.",
-            "victim_msg": "{attacker_name} splits your spine with one cut of their axe. There’s no protest. Just aftermath.",
-            "observer_msg": "{attacker_name} splits {target_name}'s spine with one cut of their axe. There’s no protest. Just aftermath."
+            "attacker_msg": "You split {target_name}'s spine with one cut of your axe. There's no protest. Just aftermath.",
+            "victim_msg": "{attacker_name} splits your spine with one cut of their axe. There's no protest. Just aftermath.",
+            "observer_msg": "{attacker_name} splits {target_name}'s spine with one cut of their axe. There's no protest. Just aftermath."
         }
     ]
 }

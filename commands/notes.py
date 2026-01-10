@@ -55,16 +55,16 @@ class CmdAddNote(Command):
     Leave a note for staff.
     
     Usage:
-      @add-note <tag>/<subject>=<content>
-      @add-note/tags
+      add-note <tag>/<subject>=<content>
+      add-note/tags
     
     Examples:
-      @add-note job/Looking for bartender work=Talked to Hookie about a job.
-      @add-note combat/Fight with Triad=Got in a scrap outside the noodle shop.
-      @add-note other/General update=Just checking in with what my character is up to.
+      add-note job/Looking for bartender work=Talked to Hookie about a job.
+      add-note combat/Fight with Triad=Got in a scrap outside the noodle shop.
+      add-note other/General update=Just checking in with what my character is up to.
     """
-    key = "@add-note"
-    aliases = ["@addnote", "@note"]
+    key = "add-note"
+    aliases = ["addnote", "note"]
     locks = "cmd:all()"
     help_category = "OOC"
     
@@ -83,20 +83,20 @@ class CmdAddNote(Command):
     def get_help(self, caller, *args, **kwargs):
         """Return help documentation."""
         return """
-|cPLAYER HELP - @ADD-NOTE|n
+|cPLAYER HELP - ADD-NOTE|n
 
 Leave a note for staff about your character's actions, goals, or events.
 
 |wUsage:|n
-  @add-note <tag>/<subject>=<content>
-  @add-note/tags              - List available tags
+  add-note <tag>/<subject>=<content>
+  add-note/tags              - List available tags
 
 |wExamples:|n
-  @add-note job/Looking for bartender work=Talked to Hookie about a job. 
+  add-note job/Looking for bartender work=Talked to Hookie about a job. 
             Waiting to hear back.
-  @add-note combat/Fight with Triad enforcer=Got in a scrap outside the 
+  add-note combat/Fight with Triad enforcer=Got in a scrap outside the 
             noodle shop. Won but took some hits.
-  @add-note plot/Following up on rumors=Heard about something going down 
+  add-note plot/Following up on rumors=Heard about something going down 
             at the docks. Planning to investigate.
 
 |wAvailable tag shortcuts:|n
@@ -112,9 +112,9 @@ Leave a note for staff about your character's actions, goals, or events.
   - What you want to happen next
 
 |wSee Also:|n
-  @notes       - View your notes
-  @paged-notes - Browse notes with pagination
-  @read-note   - Read a specific note
+  notes       - View your notes
+  paged-notes - Browse notes with pagination
+  read-note   - Read a specific note
 """
 
     def func(self):
@@ -127,14 +127,14 @@ Leave a note for staff about your character's actions, goals, or events.
             return
         
         if not self.args:
-            caller.msg("|rUsage: @add-note <tag>/<subject>=<content>|n")
-            caller.msg("|yUse @add-note/tags to see available tags.|n")
+            caller.msg("|rUsage: add-note <tag>/<subject>=<content>|n")
+            caller.msg("|yUse add-note/tags to see available tags.|n")
             return
         
         # Parse the arguments: tag/subject=content
         if "=" not in self.args:
             caller.msg("|rYou must include content after an = sign.|n")
-            caller.msg("|yExample: @add-note job/Looking for work=Talked to the bartender.|n")
+            caller.msg("|yExample: add-note job/Looking for work=Talked to the bartender.|n")
             return
         
         header, content = self.args.split("=", 1)
@@ -146,7 +146,7 @@ Leave a note for staff about your character's actions, goals, or events.
         
         if "/" not in header:
             caller.msg("|rYou must include a tag and subject separated by /|n")
-            caller.msg("|yExample: @add-note job/Looking for work=Talked to the bartender.|n")
+            caller.msg("|yExample: add-note job/Looking for work=Talked to the bartender.|n")
             return
         
         tag_input, subject = header.split("/", 1)
@@ -170,7 +170,7 @@ Leave a note for staff about your character's actions, goals, or events.
         
         if not tag:
             caller.msg(f"|rUnknown tag '{tag_input}'.|n")
-            caller.msg("|yUse @add-note/tags to see available tags.|n")
+            caller.msg("|yUse add-note/tags to see available tags.|n")
             return
         
         # Create the note
@@ -215,19 +215,19 @@ class CmdNotes(Command):
     """
     View your notes (non-paged).
     """
-    key = "@notes"
+    key = "notes"
     locks = "cmd:all()"
     help_category = "OOC"
 
     def get_help(self, caller, *args, **kwargs):
         """Return help documentation."""
         return """
-|cPLAYER HELP - @NOTES|n
+|cPLAYER HELP - NOTES|n
 
 View all your notes in a single display.
 
 |wUsage:|n
-  @notes
+  notes
 
 Shows all your notes from oldest to newest with:
   - Note ID number
@@ -236,11 +236,11 @@ Shows all your notes from oldest to newest with:
   - When you wrote it
   - Status (New/Read)
 
-For large numbers of notes, use @paged-notes for easier browsing.
+For large numbers of notes, use paged-notes for easier browsing.
 
 |wSee Also:|n
-  @add-note  - Leave a new note
-  @paged-notes  - Browse notes with pagination
+  add-note  - Leave a new note
+  paged-notes  - Browse notes with pagination
 """
 
     def func(self):
@@ -270,7 +270,7 @@ For large numbers of notes, use @paged-notes for easier browsing.
             
             caller.msg(f"|w[{note_id}]|n |c[{tag}]|n {subject}")
             caller.msg(f"      {timestamp} - Status: {status}")
-            caller.msg(f"      View: |w@read-note {note_id}|n")
+            caller.msg(f"      View: |wread-note {note_id}|n")
             caller.msg("")
 
 
@@ -278,26 +278,26 @@ class CmdPagedNotes(Command):
     """
     Browse your notes with pagination.
     """
-    key = "@paged-notes"
+    key = "paged-notes"
     locks = "cmd:all()"
     help_category = "OOC"
 
     def get_help(self, caller, *args, **kwargs):
         """Return help documentation."""
         return """
-|cPLAYER HELP - @PAGED-NOTES|n
+|cPLAYER HELP - PAGED-NOTES|n
 
 Browse your notes with pagination (5 notes per page).
 
 |wUsage:|n
-  @paged-notes
-  @paged-notes <page_number>
+  paged-notes
+  paged-notes <page_number>
 
 Shows your notes in an easy-to-browse format with page navigation.
 
 |wSee Also:|n
-  @add-note  - Leave a new note
-  @notes  - View all notes at once
+  add-note  - Leave a new note
+  notes  - View all notes at once
 """
 
     def func(self):
@@ -352,17 +352,17 @@ Shows your notes in an easy-to-browse format with page navigation.
             
             caller.msg(f"|w[{note_id}]|n |c[{tag}]|n {subject}")
             caller.msg(f"      {timestamp} - Status: {status}")
-            caller.msg(f"      View: |w@read-note {note_id}|n")
+            caller.msg(f"      View: |wread-note {note_id}|n")
             caller.msg("")
         
         # Display navigation
         if total_pages > 1:
             nav = "|y["
             if page_num > 1:
-                nav += f"@paged-notes {page_num - 1}|n|y (Previous) "
+                nav += f"paged-notes {page_num - 1}|n|y (Previous) "
             nav += f"Page {page_num}/{total_pages}"
             if page_num < total_pages:
-                nav += "|y (Next) |w@paged-notes " + str(page_num + 1) + "|y]|n"
+                nav += "|y (Next) |wpaged-notes " + str(page_num + 1) + "|y]|n"
             else:
                 nav += "|y]|n"
             caller.msg(nav)
@@ -372,8 +372,8 @@ class CmdReadNote(Command):
     """
     Read a specific note you wrote.
     """
-    key = "@read-note"
-    aliases = ["@readnote"]
+    key = "read-note"
+    aliases = ["readnote"]
     locks = "cmd:all()"
     help_category = "OOC"
 
@@ -382,7 +382,7 @@ class CmdReadNote(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: @read-note <note_id>")
+            caller.msg("Usage: read-note <note_id>")
             return
         
         try:
@@ -462,31 +462,31 @@ class CmdViewAllNotes(Command):
     """
     Staff command to view all player notes.
     """
-    key = "@view-notes"
-    aliases = ["@viewnotes", "@staff-notes"]
+    key = "view-notes"
+    aliases = ["viewnotes", "staff-notes"]
     locks = "cmd:perm(Admin)"
     help_category = "Admin"
 
     def get_help(self, caller, *args, **kwargs):
         """Return help documentation."""
         return """
-|cSTAFF HELP - @VIEW-NOTES|n
+|cSTAFF HELP - VIEW-NOTES|n
 
 View all player notes or notes for a specific player.
 
 |wUsage:|n
-  @view-notes               - View recent notes from all players
-  @view-notes <character>   - View all notes from a specific player
-  @view-notes <tag>         - View notes with a specific tag
-  @view-notes unread        - View only unread notes
-  @view-notes mark-read <id> - Mark a note as read
+  view-notes               - View recent notes from all players
+  view-notes <character>   - View all notes from a specific player
+  view-notes <tag>         - View notes with a specific tag
+  view-notes unread        - View only unread notes
+  view-notes mark-read <id> - Mark a note as read
 
 |wExamples:|n
-  @view-notes
-  @view-notes TestDummy
-  @view-notes "Employment"
-  @view-notes unread
-  @view-notes mark-read 5
+  view-notes
+  view-notes TestDummy
+  view-notes "Employment"
+  view-notes unread
+  view-notes mark-read 5
 
 |wNote that:|n
   Notes are marked as read when viewed by staff.
@@ -514,7 +514,7 @@ View all player notes or notes for a specific player.
                     except ValueError:
                         caller.msg("Invalid note ID.")
                 else:
-                    caller.msg("Usage: @view-notes mark-read <note_id>")
+                    caller.msg("Usage: view-notes mark-read <note_id>")
             elif args.startswith('"') and args.endswith('"'):
                 # Search by tag
                 tag = args[1:-1]
@@ -633,7 +633,7 @@ View all player notes or notes for a specific player.
         status = "|g[READ]|n" if is_read else "|y[NEW]|n"
         
         caller.msg(f"|w[{note_id}]|n {status} |c{char_name}|n - [{tag}] {subject}")
-        caller.msg(f"      {timestamp} | View: |w@read-staff-note {char_name} {note_id}|n")
+        caller.msg(f"      {timestamp} | View: |wread-staff-note {char_name} {note_id}|n")
     
     def mark_note_read(self, caller, note_id):
         """Mark a note as read."""
@@ -654,8 +654,8 @@ class CmdReadStaffNote(Command):
     """
     Staff command to read a player's note.
     """
-    key = "@read-staff-note"
-    aliases = ["@readstaffnote"]
+    key = "read-staff-note"
+    aliases = ["readstaffnote"]
     locks = "cmd:perm(Admin)"
     help_category = "Admin"
 
@@ -664,12 +664,12 @@ class CmdReadStaffNote(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: @read-staff-note <character> <note_id>")
+            caller.msg("Usage: read-staff-note <character> <note_id>")
             return
         
         parts = self.args.split()
         if len(parts) < 2:
-            caller.msg("Usage: @read-staff-note <character> <note_id>")
+            caller.msg("Usage: read-staff-note <character> <note_id>")
             return
         
         player_name = ' '.join(parts[:-1])
@@ -715,25 +715,25 @@ class CmdNextNote(Command):
     """
     Staff command to read the next unread note in queue.
     """
-    key = "@next-note"
-    aliases = ["@nextnote", "@note-next"]
+    key = "next-note"
+    aliases = ["nextnote", "note-next"]
     locks = "cmd:perm(Admin)"
     help_category = "Admin"
 
     def get_help(self, caller, *args, **kwargs):
         """Return help documentation."""
         return """
-|cSTAFF HELP - @NEXT-NOTE|n
+|cSTAFF HELP - NEXT-NOTE|n
 
 Read the next unread note in the queue (oldest first).
 Automatically marks the note as read.
 
 |wUsage:|n
-  @next-note
+  next-note
 
 |wSee Also:|n
-  @view-notes  - View notes with filters
-  @read-staff-note  - Read a specific note
+  view-notes  - View notes with filters
+  read-staff-note  - Read a specific note
 """
 
     def func(self):

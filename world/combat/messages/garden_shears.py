@@ -86,9 +86,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} holds the large, two-handed shears aloft, letting {target_name} see their distorted reflection in the long, polished blades."
         },
         {
-            'attacker_msg': "You snap the long, heavy blades open with a powerful two-handed motion and point them at {target_name}—no words needed.",
-            'victim_msg': "{attacker_name} snaps the long, heavy blades open with a powerful two-handed motion and points them at you—no words needed.",
-            'observer_msg': "{attacker_name} snaps the long, heavy blades open with a powerful two-handed motion and points them at {target_name}—no words needed."
+            'attacker_msg': "You snap the long, heavy blades open with a powerful two-handed motion and point them at {target_name}-no words needed.",
+            'victim_msg': "{attacker_name} snaps the long, heavy blades open with a powerful two-handed motion and points them at you-no words needed.",
+            'observer_msg': "{attacker_name} snaps the long, heavy blades open with a powerful two-handed motion and points them at {target_name}-no words needed."
         },
         {
             'attacker_msg': "You plant the heavy shears point-down, gripping the long handles tightly, eyes never leaving {target_name}.",
@@ -253,9 +253,9 @@ MESSAGES = {
             'observer_msg': "The long blades of the shears slip between {target_name}'s fingers, the powerful leverage causing a cry of agony."
         },
         {
-            'attacker_msg': "You draw one long blade of the heavy shears across {target_name}'s {hit_location}—a shallow, terrifying warning delivered with two-handed force.",
-            'victim_msg': "{attacker_name} draws one long blade of the heavy shears across your {hit_location}—a shallow, terrifying warning delivered with two-handed force.",
-            'observer_msg': "{attacker_name} draws one long blade of the heavy shears across {target_name}'s {hit_location}—a shallow, terrifying warning delivered with two-handed force."
+            'attacker_msg': "You draw one long blade of the heavy shears across {target_name}'s {hit_location}-a shallow, terrifying warning delivered with two-handed force.",
+            'victim_msg': "{attacker_name} draws one long blade of the heavy shears across your {hit_location}-a shallow, terrifying warning delivered with two-handed force.",
+            'observer_msg': "{attacker_name} draws one long blade of the heavy shears across {target_name}'s {hit_location}-a shallow, terrifying warning delivered with two-handed force."
         },
         {
             'attacker_msg': "A quick, brutal snip from the two-handed shears mangles {target_name}'s ear, the force of it shocking.",
@@ -395,9 +395,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} slashes wildly with the two-handed shears, but {target_name} twists away from the clumsy attack."
         },
         {
-            'attacker_msg': "The long blades of the heavy shears whistle past {target_name}'s ear—too close for comfort, but ultimately a miss.",
-            'victim_msg': "The long blades of the heavy shears whistle past your ear—too close for comfort, but ultimately a miss.",
-            'observer_msg': "The long blades of the heavy shears whistle past {target_name}'s ear—too close for comfort, but ultimately a miss."
+            'attacker_msg': "The long blades of the heavy shears whistle past {target_name}'s ear-too close for comfort, but ultimately a miss.",
+            'victim_msg': "The long blades of the heavy shears whistle past your ear-too close for comfort, but ultimately a miss.",
+            'observer_msg': "The long blades of the heavy shears whistle past {target_name}'s ear-too close for comfort, but ultimately a miss."
         },
         {
             'attacker_msg': "A quick, awkward flick with the heavy shears slices only tension, you struggling to recover.",

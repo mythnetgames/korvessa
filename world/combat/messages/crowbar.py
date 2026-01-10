@@ -36,9 +36,9 @@ MESSAGES = {
             "observer_msg": "The bar swings lightly at {attacker_name}'s side, every step marking the countdown toward violence."
         },
         {
-            "attacker_msg": "The crowbar rests against your shoulder like an old friend — mean, ugly, loyal.",
-            "victim_msg": "The crowbar rests against {attacker_name}'s shoulder like an old friend — mean, ugly, loyal.",
-            "observer_msg": "The crowbar rests against {attacker_name}'s shoulder like an old friend — mean, ugly, loyal."
+            "attacker_msg": "The crowbar rests against your shoulder like an old friend - mean, ugly, loyal.",
+            "victim_msg": "The crowbar rests against {attacker_name}'s shoulder like an old friend - mean, ugly, loyal.",
+            "observer_msg": "The crowbar rests against {attacker_name}'s shoulder like an old friend - mean, ugly, loyal."
         },
         {
             "attacker_msg": "The curved end glints in the low light as you swing the crowbar in a lazy arc. It's been used before.",
@@ -56,9 +56,9 @@ MESSAGES = {
             "observer_msg": "The metal bar clangs softly as it's raised. {attacker_name} doesn't flinch. They listen."
         },
         {
-            "attacker_msg": "The pried end of the crowbar catches the light. You watch it — not admiring, just remembering.",
-            "victim_msg": "The pried end of the crowbar catches the light. {attacker_name} watches it — not admiring, just remembering.",
-            "observer_msg": "The pried end of the crowbar catches the light. {attacker_name} watches it — not admiring, just remembering."
+            "attacker_msg": "The pried end of the crowbar catches the light. You watch it - not admiring, just remembering.",
+            "victim_msg": "The pried end of the crowbar catches the light. {attacker_name} watches it - not admiring, just remembering.",
+            "observer_msg": "The pried end of the crowbar catches the light. {attacker_name} watches it - not admiring, just remembering."
         },
         {
             "attacker_msg": "The sound of metal scraping concrete precedes you like a prelude to destruction.",
@@ -66,14 +66,14 @@ MESSAGES = {
             "observer_msg": "The sound of metal scraping concrete precedes {attacker_name} like a prelude to destruction."
         },
         {
-            "attacker_msg": "The steel gleams beneath dried blood. You check the grip — firm, unforgiving.",
-            "victim_msg": "The steel gleams beneath dried blood. {attacker_name} checks the grip — firm, unforgiving.",
-            "observer_msg": "The steel gleams beneath dried blood. {attacker_name} checks the grip — firm, unforgiving."
+            "attacker_msg": "The steel gleams beneath dried blood. You check the grip - firm, unforgiving.",
+            "victim_msg": "The steel gleams beneath dried blood. {attacker_name} checks the grip - firm, unforgiving.",
+            "observer_msg": "The steel gleams beneath dried blood. {attacker_name} checks the grip - firm, unforgiving."
         },
         {
-            "attacker_msg": "The tool was never meant for this — but you lift it like it always was.",
-            "victim_msg": "The tool was never meant for this — but {attacker_name} lifts it like it always was.",
-            "observer_msg": "The tool was never meant for this — but {attacker_name} lifts it like it always was."
+            "attacker_msg": "The tool was never meant for this - but you lift it like it always was.",
+            "victim_msg": "The tool was never meant for this - but {attacker_name} lifts it like it always was.",
+            "observer_msg": "The tool was never meant for this - but {attacker_name} lifts it like it always was."
         },
         {
             "attacker_msg": "The weight of it says everything. You lift it without a word. It speaks for you.",
@@ -278,9 +278,9 @@ MESSAGES = {
             "observer_msg": "The strike lands mid-stride, turning momentum into collapse. {target_name} hits the ground head-first."
         },
         {
-            "attacker_msg": "You drive the hooked end into {target_name}'s {hit_location}. It doesn't embed — it rends.",
-            "victim_msg": "{attacker_name} drives the hooked end into your {hit_location}. It doesn't embed — it rends.",
-            "observer_msg": "{attacker_name} drives the hooked end into {target_name}'s {hit_location}. It doesn't embed — it rends."
+            "attacker_msg": "You drive the hooked end into {target_name}'s {hit_location}. It doesn't embed - it rends.",
+            "victim_msg": "{attacker_name} drives the hooked end into your {hit_location}. It doesn't embed - it rends.",
+            "observer_msg": "{attacker_name} drives the hooked end into {target_name}'s {hit_location}. It doesn't embed - it rends."
         },
         {
             "attacker_msg": "You jab the bar into the {hit_location}. A rib breaks. The lungs wheeze.",
@@ -435,9 +435,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} misjudges the arc. The bar skims by with all the threat and none of the pain."
         },
         {
-            "attacker_msg": "You miss — but your eyes say the next swing will not.",
-            "victim_msg": "{attacker_name} misses — but their eyes say the next swing will not.",
-            "observer_msg": "{attacker_name} misses — but their eyes say the next swing will not."
+            "attacker_msg": "You miss - but your eyes say the next swing will not.",
+            "victim_msg": "{attacker_name} misses - but their eyes say the next swing will not.",
+            "observer_msg": "{attacker_name} misses - but their eyes say the next swing will not."
         },
         {
             "attacker_msg": "You overextend. The bar clangs off a pipe. {target_name} barely dodges.",
@@ -477,9 +477,9 @@ MESSAGES = {
             "observer_msg": "A savage overhand crushes the jaw. {target_name} crumples like wet cloth."
         },
         {
-            "attacker_msg": "A stomp, a hook, a yank — and {target_name} falls sideways, twitching, then still.",
-            "victim_msg": "A stomp, a hook, a yank — and you fall sideways, twitching, then still.",
-            "observer_msg": "A stomp, a hook, a yank — and {target_name} falls sideways, twitching, then still."
+            "attacker_msg": "A stomp, a hook, a yank - and {target_name} falls sideways, twitching, then still.",
+            "victim_msg": "A stomp, a hook, a yank - and you fall sideways, twitching, then still.",
+            "observer_msg": "A stomp, a hook, a yank - and {target_name} falls sideways, twitching, then still."
         },
         {
             "attacker_msg": "A strike to the eye ends everything. Blood sprays. Screams stop.",
@@ -507,9 +507,9 @@ MESSAGES = {
             "observer_msg": "One last strike lands on the crown. {target_name} doesn't rise again."
         },
         {
-            "attacker_msg": "One swing caves in the chest. {target_name} tries to gasp — and fails.",
-            "victim_msg": "One swing caves in the chest. You try to gasp — and fail.",
-            "observer_msg": "One swing caves in the chest. {target_name} tries to gasp — and fails."
+            "attacker_msg": "One swing caves in the chest. {target_name} tries to gasp - and fails.",
+            "victim_msg": "One swing caves in the chest. You try to gasp - and fail.",
+            "observer_msg": "One swing caves in the chest. {target_name} tries to gasp - and fails."
         },
         {
             "attacker_msg": "The bar hits like punctuation. Sharp, short, final. {target_name} drops, sentence ended.",

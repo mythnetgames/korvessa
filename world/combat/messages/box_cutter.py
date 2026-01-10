@@ -66,9 +66,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} slides the blade out with a slow, deliberate motion."
         },
         {
-            "attacker_msg": "You snap the blade out and point it at {target_name}—no words needed.",
-            "victim_msg": "{attacker_name} snaps the blade out and points it at you—no words needed.",
-            "observer_msg": "{attacker_name} snaps the blade out and points it at {target_name}—no words needed."
+            "attacker_msg": "You snap the blade out and point it at {target_name}-no words needed.",
+            "victim_msg": "{attacker_name} snaps the blade out and points it at you-no words needed.",
+            "observer_msg": "{attacker_name} snaps the blade out and points it at {target_name}-no words needed."
         },
         {
             "attacker_msg": "You test the edge on your thumb, drawing a bead of blood and a smile.",
@@ -253,9 +253,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s blade slips between {target_name}'s fingers, nerves and blood both spilling."
         },
         {
-            "attacker_msg": "You draw the box cutter across {target_name}'s {hit_location}—shallow, but terrifying.",
-            "victim_msg": "{attacker_name} draws the box cutter across your {hit_location}—shallow, but terrifying.",
-            "observer_msg": "{attacker_name} draws the box cutter across {target_name}'s {hit_location}—shallow, but terrifying."
+            "attacker_msg": "You draw the box cutter across {target_name}'s {hit_location}-shallow, but terrifying.",
+            "victim_msg": "{attacker_name} draws the box cutter across your {hit_location}-shallow, but terrifying.",
+            "observer_msg": "{attacker_name} draws the box cutter across {target_name}'s {hit_location}-shallow, but terrifying."
         },
         {
             "attacker_msg": "A quick flick of your box cutter opens {target_name}'s ear. Blood pours down their {hit_location}.",
@@ -395,9 +395,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} slashes, but {target_name} twists away."
         },
         {
-            "attacker_msg": "Your blade whistles past {target_name}'s ear—close, but not enough.",
-            "victim_msg": "{attacker_name}'s blade whistles past your ear—close, but not enough.",
-            "observer_msg": "{attacker_name}'s blade whistles past {target_name}'s ear—close, but not enough."
+            "attacker_msg": "Your blade whistles past {target_name}'s ear-close, but not enough.",
+            "victim_msg": "{attacker_name}'s blade whistles past your ear-close, but not enough.",
+            "observer_msg": "{attacker_name}'s blade whistles past {target_name}'s ear-close, but not enough."
         },
         {
             "attacker_msg": "A quick flick of your box cutter misses, the blade slicing only tension.",
@@ -462,9 +462,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} drives the box cutter into {target_name}'s throat. Blood spurts in a fine, surgical arc."
         },
         {
-            "attacker_msg": "A quick slash from your box cutter opens {target_name}'s carotid. They drop, clutching at a wound that won’t close.",
-            "victim_msg": "A quick slash from {attacker_name}'s box cutter opens your carotid. You drop, clutching at a wound that won’t close.",
-            "observer_msg": "A quick slash from {attacker_name}'s box cutter opens {target_name}'s carotid. They drop, clutching at a wound that won’t close."
+            "attacker_msg": "A quick slash from your box cutter opens {target_name}'s carotid. They drop, clutching at a wound that won't close.",
+            "victim_msg": "A quick slash from {attacker_name}'s box cutter opens your carotid. You drop, clutching at a wound that won't close.",
+            "observer_msg": "A quick slash from {attacker_name}'s box cutter opens {target_name}'s carotid. They drop, clutching at a wound that won't close."
         },
         {
             "attacker_msg": "Your blade slips between {target_name}'s ribs and into their heart. They collapse, twitching.",
@@ -487,9 +487,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s box cutter punctures {target_name}'s eye. They scream, then fall silent."
         },
         {
-            "attacker_msg": "You slice {target_name}'s femoral artery. Blood pools fast. They don’t last.",
-            "victim_msg": "{attacker_name} slices your femoral artery. Blood pools fast. You don’t last.",
-            "observer_msg": "{attacker_name} slices {target_name}'s femoral artery. Blood pools fast. They don’t last."
+            "attacker_msg": "You slice {target_name}'s femoral artery. Blood pools fast. They don't last.",
+            "victim_msg": "{attacker_name} slices your femoral artery. Blood pools fast. You don't last.",
+            "observer_msg": "{attacker_name} slices {target_name}'s femoral artery. Blood pools fast. They don't last."
         },
         {
             "attacker_msg": "A quick stab from your box cutter to {target_name}'s temple ends everything in a blink.",

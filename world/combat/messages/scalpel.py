@@ -12,7 +12,7 @@ SCALPEL_MESSAGES = {
         },
         {
             'attacker_msg': "You test the edge of the scalpel with your thumb. It draws blood instantly.",
-            'victim_msg': "You watch {attacker_name} test their scalpel's sharpness on their own flesh—it cuts easily.",
+            'victim_msg': "You watch {attacker_name} test their scalpel's sharpness on their own flesh-it cuts easily.",
             'observer_msg': "A thin line of blood appears on {attacker_name}'s thumb as they test their scalpel's edge."
         },
         {
@@ -23,7 +23,7 @@ SCALPEL_MESSAGES = {
         {
             'attacker_msg': "{attacker_name} flips the scalpel, the blade spinning before landing perfectly in their palm.",
             'victim_msg': "The scalpel in {attacker_name}'s hand spins with practiced ease before settling into a deadly grip.",
-            'observer_msg': "{attacker_name} demonstrates their skill by spinning the scalpel—the blade never wobbles."
+            'observer_msg': "{attacker_name} demonstrates their skill by spinning the scalpel-the blade never wobbles."
         },
         {
             'attacker_msg': "{attacker_name} draws the scalpel across the air, testing its weight.",
@@ -86,7 +86,7 @@ SCALPEL_MESSAGES = {
             'observer_msg': "{attacker_name} weighs the scalpel in their palm, satisfied with its perfect balance."
         },
         {
-            'attacker_msg': "{attacker_name} draws the scalpel in a straight line through the air—not a tremor in sight.",
+            'attacker_msg': "{attacker_name} draws the scalpel in a straight line through the air-not a tremor in sight.",
             'victim_msg': "The scalpel moves in a perfectly straight line as {attacker_name} demonstrates their steady hand.",
             'observer_msg': "With surgeon's precision, {attacker_name} draws their scalpel through the air in a flawless line."
         },
@@ -121,7 +121,7 @@ SCALPEL_MESSAGES = {
             'observer_msg': "Quiet medical murmurs accompany {attacker_name}'s preparation of their surgical instrument."
         },
         {
-            'attacker_msg': "{attacker_name} examines the scalpel's edge under the light—satisfied, they nod.",
+            'attacker_msg': "{attacker_name} examines the scalpel's edge under the light-satisfied, they nod.",
             'victim_msg': "The scalpel passes {attacker_name}'s inspection, earning a satisfied nod.",
             'observer_msg': "After careful examination, {attacker_name} approves of their scalpel's surgical sharpness."
         },
@@ -131,7 +131,7 @@ SCALPEL_MESSAGES = {
             'observer_msg': "{attacker_name}'s hand shows surgeon-like steadiness as they grip their scalpel."
         },
         {
-            'attacker_msg': "{attacker_name} makes a final adjustment to their scalpel's position—everything must be perfect.",
+            'attacker_msg': "{attacker_name} makes a final adjustment to their scalpel's position-everything must be perfect.",
             'victim_msg': "You watch {attacker_name} make minute adjustments to their scalpel grip with obsessive precision.",
             'observer_msg': "With compulsive attention to detail, {attacker_name} perfects their scalpel's position."
         },
@@ -146,7 +146,7 @@ SCALPEL_MESSAGES = {
             'observer_msg': "{attacker_name} uses their scalpel to trace medical diagrams only they can see."
         },
         {
-            'attacker_msg': "{attacker_name} holds the scalpel like a conductor's baton—ready to orchestrate pain.",
+            'attacker_msg': "{attacker_name} holds the scalpel like a conductor's baton-ready to orchestrate pain.",
             'victim_msg': "The scalpel waits in {attacker_name}'s hand like an instrument ready to compose suffering.",
             'observer_msg': "{attacker_name} grips their scalpel with the poise of a maestro about to begin a deadly performance."
         }
@@ -213,7 +213,7 @@ SCALPEL_MESSAGES = {
             'observer_msg': "The scalpel severs {target_name}'s hamstring with surgical precision."
         },
         {
-            'attacker_msg': "The blade carves a spiral up {target_name}'s {hit_location}—artistic and agonizing.",
+            'attacker_msg': "The blade carves a spiral up {target_name}'s {hit_location}-artistic and agonizing.",
             'victim_msg': "You watch in horror as the scalpel traces a spiral of pain up your {hit_location}.",
             'observer_msg': "The scalpel etches a deliberate spiral pattern into {target_name}'s {hit_location}."
         },
@@ -243,7 +243,7 @@ SCALPEL_MESSAGES = {
             'observer_msg': "The scalpel parts {target_name}'s fingers, blood and nerve function flowing away."
         },
         {
-            'attacker_msg': "You draw the scalpel across {target_name}'s {hit_location}—shallow, but terrifying.",
+            'attacker_msg': "You draw the scalpel across {target_name}'s {hit_location}-shallow, but terrifying.",
             'victim_msg': "The cold blade traces your {hit_location}, shallow but promising deeper cuts to come.",
             'observer_msg': "The scalpel draws a thin red line across {target_name}'s {hit_location}."
         },
@@ -395,7 +395,7 @@ SCALPEL_MESSAGES = {
             'observer_msg': "{target_name} twists away from the surgical strike."
         },
         {
-            'attacker_msg': "The scalpel whistles past {target_name}'s ear—close, but not enough.",
+            'attacker_msg': "The scalpel whistles past {target_name}'s ear-close, but not enough.",
             'victim_msg': "You feel the blade's wind as it passes millimeters from your ear.",
             'observer_msg': "The scalpel passes within a hair's breadth of {target_name}'s ear."
         },
@@ -437,7 +437,7 @@ SCALPEL_MESSAGES = {
         {
             'attacker_msg': "You swing, but {target_name} is already gone.",
             'victim_msg': "You fade back as {attacker_name}'s blade seeks empty air.",
-            'observer_msg': "The scalpel cuts nothing—{target_name} has already moved."
+            'observer_msg': "The scalpel cuts nothing-{target_name} has already moved."
         },
         {
             'attacker_msg': "The scalpel glances off a boot, doing nothing.",
@@ -463,7 +463,7 @@ SCALPEL_MESSAGES = {
         },
         {
             'attacker_msg': "A quick slash opens {target_name}'s carotid. They drop, clutching at a wound that won't close.",
-            'victim_msg': "Your carotid artery parts under the blade—you collapse, unable to stop the flow.",
+            'victim_msg': "Your carotid artery parts under the blade-you collapse, unable to stop the flow.",
             'observer_msg': "{target_name} drops, hands pressed uselessly against their severed carotid."
         },
         {
@@ -473,7 +473,7 @@ SCALPEL_MESSAGES = {
         },
         {
             'attacker_msg': "You carve a line across {target_name}'s neck. The blood is bright and fast.",
-            'victim_msg': "The blade traces fire across your throat—bright arterial blood flows freely.",
+            'victim_msg': "The blade traces fire across your throat-bright arterial blood flows freely.",
             'observer_msg': "A clean line appears across {target_name}'s throat, blood flowing in bright spurts."
         },
         {
@@ -488,7 +488,7 @@ SCALPEL_MESSAGES = {
         },
         {
             'attacker_msg': "You slice the femoral artery. Blood pools fast. {target_name} doesn't last.",
-            'victim_msg': "Your femoral artery opens wide—blood pools around you as consciousness fades.",
+            'victim_msg': "Your femoral artery opens wide-blood pools around you as consciousness fades.",
             'observer_msg': "Blood pools rapidly around {target_name} as their femoral artery gives way."
         },
         {

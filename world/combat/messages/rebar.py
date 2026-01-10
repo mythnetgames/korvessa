@@ -122,9 +122,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} takes a deep breath. The rebar moves before they exhale."
         },
         {
-            'attacker_msg': "You twitch the bar slightly—enough to make anyone watching tense.",
-            'victim_msg': "{attacker_name} twitches the bar slightly—enough to make anyone watching tense.",
-            'observer_msg': "{attacker_name} twitches the bar slightly—enough to make anyone watching tense."
+            'attacker_msg': "You twitch the bar slightly-enough to make anyone watching tense.",
+            'victim_msg': "{attacker_name} twitches the bar slightly-enough to make anyone watching tense.",
+            'observer_msg': "{attacker_name} twitches the bar slightly-enough to make anyone watching tense."
         },
         {
             'attacker_msg': "You tap the bar against your shoulder. A casual threat. A promise.",
@@ -204,9 +204,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} slams the bar into {target_name}'s {hit_location}. Air and bile explode from their mouth."
         },
         {
-            'attacker_msg': "The rebar strikes {target_name}'s {hit_location}. It doesn't break the skin—but something inside gives way.",
-            'victim_msg': "The rebar strikes your {hit_location}. It doesn't break the skin—but something inside gives way.",
-            'observer_msg': "The rebar strikes {target_name}'s {hit_location}. It doesn't break the skin—but something inside gives way."
+            'attacker_msg': "The rebar strikes {target_name}'s {hit_location}. It doesn't break the skin-but something inside gives way.",
+            'victim_msg': "The rebar strikes your {hit_location}. It doesn't break the skin-but something inside gives way.",
+            'observer_msg': "The rebar strikes {target_name}'s {hit_location}. It doesn't break the skin-but something inside gives way."
         },
         {
             'attacker_msg': "A hook strike lands across {target_name}'s {hit_location}. They spin and drop.",
@@ -289,9 +289,9 @@ MESSAGES = {
             'observer_msg': "A sharp jab lands in {target_name}'s {hit_location}. Something caves in."
         },
         {
-            'attacker_msg': "The rebar hits like a train—fast, loud, final.",
-            'victim_msg': "The rebar hits like a train—fast, loud, final.",
-            'observer_msg': "The rebar hits like a train—fast, loud, final."
+            'attacker_msg': "The rebar hits like a train-fast, loud, final.",
+            'victim_msg': "The rebar hits like a train-fast, loud, final.",
+            'observer_msg': "The rebar hits like a train-fast, loud, final."
         },
         {
             'attacker_msg': "You pound the bar across {target_name}'s {hit_location}. The {hit_location} no longer supports them.",
@@ -321,9 +321,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} swings wide, the bar slicing through air as {target_name} ducks under it."
         },
         {
-            'attacker_msg': "The rebar clangs off a pipe nearby—{target_name} already moved.",
-            'victim_msg': "The rebar clangs off a pipe nearby—you already moved.",
-            'observer_msg': "The rebar clangs off a pipe nearby—{target_name} already moved."
+            'attacker_msg': "The rebar clangs off a pipe nearby-{target_name} already moved.",
+            'victim_msg': "The rebar clangs off a pipe nearby-you already moved.",
+            'observer_msg': "The rebar clangs off a pipe nearby-{target_name} already moved."
         },
         {
             'attacker_msg': "Your swing misses, but the wind it stirs makes {target_name} flinch.",
@@ -376,9 +376,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} pivots too late. The bar cuts through silence only."
         },
         {
-            'attacker_msg': "You bring the bar down hard—but {target_name} rolls aside.",
-            'victim_msg': "{attacker_name} brings the bar down hard—but you roll aside.",
-            'observer_msg': "{attacker_name} brings the bar down hard—but {target_name} rolls aside."
+            'attacker_msg': "You bring the bar down hard-but {target_name} rolls aside.",
+            'victim_msg': "{attacker_name} brings the bar down hard-but you roll aside.",
+            'observer_msg': "{attacker_name} brings the bar down hard-but {target_name} rolls aside."
         },
         {
             'attacker_msg': "The impact lands where {target_name} stood seconds ago. Now it's just broken tile.",
@@ -426,9 +426,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name}'s strike clips a brick wall. The jolt runs up their arm."
         },
         {
-            'attacker_msg': "You fake left, swing right—but {target_name} doesn't fall for it.",
-            'victim_msg': "{attacker_name} fakes left, swings right—but you don't fall for it.",
-            'observer_msg': "{attacker_name} fakes left, swings right—but {target_name} doesn't fall for it."
+            'attacker_msg': "You fake left, swing right-but {target_name} doesn't fall for it.",
+            'victim_msg': "{attacker_name} fakes left, swings right-but you don't fall for it.",
+            'observer_msg': "{attacker_name} fakes left, swings right-but {target_name} doesn't fall for it."
         },
         {
             'attacker_msg': "You lunge, but the bar lands against armor, doing little more than making noise.",
@@ -478,9 +478,9 @@ MESSAGES = {
             'observer_msg': "A wide swing crashes into {target_name}'s chest. They crumple, mouth frozen in shock."
         },
         {
-            'attacker_msg': "The bar punctures ribs and keeps going. {target_name} doesn't scream—they seize, then stop.",
-            'victim_msg': "The bar punctures ribs and keeps going. You don't scream—you seize, then stop.",
-            'observer_msg': "The bar punctures ribs and keeps going. {target_name} doesn't scream—they seize, then stop."
+            'attacker_msg': "The bar punctures ribs and keeps going. {target_name} doesn't scream-they seize, then stop.",
+            'victim_msg': "The bar punctures ribs and keeps going. You don't scream-you seize, then stop.",
+            'observer_msg': "The bar punctures ribs and keeps going. {target_name} doesn't scream-they seize, then stop."
         },
         {
             'attacker_msg': "A thrust to the throat caves in everything. {target_name} drops with a ragged wheeze.",
@@ -488,9 +488,9 @@ MESSAGES = {
             'observer_msg': "A thrust to the throat caves in everything. {target_name} drops with a ragged wheeze."
         },
         {
-            'attacker_msg': "You hook the bar behind {target_name}'s neck and yank—hard enough to end it.",
-            'victim_msg': "{attacker_name} hooks the bar behind your neck and yanks—hard enough to end it.",
-            'observer_msg': "{attacker_name} hooks the bar behind {target_name}'s neck and yanks—hard enough to end it."
+            'attacker_msg': "You hook the bar behind {target_name}'s neck and yank-hard enough to end it.",
+            'victim_msg': "{attacker_name} hooks the bar behind your neck and yanks-hard enough to end it.",
+            'observer_msg': "{attacker_name} hooks the bar behind {target_name}'s neck and yanks-hard enough to end it."
         },
         {
             'attacker_msg': "The bar caves in {target_name}'s chest like a kicked door. They fold.",
@@ -578,9 +578,9 @@ MESSAGES = {
             'observer_msg': "The hook snags flesh and pulls. What remains isn't alive."
         },
         {
-            'attacker_msg': "The bar lands square on the temple—{target_name}'s body keeps moving for a second longer.",
-            'victim_msg': "The bar lands square on the temple—your body keeps moving for a second longer.",
-            'observer_msg': "The bar lands square on the temple—{target_name}'s body keeps moving for a second longer."
+            'attacker_msg': "The bar lands square on the temple-{target_name}'s body keeps moving for a second longer.",
+            'victim_msg': "The bar lands square on the temple-your body keeps moving for a second longer.",
+            'observer_msg': "The bar lands square on the temple-{target_name}'s body keeps moving for a second longer."
         },
         {
             'attacker_msg': "A sharp jab caves the chest inward. {target_name}'s last breath rattles away.",

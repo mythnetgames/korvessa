@@ -16,9 +16,9 @@ MESSAGES = {
             'observer_msg': "No flash. No words. Just {attacker_name}'s hammer, the heft, and a plan to break things."
         },
         {
-            'attacker_msg': "Old steel, chipped wood, and muscle — you become the fourth element.",
-            'victim_msg': "Old steel, chipped wood, and muscle — {attacker_name} becomes the fourth element.",
-            'observer_msg': "Old steel, chipped wood, and muscle — {attacker_name} becomes the fourth element."
+            'attacker_msg': "Old steel, chipped wood, and muscle - you become the fourth element.",
+            'victim_msg': "Old steel, chipped wood, and muscle - {attacker_name} becomes the fourth element.",
+            'observer_msg': "Old steel, chipped wood, and muscle - {attacker_name} becomes the fourth element."
         },
         {
             'attacker_msg': "One slow lift brings the sledge upright. The rest will come down hard.",
@@ -71,9 +71,9 @@ MESSAGES = {
             'observer_msg': "The head scrapes along concrete as {attacker_name} spins it once, slow and final."
         },
         {
-            'attacker_msg': "The sledge glints once — a spark of rust, a memory of the last time it was used.",
-            'victim_msg': "{attacker_name}'s sledge glints once — a spark of rust, a memory of the last time it was used.",
-            'observer_msg': "{attacker_name}'s sledge glints once — a spark of rust, a memory of the last time it was used."
+            'attacker_msg': "The sledge glints once - a spark of rust, a memory of the last time it was used.",
+            'victim_msg': "{attacker_name}'s sledge glints once - a spark of rust, a memory of the last time it was used.",
+            'observer_msg': "{attacker_name}'s sledge glints once - a spark of rust, a memory of the last time it was used."
         },
         {
             'attacker_msg': "The weapon drops into place with a sound like the end of things.",
@@ -136,9 +136,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} plants both feet and leans into the grip. This is happening."
         },
         {
-            'attacker_msg': "You roll your neck, then the hammer — both promise pain.",
-            'victim_msg': "{attacker_name} rolls their neck, then the hammer — both promise pain.",
-            'observer_msg': "{attacker_name} rolls their neck, then the hammer — both promise pain."
+            'attacker_msg': "You roll your neck, then the hammer - both promise pain.",
+            'victim_msg': "{attacker_name} rolls their neck, then the hammer - both promise pain.",
+            'observer_msg': "{attacker_name} rolls their neck, then the hammer - both promise pain."
         },
         {
             'attacker_msg': "You tilt the hammer forward like a battering ram choosing its target.",
@@ -335,9 +335,9 @@ MESSAGES = {
             'observer_msg': "A jab aimed too high hits a light fixture. It sparks, then dies."
         },
         {
-            'attacker_msg': "A misstep drags the head into debris. Your recovery is fast — but not fast enough.",
-            'victim_msg': "A misstep drags the head into debris. {attacker_name}'s recovery is fast — but not fast enough.",
-            'observer_msg': "A misstep drags the head into debris. {attacker_name}'s recovery is fast — but not fast enough."
+            'attacker_msg': "A misstep drags the head into debris. Your recovery is fast - but not fast enough.",
+            'victim_msg': "A misstep drags the head into debris. {attacker_name}'s recovery is fast - but not fast enough.",
+            'observer_msg': "A misstep drags the head into debris. {attacker_name}'s recovery is fast - but not fast enough."
         },
         {
             'attacker_msg': "A sideways arc flattens a locker. They scramble past flying metal.",
@@ -425,9 +425,9 @@ MESSAGES = {
             'observer_msg': "The swing decimates a chair. {target_name} sidesteps into better odds."
         },
         {
-            'attacker_msg': "The swing fails to land — but its shadow still makes them flinch.",
-            'victim_msg': "The swing fails to land — but its shadow still makes you flinch.",
-            'observer_msg': "The swing fails to land — but its shadow still makes {target_name} flinch."
+            'attacker_msg': "The swing fails to land - but its shadow still makes them flinch.",
+            'victim_msg': "The swing fails to land - but its shadow still makes you flinch.",
+            'observer_msg': "The swing fails to land - but its shadow still makes {target_name} flinch."
         },
         {
             'attacker_msg': "You charge and the hammer glances off a table leg. The whole thing flips.",
@@ -487,9 +487,9 @@ MESSAGES = {
             'observer_msg': "A spinning swing splits the side of {target_name}'s head. They drop in sections."
         },
         {
-            'attacker_msg': "One arc, one hit — the jaw explodes in red. They never finish the scream.",
-            'victim_msg': "One arc, one hit — your jaw explodes in red. You never finish the scream.",
-            'observer_msg': "One arc, one hit — {target_name}'s jaw explodes in red. They never finish the scream."
+            'attacker_msg': "One arc, one hit - the jaw explodes in red. They never finish the scream.",
+            'victim_msg': "One arc, one hit - your jaw explodes in red. You never finish the scream.",
+            'observer_msg': "One arc, one hit - {target_name}'s jaw explodes in red. They never finish the scream."
         },
         {
             'attacker_msg': "One blow to the back of the head. No twitch. Just down.",
@@ -502,9 +502,9 @@ MESSAGES = {
             'observer_msg': "One clean shot to {target_name}'s jaw. They spin, fall, don't move again."
         },
         {
-            'attacker_msg': "Steel meets temple. There's no blood at first — just stillness. Then both.",
-            'victim_msg': "Steel meets your temple. There's no blood at first — just stillness. Then both.",
-            'observer_msg': "Steel meets {target_name}'s temple. There's no blood at first — just stillness. Then both."
+            'attacker_msg': "Steel meets temple. There's no blood at first - just stillness. Then both.",
+            'victim_msg': "Steel meets your temple. There's no blood at first - just stillness. Then both.",
+            'observer_msg': "Steel meets {target_name}'s temple. There's no blood at first - just stillness. Then both."
         },
         {
             'attacker_msg': "The final swing splits bone and noise alike. They fall apart in motion.",

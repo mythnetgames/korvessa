@@ -56,9 +56,9 @@ MESSAGES = {
             "observer_msg": "The knife is matte, military, and unforgiving. {attacker_name} tests the edge with a practiced thumb swipe."
         },
         {
-            "attacker_msg": "The knife makes no sound as it leaves the sheath. You do — a low breath before chaos.",
-            "victim_msg": "The knife makes no sound as it leaves the sheath. {attacker_name} does — a low breath before chaos.",
-            "observer_msg": "The knife makes no sound as it leaves the sheath. {attacker_name} does — a low breath before chaos."
+            "attacker_msg": "The knife makes no sound as it leaves the sheath. You do - a low breath before chaos.",
+            "victim_msg": "The knife makes no sound as it leaves the sheath. {attacker_name} does - a low breath before chaos.",
+            "observer_msg": "The knife makes no sound as it leaves the sheath. {attacker_name} does - a low breath before chaos."
         },
         {
             "attacker_msg": "The serrated spine gleams dully. You breathe out and grip tighter.",
@@ -76,19 +76,19 @@ MESSAGES = {
             "observer_msg": "The weapon slides from its sheath like it was waiting. {attacker_name} grips it like a vow."
         },
         {
-            "attacker_msg": "There's no pose — just weight, balance, and decision. The combat knife rests, ready.",
-            "victim_msg": "There's no pose — just weight, balance, and decision. The combat knife rests, ready.",
-            "observer_msg": "There's no pose — just weight, balance, and decision. The combat knife rests, ready."
+            "attacker_msg": "There's no pose - just weight, balance, and decision. The combat knife rests, ready.",
+            "victim_msg": "There's no pose - just weight, balance, and decision. The combat knife rests, ready.",
+            "observer_msg": "There's no pose - just weight, balance, and decision. The combat knife rests, ready."
         },
         {
-            "attacker_msg": "There's no shine, no polish — just a battle-scarred knife and the silence before something terrible.",
-            "victim_msg": "There's no shine, no polish — just a battle-scarred knife and the silence before something terrible.",
-            "observer_msg": "There's no shine, no polish — just a battle-scarred knife and the silence before something terrible."
+            "attacker_msg": "There's no shine, no polish - just a battle-scarred knife and the silence before something terrible.",
+            "victim_msg": "There's no shine, no polish - just a battle-scarred knife and the silence before something terrible.",
+            "observer_msg": "There's no shine, no polish - just a battle-scarred knife and the silence before something terrible."
         },
         {
-            "attacker_msg": "With a flick of the wrist, you flip the knife once, catching it like it's muscle memory — because it is.",
-            "victim_msg": "With a flick of the wrist, {attacker_name} flips the knife once, catching it like it's muscle memory — because it is.",
-            "observer_msg": "With a flick of the wrist, {attacker_name} flips the knife once, catching it like it's muscle memory — because it is."
+            "attacker_msg": "With a flick of the wrist, you flip the knife once, catching it like it's muscle memory - because it is.",
+            "victim_msg": "With a flick of the wrist, {attacker_name} flips the knife once, catching it like it's muscle memory - because it is.",
+            "observer_msg": "With a flick of the wrist, {attacker_name} flips the knife once, catching it like it's muscle memory - because it is."
         },
         {
             "attacker_msg": "You draw the blade and hold it reverse-grip, low and close. There's nothing theatrical about it.",
@@ -96,9 +96,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} draws the blade and holds it reverse-grip, low and close. There's nothing theatrical about it."
         },
         {
-            "attacker_msg": "You draw the combat knife like you've done it a thousand times — because you have.",
-            "victim_msg": "{attacker_name} draws the combat knife like they've done it a thousand times — because they have.",
-            "observer_msg": "{attacker_name} draws the combat knife like they've done it a thousand times — because they have."
+            "attacker_msg": "You draw the combat knife like you've done it a thousand times - because you have.",
+            "victim_msg": "{attacker_name} draws the combat knife like they've done it a thousand times - because they have.",
+            "observer_msg": "{attacker_name} draws the combat knife like they've done it a thousand times - because they have."
         },
         {
             "attacker_msg": "You draw the combat knife with one hand, the other already aiming where it'll land.",
@@ -106,9 +106,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} draws the combat knife with one hand, the other already aiming where it'll land."
         },
         {
-            "attacker_msg": "You draw the knife slowly, almost lovingly. It deserves respect — and it gets it.",
-            "victim_msg": "{attacker_name} draws the knife slowly, almost lovingly. It deserves respect — and it gets it.",
-            "observer_msg": "{attacker_name} draws the knife slowly, almost lovingly. It deserves respect — and it gets it."
+            "attacker_msg": "You draw the knife slowly, almost lovingly. It deserves respect - and it gets it.",
+            "victim_msg": "{attacker_name} draws the knife slowly, almost lovingly. It deserves respect - and it gets it.",
+            "observer_msg": "{attacker_name} draws the knife slowly, almost lovingly. It deserves respect - and it gets it."
         },
         {
             "attacker_msg": "You flex your grip, testing the balance of the blade. Your posture says: ready.",
@@ -146,9 +146,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} touches the edge to their thumb, drawing a line of red. The knife remembers."
         },
         {
-            "attacker_msg": "You unsheathe the combat knife with a slow hiss of steel. It's not a weapon — it's a decision.",
-            "victim_msg": "{attacker_name} unsheathes the combat knife with a slow hiss of steel. It's not a weapon — it's a decision.",
-            "observer_msg": "{attacker_name} unsheathes the combat knife with a slow hiss of steel. It's not a weapon — it's a decision."
+            "attacker_msg": "You unsheathe the combat knife with a slow hiss of steel. It's not a weapon - it's a decision.",
+            "victim_msg": "{attacker_name} unsheathes the combat knife with a slow hiss of steel. It's not a weapon - it's a decision.",
+            "observer_msg": "{attacker_name} unsheathes the combat knife with a slow hiss of steel. It's not a weapon - it's a decision."
         },
     ],
     "hit": [
@@ -193,9 +193,9 @@ MESSAGES = {
             "observer_msg": "One hard stab to the {hit_location}. {target_name} jerks and tries to breathe. It doesn't work."
         },
         {
-            "attacker_msg": "One jab lands in the {hit_location} — a dirty, brutal strike that turns legs to jelly.",
-            "victim_msg": "One jab lands in the {hit_location} — a dirty, brutal strike that turns legs to jelly.",
-            "observer_msg": "One jab lands in the {hit_location} — a dirty, brutal strike that turns legs to jelly."
+            "attacker_msg": "One jab lands in the {hit_location} - a dirty, brutal strike that turns legs to jelly.",
+            "victim_msg": "One jab lands in the {hit_location} - a dirty, brutal strike that turns legs to jelly.",
+            "observer_msg": "One jab lands in the {hit_location} - a dirty, brutal strike that turns legs to jelly."
         },
         {
             "attacker_msg": "One swift jab to the {hit_location} sends {target_name} spinning and falling hard.",
@@ -233,9 +233,9 @@ MESSAGES = {
             "observer_msg": "The edge sinks into the {hit_location}. {target_name} howls as their arm falls slack."
         },
         {
-            "attacker_msg": "The edge slices a long red line down {target_name}'s {hit_location}. Not fatal — yet.",
-            "victim_msg": "The edge slices a long red line down your {hit_location}. Not fatal — yet.",
-            "observer_msg": "The edge slices a long red line down {target_name}'s {hit_location}. Not fatal — yet."
+            "attacker_msg": "The edge slices a long red line down {target_name}'s {hit_location}. Not fatal - yet.",
+            "victim_msg": "The edge slices a long red line down your {hit_location}. Not fatal - yet.",
+            "observer_msg": "The edge slices a long red line down {target_name}'s {hit_location}. Not fatal - yet."
         },
         {
             "attacker_msg": "The knife buries itself into {target_name}'s {hit_location} with a single, efficient thrust. They jerk once, then sag.",
@@ -258,9 +258,9 @@ MESSAGES = {
             "observer_msg": "The knife slashes the {hit_location}. Blood flows like a ribbon of failure."
         },
         {
-            "attacker_msg": "The serrated back tears skin along the {hit_location}. {target_name} drops their guard — and maybe more.",
-            "victim_msg": "The serrated back tears skin along the {hit_location}. You drop your guard — and maybe more.",
-            "observer_msg": "The serrated back tears skin along the {hit_location}. {target_name} drops their guard — and maybe more."
+            "attacker_msg": "The serrated back tears skin along the {hit_location}. {target_name} drops their guard - and maybe more.",
+            "victim_msg": "The serrated back tears skin along the {hit_location}. You drop your guard - and maybe more.",
+            "observer_msg": "The serrated back tears skin along the {hit_location}. {target_name} drops their guard - and maybe more."
         },
         {
             "attacker_msg": "The serrated edge saws into the {hit_location}. {target_name} collapses, clawing at the wound.",
@@ -410,9 +410,9 @@ MESSAGES = {
             "observer_msg": "The slash catches a chair leg. Wood splinters. {target_name} survives by luck."
         },
         {
-            "attacker_msg": "The strike goes wide. Not slow, not weak — just wrong.",
-            "victim_msg": "The strike goes wide. Not slow, not weak — just wrong.",
-            "observer_msg": "The strike goes wide. Not slow, not weak — just wrong."
+            "attacker_msg": "The strike goes wide. Not slow, not weak - just wrong.",
+            "victim_msg": "The strike goes wide. Not slow, not weak - just wrong.",
+            "observer_msg": "The strike goes wide. Not slow, not weak - just wrong."
         },
         {
             "attacker_msg": "The strike slashes a tarp instead. It falls. {target_name} is already gone.",
@@ -420,9 +420,9 @@ MESSAGES = {
             "observer_msg": "The strike slashes a tarp instead. It falls. {target_name} is already gone."
         },
         {
-            "attacker_msg": "You go low — too low. The knife hits tile and glances away.",
-            "victim_msg": "{attacker_name} goes low — too low. The knife hits tile and glances away.",
-            "observer_msg": "{attacker_name} goes low — too low. The knife hits tile and glances away."
+            "attacker_msg": "You go low - too low. The knife hits tile and glances away.",
+            "victim_msg": "{attacker_name} goes low - too low. The knife hits tile and glances away.",
+            "observer_msg": "{attacker_name} goes low - too low. The knife hits tile and glances away."
         },
         {
             "attacker_msg": "You lunge and miss, the knife whistling past {target_name}'s ribs.",
@@ -435,14 +435,14 @@ MESSAGES = {
             "observer_msg": "{attacker_name} stabs too early. The knife grazes nothing. {target_name} grins and steps back."
         },
         {
-            "attacker_msg": "You stab where {target_name} was. Now there's only air — and regret.",
-            "victim_msg": "{attacker_name} stabs where you were. Now there's only air — and regret.",
-            "observer_msg": "{attacker_name} stabs where {target_name} was. Now there's only air — and regret."
+            "attacker_msg": "You stab where {target_name} was. Now there's only air - and regret.",
+            "victim_msg": "{attacker_name} stabs where you were. Now there's only air - and regret.",
+            "observer_msg": "{attacker_name} stabs where {target_name} was. Now there's only air - and regret."
         },
         {
-            "attacker_msg": "Your knife darts forward — too fast, too shallow. It cuts only air.",
-            "victim_msg": "{attacker_name}'s knife darts forward — too fast, too shallow. It cuts only air.",
-            "observer_msg": "{attacker_name}'s knife darts forward — too fast, too shallow. It cuts only air."
+            "attacker_msg": "Your knife darts forward - too fast, too shallow. It cuts only air.",
+            "victim_msg": "{attacker_name}'s knife darts forward - too fast, too shallow. It cuts only air.",
+            "observer_msg": "{attacker_name}'s knife darts forward - too fast, too shallow. It cuts only air."
         },
         {
             "attacker_msg": "Your slash draws a line in the dirt. The next will draw more than that.",
@@ -492,9 +492,9 @@ MESSAGES = {
             "observer_msg": "A reverse grip stab drives into the lungs. {target_name} wheezes once, then goes limp."
         },
         {
-            "attacker_msg": "A single, perfect hit to the heart. {target_name} jerks — then stills. It's done.",
-            "victim_msg": "A single, perfect hit to the heart. You jerk — then still. It's done.",
-            "observer_msg": "A single, perfect hit to the heart. {target_name} jerks — then stills. It's done."
+            "attacker_msg": "A single, perfect hit to the heart. {target_name} jerks - then stills. It's done.",
+            "victim_msg": "A single, perfect hit to the heart. You jerk - then still. It's done.",
+            "observer_msg": "A single, perfect hit to the heart. {target_name} jerks - then stills. It's done."
         },
         {
             "attacker_msg": "A slash from hip to spine drops {target_name} in a waterfall of red. No mercy. No pause.",
@@ -512,9 +512,9 @@ MESSAGES = {
             "observer_msg": "One clean jab between the ribs and a twist. {target_name}'s legs go out first."
         },
         {
-            "attacker_msg": "One final stab hits the carotid. Blood erupts. {target_name} tries to speak — then doesn't.",
-            "victim_msg": "One final stab hits the carotid. Blood erupts. You try to speak — then don't.",
-            "observer_msg": "One final stab hits the carotid. Blood erupts. {target_name} tries to speak — then doesn't."
+            "attacker_msg": "One final stab hits the carotid. Blood erupts. {target_name} tries to speak - then doesn't.",
+            "victim_msg": "One final stab hits the carotid. Blood erupts. You try to speak - then don't.",
+            "observer_msg": "One final stab hits the carotid. Blood erupts. {target_name} tries to speak - then doesn't."
         },
         {
             "attacker_msg": "Steel pierces temple. {target_name} slumps immediately, dead before they hit the ground.",
@@ -527,9 +527,9 @@ MESSAGES = {
             "observer_msg": "Steel slides into the base of the skull. {target_name}'s body freezes, then falls."
         },
         {
-            "attacker_msg": "The blade drives deep into {target_name}'s heart. The collapse is quiet — definitive.",
-            "victim_msg": "The blade drives deep into your heart. The collapse is quiet — definitive.",
-            "observer_msg": "The blade drives deep into {target_name}'s heart. The collapse is quiet — definitive."
+            "attacker_msg": "The blade drives deep into {target_name}'s heart. The collapse is quiet - definitive.",
+            "victim_msg": "The blade drives deep into your heart. The collapse is quiet - definitive.",
+            "observer_msg": "The blade drives deep into {target_name}'s heart. The collapse is quiet - definitive."
         },
         {
             "attacker_msg": "The blade lands in the base of the skull. You don't pull it out until you're sure.",
@@ -572,9 +572,9 @@ MESSAGES = {
             "observer_msg": "The last cut splits the chest. {target_name}'s knees hit first, then the rest."
         },
         {
-            "attacker_msg": "The last stab is under the ribs — an upward angle that ends conversation forever.",
-            "victim_msg": "The last stab is under the ribs — an upward angle that ends conversation forever.",
-            "observer_msg": "The last stab is under the ribs — an upward angle that ends conversation forever."
+            "attacker_msg": "The last stab is under the ribs - an upward angle that ends conversation forever.",
+            "victim_msg": "The last stab is under the ribs - an upward angle that ends conversation forever.",
+            "observer_msg": "The last stab is under the ribs - an upward angle that ends conversation forever."
         },
         {
             "attacker_msg": "You cut deep into the abdomen and step back. {target_name} collapses, gutted.",

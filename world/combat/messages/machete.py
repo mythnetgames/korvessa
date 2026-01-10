@@ -1,14 +1,14 @@
 MESSAGES = {
     'initiate': [
         {
-            'attacker_msg': "A test swing hums through the air. You nod once — it's ready.",
-            'victim_msg': "A test swing hums through the air. {attacker_name} nods once — it's ready.",
-            'observer_msg': "A test swing hums through the air. {attacker_name} nods once — it's ready."
+            'attacker_msg': "A test swing hums through the air. You nod once - it's ready.",
+            'victim_msg': "A test swing hums through the air. {attacker_name} nods once - it's ready.",
+            'observer_msg': "A test swing hums through the air. {attacker_name} nods once - it's ready."
         },
         {
-            'attacker_msg': "A twist of the wrist and the machete gleams — chipped, bloodstained, eager.",
-            'victim_msg': "A twist of the wrist and the machete gleams — chipped, bloodstained, eager.",
-            'observer_msg': "A twist of the wrist and the machete gleams — chipped, bloodstained, eager."
+            'attacker_msg': "A twist of the wrist and the machete gleams - chipped, bloodstained, eager.",
+            'victim_msg': "A twist of the wrist and the machete gleams - chipped, bloodstained, eager.",
+            'observer_msg': "A twist of the wrist and the machete gleams - chipped, bloodstained, eager."
         },
         {
             'attacker_msg': "No flourish. Just steel and intent. You tighten your grip and raise the machete.",
@@ -36,9 +36,9 @@ MESSAGES = {
             'observer_msg': "The blade is too long for finesse. That suits {attacker_name} just fine."
         },
         {
-            'attacker_msg': "The blade looks too heavy to move fast — until you move it.",
-            'victim_msg': "The blade looks too heavy to move fast — until {attacker_name} moves it.",
-            'observer_msg': "The blade looks too heavy to move fast — until {attacker_name} moves it."
+            'attacker_msg': "The blade looks too heavy to move fast - until you move it.",
+            'victim_msg': "The blade looks too heavy to move fast - until {attacker_name} moves it.",
+            'observer_msg': "The blade looks too heavy to move fast - until {attacker_name} moves it."
         },
         {
             'attacker_msg': "The machete gleams faintly under flickering light. Your shadow grows with it.",
@@ -66,24 +66,24 @@ MESSAGES = {
             'observer_msg': "The weapon hums as it slices air. {attacker_name} grips it tighter with each step."
         },
         {
-            'attacker_msg': "The weapon rests across your shoulders, balanced like a cross — or a promise.",
-            'victim_msg': "The weapon rests across {attacker_name}'s shoulders, balanced like a cross — or a promise.",
-            'observer_msg': "The weapon rests across {attacker_name}'s shoulders, balanced like a cross — or a promise."
+            'attacker_msg': "The weapon rests across your shoulders, balanced like a cross - or a promise.",
+            'victim_msg': "The weapon rests across {attacker_name}'s shoulders, balanced like a cross - or a promise.",
+            'observer_msg': "The weapon rests across {attacker_name}'s shoulders, balanced like a cross - or a promise."
         },
         {
-            'attacker_msg': "The weapon wasn't forged for beauty — just death. You admire it all the same.",
-            'victim_msg': "The weapon wasn't forged for beauty — just death. {attacker_name} admires it all the same.",
-            'observer_msg': "The weapon wasn't forged for beauty — just death. {attacker_name} admires it all the same."
+            'attacker_msg': "The weapon wasn't forged for beauty - just death. You admire it all the same.",
+            'victim_msg': "The weapon wasn't forged for beauty - just death. {attacker_name} admires it all the same.",
+            'observer_msg': "The weapon wasn't forged for beauty - just death. {attacker_name} admires it all the same."
         },
         {
-            'attacker_msg': "The weight of the blade shifts the way you move — slow, deliberate, dangerous.",
-            'victim_msg': "The weight of the blade shifts the way {attacker_name} moves — slow, deliberate, dangerous.",
-            'observer_msg': "The weight of the blade shifts the way {attacker_name} moves — slow, deliberate, dangerous."
+            'attacker_msg': "The weight of the blade shifts the way you move - slow, deliberate, dangerous.",
+            'victim_msg': "The weight of the blade shifts the way {attacker_name} moves - slow, deliberate, dangerous.",
+            'observer_msg': "The weight of the blade shifts the way {attacker_name} moves - slow, deliberate, dangerous."
         },
         {
-            'attacker_msg': "This isn't a combat knife — it's a tool turned legend. You grip the machete with both hands.",
-            'victim_msg': "This isn't a combat knife — it's a tool turned legend. {attacker_name} grips the machete with both hands.",
-            'observer_msg': "This isn't a combat knife — it's a tool turned legend. {attacker_name} grips the machete with both hands."
+            'attacker_msg': "This isn't a combat knife - it's a tool turned legend. You grip the machete with both hands.",
+            'victim_msg': "This isn't a combat knife - it's a tool turned legend. {attacker_name} grips the machete with both hands.",
+            'observer_msg': "This isn't a combat knife - it's a tool turned legend. {attacker_name} grips the machete with both hands."
         },
         {
             'attacker_msg': "With a flick, you free the machete from your back. It's heavy, brutal, perfect.",
@@ -91,9 +91,9 @@ MESSAGES = {
             'observer_msg': "With a flick, {attacker_name} frees the machete from their back. It's heavy, brutal, perfect."
         },
         {
-            'attacker_msg': "With a grunt, you swing the blade once — a warning arc through empty air.",
-            'victim_msg': "With a grunt, {attacker_name} swings the blade once — a warning arc through empty air.",
-            'observer_msg': "With a grunt, {attacker_name} swings the blade once — a warning arc through empty air."
+            'attacker_msg': "With a grunt, you swing the blade once - a warning arc through empty air.",
+            'victim_msg': "With a grunt, {attacker_name} swings the blade once - a warning arc through empty air.",
+            'observer_msg': "With a grunt, {attacker_name} swings the blade once - a warning arc through empty air."
         },
         {
             'attacker_msg': "With one sharp motion, the machete swings into view. You don't blink.",
@@ -193,9 +193,9 @@ MESSAGES = {
             'observer_msg': "A swing lands across {target_name}'s {hit_location}. Blood flies. {target_name} stumbles, arm useless."
         },
         {
-            'attacker_msg': "One chop across the {hit_location} leaves {target_name} on the ground — twitching, then still.",
-            'victim_msg': "One chop across your {hit_location} leaves you on the ground — twitching, then still.",
-            'observer_msg': "One chop across {target_name}'s {hit_location} leaves them on the ground — twitching, then still."
+            'attacker_msg': "One chop across the {hit_location} leaves {target_name} on the ground - twitching, then still.",
+            'victim_msg': "One chop across your {hit_location} leaves you on the ground - twitching, then still.",
+            'observer_msg': "One chop across {target_name}'s {hit_location} leaves them on the ground - twitching, then still."
         },
         {
             'attacker_msg': "One hack across the {hit_location} leaves a red canyon. {target_name} screams and stumbles.",
@@ -253,9 +253,9 @@ MESSAGES = {
             'observer_msg': "The machete cleaves into the side of {target_name}'s {hit_location}. {target_name} gurgles and drops fast."
         },
         {
-            'attacker_msg': "The machete hacks into a {hit_location}. The follow-up doesn't come — it isn't needed.",
-            'victim_msg': "The machete hacks into your {hit_location}. The follow-up doesn't come — it isn't needed.",
-            'observer_msg': "The machete hacks into {target_name}'s {hit_location}. The follow-up doesn't come — it isn't needed."
+            'attacker_msg': "The machete hacks into a {hit_location}. The follow-up doesn't come - it isn't needed.",
+            'victim_msg': "The machete hacks into your {hit_location}. The follow-up doesn't come - it isn't needed.",
+            'observer_msg': "The machete hacks into {target_name}'s {hit_location}. The follow-up doesn't come - it isn't needed."
         },
         {
             'attacker_msg': "The machete hacks into {target_name}'s {hit_location}. The wound is wide, deep, and unforgettable.",
@@ -305,9 +305,9 @@ MESSAGES = {
     ],
     'miss': [
         {
-            'attacker_msg': "A clean arc — but an empty one. The machete hums in the silence.",
-            'victim_msg': "A clean arc — but an empty one. The machete hums in the silence.",
-            'observer_msg': "A clean arc — but an empty one. The machete hums in the silence."
+            'attacker_msg': "A clean arc - but an empty one. The machete hums in the silence.",
+            'victim_msg': "A clean arc - but an empty one. The machete hums in the silence.",
+            'observer_msg': "A clean arc - but an empty one. The machete hums in the silence."
         },
         {
             'attacker_msg': "A downward chop misses and bites into tile. Shards leap up like warning.",
@@ -325,9 +325,9 @@ MESSAGES = {
             'observer_msg': "A high swing catches air and regret. {attacker_name} resets their stance."
         },
         {
-            'attacker_msg': "A low chop misses the ankle. It finds dirt instead — and leaves a scar in the ground.",
-            'victim_msg': "A low chop misses your ankle. It finds dirt instead — and leaves a scar in the ground.",
-            'observer_msg': "A low chop misses {target_name}'s ankle. It finds dirt instead — and leaves a scar in the ground."
+            'attacker_msg': "A low chop misses the ankle. It finds dirt instead - and leaves a scar in the ground.",
+            'victim_msg': "A low chop misses your ankle. It finds dirt instead - and leaves a scar in the ground.",
+            'observer_msg': "A low chop misses {target_name}'s ankle. It finds dirt instead - and leaves a scar in the ground."
         },
         {
             'attacker_msg': "A missed strike cleaves a chair in two. {target_name} doesn't wait to see the next one.",
@@ -340,9 +340,9 @@ MESSAGES = {
             'observer_msg': "A reckless swing catches a doorframe. The wood splinters violently."
         },
         {
-            'attacker_msg': "A wide arc cuts through a curtain. Red doesn't bloom — yet.",
-            'victim_msg': "A wide arc cuts through a curtain. Red doesn't bloom — yet.",
-            'observer_msg': "A wide arc cuts through a curtain. Red doesn't bloom — yet."
+            'attacker_msg': "A wide arc cuts through a curtain. Red doesn't bloom - yet.",
+            'victim_msg': "A wide arc cuts through a curtain. Red doesn't bloom - yet.",
+            'observer_msg': "A wide arc cuts through a curtain. Red doesn't bloom - yet."
         },
         {
             'attacker_msg': "A wild swing clips only a curtain. It flutters, unaware how close death came.",
@@ -410,9 +410,9 @@ MESSAGES = {
             'observer_msg': "The machete strikes a crate, lodging deep. {attacker_name} wrenches it free with a growl."
         },
         {
-            'attacker_msg': "The machete tears through a hanging wire. The spark is bright — but not fatal.",
-            'victim_msg': "The machete tears through a hanging wire. The spark is bright — but not fatal.",
-            'observer_msg': "The machete tears through a hanging wire. The spark is bright — but not fatal."
+            'attacker_msg': "The machete tears through a hanging wire. The spark is bright - but not fatal.",
+            'victim_msg': "The machete tears through a hanging wire. The spark is bright - but not fatal.",
+            'observer_msg': "The machete tears through a hanging wire. The spark is bright - but not fatal."
         },
         {
             'attacker_msg': "The machete whistles through empty space, the wind around it flinching.",
@@ -425,9 +425,9 @@ MESSAGES = {
             'observer_msg': "The machete whooshes past, missing by inches but changing the air."
         },
         {
-            'attacker_msg': "The swing is heavy and slow — but still enough to make {target_name} flinch backward.",
-            'victim_msg': "The swing is heavy and slow — but still enough to make you flinch backward.",
-            'observer_msg': "The swing is heavy and slow — but still enough to make {target_name} flinch backward."
+            'attacker_msg': "The swing is heavy and slow - but still enough to make {target_name} flinch backward.",
+            'victim_msg': "The swing is heavy and slow - but still enough to make you flinch backward.",
+            'observer_msg': "The swing is heavy and slow - but still enough to make {target_name} flinch backward."
         },
         {
             'attacker_msg': "You aim too high. The blade crashes into a ceiling beam with a shudder.",
@@ -497,9 +497,9 @@ MESSAGES = {
             'observer_msg': "A rising slash opens {target_name} from hip to ribs. There's nothing left to say."
         },
         {
-            'attacker_msg': "One clean blow to the heart. {target_name} stiffens — then folds.",
-            'victim_msg': "One clean blow to your heart. You stiffen — then fold.",
-            'observer_msg': "One clean blow to {target_name}'s heart. {target_name} stiffens — then folds."
+            'attacker_msg': "One clean blow to the heart. {target_name} stiffens - then folds.",
+            'victim_msg': "One clean blow to your heart. You stiffen - then fold.",
+            'observer_msg': "One clean blow to {target_name}'s heart. {target_name} stiffens - then folds."
         },
         {
             'attacker_msg': "One rising slash opens the neck. Blood fountains. {target_name} collapses backward, twitching.",
@@ -537,9 +537,9 @@ MESSAGES = {
             'observer_msg': "The blade slams through {target_name}'s clavicle and lodges deep. {attacker_name} leaves it there."
         },
         {
-            'attacker_msg': "The last cut is slow and purposeful — across the neck. Red follows, then quiet.",
-            'victim_msg': "The last cut is slow and purposeful — across your neck. Red follows, then quiet.",
-            'observer_msg': "The last cut is slow and purposeful — across {target_name}'s neck. Red follows, then quiet."
+            'attacker_msg': "The last cut is slow and purposeful - across the neck. Red follows, then quiet.",
+            'victim_msg': "The last cut is slow and purposeful - across your neck. Red follows, then quiet.",
+            'observer_msg': "The last cut is slow and purposeful - across {target_name}'s neck. Red follows, then quiet."
         },
         {
             'attacker_msg': "The machete hacks down into the shoulder, cleaving into the chest. {target_name} crumples like collapsed scaffolding.",
@@ -592,9 +592,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} hacks through {target_name}'s chest cavity. The body falls open like a book no one should read."
         },
         {
-            'attacker_msg': "You hack through the gut. {target_name} groans — then never again.",
-            'victim_msg': "{attacker_name} hacks through your gut. You groan — then never again.",
-            'observer_msg': "{attacker_name} hacks through {target_name}'s gut. {target_name} groans — then never again."
+            'attacker_msg': "You hack through the gut. {target_name} groans - then never again.",
+            'victim_msg': "{attacker_name} hacks through your gut. You groan - then never again.",
+            'observer_msg': "{attacker_name} hacks through {target_name}'s gut. {target_name} groans - then never again."
         },
         {
             'attacker_msg': "You step in close and drive the blade into the sternum. The noise it makes is wet and final.",

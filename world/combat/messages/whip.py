@@ -71,9 +71,9 @@ MESSAGES = {
             'observer_msg': "The leather touches the floor like a threat grazing skin."
         },
         {
-            'attacker_msg': "The whip dances like muscle memory — practiced, smooth, inevitable.",
-            'victim_msg': "The whip dances like muscle memory — practiced, smooth, inevitable.",
-            'observer_msg': "The whip dances like muscle memory — practiced, smooth, inevitable."
+            'attacker_msg': "The whip dances like muscle memory - practiced, smooth, inevitable.",
+            'victim_msg': "The whip dances like muscle memory - practiced, smooth, inevitable.",
+            'observer_msg': "The whip dances like muscle memory - practiced, smooth, inevitable."
         },
         {
             'attacker_msg': "The whip is cracked just once. The noise is thunder in a small room.",
@@ -126,9 +126,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} rolls their wrist. The whip slithers loose and twitching."
         },
         {
-            'attacker_msg': "You snap the whip once — not to intimidate, but to announce the end.",
-            'victim_msg': "{attacker_name} snaps the whip once — not to intimidate, but to announce the end.",
-            'observer_msg': "{attacker_name} snaps the whip once — not to intimidate, but to announce the end."
+            'attacker_msg': "You snap the whip once - not to intimidate, but to announce the end.",
+            'victim_msg': "{attacker_name} snaps the whip once - not to intimidate, but to announce the end.",
+            'observer_msg': "{attacker_name} snaps the whip once - not to intimidate, but to announce the end."
         },
         {
             'attacker_msg': "You spin the whip behind your back. It arcs forward, tense and lethal.",
@@ -141,9 +141,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} uncoils the whip in one slow movement. It slithers across the ground like it's hunting."
         },
         {
-            'attacker_msg': "You wind the whip around your wrist — then release it in one silent gesture.",
-            'victim_msg': "{attacker_name} winds the whip around their wrist — then releases it in one silent gesture.",
-            'observer_msg': "{attacker_name} winds the whip around their wrist — then releases it in one silent gesture."
+            'attacker_msg': "You wind the whip around your wrist - then release it in one silent gesture.",
+            'victim_msg': "{attacker_name} winds the whip around their wrist - then releases it in one silent gesture.",
+            'observer_msg': "{attacker_name} winds the whip around their wrist - then releases it in one silent gesture."
         },
         {
             'attacker_msg': "Your eyes narrow as you test the weight of the whip. The test is over.",
@@ -168,9 +168,9 @@ MESSAGES = {
             'observer_msg': "A precise crack tags the {hit_location}. {target_name}'s grip falters and something metal clatters."
         },
         {
-            'attacker_msg': "A quick flick wraps the leather around {target_name}'s {hit_location} — then tears it free, skin and all.",
-            'victim_msg': "A quick flick wraps the leather around your {hit_location} — then tears it free, skin and all.",
-            'observer_msg': "A quick flick wraps the leather around {target_name}'s {hit_location} — then tears it free, skin and all."
+            'attacker_msg': "A quick flick wraps the leather around {target_name}'s {hit_location} - then tears it free, skin and all.",
+            'victim_msg': "A quick flick wraps the leather around your {hit_location} - then tears it free, skin and all.",
+            'observer_msg': "A quick flick wraps the leather around {target_name}'s {hit_location} - then tears it free, skin and all."
         },
         {
             'attacker_msg': "A sharp strike lands across the {hit_location}. The welt blooms bright and wet.",
@@ -273,9 +273,9 @@ MESSAGES = {
             'observer_msg': "The whip tears into the {hit_location}. The echo hangs longer than the breath."
         },
         {
-            'attacker_msg': "You coil the whip around {target_name}'s {hit_location} and pull — hard.",
-            'victim_msg': "{attacker_name} coils the whip around your {hit_location} and pulls — hard.",
-            'observer_msg': "{attacker_name} coils the whip around {target_name}'s {hit_location} and pulls — hard."
+            'attacker_msg': "You coil the whip around {target_name}'s {hit_location} and pull - hard.",
+            'victim_msg': "{attacker_name} coils the whip around your {hit_location} and pulls - hard.",
+            'observer_msg': "{attacker_name} coils the whip around {target_name}'s {hit_location} and pulls - hard."
         },
         {
             'attacker_msg': "You crack the whip across {target_name}'s {hit_location}. The howl that follows is raw.",
@@ -517,9 +517,9 @@ MESSAGES = {
             'observer_msg': "The end of the whip punches into the eye. {target_name} stumbles, then stills."
         },
         {
-            'attacker_msg': "The final flick sends leather through the air — and {target_name} through death.",
-            'victim_msg': "The final flick sends leather through the air — and you through death.",
-            'observer_msg': "The final flick sends leather through the air — and {target_name} through death."
+            'attacker_msg': "The final flick sends leather through the air - and {target_name} through death.",
+            'victim_msg': "The final flick sends leather through the air - and you through death.",
+            'observer_msg': "The final flick sends leather through the air - and {target_name} through death."
         },
         {
             'attacker_msg': "The lash snaps across the throat. Red sprays. The legs fold.",
@@ -547,14 +547,14 @@ MESSAGES = {
             'observer_msg': "The leather tip finds the temple. The result is stillness, fast and absolute."
         },
         {
-            'attacker_msg': "The whip bites deep into the throat. One twist — one final silence.",
-            'victim_msg': "The whip bites deep into your throat. One twist — one final silence.",
-            'observer_msg': "The whip bites deep into the throat. One twist — one final silence."
+            'attacker_msg': "The whip bites deep into the throat. One twist - one final silence.",
+            'victim_msg': "The whip bites deep into your throat. One twist - one final silence.",
+            'observer_msg': "The whip bites deep into the throat. One twist - one final silence."
         },
         {
-            'attacker_msg': "The whip coils around {target_name}'s throat. One yank — one silence.",
-            'victim_msg': "The whip coils around your throat. One yank — one silence.",
-            'observer_msg': "The whip coils around {target_name}'s throat. One yank — one silence."
+            'attacker_msg': "The whip coils around {target_name}'s throat. One yank - one silence.",
+            'victim_msg': "The whip coils around your throat. One yank - one silence.",
+            'observer_msg': "The whip coils around {target_name}'s throat. One yank - one silence."
         },
         {
             'attacker_msg': "The whip lands across the chest. A second strike caves it inward.",
@@ -567,9 +567,9 @@ MESSAGES = {
             'observer_msg': "The whip lashes upward under the jaw. {target_name} shudders, then tips over slowly."
         },
         {
-            'attacker_msg': "The whip loops the neck. You yank — and {target_name} falls soundlessly.",
-            'victim_msg': "The whip loops your neck. {attacker_name} yanks — and you fall soundlessly.",
-            'observer_msg': "The whip loops the neck. {attacker_name} yanks — and {target_name} falls soundlessly."
+            'attacker_msg': "The whip loops the neck. You yank - and {target_name} falls soundlessly.",
+            'victim_msg': "The whip loops your neck. {attacker_name} yanks - and you fall soundlessly.",
+            'observer_msg': "The whip loops the neck. {attacker_name} yanks - and {target_name} falls soundlessly."
         },
         {
             'attacker_msg': "The whip winds around {target_name}'s chest. A twist and pull collapses everything inside.",

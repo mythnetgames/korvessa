@@ -11,9 +11,9 @@ MESSAGES = {
             'observer_msg': "A subtle shift of stance, and {attacker_name} lifts the club. The air bends around the gesture."
         },
         {
-            'attacker_msg': "A swing through the air produces a low whistle. You nod — yeah, it's ready.",
-            'victim_msg': "A swing through the air produces a low whistle. {attacker_name} nods — yeah, it's ready.",
-            'observer_msg': "A swing through the air produces a low whistle. {attacker_name} nods — yeah, it's ready."
+            'attacker_msg': "A swing through the air produces a low whistle. You nod - yeah, it's ready.",
+            'victim_msg': "A swing through the air produces a low whistle. {attacker_name} nods - yeah, it's ready.",
+            'observer_msg': "A swing through the air produces a low whistle. {attacker_name} nods - yeah, it's ready."
         },
         {
             'attacker_msg': "It used to be a pipe. Now it's a message. You intend to deliver it personally.",
@@ -26,14 +26,14 @@ MESSAGES = {
             'observer_msg': "It's not clean. It's not shiny. But the dents and stains tell the real story. {attacker_name} just reopened the book."
         },
         {
-            'attacker_msg': "No blade, no edge — just weight. You lift the club and let gravity know it's not alone.",
-            'victim_msg': "No blade, no edge — just weight. {attacker_name} lifts the club and lets gravity know it's not alone.",
-            'observer_msg': "No blade, no edge — just weight. {attacker_name} lifts the club and lets gravity know it's not alone."
+            'attacker_msg': "No blade, no edge - just weight. You lift the club and let gravity know it's not alone.",
+            'victim_msg': "No blade, no edge - just weight. {attacker_name} lifts the club and lets gravity know it's not alone.",
+            'observer_msg': "No blade, no edge - just weight. {attacker_name} lifts the club and lets gravity know it's not alone."
         },
         {
-            'attacker_msg': "The air stills as the club rises. You don't need momentum — just a clear shot.",
-            'victim_msg': "The air stills as the club rises. {attacker_name} doesn't need momentum — just a clear shot.",
-            'observer_msg': "The air stills as the club rises. {attacker_name} doesn't need momentum — just a clear shot."
+            'attacker_msg': "The air stills as the club rises. You don't need momentum - just a clear shot.",
+            'victim_msg': "The air stills as the club rises. {attacker_name} doesn't need momentum - just a clear shot.",
+            'observer_msg': "The air stills as the club rises. {attacker_name} doesn't need momentum - just a clear shot."
         },
         {
             'attacker_msg': "The club is dented and stained. You run a thumb across one old gouge. A memory. A promise.",
@@ -46,9 +46,9 @@ MESSAGES = {
             'observer_msg': "The club isn't ceremonial. It's functional. {attacker_name} makes that clear with how tight they hold it."
         },
         {
-            'attacker_msg': "The club rotates once before locking into a ready grip. You don't pose — you prepare.",
-            'victim_msg': "The club rotates once before locking into a ready grip. {attacker_name} doesn't pose — they prepare.",
-            'observer_msg': "The club rotates once before locking into a ready grip. {attacker_name} doesn't pose — they prepare."
+            'attacker_msg': "The club rotates once before locking into a ready grip. You don't pose - you prepare.",
+            'victim_msg': "The club rotates once before locking into a ready grip. {attacker_name} doesn't pose - they prepare.",
+            'observer_msg': "The club rotates once before locking into a ready grip. {attacker_name} doesn't pose - they prepare."
         },
         {
             'attacker_msg': "The club's handle fits like a memory in your hand. Bad ones. Repeatable ones.",
@@ -81,9 +81,9 @@ MESSAGES = {
             'observer_msg': "The weapon creaks where it was welded. {attacker_name} likes that sound."
         },
         {
-            'attacker_msg': "The weapon swings once in a lazy arc. You watch it move like a pendulum — counting down.",
-            'victim_msg': "The weapon swings once in a lazy arc. {attacker_name} watches it move like a pendulum — counting down.",
-            'observer_msg': "The weapon swings once in a lazy arc. {attacker_name} watches it move like a pendulum — counting down."
+            'attacker_msg': "The weapon swings once in a lazy arc. You watch it move like a pendulum - counting down.",
+            'victim_msg': "The weapon swings once in a lazy arc. {attacker_name} watches it move like a pendulum - counting down.",
+            'observer_msg': "The weapon swings once in a lazy arc. {attacker_name} watches it move like a pendulum - counting down."
         },
         {
             'attacker_msg': "There's no speech. No theatrics. Just a steel rod, a steady hand, and eyes full of intent.",
@@ -106,9 +106,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} grips the club in both hands and rolls their shoulders. The kind of warm-up that ends people."
         },
         {
-            'attacker_msg': "You heft the metal club, testing the balance. It's not graceful — but it doesn't need to be.",
-            'victim_msg': "{attacker_name} hefts the metal club, testing the balance. It's not graceful — but it doesn't need to be.",
-            'observer_msg': "{attacker_name} hefts the metal club, testing the balance. It's not graceful — but it doesn't need to be."
+            'attacker_msg': "You heft the metal club, testing the balance. It's not graceful - but it doesn't need to be.",
+            'victim_msg': "{attacker_name} hefts the metal club, testing the balance. It's not graceful - but it doesn't need to be.",
+            'observer_msg': "{attacker_name} hefts the metal club, testing the balance. It's not graceful - but it doesn't need to be."
         },
         {
             'attacker_msg': "You hoist the club like it's not the first time. The dents say it's not the last either.",
@@ -178,9 +178,9 @@ MESSAGES = {
             'observer_msg': "A quick step and a brutal swing lands across {target_name}'s {hit_location}. They scream and collapse like scaffolding."
         },
         {
-            'attacker_msg': "A {hit_location} swing crashes into {target_name}'s {hit_location}. It's not broken — it's ruined.",
-            'victim_msg': "A {hit_location} swing crashes into your {hit_location}. It's not broken — it's ruined.",
-            'observer_msg': "A {hit_location} swing crashes into {target_name}'s {hit_location}. It's not broken — it's ruined."
+            'attacker_msg': "A {hit_location} swing crashes into {target_name}'s {hit_location}. It's not broken - it's ruined.",
+            'victim_msg': "A {hit_location} swing crashes into your {hit_location}. It's not broken - it's ruined.",
+            'observer_msg': "A {hit_location} swing crashes into {target_name}'s {hit_location}. It's not broken - it's ruined."
         },
         {
             'attacker_msg': "A sudden backhand with the club rings off {target_name}'s {hit_location}. Teeth clatter to the floor.",
@@ -243,9 +243,9 @@ MESSAGES = {
             'observer_msg': "The club strikes a glancing blow across the {hit_location}. Not fatal, but blood pours freely."
         },
         {
-            'attacker_msg': "The club strikes {target_name}'s {hit_location} with a clean, flat crunch. Their {hit_location} slumps — broken or surrendered, hard to say.",
-            'victim_msg': "The club strikes your {hit_location} with a clean, flat crunch. Your {hit_location} slumps — broken or surrendered, hard to say.",
-            'observer_msg': "The club strikes {target_name}'s {hit_location} with a clean, flat crunch. Their {hit_location} slumps — broken or surrendered, hard to say."
+            'attacker_msg': "The club strikes {target_name}'s {hit_location} with a clean, flat crunch. Their {hit_location} slumps - broken or surrendered, hard to say.",
+            'victim_msg': "The club strikes your {hit_location} with a clean, flat crunch. Your {hit_location} slumps - broken or surrendered, hard to say.",
+            'observer_msg': "The club strikes {target_name}'s {hit_location} with a clean, flat crunch. Their {hit_location} slumps - broken or surrendered, hard to say."
         },
         {
             'attacker_msg': "The metal rams into the base of the {hit_location}. {target_name} screams and drops like a folding chair.",
@@ -482,9 +482,9 @@ MESSAGES = {
             'observer_msg': "A sideways slam disconnects jaw from skull. {target_name} spins, drops, and stays down."
         },
         {
-            'attacker_msg': "A single hit across the jaw twists the head too far. {target_name} stares wide for a moment — then drops.",
-            'victim_msg': "A single hit across the jaw twists the head too far. You stare wide for a moment — then drop.",
-            'observer_msg': "A single hit across the jaw twists the head too far. {target_name} stares wide for a moment — then drops."
+            'attacker_msg': "A single hit across the jaw twists the head too far. {target_name} stares wide for a moment - then drops.",
+            'victim_msg': "A single hit across the jaw twists the head too far. You stare wide for a moment - then drop.",
+            'observer_msg': "A single hit across the jaw twists the head too far. {target_name} stares wide for a moment - then drops."
         },
         {
             'attacker_msg': "A stomp, a swing, a crunch. The head gives way. You step back, breathing slow.",
@@ -507,9 +507,9 @@ MESSAGES = {
             'observer_msg': "One low strike flips {target_name} over. The follow-up kills. It's simple math."
         },
         {
-            'attacker_msg': "One overhead smash caves in the chest. {target_name} chokes once — then never again.",
-            'victim_msg': "One overhead smash caves in the chest. You choke once — then never again.",
-            'observer_msg': "One overhead smash caves in the chest. {target_name} chokes once — then never again."
+            'attacker_msg': "One overhead smash caves in the chest. {target_name} chokes once - then never again.",
+            'victim_msg': "One overhead smash caves in the chest. You choke once - then never again.",
+            'observer_msg': "One overhead smash caves in the chest. {target_name} chokes once - then never again."
         },
         {
             'attacker_msg': "The club crashes down again and again. By the time you stop, there's no argument left.",
@@ -517,9 +517,9 @@ MESSAGES = {
             'observer_msg': "The club crashes down again and again. By the time {attacker_name} stops, there's no argument left."
         },
         {
-            'attacker_msg': "The club hits hard enough to dent the floor — and the head between. That's it.",
-            'victim_msg': "The club hits hard enough to dent the floor — and the head between. That's it.",
-            'observer_msg': "The club hits hard enough to dent the floor — and the head between. That's it."
+            'attacker_msg': "The club hits hard enough to dent the floor - and the head between. That's it.",
+            'victim_msg': "The club hits hard enough to dent the floor - and the head between. That's it.",
+            'observer_msg': "The club hits hard enough to dent the floor - and the head between. That's it."
         },
         {
             'attacker_msg': "The club lands on the back of the neck. The result is instant and irreversible.",
@@ -602,9 +602,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} lands a crushing uppercut to the chin. {target_name} lifts, then drops like a marionette cut mid-performance."
         },
         {
-            'attacker_msg': "You swing like you mean it — and the club caves in the ribcage. {target_name} doesn't get back up.",
-            'victim_msg': "{attacker_name} swings like they mean it — and the club caves in the ribcage. You don't get back up.",
-            'observer_msg': "{attacker_name} swings like they mean it — and the club caves in the ribcage. {target_name} doesn't get back up."
+            'attacker_msg': "You swing like you mean it - and the club caves in the ribcage. {target_name} doesn't get back up.",
+            'victim_msg': "{attacker_name} swings like they mean it - and the club caves in the ribcage. You don't get back up.",
+            'observer_msg': "{attacker_name} swings like they mean it - and the club caves in the ribcage. {target_name} doesn't get back up."
         }
     ]
 }

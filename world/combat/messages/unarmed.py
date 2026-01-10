@@ -6,9 +6,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} cracks their knuckles with a dead-eyed stare."
         },
         {
-            "attacker_msg": "You raise your fists like you’ve done this before.",
-            "victim_msg": "{attacker_name} raises their fists like they’ve done this before, sizing you up.",
-            "observer_msg": "{attacker_name} raises their fists like they’ve done this before."
+            "attacker_msg": "You raise your fists like you've done this before.",
+            "victim_msg": "{attacker_name} raises their fists like they've done this before, sizing you up.",
+            "observer_msg": "{attacker_name} raises their fists like they've done this before."
         },
         {
             "attacker_msg": "You step forward, chin tucked, ready to throw down with {target_name}.",
@@ -51,9 +51,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s fingers twitch like they miss the feel of brass knuckles."
         },
         {
-            "attacker_msg": "You shift your weight from heel to heel — it's fight time with {target_name}.",
-            "victim_msg": "{attacker_name} shifts their weight from heel to heel — it looks like fight time with you.",
-            "observer_msg": "{attacker_name} shifts their weight from heel to heel — fight time."
+            "attacker_msg": "You shift your weight from heel to heel - it's fight time with {target_name}.",
+            "victim_msg": "{attacker_name} shifts their weight from heel to heel - it looks like fight time with you.",
+            "observer_msg": "{attacker_name} shifts their weight from heel to heel - fight time."
         },
         {
             "attacker_msg": "You grin like a busted streetlight and move in on {target_name}.",
@@ -63,9 +63,9 @@ MESSAGES = {
     ],
     "hit": [
         {
-            "attacker_msg": "You crack {target_name} across the {hit_location} —",
-            "victim_msg": "{attacker_name} cracks you across the {hit_location} —",
-            "observer_msg": "{attacker_name} cracks {target_name} across the {hit_location} —"
+            "attacker_msg": "You crack {target_name} across the {hit_location} -",
+            "victim_msg": "{attacker_name} cracks you across the {hit_location} -",
+            "observer_msg": "{attacker_name} cracks {target_name} across the {hit_location} -"
         },
         {
             "attacker_msg": "Your knuckles sink into {target_name}'s {hit_location}, winding them.",
@@ -113,9 +113,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} sends {target_name} stumbling with a {hit_location} check."
         },
         {
-            "attacker_msg": "Your punch lands like a hammer — right to {target_name}'s {hit_location}.",
-            "victim_msg": "{attacker_name}'s punch lands like a hammer — right to your {hit_location}.",
-            "observer_msg": "{attacker_name}'s punch lands like a hammer — right to {target_name}'s {hit_location}."
+            "attacker_msg": "Your punch lands like a hammer - right to {target_name}'s {hit_location}.",
+            "victim_msg": "{attacker_name}'s punch lands like a hammer - right to your {hit_location}.",
+            "observer_msg": "{attacker_name}'s punch lands like a hammer - right to {target_name}'s {hit_location}."
         },
         {
             "attacker_msg": "You pound {target_name}'s {hit_location} with both fists, gorilla-style.",
@@ -163,9 +163,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} kicks {target_name}'s {hit_location} and drops them."
         },
         {
-            "attacker_msg": "You strike {target_name}'s {hit_location} with the precision of an alley cat —",
-            "victim_msg": "{attacker_name} strikes your {hit_location} with the precision of an alley cat —",
-            "observer_msg": "{attacker_name} strikes {target_name}'s {hit_location} with the precision of an alley cat —"
+            "attacker_msg": "You strike {target_name}'s {hit_location} with the precision of an alley cat -",
+            "victim_msg": "{attacker_name} strikes your {hit_location} with the precision of an alley cat -",
+            "observer_msg": "{attacker_name} strikes {target_name}'s {hit_location} with the precision of an alley cat -"
         },
         {
             "attacker_msg": "Your punch draws blood from {target_name}'s {hit_location}.",
@@ -245,9 +245,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} overcommits, missing wide."
         },
         {
-            "attacker_msg": "You swing — {target_name} ducks under clean.",
-            "victim_msg": "{attacker_name} swings — you duck under clean.",
-            "observer_msg": "{attacker_name} swings — {target_name} ducks under clean."
+            "attacker_msg": "You swing - {target_name} ducks under clean.",
+            "victim_msg": "{attacker_name} swings - you duck under clean.",
+            "observer_msg": "{attacker_name} swings - {target_name} ducks under clean."
         },
         {
             "attacker_msg": "Your knee strike hits only air as {target_name} dodges.",
@@ -270,9 +270,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} misses so bad they nearly spin themselves around."
         },
         {
-            "attacker_msg": "Your stomp lands with a hollow thud — on concrete, not {target_name}.",
-            "victim_msg": "{attacker_name}'s stomp lands with a hollow thud — on concrete, not you.",
-            "observer_msg": "{attacker_name}'s stomp lands with a hollow thud — on concrete."
+            "attacker_msg": "Your stomp lands with a hollow thud - on concrete, not {target_name}.",
+            "victim_msg": "{attacker_name}'s stomp lands with a hollow thud - on concrete, not you.",
+            "observer_msg": "{attacker_name}'s stomp lands with a hollow thud - on concrete."
         },
         {
             "attacker_msg": "{target_name} laughs and steps out of your range.",
@@ -285,9 +285,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s combo fizzles as {target_name} jukes left."
         },
         {
-            "attacker_msg": "You hesitate — and {target_name} isn't there anymore.",
-            "victim_msg": "{attacker_name} hesitates — and you aren't there anymore.",
-            "observer_msg": "{attacker_name} hesitates — and {target_name} isn't there anymore."
+            "attacker_msg": "You hesitate and {target_name} isn't there anymore.",
+            "victim_msg": "{attacker_name} hesitates and you aren't there anymore.",
+            "observer_msg": "{attacker_name} hesitates and {target_name} isn't there anymore."
         },
         {
             "attacker_msg": "You lunge, but {target_name}'s already backing off.",
@@ -362,9 +362,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} kicks {target_name} one last time for good measure."
         },
         {
-            "attacker_msg": "You shove {target_name} down hard — and they don’t get back up.",
-            "victim_msg": "{attacker_name} shoves you down hard — and you don’t get back up.",
-            "observer_msg": "{attacker_name} shoves {target_name} down hard — and they don’t get back up."
+            "attacker_msg": "You shove {target_name} down hard - and they don't get back up.",
+            "victim_msg": "{attacker_name} shoves you down hard - and you don't get back up.",
+            "observer_msg": "{attacker_name} shoves {target_name} down hard - and they don't get back up."
         },
         {
             "attacker_msg": "You stand over {target_name}'s body, panting.",

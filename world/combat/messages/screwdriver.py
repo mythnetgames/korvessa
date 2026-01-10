@@ -131,9 +131,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} taps the screwdriver against their teeth, grinning."
         },
         {
-            "attacker_msg": "You flick the screwdriver open like a switchblade—impossible, but intimidating.",
-            "victim_msg": "{attacker_name} flicks the screwdriver open like a switchblade—impossible, but intimidating.",
-            "observer_msg": "{attacker_name} flicks the screwdriver open like a switchblade—impossible, but intimidating."
+            "attacker_msg": "You flick the screwdriver open like a switchblade-impossible, but intimidating.",
+            "victim_msg": "{attacker_name} flicks the screwdriver open like a switchblade-impossible, but intimidating.",
+            "observer_msg": "{attacker_name} flicks the screwdriver open like a switchblade-impossible, but intimidating."
         },
         {
             "attacker_msg": "You hold the screwdriver like a brush, ready to paint in red.",
@@ -253,9 +253,9 @@ MESSAGES = {
             "observer_msg": "The tip slips between fingers, nerves and blood both spilling."
         },
         {
-            "attacker_msg": "You draw the screwdriver across {target_name}'s {hit_location}—shallow, but terrifying.",
-            "victim_msg": "{attacker_name} draws the screwdriver across your {hit_location}—shallow, but terrifying.",
-            "observer_msg": "{attacker_name} draws the screwdriver across {target_name}'s {hit_location}—shallow, but terrifying."
+            "attacker_msg": "You draw the screwdriver across {target_name}'s {hit_location}-shallow, but terrifying.",
+            "victim_msg": "{attacker_name} draws the screwdriver across your {hit_location}-shallow, but terrifying.",
+            "observer_msg": "{attacker_name} draws the screwdriver across {target_name}'s {hit_location}-shallow, but terrifying."
         },
         {
             "attacker_msg": "A quick flick opens {target_name}'s ear. Blood pours down their {hit_location}.",
@@ -395,9 +395,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} slashes, but {target_name} twists away."
         },
         {
-            "attacker_msg": "The tip whistles past {target_name}'s ear—close, but not enough.",
-            "victim_msg": "The tip whistles past your ear—close, but not enough.",
-            "observer_msg": "The tip whistles past {target_name}'s ear—close, but not enough."
+            "attacker_msg": "The tip whistles past {target_name}'s ear-close, but not enough.",
+            "victim_msg": "The tip whistles past your ear-close, but not enough.",
+            "observer_msg": "The tip whistles past {target_name}'s ear-close, but not enough."
         },
         {
             "attacker_msg": "A quick flick misses, the tool slicing only tension.",

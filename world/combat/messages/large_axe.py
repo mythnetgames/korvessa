@@ -51,19 +51,19 @@ MESSAGES = {
             'observer_msg': "The blade tips downward, dragging sparks. {attacker_name}'s smile says it's showtime."
         },
         {
-            'attacker_msg': "The edge of the blade gleams dully — but it remembers how to cut.",
-            'victim_msg': "The edge of the blade gleams dully — but it remembers how to cut.",
-            'observer_msg': "The edge of the blade gleams dully — but it remembers how to cut."
+            'attacker_msg': "The edge of the blade gleams dully - but it remembers how to cut.",
+            'victim_msg': "The edge of the blade gleams dully - but it remembers how to cut.",
+            'observer_msg': "The edge of the blade gleams dully - but it remembers how to cut."
         },
         {
-            'attacker_msg': "The haft groans under grip. The edge doesn't need to gleam — it remembers how to kill.",
-            'victim_msg': "The haft groans under grip. The edge doesn't need to gleam — it remembers how to kill.",
-            'observer_msg': "The haft groans under grip. The edge doesn't need to gleam — it remembers how to kill."
+            'attacker_msg': "The haft groans under grip. The edge doesn't need to gleam - it remembers how to kill.",
+            'victim_msg': "The haft groans under grip. The edge doesn't need to gleam - it remembers how to kill.",
+            'observer_msg': "The haft groans under grip. The edge doesn't need to gleam - it remembers how to kill."
         },
         {
-            'attacker_msg': "The handle creaks. The tension doesn't break — it builds.",
-            'victim_msg': "The handle creaks. The tension doesn't break — it builds.",
-            'observer_msg': "The handle creaks. The tension doesn't break — it builds."
+            'attacker_msg': "The handle creaks. The tension doesn't break - it builds.",
+            'victim_msg': "The handle creaks. The tension doesn't break - it builds.",
+            'observer_msg': "The handle creaks. The tension doesn't break - it builds."
         },
         {
             'attacker_msg': "The metal groans as it swings free. You breathe like you're waking something up.",
@@ -71,9 +71,9 @@ MESSAGES = {
             'observer_msg': "The metal groans as it swings free. {attacker_name} breathes like they're waking something up."
         },
         {
-            'attacker_msg': "The weight of it groans in your grip. It's not a tool — it's a statement.",
-            'victim_msg': "The weight of it groans in {attacker_name}'s grip. It's not a tool — it's a statement.",
-            'observer_msg': "The weight of it groans in {attacker_name}'s grip. It's not a tool — it's a statement."
+            'attacker_msg': "The weight of it groans in your grip. It's not a tool - it's a statement.",
+            'victim_msg': "The weight of it groans in {attacker_name}'s grip. It's not a tool - it's a statement.",
+            'observer_msg': "The weight of it groans in {attacker_name}'s grip. It's not a tool - it's a statement."
         },
         {
             'attacker_msg': "There's no balance to it. That's the point. You don't need grace.",
@@ -146,9 +146,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} swings the axe once, slow and deliberate. It hums like a slow storm."
         },
         {
-            'attacker_msg': "You tighten your grip. The axe doesn't care who bleeds — only that it happens.",
-            'victim_msg': "{attacker_name} tightens their grip. The axe doesn't care who bleeds — only that it happens.",
-            'observer_msg': "{attacker_name} tightens their grip. The axe doesn't care who bleeds — only that it happens."
+            'attacker_msg': "You tighten your grip. The axe doesn't care who bleeds - only that it happens.",
+            'victim_msg': "{attacker_name} tightens their grip. The axe doesn't care who bleeds - only that it happens.",
+            'observer_msg': "{attacker_name} tightens their grip. The axe doesn't care who bleeds - only that it happens."
         },
     ],
     'hit': [
@@ -203,9 +203,9 @@ MESSAGES = {
             'observer_msg': "One thud to {target_name}'s {hit_location}. {target_name} folds over like punctuation."
         },
         {
-            'attacker_msg': "Steel clips the {hit_location}. {target_name}'s scream is toothless — literally.",
-            'victim_msg': "Steel clips your {hit_location}. Your scream is toothless — literally.",
-            'observer_msg': "Steel clips {target_name}'s {hit_location}. {target_name}'s scream is toothless — literally."
+            'attacker_msg': "Steel clips the {hit_location}. {target_name}'s scream is toothless - literally.",
+            'victim_msg': "Steel clips your {hit_location}. Your scream is toothless - literally.",
+            'observer_msg': "Steel clips {target_name}'s {hit_location}. {target_name}'s scream is toothless - literally."
         },
         {
             'attacker_msg': "Steel grazes the scalp. Red follows in a thick line.",
@@ -415,9 +415,9 @@ MESSAGES = {
             'observer_msg': "The swing arcs high. The light explodes. Shadows are louder than pain."
         },
         {
-            'attacker_msg': "The swing crashes into a pipe. The steam masks everything — even failure.",
-            'victim_msg': "The swing crashes into a pipe. The steam masks everything — even failure.",
-            'observer_msg': "The swing crashes into a pipe. The steam masks everything — even failure."
+            'attacker_msg': "The swing crashes into a pipe. The steam masks everything - even failure.",
+            'victim_msg': "The swing crashes into a pipe. The steam masks everything - even failure.",
+            'observer_msg': "The swing crashes into a pipe. The steam masks everything - even failure."
         },
         {
             'attacker_msg': "The swing hits nothing but curtain. Fabric dies dramatically.",
@@ -450,9 +450,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} over-swings. The blade crashes into debris."
         },
         {
-            'attacker_msg': "You swing, but {target_name} ducks low — the axe crashes into concrete.",
-            'victim_msg': "{attacker_name} swings, but you duck low — the axe crashes into concrete.",
-            'observer_msg': "{attacker_name} swings, but {target_name} ducks low — the axe crashes into concrete."
+            'attacker_msg': "You swing, but {target_name} ducks low - the axe crashes into concrete.",
+            'victim_msg': "{attacker_name} swings, but you duck low - the axe crashes into concrete.",
+            'observer_msg': "{attacker_name} swings, but {target_name} ducks low - the axe crashes into concrete."
         },
     ],
     'kill': [
@@ -502,9 +502,9 @@ MESSAGES = {
             'observer_msg': "One horizontal swing takes {target_name}'s head clean. The silence is shocked and total."
         },
         {
-            'attacker_msg': "One wide arc severs the arm — and the will to live.",
-            'victim_msg': "One wide arc severs your arm — and the will to live.",
-            'observer_msg': "One wide arc severs {target_name}'s arm — and the will to live."
+            'attacker_msg': "One wide arc severs the arm - and the will to live.",
+            'victim_msg': "One wide arc severs your arm - and the will to live.",
+            'observer_msg': "One wide arc severs {target_name}'s arm - and the will to live."
         },
         {
             'attacker_msg': "Ribs split under the force. Organs follow. You barely notice.",
@@ -562,9 +562,9 @@ MESSAGES = {
             'observer_msg': "The blade lands with such force it lifts {target_name} before letting them drop."
         },
         {
-            'attacker_msg': "The blade tears through the chest. {target_name} falls in halves — emotionally and physically.",
-            'victim_msg': "The blade tears through your chest. You fall in halves — emotionally and physically.",
-            'observer_msg': "The blade tears through {target_name}'s chest. {target_name} falls in halves — emotionally and physically."
+            'attacker_msg': "The blade tears through the chest. {target_name} falls in halves - emotionally and physically.",
+            'victim_msg': "The blade tears through your chest. You fall in halves - emotionally and physically.",
+            'observer_msg': "The blade tears through {target_name}'s chest. {target_name} falls in halves - emotionally and physically."
         },
         {
             'attacker_msg': "The final strike breaks everything. {target_name} doesn't move again.",

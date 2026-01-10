@@ -61,9 +61,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} holds the razor like a pen, ready to write something permanent."
         },
         {
-            'attacker_msg': "You snap the blade open and point it at {target_name}—no words needed.",
-            'victim_msg': "{attacker_name} snaps the blade open and points it at you—no words needed.",
-            'observer_msg': "{attacker_name} snaps the blade open and points it at {target_name}—no words needed."
+            'attacker_msg': "You snap the blade open and point it at {target_name}-no words needed.",
+            'victim_msg': "{attacker_name} snaps the blade open and points it at you-no words needed.",
+            'observer_msg': "{attacker_name} snaps the blade open and points it at {target_name}-no words needed."
         },
         {
             'attacker_msg': "You test the edge on your thumb, drawing a bead of blood and a smile.",
@@ -395,9 +395,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} slashes, but {target_name} twists away."
         },
         {
-            'attacker_msg': "The blade whistles past {target_name}'s ear—close, but not enough.",
-            'victim_msg': "The blade whistles past your ear—close, but not enough.",
-            'observer_msg': "The blade whistles past {target_name}'s ear—close, but not enough."
+            'attacker_msg': "The blade whistles past {target_name}'s ear-close, but not enough.",
+            'victim_msg': "The blade whistles past your ear-close, but not enough.",
+            'observer_msg': "The blade whistles past {target_name}'s ear-close, but not enough."
         },
         {
             'attacker_msg': "A quick flick misses, the blade slicing only tension.",

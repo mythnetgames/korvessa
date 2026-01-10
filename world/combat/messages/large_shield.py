@@ -41,14 +41,14 @@ MESSAGES = {
             'observer_msg': "Nothing elegant here. Just angles, mass, and {attacker_name}'s unwavering posture."
         },
         {
-            'attacker_msg': "Steel, rust, polymer — the materials scream defense. You make it scream offense.",
-            'victim_msg': "Steel, rust, polymer — the materials scream defense. {attacker_name} makes it scream offense.",
-            'observer_msg': "Steel, rust, polymer — the materials scream defense. {attacker_name} makes it scream offense."
+            'attacker_msg': "Steel, rust, polymer - the materials scream defense. You make it scream offense.",
+            'victim_msg': "Steel, rust, polymer - the materials scream defense. {attacker_name} makes it scream offense.",
+            'observer_msg': "Steel, rust, polymer - the materials scream defense. {attacker_name} makes it scream offense."
         },
         {
-            'attacker_msg': "Steel, weight, resolve — all move together as you heft the barricade of war.",
-            'victim_msg': "Steel, weight, resolve — all move together as {attacker_name} hefts the barricade of war.",
-            'observer_msg': "Steel, weight, resolve — all move together as {attacker_name} hefts the barricade of war."
+            'attacker_msg': "Steel, weight, resolve - all move together as you heft the barricade of war.",
+            'victim_msg': "Steel, weight, resolve - all move together as {attacker_name} hefts the barricade of war.",
+            'observer_msg': "Steel, weight, resolve - all move together as {attacker_name} hefts the barricade of war."
         },
         {
             'attacker_msg': "The edges are dented, the front scorched. You drag it up like it's seen every kind of hell.",
@@ -56,9 +56,9 @@ MESSAGES = {
             'observer_msg': "The edges are dented, the front scorched. {attacker_name} drags it up like it's seen every kind of hell."
         },
         {
-            'attacker_msg': "The edges grind against the floor as you swing the shield forward — it's not quick, but it's inevitable.",
-            'victim_msg': "The edges grind against the floor as {attacker_name} swings the shield forward — it's not quick, but it's inevitable.",
-            'observer_msg': "The edges grind against the floor as {attacker_name} swings the shield forward — it's not quick, but it's inevitable."
+            'attacker_msg': "The edges grind against the floor as you swing the shield forward - it's not quick, but it's inevitable.",
+            'victim_msg': "The edges grind against the floor as {attacker_name} swings the shield forward - it's not quick, but it's inevitable.",
+            'observer_msg': "The edges grind against the floor as {attacker_name} swings the shield forward - it's not quick, but it's inevitable."
         },
         {
             'attacker_msg': "The ground protests under the weight of the shield. You don't.",
@@ -76,9 +76,9 @@ MESSAGES = {
             'observer_msg': "The sheer weight of the thing makes the room lean. {attacker_name} grips it like a declaration."
         },
         {
-            'attacker_msg': "The shield creaks with each shift — not from age, but from expectation.",
-            'victim_msg': "The shield creaks with each shift — not from age, but from expectation.",
-            'observer_msg': "The shield creaks with each shift — not from age, but from expectation."
+            'attacker_msg': "The shield creaks with each shift - not from age, but from expectation.",
+            'victim_msg': "The shield creaks with each shift - not from age, but from expectation.",
+            'observer_msg': "The shield creaks with each shift - not from age, but from expectation."
         },
         {
             'attacker_msg': "The shield wobbles once, then stills in your grip. A storm in pause.",
@@ -91,9 +91,9 @@ MESSAGES = {
             'observer_msg': "The surface is scorched, dented, and scarred. {attacker_name} makes it whole with purpose alone."
         },
         {
-            'attacker_msg': "The weight alone makes it seem impossible. You handle it like a memory — brutal and reliable.",
-            'victim_msg': "The weight alone makes it seem impossible. {attacker_name} handles it like a memory — brutal and reliable.",
-            'observer_msg': "The weight alone makes it seem impossible. {attacker_name} handles it like a memory — brutal and reliable."
+            'attacker_msg': "The weight alone makes it seem impossible. You handle it like a memory - brutal and reliable.",
+            'victim_msg': "The weight alone makes it seem impossible. {attacker_name} handles it like a memory - brutal and reliable.",
+            'observer_msg': "The weight alone makes it seem impossible. {attacker_name} handles it like a memory - brutal and reliable."
         },
         {
             'attacker_msg': "They say it's too heavy to wield. You disagree, and the floor groans in reply.",
@@ -305,9 +305,9 @@ MESSAGES = {
     ],
     'miss': [
         {
-            'attacker_msg': "A bash intended for heads finds a doorframe instead. The door loses. {target_name} wins — briefly.",
-            'victim_msg': "A bash intended for heads finds a doorframe instead. The door loses. You win — briefly.",
-            'observer_msg': "A bash intended for heads finds a doorframe instead. The door loses. {target_name} wins — briefly."
+            'attacker_msg': "A bash intended for heads finds a doorframe instead. The door loses. {target_name} wins - briefly.",
+            'victim_msg': "A bash intended for heads finds a doorframe instead. The door loses. You win - briefly.",
+            'observer_msg': "A bash intended for heads finds a doorframe instead. The door loses. {target_name} wins - briefly."
         },
         {
             'attacker_msg': "A downward strike cracks a table in two. {target_name} dives clear at the last second.",
@@ -380,9 +380,9 @@ MESSAGES = {
             'observer_msg': "The edge tears through a hanging wire rack. Screws and debris rain down."
         },
         {
-            'attacker_msg': "The impact sends a crate flying. It breaks. {target_name} doesn't — yet.",
-            'victim_msg': "The impact sends a crate flying. It breaks. You don't — yet.",
-            'observer_msg': "The impact sends a crate flying. It breaks. {target_name} doesn't — yet."
+            'attacker_msg': "The impact sends a crate flying. It breaks. {target_name} doesn't - yet.",
+            'victim_msg': "The impact sends a crate flying. It breaks. You don't - yet.",
+            'observer_msg': "The impact sends a crate flying. It breaks. {target_name} doesn't - yet."
         },
         {
             'attacker_msg': "The impact shatters a light fixture. The darkness is sudden. The silence isn't.",
@@ -430,9 +430,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} barrels past, the weight of the shield dragging behind a miss."
         },
         {
-            'attacker_msg': "You barrel through — and hit a wall. The wall talks back. {target_name} runs.",
-            'victim_msg': "{attacker_name} barrels through — and hits a wall. The wall talks back. You run.",
-            'observer_msg': "{attacker_name} barrels through — and hits a wall. The wall talks back. {target_name} runs."
+            'attacker_msg': "You barrel through - and hit a wall. The wall talks back. {target_name} runs.",
+            'victim_msg': "{attacker_name} barrels through - and hits a wall. The wall talks back. You run.",
+            'observer_msg': "{attacker_name} barrels through - and hits a wall. The wall talks back. {target_name} runs."
         },
         {
             'attacker_msg': "You charge, but the shield skids off a railing with a harsh screech.",
@@ -512,14 +512,14 @@ MESSAGES = {
             'observer_msg': "One long shove across {target_name}'s chest caves it in. {target_name} exhales everything they ever were."
         },
         {
-            'attacker_msg': "One shove — full force — sends {target_name} into a wall so hard it leaves a dent in both.",
-            'victim_msg': "One shove — full force — sends you into a wall so hard it leaves a dent in both.",
-            'observer_msg': "One shove — full force — sends {target_name} into a wall so hard it leaves a dent in both."
+            'attacker_msg': "One shove - full force - sends {target_name} into a wall so hard it leaves a dent in both.",
+            'victim_msg': "One shove - full force - sends you into a wall so hard it leaves a dent in both.",
+            'observer_msg': "One shove - full force - sends {target_name} into a wall so hard it leaves a dent in both."
         },
         {
-            'attacker_msg': "The edge catches under the chin and drives up. The body flails once — and not again.",
-            'victim_msg': "The edge catches under your chin and drives up. The body flails once — and not again.",
-            'observer_msg': "The edge catches under {target_name}'s chin and drives up. The body flails once — and not again."
+            'attacker_msg': "The edge catches under the chin and drives up. The body flails once - and not again.",
+            'victim_msg': "The edge catches under your chin and drives up. The body flails once - and not again.",
+            'observer_msg': "The edge catches under {target_name}'s chin and drives up. The body flails once - and not again."
         },
         {
             'attacker_msg': "The entire edge crashes into the base of the skull. {target_name} falls like a dropped sack.",

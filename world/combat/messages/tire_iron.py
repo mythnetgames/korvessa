@@ -1,9 +1,9 @@
 MESSAGES = {
     'initiate': [
         {
-            'attacker_msg': "A deep breath, a clenched jaw — and the tire iron rises like a flag of violence.",
-            'victim_msg': "A deep breath, a clenched jaw — and the tire iron rises like a flag of violence.",
-            'observer_msg': "A deep breath, a clenched jaw — and the tire iron rises like a flag of violence."
+            'attacker_msg': "A deep breath, a clenched jaw - and the tire iron rises like a flag of violence.",
+            'victim_msg': "A deep breath, a clenched jaw - and the tire iron rises like a flag of violence.",
+            'observer_msg': "A deep breath, a clenched jaw - and the tire iron rises like a flag of violence."
         },
         {
             'attacker_msg': "A short nod, a firm grip. The tire iron is more than ready.",
@@ -91,9 +91,9 @@ MESSAGES = {
             'observer_msg': "The tool dangles at {attacker_name}'s side, heavy and eager."
         },
         {
-            'attacker_msg': "The tool swings low, then comes to rest. You nod — it begins.",
-            'victim_msg': "The tool swings low, then comes to rest. {attacker_name} nods — it begins.",
-            'observer_msg': "The tool swings low, then comes to rest. {attacker_name} nods — it begins."
+            'attacker_msg': "The tool swings low, then comes to rest. You nod - it begins.",
+            'victim_msg': "The tool swings low, then comes to rest. {attacker_name} nods - it begins.",
+            'observer_msg': "The tool swings low, then comes to rest. {attacker_name} nods - it begins."
         },
         {
             'attacker_msg': "The weight of it settles in hand. You know what comes next.",
@@ -101,9 +101,9 @@ MESSAGES = {
             'observer_msg': "The weight of it settles in hand. {attacker_name} knows what comes next."
         },
         {
-            'attacker_msg': "You crack the tool against the wall. It's not a threat — it's punctuation.",
-            'victim_msg': "{attacker_name} cracks the tool against the wall. It's not a threat — it's punctuation.",
-            'observer_msg': "{attacker_name} cracks the tool against the wall. It's not a threat — it's punctuation."
+            'attacker_msg': "You crack the tool against the wall. It's not a threat - it's punctuation.",
+            'victim_msg': "{attacker_name} cracks the tool against the wall. It's not a threat - it's punctuation.",
+            'observer_msg': "{attacker_name} cracks the tool against the wall. It's not a threat - it's punctuation."
         },
         {
             'attacker_msg': "You drag the tool along the floor. Sparks trail behind the menace.",
@@ -293,9 +293,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} slams the crossbar into {target_name}'s {hit_location}. They fold inward."
         },
         {
-            'attacker_msg': "You slam the hook end into {target_name}'s {hit_location}. The pop isn't mechanical — it's anatomical.",
-            'victim_msg': "{attacker_name} slams the hook end into your {hit_location}. The pop isn't mechanical — it's anatomical.",
-            'observer_msg': "{attacker_name} slams the hook end into {target_name}'s {hit_location}. The pop isn't mechanical — it's anatomical."
+            'attacker_msg': "You slam the hook end into {target_name}'s {hit_location}. The pop isn't mechanical - it's anatomical.",
+            'victim_msg': "{attacker_name} slams the hook end into your {hit_location}. The pop isn't mechanical - it's anatomical.",
+            'observer_msg': "{attacker_name} slams the hook end into {target_name}'s {hit_location}. The pop isn't mechanical - it's anatomical."
         },
         {
             'attacker_msg': "You slam the tool into the {hit_location}. The twitching is not theatrical.",
@@ -335,9 +335,9 @@ MESSAGES = {
             'observer_msg': "A jab sparks off a pipe. The hiss of metal-on-metal fills the air."
         },
         {
-            'attacker_msg': "A low jab thuds into a stack of crates. {target_name} is elsewhere — smartly.",
-            'victim_msg': "A low jab thuds into a stack of crates. You are elsewhere — smartly.",
-            'observer_msg': "A low jab thuds into a stack of crates. {target_name} is elsewhere — smartly."
+            'attacker_msg': "A low jab thuds into a stack of crates. {target_name} is elsewhere - smartly.",
+            'victim_msg': "A low jab thuds into a stack of crates. You are elsewhere - smartly.",
+            'observer_msg': "A low jab thuds into a stack of crates. {target_name} is elsewhere - smartly."
         },
         {
             'attacker_msg': "A miss sends the iron crashing into storage bins. Screws fly. {target_name} doesn't.",
@@ -370,9 +370,9 @@ MESSAGES = {
             'observer_msg': "The hook snags a coat. It rips. Nothing bleeds."
         },
         {
-            'attacker_msg': "The iron cuts through the air with a whistle. It lands on concrete — not flesh.",
-            'victim_msg': "The iron cuts through the air with a whistle. It lands on concrete — not flesh.",
-            'observer_msg': "The iron cuts through the air with a whistle. It lands on concrete — not flesh."
+            'attacker_msg': "The iron cuts through the air with a whistle. It lands on concrete - not flesh.",
+            'victim_msg': "The iron cuts through the air with a whistle. It lands on concrete - not flesh.",
+            'observer_msg': "The iron cuts through the air with a whistle. It lands on concrete - not flesh."
         },
         {
             'attacker_msg': "The strike goes wide. The echo does the real damage.",
@@ -462,9 +462,9 @@ MESSAGES = {
             'observer_msg': "A backswing crushes {target_name}'s spine. They fall and don't flinch again."
         },
         {
-            'attacker_msg': "A brutal smash caves in the ribs. {target_name} gasps once — then doesn't.",
-            'victim_msg': "A brutal smash caves in your ribs. You gasp once — then don't.",
-            'observer_msg': "A brutal smash caves in {target_name}'s ribs. They gasp once — then don't."
+            'attacker_msg': "A brutal smash caves in the ribs. {target_name} gasps once - then doesn't.",
+            'victim_msg': "A brutal smash caves in your ribs. You gasp once - then don't.",
+            'observer_msg': "A brutal smash caves in {target_name}'s ribs. They gasp once - then don't."
         },
         {
             'attacker_msg': "A downward smash silences the scream in {target_name}'s throat. Permanently.",
@@ -542,9 +542,9 @@ MESSAGES = {
             'observer_msg': "The hook gouges {target_name}'s throat. Red arcs. The rest falls away."
         },
         {
-            'attacker_msg': "The hook lands under the jaw. The body follows upward — then hits the ground.",
-            'victim_msg': "The hook lands under your jaw. Your body follows upward — then hits the ground.",
-            'observer_msg': "The hook lands under {target_name}'s jaw. Their body follows upward — then hits the ground."
+            'attacker_msg': "The hook lands under the jaw. The body follows upward - then hits the ground.",
+            'victim_msg': "The hook lands under your jaw. Your body follows upward - then hits the ground.",
+            'observer_msg': "The hook lands under {target_name}'s jaw. Their body follows upward - then hits the ground."
         },
         {
             'attacker_msg': "The iron arcs into the ribs, then deeper. {target_name} drops like breath left a building.",

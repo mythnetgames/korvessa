@@ -1,9 +1,9 @@
 MESSAGES = {
     'initiate': [
         {
-            'attacker_msg': "A guttural sound fills the room as your saw turns over. It doesn't want to start — it *needs* to.",
-            'victim_msg': "A guttural sound fills the room as {attacker_name} turns over their saw. It doesn't want to start — it *needs* to.",
-            'observer_msg': "A guttural sound fills the room as {attacker_name} turns over their saw. It doesn't want to start — it *needs* to."
+            'attacker_msg': "A guttural sound fills the room as your saw turns over. It doesn't want to start - it *needs* to.",
+            'victim_msg': "A guttural sound fills the room as {attacker_name} turns over their saw. It doesn't want to start - it *needs* to.",
+            'observer_msg': "A guttural sound fills the room as {attacker_name} turns over their saw. It doesn't want to start - it *needs* to."
         },
         {
             'attacker_msg': "A single rev makes the air vibrate. You tilt your head, like you're listening for the exact moment fear begins.",
@@ -16,9 +16,9 @@ MESSAGES = {
             'observer_msg': "A single rev sends exhaust and fury pouring into the air. {attacker_name} steps forward like they're beginning a confession."
         },
         {
-            'attacker_msg': "Each rev of your chainsaw is a threat made flesh. You wield it like it's not just for cutting — it's for rewriting reality.",
-            'victim_msg': "Each rev of the chainsaw is a threat made flesh. {attacker_name} wields it like it's not just for cutting — it's for rewriting reality.",
-            'observer_msg': "Each rev of the chainsaw is a threat made flesh. {attacker_name} wields it like it's not just for cutting — it's for rewriting reality."
+            'attacker_msg': "Each rev of your chainsaw is a threat made flesh. You wield it like it's not just for cutting - it's for rewriting reality.",
+            'victim_msg': "Each rev of the chainsaw is a threat made flesh. {attacker_name} wields it like it's not just for cutting - it's for rewriting reality.",
+            'observer_msg': "Each rev of the chainsaw is a threat made flesh. {attacker_name} wields it like it's not just for cutting - it's for rewriting reality."
         },
         {
             'attacker_msg': "Fuel drips, smoke rises, and your smile sharpens. The chainsaw joins the moment like a second mouth ready to scream.",
@@ -36,14 +36,14 @@ MESSAGES = {
             'observer_msg': "Grease-stained fingers wrap around the throttle. The first pull is stubborn. The second makes the world pay attention."
         },
         {
-            'attacker_msg': "It doesn't start pretty — your chainsaw chokes and sputters, but then it *howls*. You smile like you missed that sound.",
-            'victim_msg': "It doesn't start pretty — the chainsaw chokes and sputters, but then it *howls*. {attacker_name} smiles like they missed that sound.",
-            'observer_msg': "It doesn't start pretty — the chainsaw chokes and sputters, but then it *howls*. {attacker_name} smiles like they missed that sound."
+            'attacker_msg': "It doesn't start pretty - your chainsaw chokes and sputters, but then it *howls*. You smile like you missed that sound.",
+            'victim_msg': "It doesn't start pretty - the chainsaw chokes and sputters, but then it *howls*. {attacker_name} smiles like they missed that sound.",
+            'observer_msg': "It doesn't start pretty - the chainsaw chokes and sputters, but then it *howls*. {attacker_name} smiles like they missed that sound."
         },
         {
-            'attacker_msg': "It takes a few false starts, but then it kicks — the engine snarling awake like a starving dog catching scent.",
-            'victim_msg': "It takes a few false starts, but then it kicks — the engine snarling awake like a starving dog catching scent.",
-            'observer_msg': "It takes a few false starts, but then it kicks — the engine snarling awake like a starving dog catching scent."
+            'attacker_msg': "It takes a few false starts, but then it kicks - the engine snarling awake like a starving dog catching scent.",
+            'victim_msg': "It takes a few false starts, but then it kicks - the engine snarling awake like a starving dog catching scent.",
+            'observer_msg': "It takes a few false starts, but then it kicks - the engine snarling awake like a starving dog catching scent."
         },
         {
             'attacker_msg': "No warmup, no speech. Just a blast of noise and the unmistakable scent of gasoline as you bring the beast online.",
@@ -56,9 +56,9 @@ MESSAGES = {
             'observer_msg': "Smoke coils around {attacker_name} like a halo of ash. The chainsaw growls against the silence, hungry and without restraint."
         },
         {
-            'attacker_msg': "The air thickens as you rev the saw once, twice. Sparks spit from the teeth as you lock eyes with {target_name}. There's no subtlety here — only declaration.",
-            'victim_msg': "The air thickens as {attacker_name} revs the saw once, twice. Sparks spit from the teeth as they lock eyes with you. There's no subtlety here — only declaration.",
-            'observer_msg': "The air thickens as {attacker_name} revs the saw once, twice. Sparks spit from the teeth as they lock eyes with {target_name}. There's no subtlety here — only declaration."
+            'attacker_msg': "The air thickens as you rev the saw once, twice. Sparks spit from the teeth as you lock eyes with {target_name}. There's no subtlety here - only declaration.",
+            'victim_msg': "The air thickens as {attacker_name} revs the saw once, twice. Sparks spit from the teeth as they lock eyes with you. There's no subtlety here - only declaration.",
+            'observer_msg': "The air thickens as {attacker_name} revs the saw once, twice. Sparks spit from the teeth as they lock eyes with {target_name}. There's no subtlety here - only declaration."
         },
         {
             'attacker_msg': "The blade spins, but it's the look in your eyes that freezes everyone. The saw is a tool. You are the intent.",
@@ -76,14 +76,14 @@ MESSAGES = {
             'observer_msg': "The chainsaw jerks violently as {attacker_name} pulls the cord. It growls awake like something buried too long under asphalt and regret."
         },
         {
-            'attacker_msg': "Your chainsaw starts with a shriek like tortured metal. You don't flinch — this isn't noise, it's a ritual. One you've practiced before.",
-            'victim_msg': "The chainsaw starts with a shriek like tortured metal. {attacker_name} doesn't flinch — this isn't noise, it's a ritual. One they've practiced before.",
-            'observer_msg': "The chainsaw starts with a shriek like tortured metal. {attacker_name} doesn't flinch — this isn't noise, it's a ritual. One they've practiced before."
+            'attacker_msg': "Your chainsaw starts with a shriek like tortured metal. You don't flinch - this isn't noise, it's a ritual. One you've practiced before.",
+            'victim_msg': "The chainsaw starts with a shriek like tortured metal. {attacker_name} doesn't flinch - this isn't noise, it's a ritual. One they've practiced before.",
+            'observer_msg': "The chainsaw starts with a shriek like tortured metal. {attacker_name} doesn't flinch - this isn't noise, it's a ritual. One they've practiced before."
         },
         {
-            'attacker_msg': "The cord snaps back hard and your chainsaw roars to life. You don't look at {target_name} — the machine does.",
-            'victim_msg': "The cord snaps back hard and the chainsaw roars to life. {attacker_name} doesn't look at you — the machine does.",
-            'observer_msg': "The cord snaps back hard and the chainsaw roars to life. {attacker_name} doesn't look at {target_name} — the machine does."
+            'attacker_msg': "The cord snaps back hard and your chainsaw roars to life. You don't look at {target_name} - the machine does.",
+            'victim_msg': "The cord snaps back hard and the chainsaw roars to life. {attacker_name} doesn't look at you - the machine does.",
+            'observer_msg': "The cord snaps back hard and the chainsaw roars to life. {attacker_name} doesn't look at {target_name} - the machine does."
         },
         {
             'attacker_msg': "The engine barks and sputters, stalling once before coming alive. Your shoulders settle like you've returned to something familiar.",
@@ -101,9 +101,9 @@ MESSAGES = {
             'observer_msg': "The first rev is for intimidation. The second is for rhythm. The third? That one's for {target_name}."
         },
         {
-            'attacker_msg': "The machine coughs, stutters, then bellows like something alive and angry. You give it a rev — not to test it, but to warn the room.",
-            'victim_msg': "The machine coughs, stutters, then bellows like something alive and angry. {attacker_name} gives it a rev — not to test it, but to warn the room.",
-            'observer_msg': "The machine coughs, stutters, then bellows like something alive and angry. {attacker_name} gives it a rev — not to test it, but to warn the room."
+            'attacker_msg': "The machine coughs, stutters, then bellows like something alive and angry. You give it a rev - not to test it, but to warn the room.",
+            'victim_msg': "The machine coughs, stutters, then bellows like something alive and angry. {attacker_name} gives it a rev - not to test it, but to warn the room.",
+            'observer_msg': "The machine coughs, stutters, then bellows like something alive and angry. {attacker_name} gives it a rev - not to test it, but to warn the room."
         },
         {
             'attacker_msg': "Your saw starts with a scream that could wake the dead. You look like you *want* it to.",
@@ -126,9 +126,9 @@ MESSAGES = {
             'observer_msg': "The world doesn't get quieter. It gets *louder*. The saw cuts through stillness like it wants more than wood."
         },
         {
-            'attacker_msg': "There's a pause before ignition — a prayer, maybe. Then your chainsaw erupts into sound, and your grin stretches like an open wound.",
-            'victim_msg': "There's a pause before ignition — a prayer, maybe. Then the chainsaw erupts into sound, and {attacker_name}'s grin stretches like an open wound.",
-            'observer_msg': "There's a pause before ignition — a prayer, maybe. Then the chainsaw erupts into sound, and {attacker_name}'s grin stretches like an open wound."
+            'attacker_msg': "There's a pause before ignition - a prayer, maybe. Then your chainsaw erupts into sound, and your grin stretches like an open wound.",
+            'victim_msg': "There's a pause before ignition - a prayer, maybe. Then the chainsaw erupts into sound, and {attacker_name}'s grin stretches like an open wound.",
+            'observer_msg': "There's a pause before ignition - a prayer, maybe. Then the chainsaw erupts into sound, and {attacker_name}'s grin stretches like an open wound."
         },
         {
             'attacker_msg': "There's no hesitation. Just fuel, steel, and the steady growl of a monster that you wake like you've done it a hundred times before.",
@@ -136,14 +136,14 @@ MESSAGES = {
             'observer_msg': "There's no hesitation. Just fuel, steel, and the steady growl of a monster that {attacker_name} wakes like they've done it a hundred times before."
         },
         {
-            'attacker_msg': "There's something wrong with the way it starts — uneven, snarling, feral. You don't mind. You prefer it unhinged.",
-            'victim_msg': "There's something wrong with the way it starts — uneven, snarling, feral. {attacker_name} doesn't mind. They prefer it unhinged.",
-            'observer_msg': "There's something wrong with the way it starts — uneven, snarling, feral. {attacker_name} doesn't mind. They prefer it unhinged."
+            'attacker_msg': "There's something wrong with the way it starts - uneven, snarling, feral. You don't mind. You prefer it unhinged.",
+            'victim_msg': "There's something wrong with the way it starts - uneven, snarling, feral. {attacker_name} doesn't mind. They prefer it unhinged.",
+            'observer_msg': "There's something wrong with the way it starts - uneven, snarling, feral. {attacker_name} doesn't mind. They prefer it unhinged."
         },
         {
-            'attacker_msg': "This isn't about intimidation — it's about inevitability. The engine growls like a throat full of gravel as you hoist it high.",
-            'victim_msg': "This isn't about intimidation — it's about inevitability. The engine growls like a throat full of gravel as {attacker_name} hoists it high.",
-            'observer_msg': "This isn't about intimidation — it's about inevitability. The engine growls like a throat full of gravel as {attacker_name} hoists it high."
+            'attacker_msg': "This isn't about intimidation - it's about inevitability. The engine growls like a throat full of gravel as you hoist it high.",
+            'victim_msg': "This isn't about intimidation - it's about inevitability. The engine growls like a throat full of gravel as {attacker_name} hoists it high.",
+            'observer_msg': "This isn't about intimidation - it's about inevitability. The engine growls like a throat full of gravel as {attacker_name} hoists it high."
         },
         {
             'attacker_msg': "With one sharp tug, the silence is murdered. Your chainsaw sputters, catches, and fills the air with mechanical rage.",
@@ -156,9 +156,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} cradles the chainsaw like a sacred relic. The switch flips. The roar begins. The room exhales in dread."
         },
         {
-            'attacker_msg': "You don't shout. Your chainsaw does it for you — a howl of fuel, steel, and blood not yet spilled.",
-            'victim_msg': "{attacker_name} doesn't shout. The chainsaw does it for them — a howl of fuel, steel, and blood not yet spilled.",
-            'observer_msg': "{attacker_name} doesn't shout. The chainsaw does it for them — a howl of fuel, steel, and blood not yet spilled."
+            'attacker_msg': "You don't shout. Your chainsaw does it for you - a howl of fuel, steel, and blood not yet spilled.",
+            'victim_msg': "{attacker_name} doesn't shout. The chainsaw does it for them - a howl of fuel, steel, and blood not yet spilled.",
+            'observer_msg': "{attacker_name} doesn't shout. The chainsaw does it for them - a howl of fuel, steel, and blood not yet spilled."
         },
         {
             'attacker_msg': "You don't rush. You let the motor warm like a predator stretching. The blade idles with menace.",
@@ -191,14 +191,14 @@ MESSAGES = {
             'observer_msg': "{attacker_name} yanks the cord and the chainsaw roars like a thing reborn. Smoke curls from its throat like it remembers fire."
         },
         {
-            'attacker_msg': "You yank the starter cord with a guttural jerk. Your chainsaw sputters, coughs, then roars to life in a cloud of smoke and intent. It doesn't hum — it *screams*.",
-            'victim_msg': "{attacker_name} yanks the starter cord with a guttural jerk. The chainsaw sputters, coughs, then roars to life in a cloud of smoke and intent. It doesn't hum — it *screams*.",
-            'observer_msg': "{attacker_name} yanks the starter cord with a guttural jerk. The chainsaw sputters, coughs, then roars to life in a cloud of smoke and intent. It doesn't hum — it *screams*."
+            'attacker_msg': "You yank the starter cord with a guttural jerk. Your chainsaw sputters, coughs, then roars to life in a cloud of smoke and intent. It doesn't hum - it *screams*.",
+            'victim_msg': "{attacker_name} yanks the starter cord with a guttural jerk. The chainsaw sputters, coughs, then roars to life in a cloud of smoke and intent. It doesn't hum - it *screams*.",
+            'observer_msg': "{attacker_name} yanks the starter cord with a guttural jerk. The chainsaw sputters, coughs, then roars to life in a cloud of smoke and intent. It doesn't hum - it *screams*."
         },
         {
-            'attacker_msg': "Your grip tightens. The pull is fast, decisive. Your chainsaw sputters — then ignites into a mechanical scream that fills the room.",
-            'victim_msg': "{attacker_name}'s grip tightens. The pull is fast, decisive. The chainsaw sputters — then ignites into a mechanical scream that fills the room.",
-            'observer_msg': "{attacker_name}'s grip tightens. The pull is fast, decisive. The chainsaw sputters — then ignites into a mechanical scream that fills the room."
+            'attacker_msg': "Your grip tightens. The pull is fast, decisive. Your chainsaw sputters - then ignites into a mechanical scream that fills the room.",
+            'victim_msg': "{attacker_name}'s grip tightens. The pull is fast, decisive. The chainsaw sputters - then ignites into a mechanical scream that fills the room.",
+            'observer_msg': "{attacker_name}'s grip tightens. The pull is fast, decisive. The chainsaw sputters - then ignites into a mechanical scream that fills the room."
         },
         {
             'attacker_msg': "Your shoulders rise with effort as the saw jerks to life. The blade spins like a curse being recited out loud.",
@@ -223,9 +223,9 @@ MESSAGES = {
             'observer_msg': "A quick slice becomes something more. {target_name} collapses mid-sentence, blood painting punctuation around their last word."
         },
         {
-            'attacker_msg': "A spray of red arcs into the air as you drive the saw into {target_name}'s {hit_location}. The sound is wet, grinding — unforgettable.",
-            'victim_msg': "A spray of red arcs into the air as {attacker_name} drives the saw into your {hit_location}. The sound is wet, grinding — unforgettable.",
-            'observer_msg': "A spray of red arcs into the air as {attacker_name} drives the saw into {target_name}'s {hit_location}. The sound is wet, grinding — unforgettable."
+            'attacker_msg': "A spray of red arcs into the air as you drive the saw into {target_name}'s {hit_location}. The sound is wet, grinding - unforgettable.",
+            'victim_msg': "A spray of red arcs into the air as {attacker_name} drives the saw into your {hit_location}. The sound is wet, grinding - unforgettable.",
+            'observer_msg': "A spray of red arcs into the air as {attacker_name} drives the saw into {target_name}'s {hit_location}. The sound is wet, grinding - unforgettable."
         },
         {
             'attacker_msg': "A vertical plunge opens {target_name} from {hit_location} to {hit_location}. The wound screams even if they don't.",
@@ -263,9 +263,9 @@ MESSAGES = {
             'observer_msg': "It hits at an angle. Not clean. Not kind. The saw chews and {target_name} shrieks, dancing with death they didn't invite."
         },
         {
-            'attacker_msg': "One {hit_location} of {target_name} caves in under the churning chain. Their body doesn't break — it *melts* around the motion.",
-            'victim_msg': "One {hit_location} of you caves in under the churning chain. Your body doesn't break — it *melts* around the motion.",
-            'observer_msg': "One {hit_location} of {target_name} caves in under the churning chain. Their body doesn't break — it *melts* around the motion."
+            'attacker_msg': "One {hit_location} of {target_name} caves in under the churning chain. Their body doesn't break - it *melts* around the motion.",
+            'victim_msg': "One {hit_location} of you caves in under the churning chain. Your body doesn't break - it *melts* around the motion.",
+            'observer_msg': "One {hit_location} of {target_name} caves in under the churning chain. Their body doesn't break - it *melts* around the motion."
         },
         {
             'attacker_msg': "One slash, from {hit_location} to {hit_location}. {target_name} collapses mid-turn, blood trailing behind them like punctuation.",
@@ -288,9 +288,9 @@ MESSAGES = {
             'observer_msg': "The blade clips {target_name}'s {hit_location}, spraying red in tight spirals. They try to clutch it. There's nothing left to clutch."
         },
         {
-            'attacker_msg': "Your blade sinks in and {target_name} howls, twisting as pieces of them don't keep up. The chainsaw doesn't cut — it devours.",
-            'victim_msg': "The blade sinks in and you howl, twisting as pieces of you don't keep up. The chainsaw doesn't cut — it devours.",
-            'observer_msg': "The blade sinks in and {target_name} howls, twisting as pieces of them don't keep up. The chainsaw doesn't cut — it devours."
+            'attacker_msg': "Your blade sinks in and {target_name} howls, twisting as pieces of them don't keep up. The chainsaw doesn't cut - it devours.",
+            'victim_msg': "The blade sinks in and you howl, twisting as pieces of you don't keep up. The chainsaw doesn't cut - it devours.",
+            'observer_msg': "The blade sinks in and {target_name} howls, twisting as pieces of them don't keep up. The chainsaw doesn't cut - it devours."
         },
         {
             'attacker_msg': "The chain bites and sticks. You wrench it free, taking a ribbon of flesh that will never be reattached.",
@@ -298,19 +298,19 @@ MESSAGES = {
             'observer_msg': "The chain bites and sticks. {attacker_name} wrenches it free, taking a ribbon of flesh that will never be reattached."
         },
         {
-            'attacker_msg': "Your chainsaw kisses {target_name}'s {hit_location} and keeps going. Their scream is short — there's too much damage for sound.",
-            'victim_msg': "The chainsaw kisses your {hit_location} and keeps going. Your scream is short — there's too much damage for sound.",
-            'observer_msg': "The chainsaw kisses {target_name}'s {hit_location} and keeps going. Their scream is short — there's too much damage for sound."
+            'attacker_msg': "Your chainsaw kisses {target_name}'s {hit_location} and keeps going. Their scream is short - there's too much damage for sound.",
+            'victim_msg': "The chainsaw kisses your {hit_location} and keeps going. Your scream is short - there's too much damage for sound.",
+            'observer_msg': "The chainsaw kisses {target_name}'s {hit_location} and keeps going. Their scream is short - there's too much damage for sound."
         },
         {
-            'attacker_msg': "Your chainsaw punches into {target_name} like a fist full of monsters. The shriek that follows isn't just theirs — it belongs to the saw.",
-            'victim_msg': "The chainsaw punches into you like a fist full of monsters. The shriek that follows isn't just yours — it belongs to the saw.",
-            'observer_msg': "The chainsaw punches into {target_name} like a fist full of monsters. The shriek that follows isn't just theirs — it belongs to the saw."
+            'attacker_msg': "Your chainsaw punches into {target_name} like a fist full of monsters. The shriek that follows isn't just theirs - it belongs to the saw.",
+            'victim_msg': "The chainsaw punches into you like a fist full of monsters. The shriek that follows isn't just yours - it belongs to the saw.",
+            'observer_msg': "The chainsaw punches into {target_name} like a fist full of monsters. The shriek that follows isn't just theirs - it belongs to the saw."
         },
         {
-            'attacker_msg': "The engine dips as it grinds bone, but you hold steady. Your saw doesn't care what's in its way — only that it's soft.",
-            'victim_msg': "The engine dips as it grinds bone, but {attacker_name} holds steady. The saw doesn't care what's in its way — only that it's soft.",
-            'observer_msg': "The engine dips as it grinds bone, but {attacker_name} holds steady. The saw doesn't care what's in its way — only that it's soft."
+            'attacker_msg': "The engine dips as it grinds bone, but you hold steady. Your saw doesn't care what's in its way - only that it's soft.",
+            'victim_msg': "The engine dips as it grinds bone, but {attacker_name} holds steady. The saw doesn't care what's in its way - only that it's soft.",
+            'observer_msg': "The engine dips as it grinds bone, but {attacker_name} holds steady. The saw doesn't care what's in its way - only that it's soft."
         },
         {
             'attacker_msg': "Your saw bites into {target_name}'s {hit_location}, ripping through cloth, flesh, and composure. Screams drown under the roar of steel on meat.",
@@ -318,19 +318,19 @@ MESSAGES = {
             'observer_msg': "The saw bites into {target_name}'s {hit_location}, ripping through cloth, flesh, and composure. Screams drown under the roar of steel on meat."
         },
         {
-            'attacker_msg': "Your saw catches {target_name} along the {hit_location}, the engine lurching as it tears through resistance. The blood isn't a spray — it's a curtain.",
-            'victim_msg': "The saw catches you along the {hit_location}, the engine lurching as it tears through resistance. The blood isn't a spray — it's a curtain.",
-            'observer_msg': "The saw catches {target_name} along the {hit_location}, the engine lurching as it tears through resistance. The blood isn't a spray — it's a curtain."
+            'attacker_msg': "Your saw catches {target_name} along the {hit_location}, the engine lurching as it tears through resistance. The blood isn't a spray - it's a curtain.",
+            'victim_msg': "The saw catches you along the {hit_location}, the engine lurching as it tears through resistance. The blood isn't a spray - it's a curtain.",
+            'observer_msg': "The saw catches {target_name} along the {hit_location}, the engine lurching as it tears through resistance. The blood isn't a spray - it's a curtain."
         },
         {
-            'attacker_msg': "Your saw doesn't just cut — it *removes*. Flesh peels, muscle splits, and {target_name}'s balance disappears with their composure.",
-            'victim_msg': "The saw doesn't just cut — it *removes*. Flesh peels, muscle splits, and your balance disappears with your composure.",
-            'observer_msg': "The saw doesn't just cut — it *removes*. Flesh peels, muscle splits, and {target_name}'s balance disappears with their composure."
+            'attacker_msg': "Your saw doesn't just cut - it *removes*. Flesh peels, muscle splits, and {target_name}'s balance disappears with their composure.",
+            'victim_msg': "The saw doesn't just cut - it *removes*. Flesh peels, muscle splits, and your balance disappears with your composure.",
+            'observer_msg': "The saw doesn't just cut - it *removes*. Flesh peels, muscle splits, and {target_name}'s balance disappears with their composure."
         },
         {
-            'attacker_msg': "There's a smell — ozone, blood, hot oil. You smell it too. It's the scent of something unmade.",
-            'victim_msg': "There's a smell — ozone, blood, hot oil. {attacker_name} smells it too. It's the scent of something unmade.",
-            'observer_msg': "There's a smell — ozone, blood, hot oil. {attacker_name} smells it too. It's the scent of something unmade."
+            'attacker_msg': "There's a smell - ozone, blood, hot oil. You smell it too. It's the scent of something unmade.",
+            'victim_msg': "There's a smell - ozone, blood, hot oil. {attacker_name} smells it too. It's the scent of something unmade.",
+            'observer_msg': "There's a smell - ozone, blood, hot oil. {attacker_name} smells it too. It's the scent of something unmade."
         },
         {
             'attacker_msg': "There's no finesse. You simply lean in, letting the saw do the talking. And it talks in syllables of ruin.",
@@ -338,9 +338,9 @@ MESSAGES = {
             'observer_msg': "There's no finesse. {attacker_name} simply leans in, letting the saw do the talking. And it talks in syllables of ruin."
         },
         {
-            'attacker_msg': "There's a moment where your blade sticks — then a jolt, and it's free again, trailing flesh behind it like a streamer.",
-            'victim_msg': "There's a moment where the blade sticks — then a jolt, and it's free again, trailing flesh behind it like a streamer.",
-            'observer_msg': "There's a moment where the blade sticks — then a jolt, and it's free again, trailing flesh behind it like a streamer."
+            'attacker_msg': "There's a moment where your blade sticks - then a jolt, and it's free again, trailing flesh behind it like a streamer.",
+            'victim_msg': "There's a moment where the blade sticks - then a jolt, and it's free again, trailing flesh behind it like a streamer.",
+            'observer_msg': "There's a moment where the blade sticks - then a jolt, and it's free again, trailing flesh behind it like a streamer."
         },
         {
             'attacker_msg': "You carve a crescent into {target_name}'s {hit_location}. The teeth drag muscle with them like souvenirs.",
@@ -363,9 +363,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} drags the saw upward through {target_name}, {hit_location} sparking on the teeth. It smells like burned meat."
         },
         {
-            'attacker_msg': "You follow through as the saw tears down the centerline. The damage isn't a wound — it's a statement.",
-            'victim_msg': "{attacker_name} follows through as the saw tears down the centerline. The damage isn't a wound — it's a statement.",
-            'observer_msg': "{attacker_name} follows through as the saw tears down the centerline. The damage isn't a wound — it's a statement."
+            'attacker_msg': "You follow through as the saw tears down the centerline. The damage isn't a wound - it's a statement.",
+            'victim_msg': "{attacker_name} follows through as the saw tears down the centerline. The damage isn't a wound - it's a statement.",
+            'observer_msg': "{attacker_name} follows through as the saw tears down the centerline. The damage isn't a wound - it's a statement."
         },
         {
             'attacker_msg': "You grind the saw into {target_name}'s {hit_location}, shredding meat into vapor. The smell is thick, unmistakable.",
@@ -373,14 +373,14 @@ MESSAGES = {
             'observer_msg': "{attacker_name} grinds the saw into {target_name}'s {hit_location}, shredding meat into vapor. The smell is thick, unmistakable."
         },
         {
-            'attacker_msg': "You plant a boot into {target_name} and drive the saw in deep. The result is chaos — bone crunching, nerves firing, everything screaming.",
-            'victim_msg': "{attacker_name} plants a boot into you and drives the saw in deep. The result is chaos — bone crunching, nerves firing, everything screaming.",
-            'observer_msg': "{attacker_name} plants a boot into {target_name} and drives the saw in deep. The result is chaos — bone crunching, nerves firing, everything screaming."
+            'attacker_msg': "You plant a boot into {target_name} and drive the saw in deep. The result is chaos - bone crunching, nerves firing, everything screaming.",
+            'victim_msg': "{attacker_name} plants a boot into you and drives the saw in deep. The result is chaos - bone crunching, nerves firing, everything screaming.",
+            'observer_msg': "{attacker_name} plants a boot into {target_name} and drives the saw in deep. The result is chaos - bone crunching, nerves firing, everything screaming."
         },
         {
-            'attacker_msg': "You push the blade into {target_name}'s {hit_location}, slowly, deliberately. They don't scream — they *wail*.",
-            'victim_msg': "{attacker_name} pushes the blade into your {hit_location}, slowly, deliberately. You don't scream — you *wail*.",
-            'observer_msg': "{attacker_name} pushes the blade into {target_name}'s {hit_location}, slowly, deliberately. They don't scream — they *wail*."
+            'attacker_msg': "You push the blade into {target_name}'s {hit_location}, slowly, deliberately. They don't scream - they *wail*.",
+            'victim_msg': "{attacker_name} pushes the blade into your {hit_location}, slowly, deliberately. You don't scream - you *wail*.",
+            'observer_msg': "{attacker_name} pushes the blade into {target_name}'s {hit_location}, slowly, deliberately. They don't scream - they *wail*."
         },
         {
             'attacker_msg': "Your strike lands center mass. The saw buckles, catches, and explodes forward, taking {target_name}'s balance with it.",
@@ -388,9 +388,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name}'s strike lands center mass. The saw buckles, catches, and explodes forward, taking {target_name}'s balance with it."
         },
         {
-            'attacker_msg': "{target_name} staggers as your saw hits home. For a second, they look surprised — then the blood surges up and surprise turns to collapse.",
-            'victim_msg': "You stagger as the saw hits home. For a second, you look surprised — then the blood surges up and surprise turns to collapse.",
-            'observer_msg': "{target_name} staggers as the saw hits home. For a second, they look surprised — then the blood surges up and surprise turns to collapse."
+            'attacker_msg': "{target_name} staggers as your saw hits home. For a second, they look surprised - then the blood surges up and surprise turns to collapse.",
+            'victim_msg': "You stagger as the saw hits home. For a second, you look surprised - then the blood surges up and surprise turns to collapse.",
+            'observer_msg': "{target_name} staggers as the saw hits home. For a second, they look surprised - then the blood surges up and surprise turns to collapse."
         },
         {
             'attacker_msg': "{target_name} tries to dodge, but the edge catches them across the {hit_location}. Their scream is guttural. The smell is copper and smoke.",
@@ -435,9 +435,9 @@ MESSAGES = {
             'observer_msg': "It's a near miss, but near doesn't matter with teeth like those. The air still smells like terror."
         },
         {
-            'attacker_msg': "No contact — just momentum and noise. {target_name} doesn't flinch, but their heart races.",
-            'victim_msg': "No contact — just momentum and noise. You don't flinch, but your heart races.",
-            'observer_msg': "No contact — just momentum and noise. {target_name} doesn't flinch, but their heart races."
+            'attacker_msg': "No contact - just momentum and noise. {target_name} doesn't flinch, but their heart races.",
+            'victim_msg': "No contact - just momentum and noise. You don't flinch, but your heart races.",
+            'observer_msg': "No contact - just momentum and noise. {target_name} doesn't flinch, but their heart races."
         },
         {
             'attacker_msg': "Your blade chews empty air, kicking sparks against the floor. {target_name} stumbles back, mouth open in silent thanks.",
@@ -470,14 +470,14 @@ MESSAGES = {
             'observer_msg': "The chain spins, but it catches nothing but wind. {attacker_name} resets, lips tight, engine shrieking in protest."
         },
         {
-            'attacker_msg': "The chain spins, but the aim betrays you. Your expression doesn't change. You weren't swinging to win — you were swinging to warn.",
-            'victim_msg': "The chain spins, but the aim betrays them. {attacker_name}'s expression doesn't change. They weren't swinging to win — they were swinging to warn.",
-            'observer_msg': "The chain spins, but the aim betrays them. {attacker_name}'s expression doesn't change. They weren't swinging to win — they were swinging to warn."
+            'attacker_msg': "The chain spins, but the aim betrays you. Your expression doesn't change. You weren't swinging to win - you were swinging to warn.",
+            'victim_msg': "The chain spins, but the aim betrays them. {attacker_name}'s expression doesn't change. They weren't swinging to win - they were swinging to warn.",
+            'observer_msg': "The chain spins, but the aim betrays them. {attacker_name}'s expression doesn't change. They weren't swinging to win - they were swinging to warn."
         },
         {
-            'attacker_msg': "Your chainsaw howls but finds no victim. The sound is the only injury — for now.",
-            'victim_msg': "The chainsaw howls but finds no victim. The sound is the only injury — for now.",
-            'observer_msg': "The chainsaw howls but finds no victim. The sound is the only injury — for now."
+            'attacker_msg': "Your chainsaw howls but finds no victim. The sound is the only injury - for now.",
+            'victim_msg': "The chainsaw howls but finds no victim. The sound is the only injury - for now.",
+            'observer_msg': "The chainsaw howls but finds no victim. The sound is the only injury - for now."
         },
         {
             'attacker_msg': "Your chainsaw slices through shadow, lighting nothing but the room on fire with tension. You keep moving.",
@@ -510,9 +510,9 @@ MESSAGES = {
             'observer_msg': "The teeth flash past {target_name}'s shoulder, close enough to slice their coat. The noise still rings in their ears."
         },
         {
-            'attacker_msg': "There's a screech, a scrape — and then stillness. Your eyes burn brighter than the motor.",
-            'victim_msg': "There's a screech, a scrape — and then stillness. {attacker_name}'s eyes burn brighter than the motor.",
-            'observer_msg': "There's a screech, a scrape — and then stillness. {attacker_name}'s eyes burn brighter than the motor."
+            'attacker_msg': "There's a screech, a scrape - and then stillness. Your eyes burn brighter than the motor.",
+            'victim_msg': "There's a screech, a scrape - and then stillness. {attacker_name}'s eyes burn brighter than the motor.",
+            'observer_msg': "There's a screech, a scrape - and then stillness. {attacker_name}'s eyes burn brighter than the motor."
         },
         {
             'attacker_msg': "You bring the saw around, but it finds only wall. Sparks fly. The room hisses.",
@@ -520,9 +520,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} brings the saw around, but it finds only wall. Sparks fly. The room hisses."
         },
         {
-            'attacker_msg': "You bring the saw down hard — too hard. It sticks in the ground for a breath. {target_name} takes that breath and runs.",
-            'victim_msg': "{attacker_name} brings the saw down hard — too hard. It sticks in the ground for a breath. You take that breath and run.",
-            'observer_msg': "{attacker_name} brings the saw down hard — too hard. It sticks in the ground for a breath. {target_name} takes that breath and runs."
+            'attacker_msg': "You bring the saw down hard - too hard. It sticks in the ground for a breath. {target_name} takes that breath and runs.",
+            'victim_msg': "{attacker_name} brings the saw down hard - too hard. It sticks in the ground for a breath. You take that breath and run.",
+            'observer_msg': "{attacker_name} brings the saw down hard - too hard. It sticks in the ground for a breath. {target_name} takes that breath and runs."
         },
         {
             'attacker_msg': "You lunge too far, the saw's weight pulling you off balance. {target_name} slips aside like a rumor.",
@@ -530,9 +530,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} lunges too far, the saw's weight pulling them off balance. {target_name} slips aside like a rumor."
         },
         {
-            'attacker_msg': "You overcommit — the saw tearing into nothing but air and echo. {target_name} backs away, still tasting fear.",
-            'victim_msg': "{attacker_name} overcommits — the saw tearing into nothing but air and echo. You back away, still tasting fear.",
-            'observer_msg': "{attacker_name} overcommits — the saw tearing into nothing but air and echo. {target_name} backs away, still tasting fear."
+            'attacker_msg': "You overcommit - the saw tearing into nothing but air and echo. {target_name} backs away, still tasting fear.",
+            'victim_msg': "{attacker_name} overcommits - the saw tearing into nothing but air and echo. You back away, still tasting fear.",
+            'observer_msg': "{attacker_name} overcommits - the saw tearing into nothing but air and echo. {target_name} backs away, still tasting fear."
         },
         {
             'attacker_msg': "You swing your chainsaw in a wide, screaming arc. It misses by inches, but the wind carries menace.",
@@ -562,9 +562,9 @@ MESSAGES = {
     ],
     'kill': [
         {
-            'attacker_msg': "A downward slam splits {target_name} in two clean halves — clean in shape only. The result is obscene, unrecognizable.",
-            'victim_msg': "A downward slam splits you in two clean halves — clean in shape only. The result is obscene, unrecognizable.",
-            'observer_msg': "A downward slam splits {target_name} in two clean halves — clean in shape only. The result is obscene, unrecognizable."
+            'attacker_msg': "A downward slam splits {target_name} in two clean halves - clean in shape only. The result is obscene, unrecognizable.",
+            'victim_msg': "A downward slam splits you in two clean halves - clean in shape only. The result is obscene, unrecognizable.",
+            'observer_msg': "A downward slam splits {target_name} in two clean halves - clean in shape only. The result is obscene, unrecognizable."
         },
         {
             'attacker_msg': "A final push and the teeth find heart. {target_name}'s body seizes, then stills, their mouth open but empty.",
@@ -572,14 +572,14 @@ MESSAGES = {
             'observer_msg': "A final push and the teeth find heart. {target_name}'s body seizes, then stills, their mouth open but empty."
         },
         {
-            'attacker_msg': "It isn't the cut that kills — it's the refusal to stop. You don't stop. Not until the saw runs clean.",
-            'victim_msg': "It isn't the cut that kills — it's the refusal to stop. {attacker_name} doesn't stop. Not until the saw runs clean.",
-            'observer_msg': "It isn't the cut that kills — it's the refusal to stop. {attacker_name} doesn't stop. Not until the saw runs clean."
+            'attacker_msg': "It isn't the cut that kills - it's the refusal to stop. You don't stop. Not until the saw runs clean.",
+            'victim_msg': "It isn't the cut that kills - it's the refusal to stop. {attacker_name} doesn't stop. Not until the saw runs clean.",
+            'observer_msg': "It isn't the cut that kills - it's the refusal to stop. {attacker_name} doesn't stop. Not until the saw runs clean."
         },
         {
-            'attacker_msg': "It's fast — faster than it should be. The engine stalls halfway through, but {target_name} is already gone.",
-            'victim_msg': "It's fast — faster than it should be. The engine stalls halfway through, but you're already gone.",
-            'observer_msg': "It's fast — faster than it should be. The engine stalls halfway through, but {target_name} is already gone."
+            'attacker_msg': "It's fast - faster than it should be. The engine stalls halfway through, but {target_name} is already gone.",
+            'victim_msg': "It's fast - faster than it should be. The engine stalls halfway through, but you're already gone.",
+            'observer_msg': "It's fast - faster than it should be. The engine stalls halfway through, but {target_name} is already gone."
         },
         {
             'attacker_msg': "No elegance, no ceremony. Just carnage. {target_name}'s end is a smear and a sound that won't stop echoing.",
@@ -592,9 +592,9 @@ MESSAGES = {
             'observer_msg': "One clean drive, no hesitation. The saw stays in {target_name} for a moment longer than it needs to."
         },
         {
-            'attacker_msg': "One last roar, one last bite — and {target_name} becomes part of the floor.",
-            'victim_msg': "One last roar, one last bite — and you become part of the floor.",
-            'observer_msg': "One last roar, one last bite — and {target_name} becomes part of the floor."
+            'attacker_msg': "One last roar, one last bite - and {target_name} becomes part of the floor.",
+            'victim_msg': "One last roar, one last bite - and you become part of the floor.",
+            'observer_msg': "One last roar, one last bite - and {target_name} becomes part of the floor."
         },
         {
             'attacker_msg': "One last swing, and your saw carves through {target_name} like wet rope. The blood coats you, warm and unapologetic.",
@@ -627,9 +627,9 @@ MESSAGES = {
             'observer_msg': "The chainsaw enters at the neck and exits at the pelvis. What's left is meat and echo."
         },
         {
-            'attacker_msg': "Your chainsaw plunges through {target_name}'s torso with a sickening crunch. They don't fall — they *disintegrate*.",
-            'victim_msg': "The chainsaw plunges through your torso with a sickening crunch. You don't fall — you *disintegrate*.",
-            'observer_msg': "The chainsaw plunges through {target_name}'s torso with a sickening crunch. They don't fall — they *disintegrate*."
+            'attacker_msg': "Your chainsaw plunges through {target_name}'s torso with a sickening crunch. They don't fall - they *disintegrate*.",
+            'victim_msg': "The chainsaw plunges through your torso with a sickening crunch. You don't fall - you *disintegrate*.",
+            'observer_msg': "The chainsaw plunges through {target_name}'s torso with a sickening crunch. They don't fall - they *disintegrate*."
         },
         {
             'attacker_msg': "Your chainsaw tears through {target_name}'s chest, blood arcing high in a final salute. Their collapse is less a fall than a surrender.",
@@ -642,9 +642,9 @@ MESSAGES = {
             'observer_msg': "The cut is diagonal, disrespectful. {target_name} falls in two directions, their blood trying to hold them together."
         },
         {
-            'attacker_msg': "The kill is ugly. Violent. Honest. {target_name} dies knowing what they were up against — and that it didn't care.",
-            'victim_msg': "The kill is ugly. Violent. Honest. You die knowing what you were up against — and that it didn't care.",
-            'observer_msg': "The kill is ugly. Violent. Honest. {target_name} dies knowing what they were up against — and that it didn't care."
+            'attacker_msg': "The kill is ugly. Violent. Honest. {target_name} dies knowing what they were up against - and that it didn't care.",
+            'victim_msg': "The kill is ugly. Violent. Honest. You die knowing what you were up against - and that it didn't care.",
+            'observer_msg': "The kill is ugly. Violent. Honest. {target_name} dies knowing what they were up against - and that it didn't care."
         },
         {
             'attacker_msg': "The kill isn't clean. It's cruel. {target_name} twitches, then stops, your saw still humming beside them.",
@@ -652,9 +652,9 @@ MESSAGES = {
             'observer_msg': "The kill isn't clean. It's cruel. {target_name} twitches, then stops, the saw still humming beside them."
         },
         {
-            'attacker_msg': "Your saw finds {target_name}'s neck and keeps going. What's left isn't a wound — it's a border between life and never again.",
-            'victim_msg': "The saw finds your neck and keeps going. What's left isn't a wound — it's a border between life and never again.",
-            'observer_msg': "The saw finds {target_name}'s neck and keeps going. What's left isn't a wound — it's a border between life and never again."
+            'attacker_msg': "Your saw finds {target_name}'s neck and keeps going. What's left isn't a wound - it's a border between life and never again.",
+            'victim_msg': "The saw finds your neck and keeps going. What's left isn't a wound - it's a border between life and never again.",
+            'observer_msg': "The saw finds {target_name}'s neck and keeps going. What's left isn't a wound - it's a border between life and never again."
         },
         {
             'attacker_msg': "There's a sound like snapping wood. {target_name}'s body folds in half, steam rising from the ruin.",
@@ -682,9 +682,9 @@ MESSAGES = {
             'observer_msg': "With one final rev, {attacker_name} buries the blade in {target_name}'s sternum. Their scream ends before the motor does."
         },
         {
-            'attacker_msg': "You drag the saw across {target_name}'s chest and don't stop. There's no final scream — just static.",
-            'victim_msg': "{attacker_name} drags the saw across your chest and doesn't stop. There's no final scream — just static.",
-            'observer_msg': "{attacker_name} drags the saw across {target_name}'s chest and doesn't stop. There's no final scream — just static."
+            'attacker_msg': "You drag the saw across {target_name}'s chest and don't stop. There's no final scream - just static.",
+            'victim_msg': "{attacker_name} drags the saw across your chest and doesn't stop. There's no final scream - just static.",
+            'observer_msg': "{attacker_name} drags the saw across {target_name}'s chest and doesn't stop. There's no final scream - just static."
         },
         {
             'attacker_msg': "You drive your chainsaw into {target_name}'s chest, leaning in like you're pushing through a heavy door. Blood erupts, spraying across everything with no mercy.",

@@ -36,14 +36,14 @@ MESSAGES = {
             'observer_msg': "No sheath. No belt. Just a hidden pocket and a moment's warning before violence begins."
         },
         {
-            'attacker_msg': "The blade is barely the length of a finger — but in your hand, it means so much more.",
-            'victim_msg': "The blade is barely the length of a finger — but in {attacker_name}'s hand, it means so much more.",
-            'observer_msg': "The blade is barely the length of a finger — but in {attacker_name}'s hand, it means so much more."
+            'attacker_msg': "The blade is barely the length of a finger - but in your hand, it means so much more.",
+            'victim_msg': "The blade is barely the length of a finger - but in {attacker_name}'s hand, it means so much more.",
+            'observer_msg': "The blade is barely the length of a finger - but in {attacker_name}'s hand, it means so much more."
         },
         {
-            'attacker_msg': "The blade is barely visible — until you bring it to the light. Then it's all that exists.",
-            'victim_msg': "The blade is barely visible — until {attacker_name} brings it to the light. Then it's all that exists.",
-            'observer_msg': "The blade is barely visible — until {attacker_name} brings it to the light. Then it's all that exists."
+            'attacker_msg': "The blade is barely visible - until you bring it to the light. Then it's all that exists.",
+            'victim_msg': "The blade is barely visible - until {attacker_name} brings it to the light. Then it's all that exists.",
+            'observer_msg': "The blade is barely visible - until {attacker_name} brings it to the light. Then it's all that exists."
         },
         {
             'attacker_msg': "The blade is hidden until it's not. You lift your hand, and the light finds it instantly.",
@@ -66,9 +66,9 @@ MESSAGES = {
             'observer_msg': "The knife fits between two fingers. {attacker_name} doesn't need more."
         },
         {
-            'attacker_msg': "The knife is small enough to miss — until it's in your side. You know that well.",
-            'victim_msg': "The knife is small enough to miss — until it's in your side. {attacker_name} knows that well.",
-            'observer_msg': "The knife is small enough to miss — until it's in {target_name}'s side. {attacker_name} knows that well."
+            'attacker_msg': "The knife is small enough to miss - until it's in your side. You know that well.",
+            'victim_msg': "The knife is small enough to miss - until it's in your side. {attacker_name} knows that well.",
+            'observer_msg': "The knife is small enough to miss - until it's in {target_name}'s side. {attacker_name} knows that well."
         },
         {
             'attacker_msg': "The knife is thin, almost delicate. But you wield it like a scalpel for pain.",
@@ -76,9 +76,9 @@ MESSAGES = {
             'observer_msg': "The knife is thin, almost delicate. But {attacker_name} wields it like a scalpel for pain."
         },
         {
-            'attacker_msg': "The metal gleams briefly before you hide it again — in a stance, in a smile, in a lie.",
-            'victim_msg': "The metal gleams briefly before {attacker_name} hides it again — in a stance, in a smile, in a lie.",
-            'observer_msg': "The metal gleams briefly before {attacker_name} hides it again — in a stance, in a smile, in a lie."
+            'attacker_msg': "The metal gleams briefly before you hide it again - in a stance, in a smile, in a lie.",
+            'victim_msg': "The metal gleams briefly before {attacker_name} hides it again - in a stance, in a smile, in a lie.",
+            'observer_msg': "The metal gleams briefly before {attacker_name} hides it again - in a stance, in a smile, in a lie."
         },
         {
             'attacker_msg': "The weapon glints as you flick it open, the blade catching the light like it was hungry.",
@@ -86,14 +86,14 @@ MESSAGES = {
             'observer_msg': "The weapon glints as {attacker_name} flicks it open, the blade catching the light like it was hungry."
         },
         {
-            'attacker_msg': "The weapon is small enough to hide in a closed fist — and that's where you keep it.",
-            'victim_msg': "The weapon is small enough to hide in a closed fist — and that's where {attacker_name} keeps it.",
-            'observer_msg': "The weapon is small enough to hide in a closed fist — and that's where {attacker_name} keeps it."
+            'attacker_msg': "The weapon is small enough to hide in a closed fist - and that's where you keep it.",
+            'victim_msg': "The weapon is small enough to hide in a closed fist - and that's where {attacker_name} keeps it.",
+            'observer_msg': "The weapon is small enough to hide in a closed fist - and that's where {attacker_name} keeps it."
         },
         {
-            'attacker_msg': "Tiny, jagged, and fast — you hold the knife as if it's part of you.",
-            'victim_msg': "Tiny, jagged, and fast — {attacker_name} holds the knife as if it's part of them.",
-            'observer_msg': "Tiny, jagged, and fast — {attacker_name} holds the knife as if it's part of them."
+            'attacker_msg': "Tiny, jagged, and fast - you hold the knife as if it's part of you.",
+            'victim_msg': "Tiny, jagged, and fast - {attacker_name} holds the knife as if it's part of them.",
+            'observer_msg': "Tiny, jagged, and fast - {attacker_name} holds the knife as if it's part of them."
         },
         {
             'attacker_msg': "With a twist, you reveal the blade. The edge is clean. The intentions are not.",
@@ -106,9 +106,9 @@ MESSAGES = {
             'observer_msg': "With one hand in their pocket, {attacker_name} draws the knife like it's a secret. And it is."
         },
         {
-            'attacker_msg': "You balance the knife on your palm for a second — then grip it like the story's ending.",
-            'victim_msg': "{attacker_name} balances the knife on their palm for a second — then grips it like the story's ending.",
-            'observer_msg': "{attacker_name} balances the knife on their palm for a second — then grips it like the story's ending."
+            'attacker_msg': "You balance the knife on your palm for a second - then grip it like the story's ending.",
+            'victim_msg': "{attacker_name} balances the knife on their palm for a second - then grips it like the story's ending.",
+            'observer_msg': "{attacker_name} balances the knife on their palm for a second - then grips it like the story's ending."
         },
         {
             'attacker_msg': "You click the folding knife open. It sounds like punctuation.",
@@ -116,14 +116,14 @@ MESSAGES = {
             'observer_msg': "{attacker_name} clicks the folding knife open. It sounds like punctuation."
         },
         {
-            'attacker_msg': "You don't draw the knife like a warrior — you flick it out like a dirty secret.",
-            'victim_msg': "{attacker_name} doesn't draw the knife like a warrior — they flick it out like a dirty secret.",
-            'observer_msg': "{attacker_name} doesn't draw the knife like a warrior — they flick it out like a dirty secret."
+            'attacker_msg': "You don't draw the knife like a warrior - you flick it out like a dirty secret.",
+            'victim_msg': "{attacker_name} doesn't draw the knife like a warrior - they flick it out like a dirty secret.",
+            'observer_msg': "{attacker_name} doesn't draw the knife like a warrior - they flick it out like a dirty secret."
         },
         {
-            'attacker_msg': "You draw the blade across your sleeve, not to clean it — but to remember it.",
-            'victim_msg': "{attacker_name} draws the blade across their sleeve, not to clean it — but to remember it.",
-            'observer_msg': "{attacker_name} draws the blade across their sleeve, not to clean it — but to remember it."
+            'attacker_msg': "You draw the blade across your sleeve, not to clean it - but to remember it.",
+            'victim_msg': "{attacker_name} draws the blade across their sleeve, not to clean it - but to remember it.",
+            'observer_msg': "{attacker_name} draws the blade across their sleeve, not to clean it - but to remember it."
         },
         {
             'attacker_msg': "You draw the knife slowly, lovingly. It was made for up-close endings.",
@@ -208,9 +208,9 @@ MESSAGES = {
             'observer_msg': "One swift stab to the {hit_location} makes {target_name} crumple with a shout."
         },
         {
-            'attacker_msg': "The blade carves along the {hit_location} of the {hit_location} — not deep, but deep enough.",
-            'victim_msg': "The blade carves along the {hit_location} of your {hit_location} — not deep, but deep enough.",
-            'observer_msg': "The blade carves along the {hit_location} of the {hit_location} — not deep, but deep enough."
+            'attacker_msg': "The blade carves along the {hit_location} of the {hit_location} - not deep, but deep enough.",
+            'victim_msg': "The blade carves along the {hit_location} of your {hit_location} - not deep, but deep enough.",
+            'observer_msg': "The blade carves along the {hit_location} of the {hit_location} - not deep, but deep enough."
         },
         {
             'attacker_msg': "The blade cuts the {hit_location} of the {hit_location}. {target_name} buckles hard.",
@@ -258,9 +258,9 @@ MESSAGES = {
             'observer_msg': "The knife slashes across the {hit_location}, opening skin in a swift arc. {target_name} yelps and pulls {hit_location}."
         },
         {
-            'attacker_msg': "The knife slips between {hit_location} — not deep enough to kill, but more than enough to hurt. {target_name} gasps.",
-            'victim_msg': "The knife slips between your {hit_location} — not deep enough to kill, but more than enough to hurt. You gasp.",
-            'observer_msg': "The knife slips between {hit_location} — not deep enough to kill, but more than enough to hurt. {target_name} gasps."
+            'attacker_msg': "The knife slips between {hit_location} - not deep enough to kill, but more than enough to hurt. {target_name} gasps.",
+            'victim_msg': "The knife slips between your {hit_location} - not deep enough to kill, but more than enough to hurt. You gasp.",
+            'observer_msg': "The knife slips between {hit_location} - not deep enough to kill, but more than enough to hurt. {target_name} gasps."
         },
         {
             'attacker_msg': "The stab is quick and close, aimed at the {hit_location} blade. {target_name} cries out and stumbles.",
@@ -278,9 +278,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} draws the knife across the {hit_location} of the {hit_location}. The pain is instant, the blood immediate."
         },
         {
-            'attacker_msg': "You flick the blade across the {hit_location} — shallow, but enough. {target_name} stumbles backward, panicked.",
-            'victim_msg': "{attacker_name} flicks the blade across your {hit_location} — shallow, but enough. You stumble backward, panicked.",
-            'observer_msg': "{attacker_name} flicks the blade across the {hit_location} — shallow, but enough. {target_name} stumbles backward, panicked."
+            'attacker_msg': "You flick the blade across the {hit_location} - shallow, but enough. {target_name} stumbles backward, panicked.",
+            'victim_msg': "{attacker_name} flicks the blade across your {hit_location} - shallow, but enough. You stumble backward, panicked.",
+            'observer_msg': "{attacker_name} flicks the blade across the {hit_location} - shallow, but enough. {target_name} stumbles backward, panicked."
         },
         {
             'attacker_msg': "You jab the knife deep into the soft tissue of the upper {hit_location}. {target_name} screams and lurches away.",
@@ -310,14 +310,14 @@ MESSAGES = {
             'observer_msg': "A calculated strike misses {target_name} by mere inches. The blade tastes only air."
         },
         {
-            'attacker_msg': "A feint to the left, a stab to the right — but {target_name} moves first.",
-            'victim_msg': "A feint to the left, a stab to the right — but you move first.",
-            'observer_msg': "A feint to the left, a stab to the right — but {target_name} moves first."
+            'attacker_msg': "A feint to the left, a stab to the right - but {target_name} moves first.",
+            'victim_msg': "A feint to the left, a stab to the right - but you move first.",
+            'observer_msg': "A feint to the left, a stab to the right - but {target_name} moves first."
         },
         {
-            'attacker_msg': "A quick slash across the chest — but the blade finds only empty space.",
-            'victim_msg': "A quick slash across your chest — but the blade finds only empty space.",
-            'observer_msg': "A quick slash across the chest — but the blade finds only empty space."
+            'attacker_msg': "A quick slash across the chest - but the blade finds only empty space.",
+            'victim_msg': "A quick slash across your chest - but the blade finds only empty space.",
+            'observer_msg': "A quick slash across the chest - but the blade finds only empty space."
         },
         {
             'attacker_msg': "A stab toward the shoulder glances off, harmless. The angle was wrong.",
@@ -360,9 +360,9 @@ MESSAGES = {
             'observer_msg': "The knife arcs through empty air. {target_name} slips aside like smoke."
         },
         {
-            'attacker_msg': "The knife darts forward — and finds nothing. The opening closed too quickly.",
-            'victim_msg': "The knife darts forward — and finds nothing. The opening closed too quickly.",
-            'observer_msg': "The knife darts forward — and finds nothing. The opening closed too quickly."
+            'attacker_msg': "The knife darts forward - and finds nothing. The opening closed too quickly.",
+            'victim_msg': "The knife darts forward - and finds nothing. The opening closed too quickly.",
+            'observer_msg': "The knife darts forward - and finds nothing. The opening closed too quickly."
         },
         {
             'attacker_msg': "The knife slides past the ribs, missing by millimeters. {target_name} gasps but remains uncut.",
@@ -370,9 +370,9 @@ MESSAGES = {
             'observer_msg': "The knife slides past the ribs, missing by millimeters. {target_name} gasps but remains uncut."
         },
         {
-            'attacker_msg': "The knife swipes at the throat — but {target_name} ducks at exactly the right moment.",
-            'victim_msg': "The knife swipes at your throat — but you duck at exactly the right moment.",
-            'observer_msg': "The knife swipes at the throat — but {target_name} ducks at exactly the right moment."
+            'attacker_msg': "The knife swipes at the throat - but {target_name} ducks at exactly the right moment.",
+            'victim_msg': "The knife swipes at your throat - but you duck at exactly the right moment.",
+            'observer_msg': "The knife swipes at the throat - but {target_name} ducks at exactly the right moment."
         },
         {
             'attacker_msg': "The point of the blade seeks flesh but finds only the wind.",
@@ -390,9 +390,9 @@ MESSAGES = {
             'observer_msg': "The thrust aims for the belly, but {target_name} sidesteps, leaving the blade to cut nothing."
         },
         {
-            'attacker_msg': "There's a flash of metal, a flick of the wrist — but no contact. The moment passes.",
-            'victim_msg': "There's a flash of metal, a flick of the wrist — but no contact. The moment passes.",
-            'observer_msg': "There's a flash of metal, a flick of the wrist — but no contact. The moment passes."
+            'attacker_msg': "There's a flash of metal, a flick of the wrist - but no contact. The moment passes.",
+            'victim_msg': "There's a flash of metal, a flick of the wrist - but no contact. The moment passes.",
+            'observer_msg': "There's a flash of metal, a flick of the wrist - but no contact. The moment passes."
         },
         {
             'attacker_msg': "You aim for the arm, but the knife finds only air. {target_name} jerks back, safe.",

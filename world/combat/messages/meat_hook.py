@@ -41,9 +41,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} cracks their knuckles before gripping the hook like it's part of their own anatomy."
         },
         {
-            'attacker_msg': "No theatrics—just the low swing of a hook and your dead eyes closing the distance.",
-            'victim_msg': "No theatrics—just the low swing of a hook and {attacker_name}'s dead eyes closing the distance.",
-            'observer_msg': "No theatrics—just the low swing of a hook and {attacker_name}'s dead eyes closing the distance."
+            'attacker_msg': "No theatrics-just the low swing of a hook and your dead eyes closing the distance.",
+            'victim_msg': "No theatrics-just the low swing of a hook and {attacker_name}'s dead eyes closing the distance.",
+            'observer_msg': "No theatrics-just the low swing of a hook and {attacker_name}'s dead eyes closing the distance."
         },
         {
             'attacker_msg': "You plant your boots and roll the meat hook once across your knuckles like a priest fingering rosary beads.",
@@ -56,9 +56,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} whispers something to the hook before raising it like a sermon made of iron."
         },
         {
-            'attacker_msg': "A grunt, a glare, and then the hook rises—you speak fluent brutality.",
-            'victim_msg': "A grunt, a glare, and then the hook rises—{attacker_name} speaks fluent brutality.",
-            'observer_msg': "A grunt, a glare, and then the hook rises—{attacker_name} speaks fluent brutality."
+            'attacker_msg': "A grunt, a glare, and then the hook rises-you speak fluent brutality.",
+            'victim_msg': "A grunt, a glare, and then the hook rises-{attacker_name} speaks fluent brutality.",
+            'observer_msg': "A grunt, a glare, and then the hook rises-{attacker_name} speaks fluent brutality."
         },
         {
             'attacker_msg': "You test the weight of the hook in your hand, as if remembering how much damage it used to do.",
@@ -81,9 +81,9 @@ MESSAGES = {
             'observer_msg': "The hook hums as it cuts a small circle in the air, {attacker_name}'s shoulders relaxed and ready."
         },
         {
-            'attacker_msg': "A dull clang rings out as you tap the hook against a steel pipe—then step into range.",
-            'victim_msg': "A dull clang rings out as {attacker_name} taps the hook against a steel pipe—then steps into range.",
-            'observer_msg': "A dull clang rings out as {attacker_name} taps the hook against a steel pipe—then steps into range."
+            'attacker_msg': "A dull clang rings out as you tap the hook against a steel pipe-then step into range.",
+            'victim_msg': "A dull clang rings out as {attacker_name} taps the hook against a steel pipe-then steps into range.",
+            'observer_msg': "A dull clang rings out as {attacker_name} taps the hook against a steel pipe-then steps into range."
         },
         {
             'attacker_msg': "The air feels heavier as you raise the meat hook slowly, deliberately.",
@@ -116,14 +116,14 @@ MESSAGES = {
             'observer_msg': "The chain rattles and the hook sways. {attacker_name} takes a breath that isn't theirs to exhale."
         },
         {
-            'attacker_msg': "You lift the hook in a casual backhand grip—ready to pierce, pull, or punish.",
-            'victim_msg': "{attacker_name} lifts the hook in a casual backhand grip—ready to pierce, pull, or punish.",
-            'observer_msg': "{attacker_name} lifts the hook in a casual backhand grip—ready to pierce, pull, or punish."
+            'attacker_msg': "You lift the hook in a casual backhand grip-ready to pierce, pull, or punish.",
+            'victim_msg': "{attacker_name} lifts the hook in a casual backhand grip-ready to pierce, pull, or punish.",
+            'observer_msg': "{attacker_name} lifts the hook in a casual backhand grip-ready to pierce, pull, or punish."
         },
         {
-            'attacker_msg': "No pose, no speech—just a hook and a history of hurt in your grip.",
-            'victim_msg': "No pose, no speech—just a hook and a history of hurt in {attacker_name}'s grip.",
-            'observer_msg': "No pose, no speech—just a hook and a history of hurt in {attacker_name}'s grip."
+            'attacker_msg': "No pose, no speech-just a hook and a history of hurt in your grip.",
+            'victim_msg': "No pose, no speech-just a hook and a history of hurt in {attacker_name}'s grip.",
+            'observer_msg': "No pose, no speech-just a hook and a history of hurt in {attacker_name}'s grip."
         },
         {
             'attacker_msg': "You let the hook swing beside you, its rhythm matching a heartbeat only you can hear.",
@@ -136,14 +136,14 @@ MESSAGES = {
             'observer_msg': "The hook creaks like an old door hinge. {attacker_name} just smiles."
         },
         {
-            'attacker_msg': "A slow inhale, a tighter grip—the meat hook rises like it wants out of its own past.",
-            'victim_msg': "A slow inhale, a tighter grip—the meat hook rises like it wants out of its own past.",
-            'observer_msg': "A slow inhale, a tighter grip—the meat hook rises like it wants out of its own past."
+            'attacker_msg': "A slow inhale, a tighter grip-the meat hook rises like it wants out of its own past.",
+            'victim_msg': "A slow inhale, a tighter grip-the meat hook rises like it wants out of its own past.",
+            'observer_msg': "A slow inhale, a tighter grip-the meat hook rises like it wants out of its own past."
         },
         {
-            'attacker_msg': "There's no ceremony—just intent. You raise the hook like a guillotine with muscle memory.",
-            'victim_msg': "There's no ceremony—just intent. {attacker_name} raises the hook like a guillotine with muscle memory.",
-            'observer_msg': "There's no ceremony—just intent. {attacker_name} raises the hook like a guillotine with muscle memory."
+            'attacker_msg': "There's no ceremony-just intent. You raise the hook like a guillotine with muscle memory.",
+            'victim_msg': "There's no ceremony-just intent. {attacker_name} raises the hook like a guillotine with muscle memory.",
+            'observer_msg': "There's no ceremony-just intent. {attacker_name} raises the hook like a guillotine with muscle memory."
         },
         {
             'attacker_msg': "The hook is heavy, but not as heavy as what you plan to do with it.",
@@ -163,9 +163,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} drives the hook deep into {target_name}'s {hit_location}, twisting until the scream breaks free."
         },
         {
-            'attacker_msg': "A brutal backswing buries the point in {target_name}'s {hit_location}—fabric, skin, and dignity part like wet paper.",
-            'victim_msg': "A brutal backswing buries the point in your {hit_location}—fabric, skin, and dignity part like wet paper.",
-            'observer_msg': "A brutal backswing buries the point in {target_name}'s {hit_location}—fabric, skin, and dignity part like wet paper."
+            'attacker_msg': "A brutal backswing buries the point in {target_name}'s {hit_location}-fabric, skin, and dignity part like wet paper.",
+            'victim_msg': "A brutal backswing buries the point in your {hit_location}-fabric, skin, and dignity part like wet paper.",
+            'observer_msg': "A brutal backswing buries the point in {target_name}'s {hit_location}-fabric, skin, and dignity part like wet paper."
         },
         {
             'attacker_msg': "The hook slams into {target_name}'s {hit_location} with a meaty crunch. Bones don't bend like that.",
@@ -208,9 +208,9 @@ MESSAGES = {
             'observer_msg': "The meat hook lodges in {target_name}'s {hit_location}. {attacker_name} twists, and something vital gives."
         },
         {
-            'attacker_msg': "Steel bites into {target_name}'s {hit_location}—not deep, but deep enough to leave a message.",
-            'victim_msg': "Steel bites into your {hit_location}—not deep, but deep enough to leave a message.",
-            'observer_msg': "Steel bites into {target_name}'s {hit_location}—not deep, but deep enough to leave a message."
+            'attacker_msg': "Steel bites into {target_name}'s {hit_location}-not deep, but deep enough to leave a message.",
+            'victim_msg': "Steel bites into your {hit_location}-not deep, but deep enough to leave a message.",
+            'observer_msg': "Steel bites into {target_name}'s {hit_location}-not deep, but deep enough to leave a message."
         },
         {
             'attacker_msg': "A spinning slash across {target_name}'s {hit_location} leaves bloody lines and ragged screams.",
@@ -223,9 +223,9 @@ MESSAGES = {
             'observer_msg': "The chain swings wide, the hook catching {target_name} across the {hit_location} with a shriek of impact."
         },
         {
-            'attacker_msg': "You stab upward under {target_name}'s {hit_location}—short, sharp, and personal.",
-            'victim_msg': "{attacker_name} stabs upward under your {hit_location}—short, sharp, and personal.",
-            'observer_msg': "{attacker_name} stabs upward under {target_name}'s {hit_location}—short, sharp, and personal."
+            'attacker_msg': "You stab upward under {target_name}'s {hit_location}-short, sharp, and personal.",
+            'victim_msg': "{attacker_name} stabs upward under your {hit_location}-short, sharp, and personal.",
+            'observer_msg': "{attacker_name} stabs upward under {target_name}'s {hit_location}-short, sharp, and personal."
         },
         {
             'attacker_msg': "A nasty gash opens along {target_name}'s {hit_location} as the hook rakes across their face.",
@@ -263,9 +263,9 @@ MESSAGES = {
             'observer_msg': "The strike lands hard across {target_name}'s {hit_location}. The hook clings for a moment before tearing away."
         },
         {
-            'attacker_msg': "A full-body heave slams the hook into {target_name}'s {hit_location}. It's not meant to be removed—you do anyway.",
-            'victim_msg': "A full-body heave slams the hook into your {hit_location}. It's not meant to be removed—{attacker_name} does anyway.",
-            'observer_msg': "A full-body heave slams the hook into {target_name}'s {hit_location}. It's not meant to be removed—{attacker_name} does anyway."
+            'attacker_msg': "A full-body heave slams the hook into {target_name}'s {hit_location}. It's not meant to be removed-you do anyway.",
+            'victim_msg': "A full-body heave slams the hook into your {hit_location}. It's not meant to be removed-{attacker_name} does anyway.",
+            'observer_msg': "A full-body heave slams the hook into {target_name}'s {hit_location}. It's not meant to be removed-{attacker_name} does anyway."
         },
         {
             'attacker_msg': "{target_name} gasps as the point glides beneath their {hit_location}. You just grin.",
@@ -310,9 +310,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} swings wide. The hook slams into a wall, sending flakes of rust flying."
         },
         {
-            'attacker_msg': "The hook hisses past {target_name}'s head—close enough to taste metal in the air.",
-            'victim_msg': "The hook hisses past your head—close enough to taste metal in the air.",
-            'observer_msg': "The hook hisses past {target_name}'s head—close enough to taste metal in the air."
+            'attacker_msg': "The hook hisses past {target_name}'s head-close enough to taste metal in the air.",
+            'victim_msg': "The hook hisses past your head-close enough to taste metal in the air.",
+            'observer_msg': "The hook hisses past {target_name}'s head-close enough to taste metal in the air."
         },
         {
             'attacker_msg': "A wide arc misses completely. The chain sings, but {target_name} is untouched.",
@@ -340,9 +340,9 @@ MESSAGES = {
             'observer_msg': "The hook sails harmlessly past {target_name}'s ribs, dragging only air behind it."
         },
         {
-            'attacker_msg': "A grunt and a miss—your footwork is off. The strike fails.",
-            'victim_msg': "A grunt and a miss—{attacker_name}'s footwork is off. The strike fails.",
-            'observer_msg': "A grunt and a miss—{attacker_name}'s footwork is off. The strike fails."
+            'attacker_msg': "A grunt and a miss-your footwork is off. The strike fails.",
+            'victim_msg': "A grunt and a miss-{attacker_name}'s footwork is off. The strike fails.",
+            'observer_msg': "A grunt and a miss-{attacker_name}'s footwork is off. The strike fails."
         },
         {
             'attacker_msg': "You twist the chain too hard. The hook spins but doesn't land.",
@@ -410,9 +410,9 @@ MESSAGES = {
             'observer_msg': "Too high, too slow. The hook spins above {target_name}'s ducked form."
         },
         {
-            'attacker_msg': "Your strike cuts a red arc in the air—but not in flesh.",
-            'victim_msg': "{attacker_name}'s strike cuts a red arc in the air—but not in flesh.",
-            'observer_msg': "{attacker_name}'s strike cuts a red arc in the air—but not in flesh."
+            'attacker_msg': "Your strike cuts a red arc in the air-but not in flesh.",
+            'victim_msg': "{attacker_name}'s strike cuts a red arc in the air-but not in flesh.",
+            'observer_msg': "{attacker_name}'s strike cuts a red arc in the air-but not in flesh."
         },
         {
             'attacker_msg': "A scrape, a clatter, and no blood. Just failure.",
@@ -430,9 +430,9 @@ MESSAGES = {
             'observer_msg': "The hook bounces off a metal railing as {target_name} sidesteps."
         },
         {
-            'attacker_msg': "A flick of your wrist gone wrong—steel meets pavement.",
-            'victim_msg': "A flick of {attacker_name}'s wrist gone wrong—steel meets pavement.",
-            'observer_msg': "A flick of the wrist gone wrong—steel meets pavement."
+            'attacker_msg': "A flick of your wrist gone wrong-steel meets pavement.",
+            'victim_msg': "A flick of {attacker_name}'s wrist gone wrong-steel meets pavement.",
+            'observer_msg': "A flick of the wrist gone wrong-steel meets pavement."
         },
         {
             'attacker_msg': "You commit fully. The hook does not.",
@@ -517,9 +517,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} swings in a wide arc, catching {target_name}'s neck. The body spins, then crumples."
         },
         {
-            'attacker_msg': "The hook goes in beneath the ribs. You pull up. {target_name} doesn't scream—they gurgle.",
-            'victim_msg': "The hook goes in beneath the ribs. {attacker_name} pulls up. You don't scream—you gurgle.",
-            'observer_msg': "The hook goes in beneath the ribs. {attacker_name} pulls up. {target_name} doesn't scream—they gurgle."
+            'attacker_msg': "The hook goes in beneath the ribs. You pull up. {target_name} doesn't scream-they gurgle.",
+            'victim_msg': "The hook goes in beneath the ribs. {attacker_name} pulls up. You don't scream-you gurgle.",
+            'observer_msg': "The hook goes in beneath the ribs. {attacker_name} pulls up. {target_name} doesn't scream-they gurgle."
         },
         {
             'attacker_msg': "A final jab punctures the lung. {target_name} gasps once, then fades like fog.",

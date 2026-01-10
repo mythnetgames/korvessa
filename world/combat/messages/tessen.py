@@ -6,9 +6,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} snaps open a fan of blades, its edges gleaming in a sudden flourish.",
         },
         {
-            "attacker_msg": "With dancer’s grace, you sweep the weapon into a poised stance, its edge whispering.",
-            "victim_msg": "With dancer’s grace, {attacker_name} sweeps the weapon into a poised stance, its edge whispering.",
-            "observer_msg": "With dancer’s grace, {attacker_name} sweeps the weapon into a poised stance, its edge whispering.",
+            "attacker_msg": "With dancer's grace, you sweep the weapon into a poised stance, its edge whispering.",
+            "victim_msg": "With dancer's grace, {attacker_name} sweeps the weapon into a poised stance, its edge whispering.",
+            "observer_msg": "With dancer's grace, {attacker_name} sweeps the weapon into a poised stance, its edge whispering.",
         },
         {
             "attacker_msg": "You trace a flowing arc in the air, the fan unfolding like silver petals.",
@@ -21,9 +21,9 @@ MESSAGES = {
             "observer_msg": "The blades flicker in {attacker_name}'s grip, elegance and violence entwined in one gesture.",
         },
         {
-            "attacker_msg": "You offer a subtle bow, the fan angled like a dancer’s flourish before the strike.",
-            "victim_msg": "{attacker_name} offers a subtle bow, the fan angled like a dancer’s flourish before the strike.",
-            "observer_msg": "{attacker_name} offers a subtle bow, the fan angled like a dancer’s flourish before the strike.",
+            "attacker_msg": "You offer a subtle bow, the fan angled like a dancer's flourish before the strike.",
+            "victim_msg": "{attacker_name} offers a subtle bow, the fan angled like a dancer's flourish before the strike.",
+            "observer_msg": "{attacker_name} offers a subtle bow, the fan angled like a dancer's flourish before the strike.",
         },
         {
             "attacker_msg": "You spin the fan once, its blades catching light in a dazzling display.",
@@ -41,9 +41,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s eyes narrow, focus locked on {target_name} over the edge of the fan.",
         },
         {
-            "attacker_msg": "You let the fan dip slightly, inviting an opening with a dancer’s tease.",
-            "victim_msg": "{attacker_name} lets the fan dip slightly, inviting an opening with a dancer’s tease.",
-            "observer_msg": "{attacker_name} lets the fan dip slightly, inviting an opening with a dancer’s tease.",
+            "attacker_msg": "You let the fan dip slightly, inviting an opening with a dancer's tease.",
+            "victim_msg": "{attacker_name} lets the fan dip slightly, inviting an opening with a dancer's tease.",
+            "observer_msg": "{attacker_name} lets the fan dip slightly, inviting an opening with a dancer's tease.",
         },
         {
             "attacker_msg": "With a sharp breath, you commit to the fight, fan of blades leading the way.",
@@ -51,9 +51,9 @@ MESSAGES = {
             "observer_msg": "With a sharp breath, {attacker_name} commits to the fight, fan of blades leading the way.",
         },
         {
-            "attacker_msg": "You flick the fan open with a snap, its blades shimmering like a predator’s smile.",
-            "victim_msg": "{attacker_name} flicks the fan open with a snap, its blades shimmering like a predator’s smile.",
-            "observer_msg": "{attacker_name} flicks the fan open with a snap, its blades shimmering like a predator’s smile.",
+            "attacker_msg": "You flick the fan open with a snap, its blades shimmering like a predator's smile.",
+            "victim_msg": "{attacker_name} flicks the fan open with a snap, its blades shimmering like a predator's smile.",
+            "observer_msg": "{attacker_name} flicks the fan open with a snap, its blades shimmering like a predator's smile.",
         },
         {
             "attacker_msg": "The fan arcs in your hand, each blade a note in a deadly symphony.",
@@ -61,9 +61,9 @@ MESSAGES = {
             "observer_msg": "The fan arcs in {attacker_name}'s hand, each blade a note in a deadly symphony.",
         },
         {
-            "attacker_msg": "You raise the fan high, its silhouette sharp against the light, a dancer’s weapon.",
-            "victim_msg": "{attacker_name} raises the fan high, its silhouette sharp against the light, a dancer’s weapon.",
-            "observer_msg": "{attacker_name} raises the fan high, its silhouette sharp against the light, a dancer’s weapon.",
+            "attacker_msg": "You raise the fan high, its silhouette sharp against the light, a dancer's weapon.",
+            "victim_msg": "{attacker_name} raises the fan high, its silhouette sharp against the light, a dancer's weapon.",
+            "observer_msg": "{attacker_name} raises the fan high, its silhouette sharp against the light, a dancer's weapon.",
         },
         {
             "attacker_msg": "The fan snaps open with a hiss, each blade promising elegance and ruin.",
@@ -138,9 +138,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s blades flare open, carving a swift line across {target_name}'s {hit_location}.",
         },
         {
-            "attacker_msg": "You pivot sharply, the fan’s edge slicing into {target_name}'s {hit_location} with dancer’s precision.",
-            "victim_msg": "{attacker_name} pivots sharply, the fan’s edge slicing into your {hit_location} with dancer’s precision.",
-            "observer_msg": "{attacker_name} pivots sharply, the fan’s edge slicing into {target_name}'s {hit_location} with dancer’s precision.",
+            "attacker_msg": "You pivot sharply, the fan's edge slicing into {target_name}'s {hit_location} with dancer's precision.",
+            "victim_msg": "{attacker_name} pivots sharply, the fan's edge slicing into your {hit_location} with dancer's precision.",
+            "observer_msg": "{attacker_name} pivots sharply, the fan's edge slicing into {target_name}'s {hit_location} with dancer's precision.",
         },
         {
             "attacker_msg": "The folded steel lashes out, striking {target_name}'s {hit_location} with sudden violence.",
@@ -165,9 +165,9 @@ MESSAGES = {
             "observer_msg": "The blades snap shut with a crack, but {target_name} slips past untouched.",
         },
         {
-            "attacker_msg": "You spin with dancer’s grace, but the fan’s edge finds no purchase on {target_name}.",
-            "victim_msg": "{attacker_name} spins with dancer’s grace, but the fan’s edge finds no purchase on you.",
-            "observer_msg": "{attacker_name} spins with dancer’s grace, but the fan’s edge finds no purchase on {target_name}.",
+            "attacker_msg": "You spin with dancer's grace, but the fan's edge finds no purchase on {target_name}.",
+            "victim_msg": "{attacker_name} spins with dancer's grace, but the fan's edge finds no purchase on you.",
+            "observer_msg": "{attacker_name} spins with dancer's grace, but the fan's edge finds no purchase on {target_name}.",
         },
         {
             "attacker_msg": "The fan flares open, dazzling in motion, but {target_name} is already gone from reach.",
@@ -180,9 +180,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s strike flows like a dance, but the rhythm falters and the blades cut only air.",
         },
         {
-            "attacker_msg": "You overextend, the fan’s point skittering harmlessly across the ground.",
-            "victim_msg": "{attacker_name} overextends, the fan’s point skittering harmlessly across the ground.",
-            "observer_msg": "{attacker_name} overextends, the fan’s point skittering harmlessly across the ground.",
+            "attacker_msg": "You overextend, the fan's point skittering harmlessly across the ground.",
+            "victim_msg": "{attacker_name} overextends, the fan's point skittering harmlessly across the ground.",
+            "observer_msg": "{attacker_name} overextends, the fan's point skittering harmlessly across the ground.",
         },
         {
             "attacker_msg": "A feint from {target_name} leaves your blades slicing only empty space.",
@@ -237,14 +237,14 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s fan closes with a final snap, blades sinking deep as {target_name} falls lifeless.",
         },
         {
-            "attacker_msg": "You spin in a graceful arc, the fan’s edge cutting a fatal line across {target_name}.",
-            "victim_msg": "{attacker_name} spins in a graceful arc, the fan’s edge cutting a fatal line across you.",
-            "observer_msg": "{attacker_name} spins in a graceful arc, the fan’s edge cutting a fatal line across {target_name}.",
+            "attacker_msg": "You spin in a graceful arc, the fan's edge cutting a fatal line across {target_name}.",
+            "victim_msg": "{attacker_name} spins in a graceful arc, the fan's edge cutting a fatal line across you.",
+            "observer_msg": "{attacker_name} spins in a graceful arc, the fan's edge cutting a fatal line across {target_name}.",
         },
         {
-            "attacker_msg": "The blades flare open, striking true—{target_name} collapses beneath the elegance of your final dance.",
-            "victim_msg": "The blades flare open, striking true—{attacker_name}'s final dance leaves you collapsing lifeless.",
-            "observer_msg": "The blades flare open, striking true—{attacker_name}'s final dance leaves {target_name} collapsing lifeless.",
+            "attacker_msg": "The blades flare open, striking true-{target_name} collapses beneath the elegance of your final dance.",
+            "victim_msg": "The blades flare open, striking true-{attacker_name}'s final dance leaves you collapsing lifeless.",
+            "observer_msg": "The blades flare open, striking true-{attacker_name}'s final dance leaves {target_name} collapsing lifeless.",
         },
         {
             "attacker_msg": "Your fan hums as it carves the last breath from {target_name}, a deadly rhythm complete.",
@@ -252,9 +252,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s fan hums as it carves the last breath from {target_name}, a deadly rhythm complete.",
         },
         {
-            "attacker_msg": "You pivot sharply, blades flashing—{target_name} crumples as the dance ends in silence.",
-            "victim_msg": "{attacker_name} pivots sharply, blades flashing—your body crumples as the dance ends in silence.",
-            "observer_msg": "{attacker_name} pivots sharply, blades flashing—{target_name} crumples as the dance ends in silence.",
+            "attacker_msg": "You pivot sharply, blades flashing-{target_name} crumples as the dance ends in silence.",
+            "victim_msg": "{attacker_name} pivots sharply, blades flashing-your body crumples as the dance ends in silence.",
+            "observer_msg": "{attacker_name} pivots sharply, blades flashing-{target_name} crumples as the dance ends in silence.",
         },
         {
             "attacker_msg": "The folded steel lashes out, a final strike that leaves {target_name} motionless.",
@@ -267,9 +267,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s fan slices in a crescent, ending the fight as {target_name} collapses in defeat.",
         },
         {
-            "attacker_msg": "You strike with dancer’s precision, the blades cutting deep—{target_name} falls without a sound.",
-            "victim_msg": "{attacker_name} strikes with dancer’s precision, the blades cutting deep—your body falls without a sound.",
-            "observer_msg": "{attacker_name} strikes with dancer’s precision, the blades cutting deep—{target_name} falls without a sound.",
+            "attacker_msg": "You strike with dancer's precision, the blades cutting deep-{target_name} falls without a sound.",
+            "victim_msg": "{attacker_name} strikes with dancer's precision, the blades cutting deep-your body falls without a sound.",
+            "observer_msg": "{attacker_name} strikes with dancer's precision, the blades cutting deep-{target_name} falls without a sound.",
         },
         {
             "attacker_msg": "The fan snaps shut with finality, its edge delivering death to {target_name}.",
@@ -282,19 +282,19 @@ MESSAGES = {
             "observer_msg": "{attacker_name}'s blades flare in a last flourish, cutting {target_name} down in a fatal dance.",
         },
         {
-            "attacker_msg": "You move like water, the fan’s edge ending {target_name} with a single flowing strike.",
-            "victim_msg": "{attacker_name} moves like water, the fan’s edge ending you with a single flowing strike.",
-            "observer_msg": "{attacker_name} moves like water, the fan’s edge ending {target_name} with a single flowing strike.",
+            "attacker_msg": "You move like water, the fan's edge ending {target_name} with a single flowing strike.",
+            "victim_msg": "{attacker_name} moves like water, the fan's edge ending you with a single flowing strike.",
+            "observer_msg": "{attacker_name} moves like water, the fan's edge ending {target_name} with a single flowing strike.",
         },
         {
-            "attacker_msg": "The fan arcs once, a deadly petal closing—{target_name} falls as the dance concludes.",
-            "victim_msg": "The fan arcs once, a deadly petal closing—{attacker_name}'s strike leaves you fallen as the dance concludes.",
-            "observer_msg": "The fan arcs once, a deadly petal closing—{attacker_name}'s strike leaves {target_name} fallen as the dance concludes.",
+            "attacker_msg": "The fan arcs once, a deadly petal closing-{target_name} falls as the dance concludes.",
+            "victim_msg": "The fan arcs once, a deadly petal closing-{attacker_name}'s strike leaves you fallen as the dance concludes.",
+            "observer_msg": "The fan arcs once, a deadly petal closing-{attacker_name}'s strike leaves {target_name} fallen as the dance concludes.",
         },
         {
-            "attacker_msg": "You strike with sudden violence, the fan’s blades ending {target_name} in a heartbeat.",
-            "victim_msg": "{attacker_name} strikes with sudden violence, the fan’s blades ending you in a heartbeat.",
-            "observer_msg": "{attacker_name} strikes with sudden violence, the fan’s blades ending {target_name} in a heartbeat.",
+            "attacker_msg": "You strike with sudden violence, the fan's blades ending {target_name} in a heartbeat.",
+            "victim_msg": "{attacker_name} strikes with sudden violence, the fan's blades ending you in a heartbeat.",
+            "observer_msg": "{attacker_name} strikes with sudden violence, the fan's blades ending {target_name} in a heartbeat.",
         },
         {
             "attacker_msg": "Your fan closes like a curtain, the final act leaving {target_name} lifeless.",

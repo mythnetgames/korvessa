@@ -21,14 +21,14 @@ MESSAGES = {
             'observer_msg': "A sharp crack echoes as the nunchaku slap together. The room listens. So does {target_name}."
         },
         {
-            'attacker_msg': "A tight grip and a sharp spin — the weapon spins faster than a thought and twice as cruel.",
-            'victim_msg': "A tight grip and a sharp spin — the weapon spins faster than a thought and twice as cruel.",
-            'observer_msg': "A tight grip and a sharp spin — the weapon spins faster than a thought and twice as cruel."
+            'attacker_msg': "A tight grip and a sharp spin - the weapon spins faster than a thought and twice as cruel.",
+            'victim_msg': "A tight grip and a sharp spin - the weapon spins faster than a thought and twice as cruel.",
+            'observer_msg': "A tight grip and a sharp spin - the weapon spins faster than a thought and twice as cruel."
         },
         {
-            'attacker_msg': "No tension, no drama — just a rhythmic hum of swinging wood. The calm before the crack.",
-            'victim_msg': "No tension, no drama — just a rhythmic hum of swinging wood. The calm before the crack.",
-            'observer_msg': "No tension, no drama — just a rhythmic hum of swinging wood. The calm before the crack."
+            'attacker_msg': "No tension, no drama - just a rhythmic hum of swinging wood. The calm before the crack.",
+            'victim_msg': "No tension, no drama - just a rhythmic hum of swinging wood. The calm before the crack.",
+            'observer_msg': "No tension, no drama - just a rhythmic hum of swinging wood. The calm before the crack."
         },
         {
             'attacker_msg': "Steel and speed meet in your hands. The nunchaku hum through the air with promise.",
@@ -41,9 +41,9 @@ MESSAGES = {
             'observer_msg': "The chain whirs and clicks. {attacker_name} moves like they've rehearsed this moment their whole life."
         },
         {
-            'attacker_msg': "The nunchaku spin once, twice — then vanish into a blur of lethal rhythm.",
-            'victim_msg': "The nunchaku spin once, twice — then vanish into a blur of lethal rhythm.",
-            'observer_msg': "The nunchaku spin once, twice — then vanish into a blur of lethal rhythm."
+            'attacker_msg': "The nunchaku spin once, twice - then vanish into a blur of lethal rhythm.",
+            'victim_msg': "The nunchaku spin once, twice - then vanish into a blur of lethal rhythm.",
+            'observer_msg': "The nunchaku spin once, twice - then vanish into a blur of lethal rhythm."
         },
         {
             'attacker_msg': "The sticks clack together once, then vanish into motion. You step forward.",
@@ -51,9 +51,9 @@ MESSAGES = {
             'observer_msg': "The sticks clack together once, then vanish into motion. {attacker_name} steps forward."
         },
         {
-            'attacker_msg': "The sticks lash once across your shoulders, then settle — steady, patient, vengeful.",
-            'victim_msg': "The sticks lash once across {attacker_name}'s shoulders, then settle — steady, patient, vengeful.",
-            'observer_msg': "The sticks lash once across {attacker_name}'s shoulders, then settle — steady, patient, vengeful."
+            'attacker_msg': "The sticks lash once across your shoulders, then settle - steady, patient, vengeful.",
+            'victim_msg': "The sticks lash once across {attacker_name}'s shoulders, then settle - steady, patient, vengeful.",
+            'observer_msg': "The sticks lash once across {attacker_name}'s shoulders, then settle - steady, patient, vengeful."
         },
         {
             'attacker_msg': "The sticks rattle against each other as they move, echoing with the rhythm of war.",
@@ -61,9 +61,9 @@ MESSAGES = {
             'observer_msg': "The sticks rattle against each other as they move, echoing with the rhythm of war."
         },
         {
-            'attacker_msg': "The twin sticks roll over your shoulders and wrists — a fluid dance of violence about to begin.",
-            'victim_msg': "The twin sticks roll over {attacker_name}'s shoulders and wrists — a fluid dance of violence about to begin.",
-            'observer_msg': "The twin sticks roll over {attacker_name}'s shoulders and wrists — a fluid dance of violence about to begin."
+            'attacker_msg': "The twin sticks roll over your shoulders and wrists - a fluid dance of violence about to begin.",
+            'victim_msg': "The twin sticks roll over {attacker_name}'s shoulders and wrists - a fluid dance of violence about to begin.",
+            'observer_msg': "The twin sticks roll over {attacker_name}'s shoulders and wrists - a fluid dance of violence about to begin."
         },
         {
             'attacker_msg': "The weapon loops in a tight orbit around your body, a satellite of stored violence.",
@@ -86,19 +86,19 @@ MESSAGES = {
             'observer_msg': "With a flourish and crack, the nunchaku snap into readiness. {attacker_name}'s eyes never blink."
         },
         {
-            'attacker_msg': "With a single motion, the chain extends fully. Your stance tightens — practiced, patient.",
-            'victim_msg': "With a single motion, the chain extends fully. {attacker_name}'s stance tightens — practiced, patient.",
-            'observer_msg': "With a single motion, the chain extends fully. {attacker_name}'s stance tightens — practiced, patient."
+            'attacker_msg': "With a single motion, the chain extends fully. Your stance tightens - practiced, patient.",
+            'victim_msg': "With a single motion, the chain extends fully. {attacker_name}'s stance tightens - practiced, patient.",
+            'observer_msg': "With a single motion, the chain extends fully. {attacker_name}'s stance tightens - practiced, patient."
         },
         {
-            'attacker_msg': "Wood, chain, muscle — all in sync. You don't wait for permission.",
-            'victim_msg': "Wood, chain, muscle — all in sync. {attacker_name} doesn't wait for permission.",
-            'observer_msg': "Wood, chain, muscle — all in sync. {attacker_name} doesn't wait for permission."
+            'attacker_msg': "Wood, chain, muscle - all in sync. You don't wait for permission.",
+            'victim_msg': "Wood, chain, muscle - all in sync. {attacker_name} doesn't wait for permission.",
+            'observer_msg': "Wood, chain, muscle - all in sync. {attacker_name} doesn't wait for permission."
         },
         {
-            'attacker_msg': "You coil the nunchaku and uncoil them again — control honed from a thousand fights.",
-            'victim_msg': "{attacker_name} coils the nunchaku and uncoils them again — control honed from a thousand fights.",
-            'observer_msg': "{attacker_name} coils the nunchaku and uncoils them again — control honed from a thousand fights."
+            'attacker_msg': "You coil the nunchaku and uncoil them again - control honed from a thousand fights.",
+            'victim_msg': "{attacker_name} coils the nunchaku and uncoils them again - control honed from a thousand fights.",
+            'observer_msg': "{attacker_name} coils the nunchaku and uncoils them again - control honed from a thousand fights."
         },
         {
             'attacker_msg': "You draw the weapon in silence. The chain sways like a serpent learning hunger.",
@@ -111,9 +111,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} flicks the chain once against their back. It snaps into readiness."
         },
         {
-            'attacker_msg': "You flick the nunchaku upward and catch them again — no wasted motion, no wasted mercy.",
-            'victim_msg': "{attacker_name} flicks the nunchaku upward and catches them again — no wasted motion, no wasted mercy.",
-            'observer_msg': "{attacker_name} flicks the nunchaku upward and catches them again — no wasted motion, no wasted mercy."
+            'attacker_msg': "You flick the nunchaku upward and catch them again - no wasted motion, no wasted mercy.",
+            'victim_msg': "{attacker_name} flicks the nunchaku upward and catches them again - no wasted motion, no wasted mercy.",
+            'observer_msg': "{attacker_name} flicks the nunchaku upward and catches them again - no wasted motion, no wasted mercy."
         },
         {
             'attacker_msg': "You let the chain coil around your forearm, then snap it free with surgical precision.",
@@ -146,9 +146,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} taps the nunchaku against their palm once. Twice. The third will land on someone else."
         },
         {
-            'attacker_msg': "You unclip the nunchaku and give them a spin — slow, controlled, and filled with threat.",
-            'victim_msg': "{attacker_name} unclips the nunchaku and gives them a spin — slow, controlled, and filled with threat.",
-            'observer_msg': "{attacker_name} unclips the nunchaku and gives them a spin — slow, controlled, and filled with threat."
+            'attacker_msg': "You unclip the nunchaku and give them a spin - slow, controlled, and filled with threat.",
+            'victim_msg': "{attacker_name} unclips the nunchaku and gives them a spin - slow, controlled, and filled with threat.",
+            'observer_msg': "{attacker_name} unclips the nunchaku and gives them a spin - slow, controlled, and filled with threat."
         }
     ],
     'hit': [
@@ -208,14 +208,14 @@ MESSAGES = {
             'observer_msg': "One stick crashes into {target_name}'s {hit_location}, the other follows with sick rhythm."
         },
         {
-            'attacker_msg': "The chain slaps across {target_name}'s {hit_location}, followed by wood — and pain.",
-            'victim_msg': "The chain slaps across your {hit_location}, followed by wood — and pain.",
-            'observer_msg': "The chain slaps across {target_name}'s {hit_location}, followed by wood — and pain."
+            'attacker_msg': "The chain slaps across {target_name}'s {hit_location}, followed by wood - and pain.",
+            'victim_msg': "The chain slaps across your {hit_location}, followed by wood - and pain.",
+            'observer_msg': "The chain slaps across {target_name}'s {hit_location}, followed by wood - and pain."
         },
         {
-            'attacker_msg': "The chain tangles briefly before slamming into {target_name}'s {hit_location}. Improvised — but effective.",
-            'victim_msg': "The chain tangles briefly before slamming into your {hit_location}. Improvised — but effective.",
-            'observer_msg': "The chain tangles briefly before slamming into {target_name}'s {hit_location}. Improvised — but effective."
+            'attacker_msg': "The chain tangles briefly before slamming into {target_name}'s {hit_location}. Improvised - but effective.",
+            'victim_msg': "The chain tangles briefly before slamming into your {hit_location}. Improvised - but effective.",
+            'observer_msg': "The chain tangles briefly before slamming into {target_name}'s {hit_location}. Improvised - but effective."
         },
         {
             'attacker_msg': "The nunchaku catch {target_name}'s {hit_location}. A red bruise blooms. They barely stay upright.",
@@ -395,9 +395,9 @@ MESSAGES = {
             'observer_msg': "The sticks ricochet off a crate and rebound awkwardly."
         },
         {
-            'attacker_msg': "The sticks slice through hanging wires. Sparks replace blood — for now.",
-            'victim_msg': "The sticks slice through hanging wires. Sparks replace blood — for now.",
-            'observer_msg': "The sticks slice through hanging wires. Sparks replace blood — for now."
+            'attacker_msg': "The sticks slice through hanging wires. Sparks replace blood - for now.",
+            'victim_msg': "The sticks slice through hanging wires. Sparks replace blood - for now.",
+            'observer_msg': "The sticks slice through hanging wires. Sparks replace blood - for now."
         },
         {
             'attacker_msg': "The sticks smash into a wall. Plaster dust fills the air where blood should've been.",
@@ -405,9 +405,9 @@ MESSAGES = {
             'observer_msg': "The sticks smash into a wall. Plaster dust fills the air where blood should've been."
         },
         {
-            'attacker_msg': "The weapon arcs beautifully — and misses completely. The danger doesn't fade.",
-            'victim_msg': "The weapon arcs beautifully — and misses completely. The danger doesn't fade.",
-            'observer_msg': "The weapon arcs beautifully — and misses completely. The danger doesn't fade."
+            'attacker_msg': "The weapon arcs beautifully - and misses completely. The danger doesn't fade.",
+            'victim_msg': "The weapon arcs beautifully - and misses completely. The danger doesn't fade.",
+            'observer_msg': "The weapon arcs beautifully - and misses completely. The danger doesn't fade."
         },
         {
             'attacker_msg': "The weapon dances through an empty path. Its music is unfinished.",
@@ -445,9 +445,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} whips the nunchaku wide, striking a pillar instead of flesh."
         },
         {
-            'attacker_msg': "Your flourish backfires slightly. The chain tangles — momentarily.",
-            'victim_msg': "{attacker_name}'s flourish backfires slightly. The chain tangles — momentarily.",
-            'observer_msg': "{attacker_name}'s flourish backfires slightly. The chain tangles — momentarily."
+            'attacker_msg': "Your flourish backfires slightly. The chain tangles - momentarily.",
+            'victim_msg': "{attacker_name}'s flourish backfires slightly. The chain tangles - momentarily.",
+            'observer_msg': "{attacker_name}'s flourish backfires slightly. The chain tangles - momentarily."
         },
         {
             'attacker_msg': "Your flourish misjudges distance. The strike misses high.",
@@ -462,9 +462,9 @@ MESSAGES = {
             'observer_msg': "A brutal whip across {target_name}'s eyes. They collapse mid-scream, blood flowing from everywhere."
         },
         {
-            'attacker_msg': "A crack to {target_name}'s temple is all it takes. They stiffen — then fall, unmoving.",
-            'victim_msg': "A crack to your temple is all it takes. You stiffen — then fall, unmoving.",
-            'observer_msg': "A crack to {target_name}'s temple is all it takes. They stiffen — then fall, unmoving."
+            'attacker_msg': "A crack to {target_name}'s temple is all it takes. They stiffen - then fall, unmoving.",
+            'victim_msg': "A crack to your temple is all it takes. You stiffen - then fall, unmoving.",
+            'observer_msg': "A crack to {target_name}'s temple is all it takes. They stiffen - then fall, unmoving."
         },
         {
             'attacker_msg': "A double spin ends with a crack to {target_name}'s temple. The lights go out for good.",
@@ -477,14 +477,14 @@ MESSAGES = {
             'observer_msg': "A double-arc strike lands on both sides of {target_name}'s skull. They collapse in a heap."
         },
         {
-            'attacker_msg': "A downward slam snaps {target_name}'s clavicle — and something deeper. They are still before they hit the ground.",
-            'victim_msg': "A downward slam snaps your clavicle — and something deeper. You are still before you hit the ground.",
-            'observer_msg': "A downward slam snaps {target_name}'s clavicle — and something deeper. They are still before they hit the ground."
+            'attacker_msg': "A downward slam snaps {target_name}'s clavicle - and something deeper. They are still before they hit the ground.",
+            'victim_msg': "A downward slam snaps your clavicle - and something deeper. You are still before you hit the ground.",
+            'observer_msg': "A downward slam snaps {target_name}'s clavicle - and something deeper. They are still before they hit the ground."
         },
         {
-            'attacker_msg': "A downward smash caves in the top of {target_name}'s head. The follow-up never comes — it isn't needed.",
-            'victim_msg': "A downward smash caves in the top of your head. The follow-up never comes — it isn't needed.",
-            'observer_msg': "A downward smash caves in the top of {target_name}'s head. The follow-up never comes — it isn't needed."
+            'attacker_msg': "A downward smash caves in the top of {target_name}'s head. The follow-up never comes - it isn't needed.",
+            'victim_msg': "A downward smash caves in the top of your head. The follow-up never comes - it isn't needed.",
+            'observer_msg': "A downward smash caves in the top of {target_name}'s head. The follow-up never comes - it isn't needed."
         },
         {
             'attacker_msg': "A downward whip caves in the top of {target_name}'s head. You don't look away.",

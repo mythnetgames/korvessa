@@ -56,9 +56,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} draws the cleaver from a butcher's pouch, the handle worn smooth."
         },
         {
-            'attacker_msg': "You hold the cleaver like a judge's gavel—sentence about to be passed.",
-            'victim_msg': "{attacker_name} holds the cleaver like a judge's gavel—sentence about to be passed.",
-            'observer_msg': "{attacker_name} holds the cleaver like a judge's gavel—sentence about to be passed."
+            'attacker_msg': "You hold the cleaver like a judge's gavel-sentence about to be passed.",
+            'victim_msg': "{attacker_name} holds the cleaver like a judge's gavel-sentence about to be passed.",
+            'observer_msg': "{attacker_name} holds the cleaver like a judge's gavel-sentence about to be passed."
         },
         {
             'attacker_msg': "You let the cleaver rest on your shoulder, casual as a butcher at closing time.",
@@ -253,9 +253,9 @@ MESSAGES = {
             'observer_msg': "The blade slips between fingers, nerves and blood both spilling."
         },
         {
-            'attacker_msg': "You draw the cleaver across {target_name}'s {hit_location}—shallow, but terrifying.",
-            'victim_msg': "{attacker_name} draws the cleaver across your {hit_location}—shallow, but terrifying.",
-            'observer_msg': "{attacker_name} draws the cleaver across {target_name}'s {hit_location}—shallow, but terrifying."
+            'attacker_msg': "You draw the cleaver across {target_name}'s {hit_location}-shallow, but terrifying.",
+            'victim_msg': "{attacker_name} draws the cleaver across your {hit_location}-shallow, but terrifying.",
+            'observer_msg': "{attacker_name} draws the cleaver across {target_name}'s {hit_location}-shallow, but terrifying."
         },
         {
             'attacker_msg': "A quick flick opens {target_name}'s ear. Blood pours down their {hit_location}.",
@@ -395,9 +395,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} slashes, but {target_name} twists away."
         },
         {
-            'attacker_msg': "The blade whistles past {target_name}'s ear—close, but not enough.",
-            'victim_msg': "The blade whistles past your ear—close, but not enough.",
-            'observer_msg': "The blade whistles past {target_name}'s ear—close, but not enough."
+            'attacker_msg': "The blade whistles past {target_name}'s ear-close, but not enough.",
+            'victim_msg': "The blade whistles past your ear-close, but not enough.",
+            'observer_msg': "The blade whistles past {target_name}'s ear-close, but not enough."
         },
         {
             'attacker_msg': "A quick flick misses, the blade slicing only tension.",

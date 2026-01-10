@@ -31,9 +31,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} drags the wrench along a pipe behind them, raising a scream of metal on metal that echoes down the alley."
         },
         {
-            'attacker_msg': "You check the grip on the pipe wrench, rolling your shoulder like you're about to fix something—terminally.",
-            'victim_msg': "{attacker_name} checks the grip on the pipe wrench, rolling their shoulder like they're about to fix something—terminally.",
-            'observer_msg': "{attacker_name} checks the grip on the pipe wrench, rolling their shoulder like they're about to fix something—terminally."
+            'attacker_msg': "You check the grip on the pipe wrench, rolling your shoulder like you're about to fix something-terminally.",
+            'victim_msg': "{attacker_name} checks the grip on the pipe wrench, rolling their shoulder like they're about to fix something-terminally.",
+            'observer_msg': "{attacker_name} checks the grip on the pipe wrench, rolling their shoulder like they're about to fix something-terminally."
         },
         {
             'attacker_msg': "You bring the wrench up and let it hang low, swinging with the weight of industrial intention.",
@@ -136,9 +136,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} gives a lazy smile and plants their feet wide, wrench rising in one fluid motion."
         },
         {
-            'attacker_msg': "You close the wrench jaws around a pipe, then let go with a snap—just a warm-up.",
-            'victim_msg': "{attacker_name} closes the wrench jaws around a pipe, then lets go with a snap—just a warm-up.",
-            'observer_msg': "{attacker_name} closes the wrench jaws around a pipe, then lets go with a snap—just a warm-up."
+            'attacker_msg': "You close the wrench jaws around a pipe, then let go with a snap-just a warm-up.",
+            'victim_msg': "{attacker_name} closes the wrench jaws around a pipe, then lets go with a snap-just a warm-up.",
+            'observer_msg': "{attacker_name} closes the wrench jaws around a pipe, then lets go with a snap-just a warm-up."
         },
         {
             'attacker_msg': "You roll the wrench along your forearm before letting it drop into your grip with a thud.",
@@ -173,9 +173,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} swings hard and strikes {target_name} in the {hit_location}, folding them like old scaffolding."
         },
         {
-            'attacker_msg': "The steel jaws clip {target_name}'s {hit_location}—there's a sick snap and a howl of pain.",
-            'victim_msg': "The steel jaws clip your {hit_location}—there's a sick snap and a howl of pain.",
-            'observer_msg': "The steel jaws clip {target_name}'s {hit_location}—there's a sick snap and a howl of pain."
+            'attacker_msg': "The steel jaws clip {target_name}'s {hit_location}-there's a sick snap and a howl of pain.",
+            'victim_msg': "The steel jaws clip your {hit_location}-there's a sick snap and a howl of pain.",
+            'observer_msg': "The steel jaws clip {target_name}'s {hit_location}-there's a sick snap and a howl of pain."
         },
         {
             'attacker_msg': "The wrench bites into {target_name}'s {hit_location}, dropping them to one knee with a bark of agony.",
@@ -203,9 +203,9 @@ MESSAGES = {
             'observer_msg': "Steel collides with {hit_location}. {target_name} stumbles forward, limbs twitching."
         },
         {
-            'attacker_msg': "You plant the wrench into {target_name}'s {hit_location}. The joint bends once—then no more.",
-            'victim_msg': "{attacker_name} plants the wrench into your {hit_location}. The joint bends once—then no more.",
-            'observer_msg': "{attacker_name} plants the wrench into {target_name}'s {hit_location}. The joint bends once—then no more."
+            'attacker_msg': "You plant the wrench into {target_name}'s {hit_location}. The joint bends once-then no more.",
+            'victim_msg': "{attacker_name} plants the wrench into your {hit_location}. The joint bends once-then no more.",
+            'observer_msg': "{attacker_name} plants the wrench into {target_name}'s {hit_location}. The joint bends once-then no more."
         },
         {
             'attacker_msg': "You jab the blunt end into {target_name}'s {hit_location}, cracking cartilage with authority.",
@@ -268,14 +268,14 @@ MESSAGES = {
             'observer_msg': "A second blow follows the first before {target_name} can breathe. This one lands even worse."
         },
         {
-            'attacker_msg': "The wrench hooks behind {target_name}'s {hit_location} and yanks—momentum does the rest.",
-            'victim_msg': "The wrench hooks behind your {hit_location} and yanks—momentum does the rest.",
-            'observer_msg': "The wrench hooks behind {target_name}'s {hit_location} and yanks—momentum does the rest."
+            'attacker_msg': "The wrench hooks behind {target_name}'s {hit_location} and yanks-momentum does the rest.",
+            'victim_msg': "The wrench hooks behind your {hit_location} and yanks-momentum does the rest.",
+            'observer_msg': "The wrench hooks behind {target_name}'s {hit_location} and yanks-momentum does the rest."
         },
         {
-            'attacker_msg': "A clean, brutal smash to the {hit_location}—{target_name} hits the ground with a wet exhale.",
-            'victim_msg': "A clean, brutal smash to the {hit_location}—you hit the ground with a wet exhale.",
-            'observer_msg': "A clean, brutal smash to the {hit_location}—{target_name} hits the ground with a wet exhale."
+            'attacker_msg': "A clean, brutal smash to the {hit_location}-{target_name} hits the ground with a wet exhale.",
+            'victim_msg': "A clean, brutal smash to the {hit_location}-you hit the ground with a wet exhale.",
+            'observer_msg': "A clean, brutal smash to the {hit_location}-{target_name} hits the ground with a wet exhale."
         },
         {
             'attacker_msg': "You swing the wrench in a half-circle, catching {target_name} in the {hit_location} mid-turn.",
@@ -320,9 +320,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} spins too wide. The wrench clangs off a railing instead of bone."
         },
         {
-            'attacker_msg': "A clean sidestep from {target_name} makes the swing look clumsy—but not harmless.",
-            'victim_msg': "A clean sidestep from you makes the swing look clumsy—but not harmless.",
-            'observer_msg': "A clean sidestep from {target_name} makes the swing look clumsy—but not harmless."
+            'attacker_msg': "A clean sidestep from {target_name} makes the swing look clumsy-but not harmless.",
+            'victim_msg': "A clean sidestep from you makes the swing look clumsy-but not harmless.",
+            'observer_msg': "A clean sidestep from {target_name} makes the swing look clumsy-but not harmless."
         },
         {
             'attacker_msg': "The jaws snap shut midair, catching nothing but tension and rage.",
@@ -405,9 +405,9 @@ MESSAGES = {
             'observer_msg': "The arc is perfect, the distance isn't. {target_name} lives another breath."
         },
         {
-            'attacker_msg': "A fake-out strike leaves you open. {target_name} doesn't counter—yet.",
-            'victim_msg': "A fake-out strike leaves {attacker_name} open. You don't counter—yet.",
-            'observer_msg': "A fake-out strike leaves {attacker_name} open. {target_name} doesn't counter—yet."
+            'attacker_msg': "A fake-out strike leaves you open. {target_name} doesn't counter-yet.",
+            'victim_msg': "A fake-out strike leaves {attacker_name} open. You don't counter-yet.",
+            'observer_msg': "A fake-out strike leaves {attacker_name} open. {target_name} doesn't counter-yet."
         },
         {
             'attacker_msg': "The wrench crashes into a box. Screws and dust explode outward.",
@@ -425,9 +425,9 @@ MESSAGES = {
             'observer_msg': "A low swing misses as {target_name} jumps back, trailing sparks."
         },
         {
-            'attacker_msg': "The impact lands hard—on the floorboards. {target_name} moves fast.",
-            'victim_msg': "The impact lands hard—on the floorboards. You move fast.",
-            'observer_msg': "The impact lands hard—on the floorboards. {target_name} moves fast."
+            'attacker_msg': "The impact lands hard-on the floorboards. {target_name} moves fast.",
+            'victim_msg': "The impact lands hard-on the floorboards. You move fast.",
+            'observer_msg': "The impact lands hard-on the floorboards. {target_name} moves fast."
         },
         {
             'attacker_msg': "The wrench smashes a pipe instead. Steam hisses like a ghost.",
@@ -517,9 +517,9 @@ MESSAGES = {
             'observer_msg': "A fast hook to the temple spins {target_name} in place. Their eyes go glassy."
         },
         {
-            'attacker_msg': "The wrench arcs in slow—then lands like thunder. {target_name} never stands again.",
-            'victim_msg': "The wrench arcs in slow—then lands like thunder. You never stand again.",
-            'observer_msg': "The wrench arcs in slow—then lands like thunder. {target_name} never stands again."
+            'attacker_msg': "The wrench arcs in slow-then lands like thunder. {target_name} never stands again.",
+            'victim_msg': "The wrench arcs in slow-then lands like thunder. You never stand again.",
+            'observer_msg': "The wrench arcs in slow-then lands like thunder. {target_name} never stands again."
         },
         {
             'attacker_msg': "You grip the wrench with both hands and bring it down like a judge's gavel. Final.",
@@ -577,9 +577,9 @@ MESSAGES = {
             'observer_msg': "One more hit. Just to be sure. {target_name} was gone on the first."
         },
         {
-            'attacker_msg': "The blow breaks the skull—and whatever story {target_name} was going to tell.",
-            'victim_msg': "The blow breaks your skull—and whatever story you were going to tell.",
-            'observer_msg': "The blow breaks {target_name}'s skull—and whatever story they were going to tell."
+            'attacker_msg': "The blow breaks the skull-and whatever story {target_name} was going to tell.",
+            'victim_msg': "The blow breaks your skull-and whatever story you were going to tell.",
+            'observer_msg': "The blow breaks {target_name}'s skull-and whatever story they were going to tell."
         },
         {
             'attacker_msg': "You swing hard. The body drops, limp and final.",

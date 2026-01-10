@@ -1,14 +1,14 @@
 MESSAGES = {
     'initiate': [
         {
-            'attacker_msg': "A cold breath and a twitch — metal tips appear where your fingers end.",
-            'victim_msg': "A cold breath and a twitch — metal tips appear where {attacker_name}'s fingers end.",
-            'observer_msg': "A cold breath and a twitch — metal tips appear where {attacker_name}'s fingers end."
+            'attacker_msg': "A cold breath and a twitch - metal tips appear where your fingers end.",
+            'victim_msg': "A cold breath and a twitch - metal tips appear where {attacker_name}'s fingers end.",
+            'observer_msg': "A cold breath and a twitch - metal tips appear where {attacker_name}'s fingers end."
         },
         {
-            'attacker_msg': "A flex, a hiss — and the blades are ready. You don't blink.",
-            'victim_msg': "A flex, a hiss — and the blades are ready. {attacker_name} doesn't blink.",
-            'observer_msg': "A flex, a hiss — and the blades are ready. {attacker_name} doesn't blink."
+            'attacker_msg': "A flex, a hiss - and the blades are ready. You don't blink.",
+            'victim_msg': "A flex, a hiss - and the blades are ready. {attacker_name} doesn't blink.",
+            'observer_msg': "A flex, a hiss - and the blades are ready. {attacker_name} doesn't blink."
         },
         {
             'attacker_msg': "Each blade is curved, sharpened, and stained. You seem calmer now.",
@@ -66,14 +66,14 @@ MESSAGES = {
             'observer_msg': "The claws lock into place with a clack. {attacker_name} exhales sharp through their teeth."
         },
         {
-            'attacker_msg': "The curved blades gleam as you extend them — not as a warning, but as a promise.",
-            'victim_msg': "The curved blades gleam as {attacker_name} extends them — not as a warning, but as a promise.",
-            'observer_msg': "The curved blades gleam as {attacker_name} extends them — not as a warning, but as a promise."
+            'attacker_msg': "The curved blades gleam as you extend them - not as a warning, but as a promise.",
+            'victim_msg': "The curved blades gleam as {attacker_name} extends them - not as a warning, but as a promise.",
+            'observer_msg': "The curved blades gleam as {attacker_name} extends them - not as a warning, but as a promise."
         },
         {
-            'attacker_msg': "The sharpened tips twitch as you rotate your wrists — a motion too smooth to be safe.",
-            'victim_msg': "The sharpened tips twitch as {attacker_name} rotates their wrists — a motion too smooth to be safe.",
-            'observer_msg': "The sharpened tips twitch as {attacker_name} rotates their wrists — a motion too smooth to be safe."
+            'attacker_msg': "The sharpened tips twitch as you rotate your wrists - a motion too smooth to be safe.",
+            'victim_msg': "The sharpened tips twitch as {attacker_name} rotates their wrists - a motion too smooth to be safe.",
+            'observer_msg': "The sharpened tips twitch as {attacker_name} rotates their wrists - a motion too smooth to be safe."
         },
         {
             'attacker_msg': "The steel arcs forward. You grin like this isn't the first blood you'll draw today.",
@@ -86,9 +86,9 @@ MESSAGES = {
             'observer_msg': "The steel is scratched and rusted. So is {attacker_name}'s sense of mercy."
         },
         {
-            'attacker_msg': "There's no sheath, no ceremony — just blades that want contact.",
-            'victim_msg': "There's no sheath, no ceremony — just blades that want contact.",
-            'observer_msg': "There's no sheath, no ceremony — just blades that want contact."
+            'attacker_msg': "There's no sheath, no ceremony - just blades that want contact.",
+            'victim_msg': "There's no sheath, no ceremony - just blades that want contact.",
+            'observer_msg': "There's no sheath, no ceremony - just blades that want contact."
         },
         {
             'attacker_msg': "With a sharp flick, the claws snap out, hungry for soft tissue.",
@@ -121,9 +121,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} holds up both hands. Ten fingers, five blades. Math in blood."
         },
         {
-            'attacker_msg': "You pull the claws from your belt. No elegance — just readiness.",
-            'victim_msg': "{attacker_name} pulls the claws from their belt. No elegance — just readiness.",
-            'observer_msg': "{attacker_name} pulls the claws from their belt. No elegance — just readiness."
+            'attacker_msg': "You pull the claws from your belt. No elegance - just readiness.",
+            'victim_msg': "{attacker_name} pulls the claws from their belt. No elegance - just readiness.",
+            'observer_msg': "{attacker_name} pulls the claws from their belt. No elegance - just readiness."
         },
         {
             'attacker_msg': "You roll your knuckles. The claws arc like smiles with bad intent.",
@@ -163,9 +163,9 @@ MESSAGES = {
             'observer_msg': "A brutal slash cuts the {hit_location} of {target_name}'s {hit_location}. They fall, claw marks trailing."
         },
         {
-            'attacker_msg': "A double-handed rake leaves {target_name} staggering — open, bleeding, slower now.",
-            'victim_msg': "A double-handed rake leaves you staggering — open, bleeding, slower now.",
-            'observer_msg': "A double-handed rake leaves {target_name} staggering — open, bleeding, slower now."
+            'attacker_msg': "A double-handed rake leaves {target_name} staggering - open, bleeding, slower now.",
+            'victim_msg': "A double-handed rake leaves you staggering - open, bleeding, slower now.",
+            'observer_msg': "A double-handed rake leaves {target_name} staggering - open, bleeding, slower now."
         },
         {
             'attacker_msg': "A downward arc bites into the {hit_location}. {target_name}'s shirt turns dark instantly.",
@@ -213,9 +213,9 @@ MESSAGES = {
             'observer_msg': "One claw hooks into {target_name}'s {hit_location}. They jerk, eyes wide and wet."
         },
         {
-            'attacker_msg': "One clawed jab punctures the {hit_location}. It doesn't go deep — but it goes loud.",
-            'victim_msg': "One clawed jab punctures your {hit_location}. It doesn't go deep — but it goes loud.",
-            'observer_msg': "One clawed jab punctures {target_name}'s {hit_location}. It doesn't go deep — but it goes loud."
+            'attacker_msg': "One clawed jab punctures the {hit_location}. It doesn't go deep - but it goes loud.",
+            'victim_msg': "One clawed jab punctures your {hit_location}. It doesn't go deep - but it goes loud.",
+            'observer_msg': "One clawed jab punctures {target_name}'s {hit_location}. It doesn't go deep - but it goes loud."
         },
         {
             'attacker_msg': "One fast jab lands below the {hit_location}. Pain folds {target_name} in half.",
@@ -375,9 +375,9 @@ MESSAGES = {
             'observer_msg': "The claws nick a pillar. A sliver of stone, not blood, drops to the ground."
         },
         {
-            'attacker_msg': "The claws slash a curtain apart. Behind it — no one. Yet.",
-            'victim_msg': "The claws slash a curtain apart. Behind it — no one. Yet.",
-            'observer_msg': "The claws slash a curtain apart. Behind it — no one. Yet."
+            'attacker_msg': "The claws slash a curtain apart. Behind it - no one. Yet.",
+            'victim_msg': "The claws slash a curtain apart. Behind it - no one. Yet.",
+            'observer_msg': "The claws slash a curtain apart. Behind it - no one. Yet."
         },
         {
             'attacker_msg': "The claws slice a curtain in half. {target_name} vanishes behind the rags.",
@@ -415,9 +415,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} flicks the claws, but the distance betrays them."
         },
         {
-            'attacker_msg': "You lunge and scrape a pipe. Metal on metal — not flesh.",
-            'victim_msg': "{attacker_name} lunges and scrapes a pipe. Metal on metal — not flesh.",
-            'observer_msg': "{attacker_name} lunges and scrapes a pipe. Metal on metal — not flesh."
+            'attacker_msg': "You lunge and scrape a pipe. Metal on metal - not flesh.",
+            'victim_msg': "{attacker_name} lunges and scrapes a pipe. Metal on metal - not flesh.",
+            'observer_msg': "{attacker_name} lunges and scrapes a pipe. Metal on metal - not flesh."
         },
         {
             'attacker_msg': "You overreach. The momentum eats itself in silence.",
@@ -552,9 +552,9 @@ MESSAGES = {
             'observer_msg': "The claws pin {target_name} to the wall. What follows is silence, and slumping."
         },
         {
-            'attacker_msg': "The claws plunge into the chest. {target_name} makes a sound — almost.",
-            'victim_msg': "The claws plunge into your chest. You make a sound — almost.",
-            'observer_msg': "The claws plunge into {target_name}'s chest. They make a sound — almost."
+            'attacker_msg': "The claws plunge into the chest. {target_name} makes a sound - almost.",
+            'victim_msg': "The claws plunge into your chest. You make a sound - almost.",
+            'observer_msg': "The claws plunge into {target_name}'s chest. They make a sound - almost."
         },
         {
             'attacker_msg': "The claws rip the chest open in a cross. The body folds around the gesture.",
@@ -602,9 +602,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} slashes side to side across {target_name}'s face. They crumple, identity gone."
         },
         {
-            'attacker_msg': "You tear through the throat. {target_name} stumbles backward — hands grasping at a wound that wins.",
-            'victim_msg': "{attacker_name} tears through your throat. You stumble backward — hands grasping at a wound that wins.",
-            'observer_msg': "{attacker_name} tears through {target_name}'s throat. They stumble backward — hands grasping at a wound that wins."
+            'attacker_msg': "You tear through the throat. {target_name} stumbles backward - hands grasping at a wound that wins.",
+            'victim_msg': "{attacker_name} tears through your throat. You stumble backward - hands grasping at a wound that wins.",
+            'observer_msg': "{attacker_name} tears through {target_name}'s throat. They stumble backward - hands grasping at a wound that wins."
         }
     ]
 }

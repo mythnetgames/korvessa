@@ -36,9 +36,9 @@ MESSAGES = {
             'observer_msg': "It's a bent sign, a bolted tray, a piece of some broken thing. {attacker_name} raises it like gospel."
         },
         {
-            'attacker_msg': "It's improvised — but that doesn't mean it's untested. You nod once, then step forward.",
-            'victim_msg': "It's improvised — but that doesn't mean it's untested. {attacker_name} nods once, then steps forward.",
-            'observer_msg': "It's improvised — but that doesn't mean it's untested. {attacker_name} nods once, then steps forward."
+            'attacker_msg': "It's improvised - but that doesn't mean it's untested. You nod once, then step forward.",
+            'victim_msg': "It's improvised - but that doesn't mean it's untested. {attacker_name} nods once, then steps forward.",
+            'observer_msg': "It's improvised - but that doesn't mean it's untested. {attacker_name} nods once, then steps forward."
         },
         {
             'attacker_msg': "It's part riot gear, part scrap heap. You brace behind it like a wall with intent.",
@@ -96,9 +96,9 @@ MESSAGES = {
             'observer_msg': "The weapon isn't symmetrical, and neither is the violence coming."
         },
         {
-            'attacker_msg': "With a grunt, you lift the slab and lock your stance. No art — just purpose.",
-            'victim_msg': "With a grunt, {attacker_name} lifts the slab and locks their stance. No art — just purpose.",
-            'observer_msg': "With a grunt, {attacker_name} lifts the slab and locks their stance. No art — just purpose."
+            'attacker_msg': "With a grunt, you lift the slab and lock your stance. No art - just purpose.",
+            'victim_msg': "With a grunt, {attacker_name} lifts the slab and locks their stance. No art - just purpose.",
+            'observer_msg': "With a grunt, {attacker_name} lifts the slab and locks their stance. No art - just purpose."
         },
         {
             'attacker_msg': "With every dent, the shield remembers a hit. You promise more.",
@@ -111,14 +111,14 @@ MESSAGES = {
             'observer_msg': "{attacker_name} braces behind the slab and rolls their shoulders. Something is about to break."
         },
         {
-            'attacker_msg': "You heft the makeshift slab, its corners jagged and rusted. Not elegant — just effective.",
-            'victim_msg': "{attacker_name} hefts the makeshift slab, its corners jagged and rusted. Not elegant — just effective.",
-            'observer_msg': "{attacker_name} hefts the makeshift slab, its corners jagged and rusted. Not elegant — just effective."
+            'attacker_msg': "You heft the makeshift slab, its corners jagged and rusted. Not elegant - just effective.",
+            'victim_msg': "{attacker_name} hefts the makeshift slab, its corners jagged and rusted. Not elegant - just effective.",
+            'observer_msg': "{attacker_name} hefts the makeshift slab, its corners jagged and rusted. Not elegant - just effective."
         },
         {
-            'attacker_msg': "You heft the shield — not crafted, but claimed. Rusted edges and dents tell its story.",
-            'victim_msg': "{attacker_name} hefts the shield — not crafted, but claimed. Rusted edges and dents tell its story.",
-            'observer_msg': "{attacker_name} hefts the shield — not crafted, but claimed. Rusted edges and dents tell its story."
+            'attacker_msg': "You heft the shield - not crafted, but claimed. Rusted edges and dents tell its story.",
+            'victim_msg': "{attacker_name} hefts the shield - not crafted, but claimed. Rusted edges and dents tell its story.",
+            'observer_msg': "{attacker_name} hefts the shield - not crafted, but claimed. Rusted edges and dents tell its story."
         },
         {
             'attacker_msg': "You hoist the heavy slab like a riot shield made from junkyard faith.",
@@ -141,9 +141,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} slams the improvised shield into the ground once. It answers with a heavy thud."
         },
         {
-            'attacker_msg': "You tap the edge of the shield twice — ritual, rhythm, threat.",
-            'victim_msg': "{attacker_name} taps the edge of the shield twice — ritual, rhythm, threat.",
-            'observer_msg': "{attacker_name} taps the edge of the shield twice — ritual, rhythm, threat."
+            'attacker_msg': "You tap the edge of the shield twice - ritual, rhythm, threat.",
+            'victim_msg': "{attacker_name} taps the edge of the shield twice - ritual, rhythm, threat.",
+            'observer_msg': "{attacker_name} taps the edge of the shield twice - ritual, rhythm, threat."
         },
         {
             'attacker_msg': "You tighten your grip. The shield creaks. So does the tension in the room.",
@@ -238,9 +238,9 @@ MESSAGES = {
             'observer_msg': "The shield catches the {hit_location} and follows through. Something vital shifts inside."
         },
         {
-            'attacker_msg': "The shield lifts like a blade, then drops like a judgment — flat across the {hit_location}.",
-            'victim_msg': "The shield lifts like a blade, then drops like a judgment — flat across your {hit_location}.",
-            'observer_msg': "The shield lifts like a blade, then drops like a judgment — flat across the {hit_location}."
+            'attacker_msg': "The shield lifts like a blade, then drops like a judgment - flat across the {hit_location}.",
+            'victim_msg': "The shield lifts like a blade, then drops like a judgment - flat across your {hit_location}.",
+            'observer_msg': "The shield lifts like a blade, then drops like a judgment - flat across the {hit_location}."
         },
         {
             'attacker_msg': "The shield smashes into the {hit_location}. {target_name} vomits red and goes down.",
@@ -340,9 +340,9 @@ MESSAGES = {
             'observer_msg': "The edge catches the ceiling lamp. It explodes, raining glass and silence."
         },
         {
-            'attacker_msg': "The edge clips a steel beam and rings out. {target_name} flinches — but lives.",
-            'victim_msg': "The edge clips a steel beam and rings out. You flinch — but live.",
-            'observer_msg': "The edge clips a steel beam and rings out. {target_name} flinches — but lives."
+            'attacker_msg': "The edge clips a steel beam and rings out. {target_name} flinches - but lives.",
+            'victim_msg': "The edge clips a steel beam and rings out. You flinch - but live.",
+            'observer_msg': "The edge clips a steel beam and rings out. {target_name} flinches - but lives."
         },
         {
             'attacker_msg': "The edge clips a table. Wood splinters. {target_name} doesn't wait around.",
@@ -420,9 +420,9 @@ MESSAGES = {
             'observer_msg': "The wall gets the blow instead. It holds better than {target_name} would've."
         },
         {
-            'attacker_msg': "The wall takes the blow instead of {target_name}. It wins — for now.",
-            'victim_msg': "The wall takes the blow instead of you. It wins — for now.",
-            'observer_msg': "The wall takes the blow instead of {target_name}. It wins — for now."
+            'attacker_msg': "The wall takes the blow instead of {target_name}. It wins - for now.",
+            'victim_msg': "The wall takes the blow instead of you. It wins - for now.",
+            'observer_msg': "The wall takes the blow instead of {target_name}. It wins - for now."
         },
         {
             'attacker_msg': "The weapon punches into empty space, heavy and thunderous. {target_name} dodges barely in time.",
@@ -457,9 +457,9 @@ MESSAGES = {
     ],
     'kill': [
         {
-            'attacker_msg': "A brutal thrust pins {target_name} to the wall — then slams again. Then stillness.",
-            'victim_msg': "A brutal thrust pins you to the wall — then slams again. Then stillness.",
-            'observer_msg': "A brutal thrust pins {target_name} to the wall — then slams again. Then stillness."
+            'attacker_msg': "A brutal thrust pins {target_name} to the wall - then slams again. Then stillness.",
+            'victim_msg': "A brutal thrust pins you to the wall - then slams again. Then stillness.",
+            'observer_msg': "A brutal thrust pins {target_name} to the wall - then slams again. Then stillness."
         },
         {
             'attacker_msg': "A savage body-check breaks the spine. {target_name} jerks, then slumps, twitchless.",
@@ -512,9 +512,9 @@ MESSAGES = {
             'observer_msg': "The full weight of the slab crashes into the spine. {target_name} folds like paper."
         },
         {
-            'attacker_msg': "The rim digs into the gut, then rises — brutal, final. {target_name} drops hard.",
-            'victim_msg': "The rim digs into your gut, then rises — brutal, final. You drop hard.",
-            'observer_msg': "The rim digs into the gut, then rises — brutal, final. {target_name} drops hard."
+            'attacker_msg': "The rim digs into the gut, then rises - brutal, final. {target_name} drops hard.",
+            'victim_msg': "The rim digs into your gut, then rises - brutal, final. You drop hard.",
+            'observer_msg': "The rim digs into the gut, then rises - brutal, final. {target_name} drops hard."
         },
         {
             'attacker_msg': "The shield caves in the chest. Ribs snap, blood spills, life exits.",
@@ -522,9 +522,9 @@ MESSAGES = {
             'observer_msg': "The shield caves in the chest. Ribs snap, blood spills, life exits."
         },
         {
-            'attacker_msg': "The shield comes down like a guillotine. {target_name} doesn't scream — they don't have time.",
-            'victim_msg': "The shield comes down like a guillotine. You don't scream — you don't have time.",
-            'observer_msg': "The shield comes down like a guillotine. {target_name} doesn't scream — they don't have time."
+            'attacker_msg': "The shield comes down like a guillotine. {target_name} doesn't scream - they don't have time.",
+            'victim_msg': "The shield comes down like a guillotine. You don't scream - you don't have time.",
+            'observer_msg': "The shield comes down like a guillotine. {target_name} doesn't scream - they don't have time."
         },
         {
             'attacker_msg': "The shield drives into {target_name}'s chest. Ribs shatter like glass under steel boots.",

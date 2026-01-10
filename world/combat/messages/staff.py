@@ -11,9 +11,9 @@ MESSAGES = {
             'observer_msg': "A slow twirl. A sharp stop. {attacker_name}'s stance widens and the air thickens."
         },
         {
-            'attacker_msg': "A subtle tap to the ground — not for stability, but threat. You mean it.",
-            'victim_msg': "A subtle tap to the ground — not for stability, but threat. {attacker_name} means it.",
-            'observer_msg': "A subtle tap to the ground — not for stability, but threat. {attacker_name} means it."
+            'attacker_msg': "A subtle tap to the ground - not for stability, but threat. You mean it.",
+            'victim_msg': "A subtle tap to the ground - not for stability, but threat. {attacker_name} means it.",
+            'observer_msg': "A subtle tap to the ground - not for stability, but threat. {attacker_name} means it."
         },
         {
             'attacker_msg': "It's old wood, cracked and stained. You give it purpose again.",
@@ -66,9 +66,9 @@ MESSAGES = {
             'observer_msg': "The staff balances along one forearm. Then it's in motion. Then it's dangerous."
         },
         {
-            'attacker_msg': "The staff moves like memory — fast, fluid, practiced. You are already moving.",
-            'victim_msg': "The staff moves like memory — fast, fluid, practiced. {attacker_name} is already moving.",
-            'observer_msg': "The staff moves like memory — fast, fluid, practiced. {attacker_name} is already moving."
+            'attacker_msg': "The staff moves like memory - fast, fluid, practiced. You are already moving.",
+            'victim_msg': "The staff moves like memory - fast, fluid, practiced. {attacker_name} is already moving.",
+            'observer_msg': "The staff moves like memory - fast, fluid, practiced. {attacker_name} is already moving."
         },
         {
             'attacker_msg': "The staff rests against your hip before snapping into place. The rhythm is muscle memory.",
@@ -91,9 +91,9 @@ MESSAGES = {
             'observer_msg': "The wood spins across {attacker_name}'s back and into ready hands. This is ritual, not showmanship."
         },
         {
-            'attacker_msg': "The wood spins once, twice — then steadies in your grip like it always belonged there.",
-            'victim_msg': "The wood spins once, twice — then steadies in {attacker_name}'s grip like it always belonged there.",
-            'observer_msg': "The wood spins once, twice — then steadies in {attacker_name}'s grip like it always belonged there."
+            'attacker_msg': "The wood spins once, twice - then steadies in your grip like it always belonged there.",
+            'victim_msg': "The wood spins once, twice - then steadies in {attacker_name}'s grip like it always belonged there.",
+            'observer_msg': "The wood spins once, twice - then steadies in {attacker_name}'s grip like it always belonged there."
         },
         {
             'attacker_msg': "There's no sharpness to the staff, but you handle it like a scalpel.",
@@ -111,14 +111,14 @@ MESSAGES = {
             'observer_msg': "{attacker_name} draws the staff forward like a painter choosing violence instead of color."
         },
         {
-            'attacker_msg': "You lift the staff overhead, casting a long, crooked shadow. It's not magic — it's momentum.",
-            'victim_msg': "{attacker_name} lifts the staff overhead, casting a long, crooked shadow. It's not magic — it's momentum.",
-            'observer_msg': "{attacker_name} lifts the staff overhead, casting a long, crooked shadow. It's not magic — it's momentum."
+            'attacker_msg': "You lift the staff overhead, casting a long, crooked shadow. It's not magic - it's momentum.",
+            'victim_msg': "{attacker_name} lifts the staff overhead, casting a long, crooked shadow. It's not magic - it's momentum.",
+            'observer_msg': "{attacker_name} lifts the staff overhead, casting a long, crooked shadow. It's not magic - it's momentum."
         },
         {
-            'attacker_msg': "You plant one end into the dirt and lean in. No blade, no edge — just inevitability.",
-            'victim_msg': "{attacker_name} plants one end into the dirt and leans in. No blade, no edge — just inevitability.",
-            'observer_msg': "{attacker_name} plants one end into the dirt and leans in. No blade, no edge — just inevitability."
+            'attacker_msg': "You plant one end into the dirt and lean in. No blade, no edge - just inevitability.",
+            'victim_msg': "{attacker_name} plants one end into the dirt and leans in. No blade, no edge - just inevitability.",
+            'observer_msg': "{attacker_name} plants one end into the dirt and leans in. No blade, no edge - just inevitability."
         },
         {
             'attacker_msg': "You raise the staff in both hands, the ends angled like intent made wood.",
@@ -188,14 +188,14 @@ MESSAGES = {
             'observer_msg': "A sharp crack to the {hit_location} buckles {target_name} with a shout."
         },
         {
-            'attacker_msg': "A vicious thrust to the {hit_location}. {target_name} drops their guard — and maybe something else.",
-            'victim_msg': "A vicious thrust to your {hit_location}. You drop your guard — and maybe something else.",
-            'observer_msg': "A vicious thrust to the {hit_location}. {target_name} drops their guard — and maybe something else."
+            'attacker_msg': "A vicious thrust to the {hit_location}. {target_name} drops their guard - and maybe something else.",
+            'victim_msg': "A vicious thrust to your {hit_location}. You drop your guard - and maybe something else.",
+            'observer_msg': "A vicious thrust to the {hit_location}. {target_name} drops their guard - and maybe something else."
         },
         {
-            'attacker_msg': "One rising strike splits the air — and {target_name}'s defenses.",
-            'victim_msg': "One rising strike splits the air — and your defenses.",
-            'observer_msg': "One rising strike splits the air — and {target_name}'s defenses."
+            'attacker_msg': "One rising strike splits the air - and {target_name}'s defenses.",
+            'victim_msg': "One rising strike splits the air - and your defenses.",
+            'observer_msg': "One rising strike splits the air - and {target_name}'s defenses."
         },
         {
             'attacker_msg': "One smooth arc lands behind the {hit_location}. {target_name} collapses with a shriek.",
@@ -355,9 +355,9 @@ MESSAGES = {
             'observer_msg': "The staff end seeks flesh but finds only the space {target_name} vacated."
         },
         {
-            'attacker_msg': "The staff spins in a deadly arc — and catches nothing. {target_name} has moved.",
-            'victim_msg': "The staff spins in a deadly arc — and catches nothing. You have moved.",
-            'observer_msg': "The staff spins in a deadly arc — and catches nothing. {target_name} has moved."
+            'attacker_msg': "The staff spins in a deadly arc - and catches nothing. {target_name} has moved.",
+            'victim_msg': "The staff spins in a deadly arc - and catches nothing. You have moved.",
+            'observer_msg': "The staff spins in a deadly arc - and catches nothing. {target_name} has moved."
         },
         {
             'attacker_msg': "The staff whistles past {target_name}'s ear. Close, but not close enough.",
@@ -365,9 +365,9 @@ MESSAGES = {
             'observer_msg': "The staff whistles past {target_name}'s ear. Close, but not close enough."
         },
         {
-            'attacker_msg': "The strike comes swift and sure — but {target_name} is swifter.",
-            'victim_msg': "The strike comes swift and sure — but you are swifter.",
-            'observer_msg': "The strike comes swift and sure — but {target_name} is swifter."
+            'attacker_msg': "The strike comes swift and sure - but {target_name} is swifter.",
+            'victim_msg': "The strike comes swift and sure - but you are swifter.",
+            'observer_msg': "The strike comes swift and sure - but {target_name} is swifter."
         },
         {
             'attacker_msg': "The sweep aims for the ankles, but {target_name} hops clear of danger.",

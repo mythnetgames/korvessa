@@ -6,9 +6,9 @@ MESSAGES = {
             'observer_msg': "A slow tilt reveals every rusty spike. {attacker_name} grips tighter. They're not holding a weapon. They're holding a decision."
         },
         {
-            'attacker_msg': "Each nail is different — crooked, rusted, pitted. You lift them all at once, like a bouquet from hell.",
-            'victim_msg': "Each nail is different — crooked, rusted, pitted. {attacker_name} lifts them all at once, like a bouquet from hell.",
-            'observer_msg': "Each nail is different — crooked, rusted, pitted. {attacker_name} lifts them all at once, like a bouquet from hell."
+            'attacker_msg': "Each nail is different - crooked, rusted, pitted. You lift them all at once, like a bouquet from hell.",
+            'victim_msg': "Each nail is different - crooked, rusted, pitted. {attacker_name} lifts them all at once, like a bouquet from hell.",
+            'observer_msg': "Each nail is different - crooked, rusted, pitted. {attacker_name} lifts them all at once, like a bouquet from hell."
         },
         {
             'attacker_msg': "Each step echoes louder as you heft the board. The nails are jagged, just like your grin.",
@@ -21,14 +21,14 @@ MESSAGES = {
             'observer_msg': "It's not balanced. It's not clean. But the moment {attacker_name} raises the nailed board, it becomes something holy and violent."
         },
         {
-            'attacker_msg': "No ceremony. Just nails. You lift the board like it's firewood — but what you're burning is someone's future.",
-            'victim_msg': "No ceremony. Just nails. {attacker_name} lifts the board like it's firewood — but what they're burning is someone's future.",
-            'observer_msg': "No ceremony. Just nails. {attacker_name} lifts the board like it's firewood — but what they're burning is someone's future."
+            'attacker_msg': "No ceremony. Just nails. You lift the board like it's firewood - but what you're burning is someone's future.",
+            'victim_msg': "No ceremony. Just nails. {attacker_name} lifts the board like it's firewood - but what they're burning is someone's future.",
+            'observer_msg': "No ceremony. Just nails. {attacker_name} lifts the board like it's firewood - but what they're burning is someone's future."
         },
         {
-            'attacker_msg': "No prep. No flourish. Just the board, the nails, and your eyes — empty and ready.",
-            'victim_msg': "No prep. No flourish. Just the board, the nails, and {attacker_name}'s eyes — empty and ready.",
-            'observer_msg': "No prep. No flourish. Just the board, the nails, and {attacker_name}'s eyes — empty and ready."
+            'attacker_msg': "No prep. No flourish. Just the board, the nails, and your eyes - empty and ready.",
+            'victim_msg': "No prep. No flourish. Just the board, the nails, and {attacker_name}'s eyes - empty and ready.",
+            'observer_msg': "No prep. No flourish. Just the board, the nails, and {attacker_name}'s eyes - empty and ready."
         },
         {
             'attacker_msg': "The board clunks against the ground as you drag it behind you. The nails leave scratches. So will the swing.",
@@ -101,9 +101,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} breathes out slowly. The board rises. The nails seem to vibrate in the stale air."
         },
         {
-            'attacker_msg': "You hoist the splintered board, rusted nails jutting out like teeth. It's not a weapon — it's an accident waiting to happen. On purpose.",
-            'victim_msg': "{attacker_name} hoists the splintered board, rusted nails jutting out like teeth. It's not a weapon — it's an accident waiting to happen. On purpose.",
-            'observer_msg': "{attacker_name} hoists the splintered board, rusted nails jutting out like teeth. It's not a weapon — it's an accident waiting to happen. On purpose."
+            'attacker_msg': "You hoist the splintered board, rusted nails jutting out like teeth. It's not a weapon - it's an accident waiting to happen. On purpose.",
+            'victim_msg': "{attacker_name} hoists the splintered board, rusted nails jutting out like teeth. It's not a weapon - it's an accident waiting to happen. On purpose.",
+            'observer_msg': "{attacker_name} hoists the splintered board, rusted nails jutting out like teeth. It's not a weapon - it's an accident waiting to happen. On purpose."
         },
         {
             'attacker_msg': "You lift the nailed board like it's a relic. The wood groans. The nails do not.",
@@ -111,9 +111,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} lifts the nailed board like it's a relic. The wood groans. The nails do not."
         },
         {
-            'attacker_msg': "You lift the weapon with care, like it might fall apart — or tear someone apart. Nails glint like promises.",
-            'victim_msg': "{attacker_name} lifts the weapon with care, like it might fall apart — or tear someone apart. Nails glint like promises.",
-            'observer_msg': "{attacker_name} lifts the weapon with care, like it might fall apart — or tear someone apart. Nails glint like promises."
+            'attacker_msg': "You lift the weapon with care, like it might fall apart - or tear someone apart. Nails glint like promises.",
+            'victim_msg': "{attacker_name} lifts the weapon with care, like it might fall apart - or tear someone apart. Nails glint like promises.",
+            'observer_msg': "{attacker_name} lifts the weapon with care, like it might fall apart - or tear someone apart. Nails glint like promises."
         },
         {
             'attacker_msg': "You raise the board slowly, letting everyone see the rusted metal, the dried blood, the certainty.",
@@ -146,9 +146,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} spins the plank once, testing the weight, letting the rusty teeth whistle through the air."
         },
         {
-            'attacker_msg': "You swing the board in a slow arc, not to hit — just to show what comes next.",
-            'victim_msg': "{attacker_name} swings the board in a slow arc, not to hit — just to show what comes next.",
-            'observer_msg': "{attacker_name} swings the board in a slow arc, not to hit — just to show what comes next."
+            'attacker_msg': "You swing the board in a slow arc, not to hit - just to show what comes next.",
+            'victim_msg': "{attacker_name} swings the board in a slow arc, not to hit - just to show what comes next.",
+            'observer_msg': "{attacker_name} swings the board in a slow arc, not to hit - just to show what comes next."
         }
     ],
     'hit': [
@@ -188,9 +188,9 @@ MESSAGES = {
             'observer_msg': "It doesn't need power. The nails do the work. They punch through {target_name}'s {hit_location} like paper and leave chaos behind."
         },
         {
-            'attacker_msg': "It's not a clean hit — it's better. Nails scrape and bite at awkward angles. {target_name} howls and staggers.",
-            'victim_msg': "It's not a clean hit — it's better. Nails scrape and bite at awkward angles. You howl and stagger.",
-            'observer_msg': "It's not a clean hit — it's better. Nails scrape and bite at awkward angles. {target_name} howls and staggers."
+            'attacker_msg': "It's not a clean hit - it's better. Nails scrape and bite at awkward angles. {target_name} howls and staggers.",
+            'victim_msg': "It's not a clean hit - it's better. Nails scrape and bite at awkward angles. You howl and stagger.",
+            'observer_msg': "It's not a clean hit - it's better. Nails scrape and bite at awkward angles. {target_name} howls and staggers."
         },
         {
             'attacker_msg': "One nail embeds just under {target_name}'s eye. They flail, howling, as blood blinds them.",
@@ -253,9 +253,9 @@ MESSAGES = {
             'observer_msg': "The plank lands hard across {target_name}'s {hit_location}. Nails puncture twice. Blood trails from three directions."
         },
         {
-            'attacker_msg': "The plank slams against {target_name}'s {hit_location}. The nails catch fabric and skin — neither comes free cleanly.",
-            'victim_msg': "The plank slams against your {hit_location}. The nails catch fabric and skin — neither comes free cleanly.",
-            'observer_msg': "The plank slams against {target_name}'s {hit_location}. The nails catch fabric and skin — neither comes free cleanly."
+            'attacker_msg': "The plank slams against {target_name}'s {hit_location}. The nails catch fabric and skin - neither comes free cleanly.",
+            'victim_msg': "The plank slams against your {hit_location}. The nails catch fabric and skin - neither comes free cleanly.",
+            'observer_msg': "The plank slams against {target_name}'s {hit_location}. The nails catch fabric and skin - neither comes free cleanly."
         },
         {
             'attacker_msg': "The swing catches {target_name}'s {hit_location}. The crunch is followed by a spray of blood and a dropped weapon.",
@@ -310,9 +310,9 @@ MESSAGES = {
             'observer_msg': "A bad angle. The swing misses, but the air tastes like rust anyway."
         },
         {
-            'attacker_msg': "A graze — close enough to smell rust. {target_name} is rattled but untouched.",
-            'victim_msg': "A graze — close enough to smell rust. You are rattled but untouched.",
-            'observer_msg': "A graze — close enough to smell rust. {target_name} is rattled but untouched."
+            'attacker_msg': "A graze - close enough to smell rust. {target_name} is rattled but untouched.",
+            'victim_msg': "A graze - close enough to smell rust. You are rattled but untouched.",
+            'observer_msg': "A graze - close enough to smell rust. {target_name} is rattled but untouched."
         },
         {
             'attacker_msg': "A low sweep misses, gouging the floor instead. Dust and rust scatter into the air.",
@@ -335,9 +335,9 @@ MESSAGES = {
             'observer_msg': "A nail snags clothing but doesn't bite. The tear is audible. So is the breath that follows."
         },
         {
-            'attacker_msg': "A wild swing tears through a curtain, leaving smoking threads. You don't look — you're already turning.",
-            'victim_msg': "A wild swing tears through a curtain, leaving smoking threads. {attacker_name} doesn't look — they're already turning.",
-            'observer_msg': "A wild swing tears through a curtain, leaving smoking threads. {attacker_name} doesn't look — they're already turning."
+            'attacker_msg': "A wild swing tears through a curtain, leaving smoking threads. You don't look - you're already turning.",
+            'victim_msg': "A wild swing tears through a curtain, leaving smoking threads. {attacker_name} doesn't look - they're already turning.",
+            'observer_msg': "A wild swing tears through a curtain, leaving smoking threads. {attacker_name} doesn't look - they're already turning."
         },
         {
             'attacker_msg': "It misses. The tension doesn't. The air buzzes where the swing was.",
@@ -355,9 +355,9 @@ MESSAGES = {
             'observer_msg': "The board catches on nothing, but the force behind it shakes the ground. {target_name} doesn't smile."
         },
         {
-            'attacker_msg': "The board gouges a groove into the floor. The nails protest. So will {target_name} — soon.",
-            'victim_msg': "The board gouges a groove into the floor. The nails protest. So will you — soon.",
-            'observer_msg': "The board gouges a groove into the floor. The nails protest. So will {target_name} — soon."
+            'attacker_msg': "The board gouges a groove into the floor. The nails protest. So will {target_name} - soon.",
+            'victim_msg': "The board gouges a groove into the floor. The nails protest. So will you - soon.",
+            'observer_msg': "The board gouges a groove into the floor. The nails protest. So will {target_name} - soon."
         },
         {
             'attacker_msg': "The board slices the air in a lazy arc. {target_name} is lucky. This time.",
@@ -365,9 +365,9 @@ MESSAGES = {
             'observer_msg': "The board slices the air in a lazy arc. {target_name} is lucky. This time."
         },
         {
-            'attacker_msg': "The board whistles past {target_name}. The nails bite air — but the threat stays.",
-            'victim_msg': "The board whistles past you. The nails bite air — but the threat stays.",
-            'observer_msg': "The board whistles past {target_name}. The nails bite air — but the threat stays."
+            'attacker_msg': "The board whistles past {target_name}. The nails bite air - but the threat stays.",
+            'victim_msg': "The board whistles past you. The nails bite air - but the threat stays.",
+            'observer_msg': "The board whistles past {target_name}. The nails bite air - but the threat stays."
         },
         {
             'attacker_msg': "The board whooshes past {target_name}'s head, nails humming. They flinch, but the damage is in their heartbeat.",
@@ -420,9 +420,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} overcommits, and the board glances off a wall. Sparks jump from rusted tips."
         },
         {
-            'attacker_msg': "You overshoot, the board thudding into the floor. The nails dig in — like they miss the taste.",
-            'victim_msg': "{attacker_name} overshoots, the board thudding into the floor. The nails dig in — like they miss the taste.",
-            'observer_msg': "{attacker_name} overshoots, the board thudding into the floor. The nails dig in — like they miss the taste."
+            'attacker_msg': "You overshoot, the board thudding into the floor. The nails dig in - like they miss the taste.",
+            'victim_msg': "{attacker_name} overshoots, the board thudding into the floor. The nails dig in - like they miss the taste.",
+            'observer_msg': "{attacker_name} overshoots, the board thudding into the floor. The nails dig in - like they miss the taste."
         },
         {
             'attacker_msg': "You swing too hard. The plank slams into a wall, sending splinters flying. The nails shake with rage.",
@@ -445,14 +445,14 @@ MESSAGES = {
             'observer_msg': "{attacker_name}'s aim is wild. The board carves through nothing, but it still feels violent."
         },
         {
-            'attacker_msg': "{target_name} ducks and the nails skim their hairline. No contact — just promise.",
-            'victim_msg': "You duck and the nails skim your hairline. No contact — just promise.",
-            'observer_msg': "{target_name} ducks and the nails skim their hairline. No contact — just promise."
+            'attacker_msg': "{target_name} ducks and the nails skim their hairline. No contact - just promise.",
+            'victim_msg': "You duck and the nails skim your hairline. No contact - just promise.",
+            'observer_msg': "{target_name} ducks and the nails skim their hairline. No contact - just promise."
         },
         {
-            'attacker_msg': "{target_name} ducks. The nails miss, but the sound stays — a rusty whisper of what could've been.",
-            'victim_msg': "You duck. The nails miss, but the sound stays — a rusty whisper of what could've been.",
-            'observer_msg': "{target_name} ducks. The nails miss, but the sound stays — a rusty whisper of what could've been."
+            'attacker_msg': "{target_name} ducks. The nails miss, but the sound stays - a rusty whisper of what could've been.",
+            'victim_msg': "You duck. The nails miss, but the sound stays - a rusty whisper of what could've been.",
+            'observer_msg': "{target_name} ducks. The nails miss, but the sound stays - a rusty whisper of what could've been."
         }
     ],
     'kill': [
@@ -472,9 +472,9 @@ MESSAGES = {
             'observer_msg': "A full swing caves in the side of {target_name}'s head. One nail enters the eye. Everything stops."
         },
         {
-            'attacker_msg': "A nail pierces {target_name}'s throat. They gurgle. Fall. And then — silence.",
-            'victim_msg': "A nail pierces your throat. You gurgle. Fall. And then — silence.",
-            'observer_msg': "A nail pierces {target_name}'s throat. They gurgle. Fall. And then — silence."
+            'attacker_msg': "A nail pierces {target_name}'s throat. They gurgle. Fall. And then - silence.",
+            'victim_msg': "A nail pierces your throat. You gurgle. Fall. And then - silence.",
+            'observer_msg': "A nail pierces {target_name}'s throat. They gurgle. Fall. And then - silence."
         },
         {
             'attacker_msg': "A sharp upward jab lands under {target_name}'s chin. The nails exit through the top of their head.",
@@ -527,9 +527,9 @@ MESSAGES = {
             'observer_msg': "The board slaps across {target_name}'s jaw, and the nails do the rest. Teeth scatter like dice. Life flees."
         },
         {
-            'attacker_msg': "The final blow rakes across {target_name}'s chest. Nails drag until they find something vital — and end it.",
-            'victim_msg': "The final blow rakes across your chest. Nails drag until they find something vital — and end it.",
-            'observer_msg': "The final blow rakes across {target_name}'s chest. Nails drag until they find something vital — and end it."
+            'attacker_msg': "The final blow rakes across {target_name}'s chest. Nails drag until they find something vital - and end it.",
+            'victim_msg': "The final blow rakes across your chest. Nails drag until they find something vital - and end it.",
+            'observer_msg': "The final blow rakes across {target_name}'s chest. Nails drag until they find something vital - and end it."
         },
         {
             'attacker_msg': "The final hit is low, cruel, and sharp. Nails rupture {target_name}'s neck. Blood pours like confession.",

@@ -1,3 +1,4 @@
+
 MESSAGES = {
     "initiate": [
         {
@@ -253,9 +254,9 @@ MESSAGES = {
             'observer_msg': "The tip slips between fingers, knuckles swelling instantly."
         },
         {
-            'attacker_msg': "You draw the cue across {target_name}'s {hit_location}—shallow, but terrifying.",
-            'victim_msg': "{attacker_name} draws the cue across your {hit_location}—shallow, but terrifying.",
-            'observer_msg': "{attacker_name} draws the cue across {target_name}'s {hit_location}—shallow, but terrifying."
+            'attacker_msg': "You draw the cue across {target_name}'s {hit_location}-shallow, but terrifying.",
+            'victim_msg': "{attacker_name} draws the cue across your {hit_location}-shallow, but terrifying.",
+            'observer_msg': "{attacker_name} draws the cue across {target_name}'s {hit_location}-shallow, but terrifying."
         },
         {
             'attacker_msg': "A quick flick cracks {target_name}'s ear. Blood pours down their {hit_location}.",
@@ -395,9 +396,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} swings, but {target_name} twists away."
         },
         {
-            'attacker_msg': "The cue whistles past {target_name}'s ear—close, but not enough.",
-            'victim_msg': "The cue whistles past your ear—close, but not enough.",
-            'observer_msg': "The cue whistles past {target_name}'s ear—close, but not enough."
+            'attacker_msg': "The cue whistles past {target_name}'s ear-close, but not enough.",
+            'victim_msg': "The cue whistles past your ear-close, but not enough.",
+            'observer_msg': "The cue whistles past {target_name}'s ear-close, but not enough."
         },
         {
             'attacker_msg': "A quick flick misses, the cue slicing only tension.",

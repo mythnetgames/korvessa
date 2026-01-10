@@ -26,9 +26,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} flexes their grip and lets the pick dangle with the weight of old wounds."
         },
         {
-            'attacker_msg': "You tap the pick against your own palm once, twice—measuring pain by percussion.",
-            'victim_msg': "{attacker_name} taps the pick against their own palm once, twice—measuring pain by percussion.",
-            'observer_msg': "{attacker_name} taps the pick against their own palm once, twice—measuring pain by percussion."
+            'attacker_msg': "You tap the pick against your own palm once, twice-measuring pain by percussion.",
+            'victim_msg': "{attacker_name} taps the pick against their own palm once, twice-measuring pain by percussion.",
+            'observer_msg': "{attacker_name} taps the pick against their own palm once, twice-measuring pain by percussion."
         },
         {
             'attacker_msg': "A soft glint and the ice pick appears in your grip, cold and deliberate.",
@@ -41,9 +41,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} rolls their wrist lazily, the pick spinning into position like it remembers the last kill."
         },
         {
-            'attacker_msg': "The way you lift the pick, one would think it was a pen. But there's no letter being written—only endings.",
-            'victim_msg': "The way {attacker_name} lifts the pick, you'd think it was a pen. But there's no letter being written—only endings.",
-            'observer_msg': "The way {attacker_name} lifts the pick, you'd think it was a pen. But there's no letter being written—only endings."
+            'attacker_msg': "The way you lift the pick, one would think it was a pen. But there's no letter being written-only endings.",
+            'victim_msg': "The way {attacker_name} lifts the pick, you'd think it was a pen. But there's no letter being written-only endings.",
+            'observer_msg': "The way {attacker_name} lifts the pick, you'd think it was a pen. But there's no letter being written-only endings."
         },
         {
             'attacker_msg': "You say nothing. You don't have to. The ice pick does all the talking.",
@@ -51,9 +51,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} says nothing. They don't have to. The ice pick does all the talking."
         },
         {
-            'attacker_msg': "The glint in your eye matches the tip of the pick—sharp and hungry.",
-            'victim_msg': "The glint in {attacker_name}'s eye matches the tip of the pick—sharp and hungry.",
-            'observer_msg': "The glint in {attacker_name}'s eye matches the tip of the pick—sharp and hungry."
+            'attacker_msg': "The glint in your eye matches the tip of the pick-sharp and hungry.",
+            'victim_msg': "The glint in {attacker_name}'s eye matches the tip of the pick-sharp and hungry.",
+            'observer_msg': "The glint in {attacker_name}'s eye matches the tip of the pick-sharp and hungry."
         },
         {
             'attacker_msg': "You breathe once, sharp and controlled, then nod at the pick like an old friend returned.",
@@ -61,9 +61,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} breathes once, sharp and controlled, then nods at the pick like an old friend returned."
         },
         {
-            'attacker_msg': "No fanfare—just a hand, a flick, and suddenly the pick is real and ready.",
-            'victim_msg': "No fanfare—just a hand, a flick, and suddenly the pick is real and ready.",
-            'observer_msg': "No fanfare—just a hand, a flick, and suddenly the pick is real and ready."
+            'attacker_msg': "No fanfare-just a hand, a flick, and suddenly the pick is real and ready.",
+            'victim_msg': "No fanfare-just a hand, a flick, and suddenly the pick is real and ready.",
+            'observer_msg': "No fanfare-just a hand, a flick, and suddenly the pick is real and ready."
         },
         {
             'attacker_msg': "You slip the pick out of your sleeve like a magician pulling trauma from a hat.",
@@ -76,9 +76,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} crouches slightly, blade poised like a serpent's fang held back only by patience."
         },
         {
-            'attacker_msg': "They don't see the movement—they see the result. The pick, raised. The moment, still.",
-            'victim_msg': "You don't see the movement—you see the result. The pick, raised. The moment, still.",
-            'observer_msg': "You don't see the movement—you see the result. The pick, raised. The moment, still."
+            'attacker_msg': "They don't see the movement-they see the result. The pick, raised. The moment, still.",
+            'victim_msg': "You don't see the movement-you see the result. The pick, raised. The moment, still.",
+            'observer_msg': "You don't see the movement-you see the result. The pick, raised. The moment, still."
         },
         {
             'attacker_msg': "You let the point trace a line across your own skin, smiling as you test its readiness.",
@@ -86,14 +86,14 @@ MESSAGES = {
             'observer_msg': "{attacker_name} lets the point trace a line across their own skin, smiling as they test its readiness."
         },
         {
-            'attacker_msg': "The weapon isn't flashy. Just deadly. You lift it like it's nothing—and everything.",
-            'victim_msg': "The weapon isn't flashy. Just deadly. {attacker_name} lifts it like it's nothing—and everything.",
-            'observer_msg': "The weapon isn't flashy. Just deadly. {attacker_name} lifts it like it's nothing—and everything."
+            'attacker_msg': "The weapon isn't flashy. Just deadly. You lift it like it's nothing-and everything.",
+            'victim_msg': "The weapon isn't flashy. Just deadly. {attacker_name} lifts it like it's nothing-and everything.",
+            'observer_msg': "The weapon isn't flashy. Just deadly. {attacker_name} lifts it like it's nothing-and everything."
         },
         {
-            'attacker_msg': "The pick twitches in your hand, an extension of your thoughts—sharp ones.",
-            'victim_msg': "The pick twitches in {attacker_name}'s hand, an extension of their thoughts—sharp ones.",
-            'observer_msg': "The pick twitches in {attacker_name}'s hand, an extension of their thoughts—sharp ones."
+            'attacker_msg': "The pick twitches in your hand, an extension of your thoughts-sharp ones.",
+            'victim_msg': "The pick twitches in {attacker_name}'s hand, an extension of their thoughts-sharp ones.",
+            'observer_msg': "The pick twitches in {attacker_name}'s hand, an extension of their thoughts-sharp ones."
         },
         {
             'attacker_msg': "You whisper something to no one. The pick twitches like it heard.",
@@ -141,9 +141,9 @@ MESSAGES = {
             'observer_msg': "There's no noise except the slight 'ting' as the pick hits a belt buckle on its way out."
         },
         {
-            'attacker_msg': "Your face softens—like an artist before a masterpiece. The pick is your brush.",
-            'victim_msg': "{attacker_name}'s face softens—like an artist before a masterpiece. The pick is their brush.",
-            'observer_msg': "{attacker_name}'s face softens—like an artist before a masterpiece. The pick is their brush."
+            'attacker_msg': "Your face softens-like an artist before a masterpiece. The pick is your brush.",
+            'victim_msg': "{attacker_name}'s face softens-like an artist before a masterpiece. The pick is their brush.",
+            'observer_msg': "{attacker_name}'s face softens-like an artist before a masterpiece. The pick is their brush."
         },
         {
             'attacker_msg': "With a deep breath and a shallow smirk, you prepare to etch history into flesh.",
@@ -168,9 +168,9 @@ MESSAGES = {
             'observer_msg': "{target_name} howls as the pick punches into their {hit_location}, a red bloom following."
         },
         {
-            'attacker_msg': "You lunge forward and bury the point in {target_name}'s {hit_location}—metal meets bone with a crunch.",
-            'victim_msg': "{attacker_name} lunges forward and buries the point in your {hit_location}—metal meets bone with a crunch.",
-            'observer_msg': "{attacker_name} lunges forward and buries the point in {target_name}'s {hit_location}—metal meets bone with a crunch."
+            'attacker_msg': "You lunge forward and bury the point in {target_name}'s {hit_location}-metal meets bone with a crunch.",
+            'victim_msg': "{attacker_name} lunges forward and buries the point in your {hit_location}-metal meets bone with a crunch.",
+            'observer_msg': "{attacker_name} lunges forward and buries the point in {target_name}'s {hit_location}-metal meets bone with a crunch."
         },
         {
             'attacker_msg': "A stabbing arc splits the space between {target_name}'s {hit_location}. They wheeze, then bleed.",
@@ -183,9 +183,9 @@ MESSAGES = {
             'observer_msg': "The pick glides into {target_name}'s {hit_location}. Nerves snap. The {hit_location} goes limp."
         },
         {
-            'attacker_msg': "A burst of motion—you slam the pick through {target_name}'s palm.",
-            'victim_msg': "A burst of motion—{attacker_name} slams the pick through your palm.",
-            'observer_msg': "A burst of motion—{attacker_name} slams the pick through {target_name}'s palm."
+            'attacker_msg': "A burst of motion-you slam the pick through {target_name}'s palm.",
+            'victim_msg': "A burst of motion-{attacker_name} slams the pick through your palm.",
+            'observer_msg': "A burst of motion-{attacker_name} slams the pick through {target_name}'s palm."
         },
         {
             'attacker_msg': "Steel slides under skin. The pick vanishes into {target_name}'s {hit_location} like it belongs there.",
@@ -273,9 +273,9 @@ MESSAGES = {
             'observer_msg': "A gouging stab leaves a deep wound across {target_name}'s {hit_location}line."
         },
         {
-            'attacker_msg': "You jab the pick into the pit of {target_name}'s {hit_location}—arterial, precise, devastating.",
-            'victim_msg': "{attacker_name} jabs the pick into the pit of your {hit_location}—arterial, precise, devastating.",
-            'observer_msg': "{attacker_name} jabs the pick into the pit of {target_name}'s {hit_location}—arterial, precise, devastating."
+            'attacker_msg': "You jab the pick into the pit of {target_name}'s {hit_location}-arterial, precise, devastating.",
+            'victim_msg': "{attacker_name} jabs the pick into the pit of your {hit_location}-arterial, precise, devastating.",
+            'observer_msg': "{attacker_name} jabs the pick into the pit of {target_name}'s {hit_location}-arterial, precise, devastating."
         },
         {
             'attacker_msg': "The pick punches through {target_name}'s {hit_location}, leaving a bubbling hole of pain.",
@@ -288,9 +288,9 @@ MESSAGES = {
             'observer_msg': "A jab to the {hit_location} unhooks {target_name}'s balance. They drop hard."
         },
         {
-            'attacker_msg': "You drive the point between {target_name}'s {hit_location}. It lodges—briefly.",
-            'victim_msg': "{attacker_name} drives the point between your {hit_location}. It lodges—briefly.",
-            'observer_msg': "{attacker_name} drives the point between {target_name}'s {hit_location}. It lodges—briefly."
+            'attacker_msg': "You drive the point between {target_name}'s {hit_location}. It lodges-briefly.",
+            'victim_msg': "{attacker_name} drives the point between your {hit_location}. It lodges-briefly.",
+            'observer_msg': "{attacker_name} drives the point between {target_name}'s {hit_location}. It lodges-briefly."
         },
         {
             'attacker_msg': "The pick finds a path through muscle and nerve. {target_name}'s scream confirms the hit.",
@@ -315,9 +315,9 @@ MESSAGES = {
             'observer_msg': "A flash of steel and intent, narrowly missing {target_name}'s cheek by a whisper."
         },
         {
-            'attacker_msg': "You strike fast—but {target_name} is faster. The pick hits nothing.",
-            'victim_msg': "{attacker_name} strikes fast—but you are faster. The pick hits nothing.",
-            'observer_msg': "{attacker_name} strikes fast—but {target_name} is faster. The pick hits nothing."
+            'attacker_msg': "You strike fast-but {target_name} is faster. The pick hits nothing.",
+            'victim_msg': "{attacker_name} strikes fast-but you are faster. The pick hits nothing.",
+            'observer_msg': "{attacker_name} strikes fast-but {target_name} is faster. The pick hits nothing."
         },
         {
             'attacker_msg': "The pick snaps through open space. {target_name} spins away like smoke.",
@@ -325,9 +325,9 @@ MESSAGES = {
             'observer_msg': "The pick snaps through open space. {target_name} spins away like smoke."
         },
         {
-            'attacker_msg': "A tight jab skims past {target_name}'s ribs—no purchase, just a whisper of death denied.",
-            'victim_msg': "A tight jab skims past your ribs—no purchase, just a whisper of death denied.",
-            'observer_msg': "A tight jab skims past {target_name}'s ribs—no purchase, just a whisper of death denied."
+            'attacker_msg': "A tight jab skims past {target_name}'s ribs-no purchase, just a whisper of death denied.",
+            'victim_msg': "A tight jab skims past your ribs-no purchase, just a whisper of death denied.",
+            'observer_msg': "A tight jab skims past {target_name}'s ribs-no purchase, just a whisper of death denied."
         },
         {
             'attacker_msg': "Your wrist flicks, but {target_name} has already ducked beneath the strike.",
@@ -345,9 +345,9 @@ MESSAGES = {
             'observer_msg': "A ricochet off metal leaves {attacker_name} momentarily stunned."
         },
         {
-            'attacker_msg': "A precision strike misses its mark by a hair—{target_name} stumbles, then regains footing.",
-            'victim_msg': "A precision strike misses its mark by a hair—you stumble, then regain footing.",
-            'observer_msg': "A precision strike misses its mark by a hair—{target_name} stumbles, then regains footing."
+            'attacker_msg': "A precision strike misses its mark by a hair-{target_name} stumbles, then regains footing.",
+            'victim_msg': "A precision strike misses its mark by a hair-you stumble, then regain footing.",
+            'observer_msg': "A precision strike misses its mark by a hair-{target_name} stumbles, then regains footing."
         },
         {
             'attacker_msg': "The jab goes wide, {target_name} stepping back with a grin.",
@@ -405,9 +405,9 @@ MESSAGES = {
             'observer_msg': "The weapon slices through fog. {target_name} fades back."
         },
         {
-            'attacker_msg': "A flick of your wrist sends the pick skyward. You regain control—barely.",
-            'victim_msg': "A flick of {attacker_name}'s wrist sends the pick skyward. They regain control—barely.",
-            'observer_msg': "A flick of {attacker_name}'s wrist sends the pick skyward. They regain control—barely."
+            'attacker_msg': "A flick of your wrist sends the pick skyward. You regain control-barely.",
+            'victim_msg': "A flick of {attacker_name}'s wrist sends the pick skyward. They regain control-barely.",
+            'observer_msg': "A flick of {attacker_name}'s wrist sends the pick skyward. They regain control-barely."
         },
         {
             'attacker_msg': "You pivot, strike, and miss. Again.",
@@ -450,9 +450,9 @@ MESSAGES = {
             'observer_msg': "The pick draws a line through the air, nothing more."
         },
         {
-            'attacker_msg': "Your breath hitches as you realize you missed—badly.",
-            'victim_msg': "{attacker_name}'s breath hitches as they realize they missed—badly.",
-            'observer_msg': "{attacker_name}'s breath hitches as they realize they missed—badly."
+            'attacker_msg': "Your breath hitches as you realize you missed-badly.",
+            'victim_msg': "{attacker_name}'s breath hitches as they realize they missed-badly.",
+            'observer_msg': "{attacker_name}'s breath hitches as they realize they missed-badly."
         }
     ],
     'kill': [
@@ -487,9 +487,9 @@ MESSAGES = {
             'observer_msg': "A savage uppercut with the pick leaves {target_name}'s throat gurgling red."
         },
         {
-            'attacker_msg': "The strike lands beneath {target_name}'s ear. They convulse—then die.",
-            'victim_msg': "The strike lands beneath your ear. You convulse—then die.",
-            'observer_msg': "The strike lands beneath {target_name}'s ear. They convulse—then die."
+            'attacker_msg': "The strike lands beneath {target_name}'s ear. They convulse-then die.",
+            'victim_msg': "The strike lands beneath your ear. You convulse-then die.",
+            'observer_msg': "The strike lands beneath {target_name}'s ear. They convulse-then die."
         },
         {
             'attacker_msg': "You stab through {target_name}'s heart with surgical indifference.",

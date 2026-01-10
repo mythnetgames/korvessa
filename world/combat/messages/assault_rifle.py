@@ -63,7 +63,7 @@ MESSAGES = {
         {
             "attacker_msg": "Your expression is focused, finger poised to deliver a quick succession of rounds from your assault rifle at {target_name}.",
             "victim_msg": "{attacker_name}'s expression is focused, finger poised to deliver a quick succession of rounds from an assault rifle. You are the target.",
-            "observer_msg": "{attacker_name}’s expression is focused, finger poised to deliver a quick succession of rounds from the assault rifle at {target_name}."
+            "observer_msg": "{attacker_name}'s expression is focused, finger poised to deliver a quick succession of rounds from the assault rifle at {target_name}."
         },
         {
             "attacker_msg": "Your assault rifle feels like a versatile and deadly instrument in your hands, equally capable of precision and suppression as you aim at {target_name}.",
@@ -122,8 +122,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your cheek finds a solid weld on your assault rifle's stock, ready to send a controlled stream of bullets towards {target_name}.",
-            "victim_msg": "{attacker_name}’s cheek finds a solid weld on an assault rifle's stock, ready to send a controlled stream of bullets your way.",
-            "observer_msg": "{attacker_name}’s cheek finds a solid weld on the assault rifle's stock, ready to send a controlled stream of bullets towards {target_name}."
+            "victim_msg": "{attacker_name}'s cheek finds a solid weld on an assault rifle's stock, ready to send a controlled stream of bullets your way.",
+            "observer_msg": "{attacker_name}'s cheek finds a solid weld on the assault rifle's stock, ready to send a controlled stream of bullets towards {target_name}."
         },
         {
             "attacker_msg": "Your assault rifle makes a series of sharp, mechanical clicks as you confirm its readiness, perhaps a quick tap on the forward assist, before aiming at {target_name}.",
@@ -179,8 +179,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your well-aimed burst with your assault rifle leaves a cluster of bleeding wounds on {target_name}. The action cycles with a smooth, mechanical rhythm.",
-            "victim_msg": "{attacker_name}’s well-aimed burst with an assault rifle leaves a cluster of bleeding wounds on you! The action cycles with a smooth, mechanical rhythm.",
-            "observer_msg": "{attacker_name}’s well-aimed burst with the assault rifle leaves a cluster of bleeding wounds on {target_name}. The action cycles with a smooth, mechanical rhythm."
+            "victim_msg": "{attacker_name}'s well-aimed burst with an assault rifle leaves a cluster of bleeding wounds on you! The action cycles with a smooth, mechanical rhythm.",
+            "observer_msg": "{attacker_name}'s well-aimed burst with the assault rifle leaves a cluster of bleeding wounds on {target_name}. The action cycles with a smooth, mechanical rhythm."
         },
         {
             "attacker_msg": "A direct hit! Your assault rifle's burst slams into {target_name}'s {hit_location}, the multiple projectiles creating a devastating pattern. Your rifle ejects casings as you maintain sight picture.",
@@ -188,14 +188,14 @@ MESSAGES = {
             "observer_msg": "A direct hit! The assault rifle's burst slams into {target_name}'s {hit_location}, the multiple projectiles creating a devastating pattern. The rifle ejects casings, {attacker_name} maintaining sight picture."
         },
         {
-            "attacker_msg": "Your assault rifle’s projectiles punch into {target_name} in a rapid series, their impacts like angry hornets. Multiple spent casings are ejected as your rifle cycles.",
-            "victim_msg": "{attacker_name}'s assault rifle’s projectiles punch into you in a rapid series, their impacts like angry hornets! Multiple spent casings are ejected as the rifle cycles.",
-            "observer_msg": "The assault rifle’s projectiles punch into {target_name} in a rapid series, their impacts like angry hornets. Multiple spent casings are ejected as the rifle cycles."
+            "attacker_msg": "Your assault rifle's projectiles punch into {target_name} in a rapid series, their impacts like angry hornets. Multiple spent casings are ejected as your rifle cycles.",
+            "victim_msg": "{attacker_name}'s assault rifle's projectiles punch into you in a rapid series, their impacts like angry hornets! Multiple spent casings are ejected as the rifle cycles.",
+            "observer_msg": "The assault rifle's projectiles punch into {target_name} in a rapid series, their impacts like angry hornets. Multiple spent casings are ejected as the rifle cycles."
         },
         {
             "attacker_msg": "Your assault rifle spits a three-round burst, and {target_name} is struck by all of them. The bolt cycles with a sharp *chak-chak-chak*, ejecting and loading.",
-            "victim_msg": "{attacker_name}’s assault rifle spits a three-round burst, and you are struck by all of them! The bolt cycles with a sharp *chak-chak-chak*, ejecting and loading.",
-            "observer_msg": "{attacker_name}’s assault rifle spits a three-round burst, and {target_name} is struck by all of them. The bolt cycles with a sharp *chak-chak-chak*, ejecting and loading."
+            "victim_msg": "{attacker_name}'s assault rifle spits a three-round burst, and you are struck by all of them! The bolt cycles with a sharp *chak-chak-chak*, ejecting and loading.",
+            "observer_msg": "{attacker_name}'s assault rifle spits a three-round burst, and {target_name} is struck by all of them. The bolt cycles with a sharp *chak-chak-chak*, ejecting and loading."
         },
         {
             "attacker_msg": "With a staccato roar, several bullets from your assault rifle hit {target_name}'s {hit_location}. Your rifle cycles, ready for another precise burst.",
@@ -209,8 +209,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your aimed burst from your assault rifle strikes {target_name}'s {hit_location}. The action cycles with efficient, rapid metallic sounds.",
-            "victim_msg": "{attacker_name}’s aimed burst from an assault rifle strikes your {hit_location}! The action cycles with efficient, rapid metallic sounds.",
-            "observer_msg": "{attacker_name}’s aimed burst from the assault rifle strikes {target_name}'s {hit_location}. The action cycles with efficient, rapid metallic sounds."
+            "victim_msg": "{attacker_name}'s aimed burst from an assault rifle strikes your {hit_location}! The action cycles with efficient, rapid metallic sounds.",
+            "observer_msg": "{attacker_name}'s aimed burst from the assault rifle strikes {target_name}'s {hit_location}. The action cycles with efficient, rapid metallic sounds."
         },
         {
             "attacker_msg": "A sharp burst of fire from your rifle and a spray of blood as your bullets find their mark on {target_name}. Your rifle cycles, your finger still near the trigger.",
@@ -224,8 +224,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your assault rifle bullets slam into {target_name} in quick succession. More rounds are chambered automatically with a series of solid sounds.",
-            "victim_msg": "{attacker_name}’s assault rifle bullets slam into you in quick succession! More rounds are chambered automatically with a series of solid sounds.",
-            "observer_msg": "{attacker_name}’s assault rifle bullets slam into {target_name} in quick succession. More rounds are chambered automatically with a series of solid sounds."
+            "victim_msg": "{attacker_name}'s assault rifle bullets slam into you in quick succession! More rounds are chambered automatically with a series of solid sounds.",
+            "observer_msg": "{attacker_name}'s assault rifle bullets slam into {target_name} in quick succession. More rounds are chambered automatically with a series of solid sounds."
         },
         {
             "attacker_msg": "A burst from your assault rifle hits {target_name}'s {hit_location}s, making them drop what they're holding. Your rifle cycles as you press the advantage.",
@@ -239,8 +239,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your assault rifle projectiles find their mark, delivering a series of debilitating wounds to {target_name}'s {hit_location}. Brass casings arc away as your rifle cycles.",
-            "victim_msg": "{attacker_name}’s assault rifle projectiles find their mark, delivering a series of debilitating wounds to your {hit_location}! Brass casings arc away as the rifle cycles.",
-            "observer_msg": "{attacker_name}’s assault rifle projectiles find their mark, delivering a series of debilitating wounds to {target_name}'s {hit_location}. Brass casings arc away as the rifle cycles."
+            "victim_msg": "{attacker_name}'s assault rifle projectiles find their mark, delivering a series of debilitating wounds to your {hit_location}! Brass casings arc away as the rifle cycles.",
+            "observer_msg": "{attacker_name}'s assault rifle projectiles find their mark, delivering a series of debilitating wounds to {target_name}'s {hit_location}. Brass casings arc away as the rifle cycles."
         },
         {
             "attacker_msg": "Even a short burst from your assault rifle's bullets tears multiple nasty gashes in {target_name}. Your rifle cycles, ready again in an instant.",
@@ -253,14 +253,14 @@ MESSAGES = {
             "observer_msg": "{attacker_name} fires the assault rifle, a stream of bullets striking {target_name} with force. The action cycles, ejecting spent rounds in a continuous stream."
         },
         {
-            "attacker_msg": "Your assault rifle’s sharp, rapid report is followed by {target_name}'s cries as multiple bullets hit. Your rifle chambers more rounds automatically.",
-            "victim_msg": "{attacker_name}'s assault rifle’s sharp, rapid report is followed by your cries as multiple bullets hit you! The rifle chambers more rounds automatically.",
-            "observer_msg": "The assault rifle’s sharp, rapid report is followed by {target_name}'s cries as multiple bullets hit. The rifle chambers more rounds automatically."
+            "attacker_msg": "Your assault rifle's sharp, rapid report is followed by {target_name}'s cries as multiple bullets hit. Your rifle chambers more rounds automatically.",
+            "victim_msg": "{attacker_name}'s assault rifle's sharp, rapid report is followed by your cries as multiple bullets hit you! The rifle chambers more rounds automatically.",
+            "observer_msg": "The assault rifle's sharp, rapid report is followed by {target_name}'s cries as multiple bullets hit. The rifle chambers more rounds automatically."
         },
         {
             "attacker_msg": "Your burst is true, your assault rifle's bullets striking {target_name} in a tight pattern. The bolt cycles, ready for your next command.",
-            "victim_msg": "{attacker_name}’s burst is true, their assault rifle's bullets striking you in a tight pattern! The bolt cycles, ready for their next command.",
-            "observer_msg": "{attacker_name}’s burst is true, the assault rifle's bullets striking {target_name} in a tight pattern. The bolt cycles, ready for the next command."
+            "victim_msg": "{attacker_name}'s burst is true, their assault rifle's bullets striking you in a tight pattern! The bolt cycles, ready for their next command.",
+            "observer_msg": "{attacker_name}'s burst is true, the assault rifle's bullets striking {target_name} in a tight pattern. The bolt cycles, ready for the next command."
         },
         {
             "attacker_msg": "A close-range burst from your assault rifle tears multiple holes in {target_name}'s {hit_location}. Your rifle cycles, the sound a sharp, angry chatter.",
@@ -274,8 +274,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your assault rifle bullets make impact, leaving a series of bleeding punctures on {target_name}. Spent casings litter the ground as your rifle cycles.",
-            "victim_msg": "{attacker_name}’s assault rifle bullets make impact, leaving a series of bleeding punctures on you! Spent casings litter the ground as the rifle cycles.",
-            "observer_msg": "{attacker_name}’s assault rifle bullets make impact, leaving a series of bleeding punctures on {target_name}. Spent casings litter the ground as the rifle cycles."
+            "victim_msg": "{attacker_name}'s assault rifle bullets make impact, leaving a series of bleeding punctures on you! Spent casings litter the ground as the rifle cycles.",
+            "observer_msg": "{attacker_name}'s assault rifle bullets make impact, leaving a series of bleeding punctures on {target_name}. Spent casings litter the ground as the rifle cycles."
         },
         {
             "attacker_msg": "A painful burst of cracks as bullets from your assault rifle strike {target_name}'s {hit_location}. Your rifle cycles, chambering more rounds.",
@@ -283,14 +283,14 @@ MESSAGES = {
             "observer_msg": "A painful burst of cracks as bullets from {attacker_name}'s assault rifle strike {target_name}'s {hit_location}. The rifle cycles, chambering more rounds."
         },
         {
-            "attacker_msg": "Projectiles from your assault rifle hit {target_name}’s {hit_location} in a rapid sequence. The action cycles, ejecting casings smartly.",
+            "attacker_msg": "Projectiles from your assault rifle hit {target_name}'s {hit_location} in a rapid sequence. The action cycles, ejecting casings smartly.",
             "victim_msg": "Projectiles from {attacker_name}'s assault rifle hit your {hit_location} in a rapid sequence! The action cycles, ejecting casings smartly.",
-            "observer_msg": "Projectiles from {attacker_name}'s assault rifle hit {target_name}’s {hit_location} in a rapid sequence. The action cycles, ejecting casings smartly."
+            "observer_msg": "Projectiles from {attacker_name}'s assault rifle hit {target_name}'s {hit_location} in a rapid sequence. The action cycles, ejecting casings smartly."
         },
         {
-            "attacker_msg": "You deliver another series of penetrating impacts to {target_name}’s {hit_location} with your assault rifle. Your rifle cycles, ready for more punishment.",
-            "victim_msg": "{attacker_name}’s assault rifle delivers another series of penetrating impacts to your {hit_location}! The rifle cycles, ready for more punishment.",
-            "observer_msg": "{attacker_name}’s assault rifle delivers another series of penetrating impacts to {target_name}’s {hit_location}. The rifle cycles, ready for more punishment."
+            "attacker_msg": "You deliver another series of penetrating impacts to {target_name}'s {hit_location} with your assault rifle. Your rifle cycles, ready for more punishment.",
+            "victim_msg": "{attacker_name}'s assault rifle delivers another series of penetrating impacts to your {hit_location}! The rifle cycles, ready for more punishment.",
+            "observer_msg": "{attacker_name}'s assault rifle delivers another series of penetrating impacts to {target_name}'s {hit_location}. The rifle cycles, ready for more punishment."
         },
         {
             "attacker_msg": "A well-placed burst from your assault rifle leaves {target_name} reeling from multiple wounds. Your rifle cycles as you assess for another volley.",
@@ -341,8 +341,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your burst is deflected by intervening cover near {target_name}, slugs thudding harmlessly into it. Multiple spent casings are ejected as your rifle cycles automatically.",
-            "victim_msg": "{attacker_name}’s burst is deflected by intervening cover near you, slugs thudding harmlessly into it. Multiple spent casings are ejected as their rifle cycles automatically.",
-            "observer_msg": "{attacker_name}’s burst is deflected by intervening cover near {target_name}, slugs thudding harmlessly into it. Multiple spent casings are ejected as the rifle cycles automatically."
+            "victim_msg": "{attacker_name}'s burst is deflected by intervening cover near you, slugs thudding harmlessly into it. Multiple spent casings are ejected as their rifle cycles automatically.",
+            "observer_msg": "{attacker_name}'s burst is deflected by intervening cover near {target_name}, slugs thudding harmlessly into it. Multiple spent casings are ejected as the rifle cycles automatically."
         },
         {
             "attacker_msg": "{target_name} drops prone just as your assault rifle fires a burst, bullets cracking the air inches above their head. Your rifle cycles, ready for {target_name} to reappear.",
@@ -356,8 +356,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your bullets pass harmlessly through the space {target_name} occupied a moment ago, a testament to their quick reaction. More rounds are chambered automatically as you anticipate {target_name}'s next move.",
-            "victim_msg": "{attacker_name}’s bullets pass harmlessly through the space you occupied a moment ago, a testament to your quick reaction! More rounds are chambered automatically as they anticipate your next move.",
-            "observer_msg": "{attacker_name}’s bullets pass harmlessly through the space {target_name} occupied a moment ago, a testament to {target_name}'s quick reaction. More rounds are chambered automatically as {attacker_name} anticipates {target_name}'s next move."
+            "victim_msg": "{attacker_name}'s bullets pass harmlessly through the space you occupied a moment ago, a testament to your quick reaction! More rounds are chambered automatically as they anticipate your next move.",
+            "observer_msg": "{attacker_name}'s bullets pass harmlessly through the space {target_name} occupied a moment ago, a testament to {target_name}'s quick reaction. More rounds are chambered automatically as {attacker_name} anticipates {target_name}'s next move."
         },
         {
             "attacker_msg": "A quick sidestep from {target_name} leaves your assault rifle to punch a pattern of holes in a nearby wall. Your rifle cycles, as you maintain your aim, ready to fire again.",
@@ -401,8 +401,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your hurried burst with your assault rifle is dodged by {target_name}, who seems to anticipate the spray. The action cycles with a swift *CHING-clack-CHING*, as you take a breath.",
-            "victim_msg": "{attacker_name}’s hurried burst with their assault rifle is dodged by you; you seem to anticipate the spray! The action cycles with a swift *CHING-clack-CHING*, as they take a breath.",
-            "observer_msg": "{attacker_name}’s hurried burst with the assault rifle is dodged by {target_name}, who seems to anticipate the spray. The action cycles with a swift *CHING-clack-CHING*, {attacker_name} taking a breath."
+            "victim_msg": "{attacker_name}'s hurried burst with their assault rifle is dodged by you; you seem to anticipate the spray! The action cycles with a swift *CHING-clack-CHING*, as they take a breath.",
+            "observer_msg": "{attacker_name}'s hurried burst with the assault rifle is dodged by {target_name}, who seems to anticipate the spray. The action cycles with a swift *CHING-clack-CHING*, {attacker_name} taking a breath."
         },
         {
             "attacker_msg": "The air cracks with a rapid series of reports as your assault rifle fires, but {target_name} remains untouched. Spent casings litter the ground as your rifle cycles.",
@@ -411,8 +411,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your aim is rushed, the burst from your assault rifle veering off target from {target_name}. Your rifle cycles, chambering more rounds, as you focus for the next volley.",
-            "victim_msg": "{attacker_name}’s aim is rushed, the burst from their assault rifle veering off target from you! Their rifle cycles, chambering more rounds, as they focus for the next volley.",
-            "observer_msg": "{attacker_name}’s aim is rushed, the burst from the assault rifle veering off target from {target_name}. The rifle cycles, chambering more rounds, {attacker_name} focusing for the next volley."
+            "victim_msg": "{attacker_name}'s aim is rushed, the burst from their assault rifle veering off target from you! Their rifle cycles, chambering more rounds, as they focus for the next volley.",
+            "observer_msg": "{attacker_name}'s aim is rushed, the burst from the assault rifle veering off target from {target_name}. The rifle cycles, chambering more rounds, {attacker_name} focusing for the next volley."
         },
         {
             "attacker_msg": "A desperate dive from {target_name} means your assault rifle burst only kicks up a cloud of dust and debris. Your action cycles, ejecting casings smartly.",
@@ -420,18 +420,18 @@ MESSAGES = {
             "observer_msg": "A desperate dive from {target_name} means {attacker_name}'s assault rifle burst only kicks up a cloud of dust and debris. The action cycles, ejecting casings smartly."
         },
         {
-            "attacker_msg": "Your assault rifle’s projectiles find nothing but air as {target_name} uses cover effectively, the bullets thudding into it. Your rifle cycles, ready for more, as you patiently wait for an opening.",
-            "victim_msg": "{attacker_name}'s assault rifle’s projectiles find nothing but air as you use cover effectively, the bullets thudding into it! Their rifle cycles, ready for more, as they patiently wait for an opening.",
-            "observer_msg": "The assault rifle’s projectiles find nothing but air as {target_name} uses cover effectively, the bullets thudding into it. The rifle cycles, ready for more, {attacker_name} patiently waiting for an opening."
+            "attacker_msg": "Your assault rifle's projectiles find nothing but air as {target_name} uses cover effectively, the bullets thudding into it. Your rifle cycles, ready for more, as you patiently wait for an opening.",
+            "victim_msg": "{attacker_name}'s assault rifle's projectiles find nothing but air as you use cover effectively, the bullets thudding into it! Their rifle cycles, ready for more, as they patiently wait for an opening.",
+            "observer_msg": "The assault rifle's projectiles find nothing but air as {target_name} uses cover effectively, the bullets thudding into it. The rifle cycles, ready for more, {attacker_name} patiently waiting for an opening."
         },
         {
             "attacker_msg": "Your assault rifle burst slices harmlessly past {target_name}. Your rifle cycles, as you assess for another shot opportunity, perhaps switching firing modes.",
-            "victim_msg": "{attacker_name}’s assault rifle burst slices harmlessly past you! Their rifle cycles, as they assess for another shot opportunity, perhaps switching firing modes.",
-            "observer_msg": "{attacker_name}’s assault rifle burst slices harmlessly past {target_name}. The rifle cycles, {attacker_name} assessing for another shot opportunity, perhaps switching firing modes."
+            "victim_msg": "{attacker_name}'s assault rifle burst slices harmlessly past you! Their rifle cycles, as they assess for another shot opportunity, perhaps switching firing modes.",
+            "observer_msg": "{attacker_name}'s assault rifle burst slices harmlessly past {target_name}. The rifle cycles, {attacker_name} assessing for another shot opportunity, perhaps switching firing modes."
         },
         {
             "attacker_msg": "Your assault rifle clicks – a stovepipe jam or an empty magazine halts your firing sequence against {target_name}. You quickly work to clear the malfunction or slap in a fresh magazine.",
-            "victim_msg": "{attacker_name}’s assault rifle clicks – a stovepipe jam or an empty magazine halts their firing sequence against you! They quickly work to clear the malfunction or slap in a fresh magazine.",
+            "victim_msg": "{attacker_name}'s assault rifle clicks – a stovepipe jam or an empty magazine halts their firing sequence against you! They quickly work to clear the malfunction or slap in a fresh magazine.",
             "observer_msg": "The assault rifle clicks – a stovepipe jam or an empty magazine halts the firing sequence against {target_name}. {attacker_name} quickly works to clear the malfunction or slap in a fresh magazine."
         },
         {
@@ -441,8 +441,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your attack is a wild spray, missing {target_name} as they make an unpredictable move. Your rifle cycles, ready for another attempt, hopefully more controlled.",
-            "victim_msg": "{attacker_name}’s attack is a wild spray, missing you as you make an unpredictable move! Their rifle cycles, ready for another attempt, hopefully more controlled.",
-            "observer_msg": "{attacker_name}’s attack is a wild spray, missing {target_name} as they make an unpredictable move. The rifle cycles, ready for another attempt, hopefully more controlled."
+            "victim_msg": "{attacker_name}'s attack is a wild spray, missing you as you make an unpredictable move! Their rifle cycles, ready for another attempt, hopefully more controlled.",
+            "observer_msg": "{attacker_name}'s attack is a wild spray, missing {target_name} as they make an unpredictable move. The rifle cycles, ready for another attempt, hopefully more controlled."
         },
         {
             "attacker_msg": "Your assault rifle fires with a sharp, rapid report, but the projectiles fail to connect with {target_name}. Your rifle cycles, as you scan for {target_name}, ready to re-engage.",
@@ -478,8 +478,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your well-aimed burst with your assault rifle tears through {target_name}'s core; they fall, gone before they hit the ground. Your rifle ejects spent brass, ready for further engagement.",
-            "victim_msg": "{attacker_name}’s well-aimed burst with an assault rifle tears through your core; you fall, gone before you hit the ground! Their rifle ejects spent brass.",
-            "observer_msg": "{attacker_name}’s well-aimed burst with the assault rifle tears through {target_name}'s core; they fall, gone before they hit the ground. The rifle ejects spent brass, ready for further engagement."
+            "victim_msg": "{attacker_name}'s well-aimed burst with an assault rifle tears through your core; you fall, gone before you hit the ground! Their rifle ejects spent brass.",
+            "observer_msg": "{attacker_name}'s well-aimed burst with the assault rifle tears through {target_name}'s core; they fall, gone before they hit the ground. The rifle ejects spent brass, ready for further engagement."
         },
         {
             "attacker_msg": "Your assault rifle, an efficient engine of destruction, delivers a killing volley to {target_name}. The action cycles smoothly, another burst ready, as you scan the area for any remaining hostiles.",
@@ -513,8 +513,8 @@ MESSAGES = {
         },
         {
             "attacker_msg": "Your assault rifle finds its mark with lethal precision; {target_name} is no more, overwhelmed by the rapid succession of impacts. The action cycles with efficient, metallic sounds.",
-            "victim_msg": "{attacker_name}’s assault rifle finds its mark with lethal precision; you are no more, overwhelmed by the rapid succession of impacts! The action cycles with efficient, metallic sounds.",
-            "observer_msg": "{attacker_name}’s assault rifle finds its mark with lethal precision; {target_name} is no more, overwhelmed by the rapid succession of impacts. The action cycles with efficient, metallic sounds."
+            "victim_msg": "{attacker_name}'s assault rifle finds its mark with lethal precision; you are no more, overwhelmed by the rapid succession of impacts! The action cycles with efficient, metallic sounds.",
+            "observer_msg": "{attacker_name}'s assault rifle finds its mark with lethal precision; {target_name} is no more, overwhelmed by the rapid succession of impacts. The action cycles with efficient, metallic sounds."
         },
         {
             "attacker_msg": "A merciless, quick burst from your assault rifle, and {target_name}'s fight is over, their body torn by multiple projectiles. Your rifle cycles, your finger easing off the trigger.",
@@ -552,14 +552,14 @@ MESSAGES = {
             "observer_msg": "No escape for {target_name}; {attacker_name}'s assault rifle is too quick, its fire too accurate and overwhelming. The rifle cycles, ready again in an instant after the fatal volley."
         },
         {
-            "attacker_msg": "Your assault rifle’s sharp, rapid fire ends {target_name}'s resistance permanently, their body jerking with each impact. The action cycles, ejecting spent rounds, silence returning to the battlefield.",
-            "victim_msg": "{attacker_name}'s assault rifle’s sharp, rapid fire ends your resistance permanently, your body jerking with each impact! The action cycles, ejecting spent rounds.",
-            "observer_msg": "The assault rifle’s sharp, rapid fire ends {target_name}'s resistance permanently, their body jerking with each impact. The action cycles, ejecting spent rounds, silence returning to the battlefield."
+            "attacker_msg": "Your assault rifle's sharp, rapid fire ends {target_name}'s resistance permanently, their body jerking with each impact. The action cycles, ejecting spent rounds, silence returning to the battlefield.",
+            "victim_msg": "{attacker_name}'s assault rifle's sharp, rapid fire ends your resistance permanently, your body jerking with each impact! The action cycles, ejecting spent rounds.",
+            "observer_msg": "The assault rifle's sharp, rapid fire ends {target_name}'s resistance permanently, their body jerking with each impact. The action cycles, ejecting spent rounds, silence returning to the battlefield."
         },
         {
             "attacker_msg": "Your perfectly aimed burst from your assault rifle leaves {target_name} lifeless, a testament to controlled, lethal firepower. The bolt cycles, ready for the next command that doesn't come.",
-            "victim_msg": "{attacker_name}’s perfectly aimed burst from their assault rifle leaves you lifeless, a testament to controlled, lethal firepower! The bolt cycles.",
-            "observer_msg": "{attacker_name}’s perfectly aimed burst from the assault rifle leaves {target_name} lifeless, a testament to controlled, lethal firepower. The bolt cycles, ready for the next command that doesn't come."
+            "victim_msg": "{attacker_name}'s perfectly aimed burst from their assault rifle leaves you lifeless, a testament to controlled, lethal firepower! The bolt cycles.",
+            "observer_msg": "{attacker_name}'s perfectly aimed burst from the assault rifle leaves {target_name} lifeless, a testament to controlled, lethal firepower. The bolt cycles, ready for the next command that doesn't come."
         },
         {
             "attacker_msg": "With grim efficiency, you use your assault rifle to cut down {target_name}. Your rifle cycles, the sound sharp and mechanical in the aftermath of the lethal engagement.",
@@ -572,9 +572,9 @@ MESSAGES = {
             "observer_msg": "The assault rifle claims another life with a flurry of well-placed shots on {target_name} by {attacker_name}. The action cycles with a swift *CHING-clack-CHING*, a punctuation to the violence."
         },
         {
-            "attacker_msg": "{target_name}’s last sight is the muzzle of your assault rifle spitting fire. Spent casings hit the ground as your rifle cycles and {target_name} falls, riddled.",
+            "attacker_msg": "{target_name}'s last sight is the muzzle of your assault rifle spitting fire. Spent casings hit the ground as your rifle cycles and {target_name} falls, riddled.",
             "victim_msg": "Your last sight is the muzzle of {attacker_name}'s assault rifle spitting fire! Spent casings hit the ground as their rifle cycles and you fall, riddled.",
-            "observer_msg": "{target_name}’s last sight is the muzzle of {attacker_name}'s assault rifle spitting fire. Spent casings hit the ground as the rifle cycles and {target_name} falls, riddled."
+            "observer_msg": "{target_name}'s last sight is the muzzle of {attacker_name}'s assault rifle spitting fire. Spent casings hit the ground as the rifle cycles and {target_name} falls, riddled."
         },
         {
             "attacker_msg": "A final, sharp burst from your assault rifle, and {target_name} is gone, their body torn by the volley. Your rifle cycles, chambering another round, a silent sentinel over the fallen.",

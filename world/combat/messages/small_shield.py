@@ -16,9 +16,9 @@ MESSAGES = {
             'observer_msg': "A quick snap and the buckler is ready. {attacker_name} tilts it forward like a dare."
         },
         {
-            'attacker_msg': "A small slap of steel against palm — your only ritual before ruin.",
-            'victim_msg': "A small slap of steel against palm — {attacker_name}'s only ritual before ruin.",
-            'observer_msg': "A small slap of steel against palm — {attacker_name}'s only ritual before ruin."
+            'attacker_msg': "A small slap of steel against palm - your only ritual before ruin.",
+            'victim_msg': "A small slap of steel against palm - {attacker_name}'s only ritual before ruin.",
+            'observer_msg': "A small slap of steel against palm - {attacker_name}'s only ritual before ruin."
         },
         {
             'attacker_msg': "A subtle nod. A clench of the jaw. The shield lifts and the mood shifts.",
@@ -36,9 +36,9 @@ MESSAGES = {
             'observer_msg': "No flourish. No preamble. Just a square of steel and a look that promises chaos."
         },
         {
-            'attacker_msg': "The buckler is barely larger than a dinner plate — but in your hands, it feels like artillery.",
-            'victim_msg': "The buckler is barely larger than a dinner plate — but in {attacker_name}'s hands, it feels like artillery.",
-            'observer_msg': "The buckler is barely larger than a dinner plate — but in {attacker_name}'s hands, it feels like artillery."
+            'attacker_msg': "The buckler is barely larger than a dinner plate - but in your hands, it feels like artillery.",
+            'victim_msg': "The buckler is barely larger than a dinner plate - but in {attacker_name}'s hands, it feels like artillery.",
+            'observer_msg': "The buckler is barely larger than a dinner plate - but in {attacker_name}'s hands, it feels like artillery."
         },
         {
             'attacker_msg': "The buckler spins once on its strap before snapping into grip. You steady it.",
@@ -61,14 +61,14 @@ MESSAGES = {
             'observer_msg': "The shield clangs once against a knee, then swings into stance with brutal rhythm."
         },
         {
-            'attacker_msg': "The shield is round, dented, fast — like a thrown insult about to be taken literally.",
-            'victim_msg': "The shield is round, dented, fast — like a thrown insult about to be taken literally.",
-            'observer_msg': "The shield is round, dented, fast — like a thrown insult about to be taken literally."
+            'attacker_msg': "The shield is round, dented, fast - like a thrown insult about to be taken literally.",
+            'victim_msg': "The shield is round, dented, fast - like a thrown insult about to be taken literally.",
+            'observer_msg': "The shield is round, dented, fast - like a thrown insult about to be taken literally."
         },
         {
-            'attacker_msg': "The shield looks small, but it covers the only thing you care to protect — momentum.",
-            'victim_msg': "The shield looks small, but it covers the only thing {attacker_name} cares to protect — momentum.",
-            'observer_msg': "The shield looks small, but it covers the only thing {attacker_name} cares to protect — momentum."
+            'attacker_msg': "The shield looks small, but it covers the only thing you care to protect - momentum.",
+            'victim_msg': "The shield looks small, but it covers the only thing {attacker_name} cares to protect - momentum.",
+            'observer_msg': "The shield looks small, but it covers the only thing {attacker_name} cares to protect - momentum."
         },
         {
             'attacker_msg': "The shield may be small, but the impact won't be. You make sure of that.",
@@ -101,9 +101,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} draws the shield like a duelist preparing for the final round."
         },
         {
-            'attacker_msg': "You draw the small shield across your chest and lock stance. It doesn't need to be big — just brutal.",
-            'victim_msg': "{attacker_name} draws the small shield across their chest and locks stance. It doesn't need to be big — just brutal.",
-            'observer_msg': "{attacker_name} draws the small shield across their chest and locks stance. It doesn't need to be big — just brutal."
+            'attacker_msg': "You draw the small shield across your chest and lock stance. It doesn't need to be big - just brutal.",
+            'victim_msg': "{attacker_name} draws the small shield across their chest and locks stance. It doesn't need to be big - just brutal.",
+            'observer_msg': "{attacker_name} draws the small shield across their chest and locks stance. It doesn't need to be big - just brutal."
         },
         {
             'attacker_msg': "You flick the shield into place with a snap of your wrist. The metal responds like it's been waiting.",
@@ -121,9 +121,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} gives the small shield a test bash against their palm. Satisfied, they step forward."
         },
         {
-            'attacker_msg': "You lift the small shield like a boxer raising gloves — fast, ready, and mean.",
-            'victim_msg': "{attacker_name} lifts the small shield like a boxer raising gloves — fast, ready, and mean.",
-            'observer_msg': "{attacker_name} lifts the small shield like a boxer raising gloves — fast, ready, and mean."
+            'attacker_msg': "You lift the small shield like a boxer raising gloves - fast, ready, and mean.",
+            'victim_msg': "{attacker_name} lifts the small shield like a boxer raising gloves - fast, ready, and mean.",
+            'observer_msg': "{attacker_name} lifts the small shield like a boxer raising gloves - fast, ready, and mean."
         },
         {
             'attacker_msg': "You raise the shield with practiced intent. It fits like second skin.",
@@ -213,9 +213,9 @@ MESSAGES = {
             'observer_msg': "One quick jab to the {hit_location}. {target_name} stumbles like they forgot how bones work."
         },
         {
-            'attacker_msg': "One slam into the {hit_location} of the {hit_location} and {target_name} loses direction — and teeth.",
-            'victim_msg': "One slam into the {hit_location} of your {hit_location} and you lose direction — and teeth.",
-            'observer_msg': "One slam into the {hit_location} of the {hit_location} and {target_name} loses direction — and teeth."
+            'attacker_msg': "One slam into the {hit_location} of the {hit_location} and {target_name} loses direction - and teeth.",
+            'victim_msg': "One slam into the {hit_location} of your {hit_location} and you lose direction - and teeth.",
+            'observer_msg': "One slam into the {hit_location} of the {hit_location} and {target_name} loses direction - and teeth."
         },
         {
             'attacker_msg': "The buckler cracks into {target_name}'s {hit_location}. Eyes cross. Knees follow.",
@@ -355,9 +355,9 @@ MESSAGES = {
             'observer_msg': "The shield rim whistles past {target_name}'s ear. Close, but not close enough."
         },
         {
-            'attacker_msg': "The shield swings in a brutal arc — and finds nothing. {target_name} has shifted away.",
-            'victim_msg': "The shield swings in a brutal arc — and finds nothing. You have shifted away.",
-            'observer_msg': "The shield swings in a brutal arc — and finds nothing. {target_name} has shifted away."
+            'attacker_msg': "The shield swings in a brutal arc - and finds nothing. {target_name} has shifted away.",
+            'victim_msg': "The shield swings in a brutal arc - and finds nothing. You have shifted away.",
+            'observer_msg': "The shield swings in a brutal arc - and finds nothing. {target_name} has shifted away."
         },
         {
             'attacker_msg': "The shield whips through empty air. {target_name} dances back, out of reach.",

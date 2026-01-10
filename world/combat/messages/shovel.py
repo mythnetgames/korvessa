@@ -1,14 +1,14 @@
 MESSAGES = {
     'initiate': [
         {
-            'attacker_msg': "A heavy, two-handed grip and a forward lean — the shovel's weight is promise enough.",
-            'victim_msg': "A heavy, two-handed grip and a forward lean — {attacker_name}'s shovel's weight is promise enough.",
-            'observer_msg': "A heavy, two-handed grip and a forward lean — {attacker_name}'s shovel's weight is promise enough."
+            'attacker_msg': "A heavy, two-handed grip and a forward lean - the shovel's weight is promise enough.",
+            'victim_msg': "A heavy, two-handed grip and a forward lean - {attacker_name}'s shovel's weight is promise enough.",
+            'observer_msg': "A heavy, two-handed grip and a forward lean - {attacker_name}'s shovel's weight is promise enough."
         },
         {
-            'attacker_msg': "A slow spin and a sudden stop — the shovel is ready, and so is the silence.",
-            'victim_msg': "A slow spin and a sudden stop — {attacker_name}'s shovel is ready, and so is the silence.",
-            'observer_msg': "A slow spin and a sudden stop — {attacker_name}'s shovel is ready, and so is the silence."
+            'attacker_msg': "A slow spin and a sudden stop - the shovel is ready, and so is the silence.",
+            'victim_msg': "A slow spin and a sudden stop - {attacker_name}'s shovel is ready, and so is the silence.",
+            'observer_msg': "A slow spin and a sudden stop - {attacker_name}'s shovel is ready, and so is the silence."
         },
         {
             'attacker_msg': "A spin, a hiss, and the shovel stops flat in front of them like a drawn boundary.",
@@ -26,9 +26,9 @@ MESSAGES = {
             'observer_msg': "No ceremony. Just a shovel raised with {attacker_name}'s practiced hands and a look that means business."
         },
         {
-            'attacker_msg': "Nothing ceremonial — just a sharp pivot, a shove of boots, and a shovel hungry for action.",
-            'victim_msg': "Nothing ceremonial — just {attacker_name}'s sharp pivot, a shove of boots, and a shovel hungry for action.",
-            'observer_msg': "Nothing ceremonial — just {attacker_name}'s sharp pivot, a shove of boots, and a shovel hungry for action."
+            'attacker_msg': "Nothing ceremonial - just a sharp pivot, a shove of boots, and a shovel hungry for action.",
+            'victim_msg': "Nothing ceremonial - just {attacker_name}'s sharp pivot, a shove of boots, and a shovel hungry for action.",
+            'observer_msg': "Nothing ceremonial - just {attacker_name}'s sharp pivot, a shove of boots, and a shovel hungry for action."
         },
         {
             'attacker_msg': "One slow breath and the shovel comes up. You hold it like scripture etched in rust.",
@@ -36,9 +36,9 @@ MESSAGES = {
             'observer_msg': "One slow breath and the shovel comes up. {attacker_name} holds it like scripture etched in rust."
         },
         {
-            'attacker_msg': "The blade drags a trail across the floor before being lifted — like a warning being drawn.",
-            'victim_msg': "The blade drags a trail across the floor before being lifted — like {attacker_name} is drawing a warning.",
-            'observer_msg': "The blade drags a trail across the floor before being lifted — like {attacker_name} is drawing a warning."
+            'attacker_msg': "The blade drags a trail across the floor before being lifted - like a warning being drawn.",
+            'victim_msg': "The blade drags a trail across the floor before being lifted - like {attacker_name} is drawing a warning.",
+            'observer_msg': "The blade drags a trail across the floor before being lifted - like {attacker_name} is drawing a warning."
         },
         {
             'attacker_msg': "The blade is chipped, warped from heat. You swing it like it was forged that way.",
@@ -51,9 +51,9 @@ MESSAGES = {
             'observer_msg': "The blade of {attacker_name}'s shovel gleams with old rust and new intent. {attacker_name} doesn't flinch."
         },
         {
-            'attacker_msg': "The dented blade catches the light for a moment — then vanishes behind your stance.",
-            'victim_msg': "The dented blade catches the light for a moment — then vanishes behind {attacker_name}'s stance.",
-            'observer_msg': "The dented blade catches the light for a moment — then vanishes behind {attacker_name}'s stance."
+            'attacker_msg': "The dented blade catches the light for a moment - then vanishes behind your stance.",
+            'victim_msg': "The dented blade catches the light for a moment - then vanishes behind {attacker_name}'s stance.",
+            'observer_msg': "The dented blade catches the light for a moment - then vanishes behind {attacker_name}'s stance."
         },
         {
             'attacker_msg': "The handle creaks as you tighten your grip. Wood splinters. Intent sharpens.",
@@ -198,9 +198,9 @@ MESSAGES = {
             'observer_msg': "The curved edge hooks into {target_name}'s {hit_location}. It yanks red and raw."
         },
         {
-            'attacker_msg': "The edge cuts across the {hit_location}. Not deep — but enough to distract from what's next.",
-            'victim_msg': "The edge cuts across your {hit_location}. Not deep — but enough to distract from what's next.",
-            'observer_msg': "The edge cuts across {target_name}'s {hit_location}. Not deep — but enough to distract from what's next."
+            'attacker_msg': "The edge cuts across the {hit_location}. Not deep - but enough to distract from what's next.",
+            'victim_msg': "The edge cuts across your {hit_location}. Not deep - but enough to distract from what's next.",
+            'observer_msg': "The edge cuts across {target_name}'s {hit_location}. Not deep - but enough to distract from what's next."
         },
         {
             'attacker_msg': "The flat of the blade crashes across the {hit_location}. Blood follows like punctuation.",
@@ -208,9 +208,9 @@ MESSAGES = {
             'observer_msg': "The flat of the blade crashes across {target_name}'s {hit_location}. Blood follows like punctuation."
         },
         {
-            'attacker_msg': "The flat of the shovel smacks into their {hit_location} with a clang that could wake the dead — or bury them again.",
-            'victim_msg': "The flat of the shovel smacks into your {hit_location} with a clang that could wake the dead — or bury them again.",
-            'observer_msg': "The flat of the shovel smacks into {target_name}'s {hit_location} with a clang that could wake the dead — or bury them again."
+            'attacker_msg': "The flat of the shovel smacks into their {hit_location} with a clang that could wake the dead - or bury them again.",
+            'victim_msg': "The flat of the shovel smacks into your {hit_location} with a clang that could wake the dead - or bury them again.",
+            'observer_msg': "The flat of the shovel smacks into {target_name}'s {hit_location} with a clang that could wake the dead - or bury them again."
         },
         {
             'attacker_msg': "The handle cracks against the {hit_location}. The scream gets caught mid-burst.",
@@ -305,9 +305,9 @@ MESSAGES = {
     ],
     'miss': [
         {
-            'attacker_msg': "A hard swing and they dodge — the shovel bites into wood instead.",
-            'victim_msg': "A hard swing and you dodge — {attacker_name}'s shovel bites into wood instead.",
-            'observer_msg': "A hard swing and {target_name} dodges — {attacker_name}'s shovel bites into wood instead."
+            'attacker_msg': "A hard swing and they dodge - the shovel bites into wood instead.",
+            'victim_msg': "A hard swing and you dodge - {attacker_name}'s shovel bites into wood instead.",
+            'observer_msg': "A hard swing and {target_name} dodges - {attacker_name}'s shovel bites into wood instead."
         },
         {
             'attacker_msg': "A swing catches only air and the disappointment that follows.",
@@ -320,9 +320,9 @@ MESSAGES = {
             'observer_msg': "A wild swing smashes into a wall. The dent stays. {target_name} doesn't."
         },
         {
-            'attacker_msg': "The arc is perfect — but they step away at just the right moment.",
-            'victim_msg': "{attacker_name}'s arc is perfect — but you step away at just the right moment.",
-            'observer_msg': "{attacker_name}'s arc is perfect — but {target_name} steps away at just the right moment."
+            'attacker_msg': "The arc is perfect - but they step away at just the right moment.",
+            'victim_msg': "{attacker_name}'s arc is perfect - but you step away at just the right moment.",
+            'observer_msg': "{attacker_name}'s arc is perfect - but {target_name} steps away at just the right moment."
         },
         {
             'attacker_msg': "The blade clips the edge of a pillar. Dust flies. They don't fall.",
@@ -350,9 +350,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name}'s heavy swing goes wide. The shovel rebounds off stone."
         },
         {
-            'attacker_msg': "The shovel clangs off a pipe above their head. Close — but not close enough.",
-            'victim_msg': "The shovel clangs off a pipe above your head. Close — but not close enough.",
-            'observer_msg': "The shovel clangs off a pipe above {target_name}'s head. Close — but not close enough."
+            'attacker_msg': "The shovel clangs off a pipe above their head. Close - but not close enough.",
+            'victim_msg': "The shovel clangs off a pipe above your head. Close - but not close enough.",
+            'observer_msg': "The shovel clangs off a pipe above {target_name}'s head. Close - but not close enough."
         },
         {
             'attacker_msg': "The shovel gouges the floor where they stood a second ago.",
@@ -380,14 +380,14 @@ MESSAGES = {
             'observer_msg': "{attacker_name} lunges too far. The shovel skids against tile with a screech."
         },
         {
-            'attacker_msg': "You lunge — and miss. The shovel clangs off metal, echoing like disappointment.",
-            'victim_msg': "{attacker_name} lunges — and misses. The shovel clangs off metal, echoing like disappointment.",
-            'observer_msg': "{attacker_name} lunges — and misses. The shovel clangs off metal, echoing like disappointment."
+            'attacker_msg': "You lunge - and miss. The shovel clangs off metal, echoing like disappointment.",
+            'victim_msg': "{attacker_name} lunges - and misses. The shovel clangs off metal, echoing like disappointment.",
+            'observer_msg': "{attacker_name} lunges - and misses. The shovel clangs off metal, echoing like disappointment."
         },
         {
-            'attacker_msg': "You overextend and the handle clips a pipe. The noise is ugly — and empty.",
-            'victim_msg': "{attacker_name} overextends and the handle clips a pipe. The noise is ugly — and empty.",
-            'observer_msg': "{attacker_name} overextends and the handle clips a pipe. The noise is ugly — and empty."
+            'attacker_msg': "You overextend and the handle clips a pipe. The noise is ugly - and empty.",
+            'victim_msg': "{attacker_name} overextends and the handle clips a pipe. The noise is ugly - and empty.",
+            'observer_msg': "{attacker_name} overextends and the handle clips a pipe. The noise is ugly - and empty."
         },
         {
             'attacker_msg': "You swing wide. The shovel whistles past with menace but no contact.",
@@ -395,9 +395,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} swings wide. The shovel whistles past with menace but no contact."
         },
         {
-            'attacker_msg': "You swing, but the shovel glances off a railing. Sparks — no blood.",
-            'victim_msg': "{attacker_name} swings, but the shovel glances off a railing. Sparks — no blood.",
-            'observer_msg': "{attacker_name} swings, but the shovel glances off a railing. Sparks — no blood."
+            'attacker_msg': "You swing, but the shovel glances off a railing. Sparks - no blood.",
+            'victim_msg': "{attacker_name} swings, but the shovel glances off a railing. Sparks - no blood.",
+            'observer_msg': "{attacker_name} swings, but the shovel glances off a railing. Sparks - no blood."
         },
         {
             'attacker_msg': "Your arc is perfect, the timing is not. They dodge like it's luck or prophecy.",
@@ -557,9 +557,9 @@ MESSAGES = {
             'observer_msg': "The shovel caves in the side of {target_name}'s skull. The rest follows gravity."
         },
         {
-            'attacker_msg': "The shovel spins once, then lands across the temple. The collapse is immediate — and permanent.",
-            'victim_msg': "The shovel spins once, then lands across your temple. The collapse is immediate — and permanent.",
-            'observer_msg': "The shovel spins once, then lands across {target_name}'s temple. The collapse is immediate — and permanent."
+            'attacker_msg': "The shovel spins once, then lands across the temple. The collapse is immediate - and permanent.",
+            'victim_msg': "The shovel spins once, then lands across your temple. The collapse is immediate - and permanent.",
+            'observer_msg': "The shovel spins once, then lands across {target_name}'s temple. The collapse is immediate - and permanent."
         },
         {
             'attacker_msg': "You bury the blade into their skull. It doesn't come out clean.",

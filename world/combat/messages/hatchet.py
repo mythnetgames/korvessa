@@ -1,9 +1,9 @@
 MESSAGES = {
     'initiate': [
         {
-            'attacker_msg': "A rusted edge, a worn handle — but in your hands, the hatchet becomes a truth that cuts deep.",
-            'victim_msg': "A rusted edge, a worn handle — but in {attacker_name}'s hands, the hatchet becomes a truth that cuts deep.",
-            'observer_msg': "A rusted edge, a worn handle — but in {attacker_name}'s hands, the hatchet becomes a truth that cuts deep."
+            'attacker_msg': "A rusted edge, a worn handle - but in your hands, the hatchet becomes a truth that cuts deep.",
+            'victim_msg': "A rusted edge, a worn handle - but in {attacker_name}'s hands, the hatchet becomes a truth that cuts deep.",
+            'observer_msg': "A rusted edge, a worn handle - but in {attacker_name}'s hands, the hatchet becomes a truth that cuts deep."
         },
         {
             'attacker_msg': "A small weapon. Intimate. You test its weight like you're preparing to carve a confession.",
@@ -21,9 +21,9 @@ MESSAGES = {
             'observer_msg': "It's not much, but in {attacker_name}'s hand, the hatchet looks holy. In a terrible way."
         },
         {
-            'attacker_msg': "No polish, no polish — just steel and an old wooden handle. You lift the hatchet like an executioner.",
-            'victim_msg': "No polish, no polish — just steel and an old wooden handle. {attacker_name} lifts the hatchet like an executioner.",
-            'observer_msg': "No polish, no polish — just steel and an old wooden handle. {attacker_name} lifts the hatchet like an executioner."
+            'attacker_msg': "No polish, no polish - just steel and an old wooden handle. You lift the hatchet like an executioner.",
+            'victim_msg': "No polish, no polish - just steel and an old wooden handle. {attacker_name} lifts the hatchet like an executioner.",
+            'observer_msg': "No polish, no polish - just steel and an old wooden handle. {attacker_name} lifts the hatchet like an executioner."
         },
         {
             'attacker_msg': "One breath in. One swing back. The moment is coiled like the blade itself.",
@@ -61,9 +61,9 @@ MESSAGES = {
             'observer_msg': "The hatchet hangs low in {attacker_name}'s grip, heavy with history and blood yet to be shed."
         },
         {
-            'attacker_msg': "The hatchet rests on your shoulder like a burden you've carried before — and loved.",
-            'victim_msg': "The hatchet rests on {attacker_name}'s shoulder like a burden they've carried before — and loved.",
-            'observer_msg': "The hatchet rests on {attacker_name}'s shoulder like a burden they've carried before — and loved."
+            'attacker_msg': "The hatchet rests on your shoulder like a burden you've carried before - and loved.",
+            'victim_msg': "The hatchet rests on {attacker_name}'s shoulder like a burden they've carried before - and loved.",
+            'observer_msg': "The hatchet rests on {attacker_name}'s shoulder like a burden they've carried before - and loved."
         },
         {
             'attacker_msg': "The hatchet spins once, then lands blade-down in your hand. The movement is fluid. Familiar.",
@@ -146,9 +146,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} traces a finger along the blade's edge. They bleed a little. They smile more."
         },
         {
-            'attacker_msg': "You twirl the hatchet, letting it whistle through the air — a promise of what's to come.",
-            'victim_msg': "{attacker_name} twirls the hatchet, letting it whistle through the air — a promise of what's to come.",
-            'observer_msg': "{attacker_name} twirls the hatchet, letting it whistle through the air — a promise of what's to come."
+            'attacker_msg': "You twirl the hatchet, letting it whistle through the air - a promise of what's to come.",
+            'victim_msg': "{attacker_name} twirls the hatchet, letting it whistle through the air - a promise of what's to come.",
+            'observer_msg': "{attacker_name} twirls the hatchet, letting it whistle through the air - a promise of what's to come."
         }
     ],
     'hit': [
@@ -228,9 +228,9 @@ MESSAGES = {
             'observer_msg': "The blade lodges briefly in the {hit_location}. {attacker_name} pulls it free with a grunt."
         },
         {
-            'attacker_msg': "The handle thuds into the {hit_location}. Then the blade follows. The order doesn't matter — both hurt.",
-            'victim_msg': "The handle thuds into the {hit_location}. Then the blade follows. The order doesn't matter — both hurt.",
-            'observer_msg': "The handle thuds into the {hit_location}. Then the blade follows. The order doesn't matter — both hurt."
+            'attacker_msg': "The handle thuds into the {hit_location}. Then the blade follows. The order doesn't matter - both hurt.",
+            'victim_msg': "The handle thuds into the {hit_location}. Then the blade follows. The order doesn't matter - both hurt.",
+            'observer_msg': "The handle thuds into the {hit_location}. Then the blade follows. The order doesn't matter - both hurt."
         },
         {
             'attacker_msg': "The hatchet bites deep into {target_name}'s {hit_location}. The scream comes before the blood does.",
@@ -263,9 +263,9 @@ MESSAGES = {
             'observer_msg': "The hatchet lands low, carving into {hit_location}. {target_name} drops with a howl."
         },
         {
-            'attacker_msg': "The hatchet slams into the upper {hit_location}, biting deep. {target_name} gasps — and doesn't finish the sound.",
-            'victim_msg': "The hatchet slams into the upper {hit_location}, biting deep. You gasp — and don't finish the sound.",
-            'observer_msg': "The hatchet slams into the upper {hit_location}, biting deep. {target_name} gasps — and doesn't finish the sound."
+            'attacker_msg': "The hatchet slams into the upper {hit_location}, biting deep. {target_name} gasps - and doesn't finish the sound.",
+            'victim_msg': "The hatchet slams into the upper {hit_location}, biting deep. You gasp - and don't finish the sound.",
+            'observer_msg': "The hatchet slams into the upper {hit_location}, biting deep. {target_name} gasps - and doesn't finish the sound."
         },
         {
             'attacker_msg': "The weapon slashes across the upper {hit_location}, severing layers that won't grow {hit_location} right.",

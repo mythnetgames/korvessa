@@ -11,9 +11,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} produces a bottle, smashes it against the floor, and brandishes the jagged remains like a primal knife."
         },
         {
-            "attacker_msg": "You don’t bother with theatrics. You just slam the bottle on concrete until the shards glitter in your hand.",
-            "victim_msg": "{attacker_name} doesn’t bother with theatrics. They just slam the bottle on concrete until the shards glitter in their hand.",
-            "observer_msg": "{attacker_name} doesn’t bother with theatrics. They just slam the bottle on concrete until the shards glitter in their hand."
+            "attacker_msg": "You don't bother with theatrics. You just slam the bottle on concrete until the shards glitter in your hand.",
+            "victim_msg": "{attacker_name} doesn't bother with theatrics. They just slam the bottle on concrete until the shards glitter in their hand.",
+            "observer_msg": "{attacker_name} doesn't bother with theatrics. They just slam the bottle on concrete until the shards glitter in their hand."
         },
         {
             "attacker_msg": "You grip a fractured bottle in a fist, blood already seeping from your own fingers.",
@@ -21,9 +21,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} grips a fractured bottle in a fist, blood already seeping from their own fingers."
         },
         {
-            "attacker_msg": "You yank the bottle from a trash pile and snap it clean on a steel edge—ready, improvised, lethal.",
-            "victim_msg": "{attacker_name} yanks the bottle from a trash pile and snaps it clean on a steel edge—ready, improvised, lethal.",
-            "observer_msg": "{attacker_name} yanks the bottle from a trash pile and snaps it clean on a steel edge—ready, improvised, lethal."
+            "attacker_msg": "You yank the bottle from a trash pile and snap it clean on a steel edge - ready, improvised, lethal.",
+            "victim_msg": "{attacker_name} yanks the bottle from a trash pile and snaps it clean on a steel edge - ready, improvised, lethal.",
+            "observer_msg": "{attacker_name} yanks the bottle from a trash pile and snaps it clean on a steel edge - ready, improvised, lethal."
         },
         {
             "attacker_msg": "You break the neck of the bottle on your knee and hold it like a sacred relic of violence.",
@@ -46,14 +46,14 @@ MESSAGES = {
             "observer_msg": "{attacker_name} drags the jagged edge of a broken bottle across their palm. A warm-up. A warning."
         },
         {
-            "attacker_msg": "You brandish the glass with a manic grin, like you’ve already seen how this ends.",
-            "victim_msg": "{attacker_name} brandishes the glass with a manic grin, like they’ve already seen how this ends.",
-            "observer_msg": "{attacker_name} brandishes the glass with a manic grin, like they’ve already seen how this ends."
+            "attacker_msg": "You brandish the glass with a manic grin, like you've already seen how this ends.",
+            "victim_msg": "{attacker_name} brandishes the glass with a manic grin, like they've already seen how this ends.",
+            "observer_msg": "{attacker_name} brandishes the glass with a manic grin, like they've already seen how this ends."
         },
         {
-            "attacker_msg": "You unscrew the cap, take a swig, and slam the bottle down—glass flies, purpose ignites.",
-            "victim_msg": "{attacker_name} unscrews the cap, takes a swig, and slams the bottle down—glass flies, purpose ignites.",
-            "observer_msg": "{attacker_name} unscrews the cap, takes a swig, and slams the bottle down—glass flies, purpose ignites."
+            "attacker_msg": "You unscrew the cap, take a swig, and slam the bottle down - glass flies, purpose ignites.",
+            "victim_msg": "{attacker_name} unscrews the cap, takes a swig, and slams the bottle down - glass flies, purpose ignites.",
+            "observer_msg": "{attacker_name} unscrews the cap, takes a swig, and slams the bottle down - glass flies, purpose ignites."
         },
         {
             "attacker_msg": "You pull a bottle from your coat and smash it against your own boot heel.",
@@ -61,14 +61,14 @@ MESSAGES = {
             "observer_msg": "{attacker_name} pulls a bottle from their coat and smashes it against their own boot heel."
         },
         {
-            "attacker_msg": "You spit on the bottle’s label before it shatters in your grip.",
-            "victim_msg": "{attacker_name} spits on the bottle’s label before it shatters in their grip.",
-            "observer_msg": "{attacker_name} spits on the bottle’s label before it shatters in their grip."
+            "attacker_msg": "You spit on the bottle's label before it shatters in your grip.",
+            "victim_msg": "{attacker_name} spits on the bottle's label before it shatters in their grip.",
+            "observer_msg": "{attacker_name} spits on the bottle's label before it shatters in their grip."
         },
         {
-            "attacker_msg": "You lift the bottle, eye {target_name}, and let it explode across a pipe—no words needed.",
-            "victim_msg": "{attacker_name} lifts the bottle, eyes you, and lets it explode across a pipe—no words needed.",
-            "observer_msg": "{attacker_name} lifts the bottle, eyes {target_name}, and lets it explode across a pipe—no words needed."
+            "attacker_msg": "You lift the bottle, eye {target_name}, and let it explode across a pipe - no words needed.",
+            "victim_msg": "{attacker_name} lifts the bottle, eyes you, and lets it explode across a pipe - no words needed.",
+            "observer_msg": "{attacker_name} lifts the bottle, eyes {target_name}, and lets it explode across a pipe - no words needed."
         },
         {
             "attacker_msg": "You run your thumb along the jagged edge, testing it with a smear of blood.",
@@ -76,9 +76,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} runs their thumb along the jagged edge, testing it with a smear of blood."
         },
         {
-            "attacker_msg": "You grind the broken bottle against a wall, sharpening an edge that’s already cruel.",
-            "victim_msg": "{attacker_name} grinds the broken bottle against a wall, sharpening an edge that’s already cruel.",
-            "observer_msg": "{attacker_name} grinds the broken bottle against a wall, sharpening an edge that’s already cruel."
+            "attacker_msg": "You grind the broken bottle against a wall, sharpening an edge that's already cruel.",
+            "victim_msg": "{attacker_name} grinds the broken bottle against a wall, sharpening an edge that's already cruel.",
+            "observer_msg": "{attacker_name} grinds the broken bottle against a wall, sharpening an edge that's already cruel."
         },
         {
             "attacker_msg": "You toss the broken bottle from one hand to the other, unconcerned by the blood it draws.",
@@ -91,9 +91,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} holds the shard-heavy neck like a relic from some barroom apocalypse."
         },
         {
-            "attacker_msg": "You grin without humor and lift the bottle slowly—this is going to get close.",
-            "victim_msg": "{attacker_name} grins without humor and lifts the bottle slowly—this is going to get close.",
-            "observer_msg": "{attacker_name} grins without humor and lifts the bottle slowly—this is going to get close."
+            "attacker_msg": "You grin without humor and lift the bottle slowly - this is going to get close.",
+            "victim_msg": "{attacker_name} grins without humor and lifts the bottle slowly - this is going to get close.",
+            "observer_msg": "{attacker_name} grins without humor and lifts the bottle slowly - this is going to get close."
         },
         {
             "attacker_msg": "You raise the broken glass to the light. It catches red, not gold.",
@@ -111,19 +111,19 @@ MESSAGES = {
             "observer_msg": "{attacker_name} steps closer, dragging the glass across their sleeve with a quiet hiss."
         },
         {
-            "attacker_msg": "You clutch the glass tight enough to cut. You don’t seem to notice.",
-            "victim_msg": "{attacker_name} clutches the glass tight enough to cut. They don’t seem to notice.",
-            "observer_msg": "{attacker_name} clutches the glass tight enough to cut. They don’t seem to notice."
+            "attacker_msg": "You clutch the glass tight enough to cut. You don't seem to notice.",
+            "victim_msg": "{attacker_name} clutches the glass tight enough to cut. They don't seem to notice.",
+            "observer_msg": "{attacker_name} clutches the glass tight enough to cut. They don't seem to notice."
         },
         {
-            "attacker_msg": "You snap the bottle on the ground. The shards catch the light—and maybe something else.",
-            "victim_msg": "{attacker_name} snaps the bottle on the ground. The shards catch the light—and maybe something else.",
-            "observer_msg": "{attacker_name} snaps the bottle on the ground. The shards catch the light—and maybe something else."
+            "attacker_msg": "You snap the bottle on the ground. The shards catch the light - and maybe something else.",
+            "victim_msg": "{attacker_name} snaps the bottle on the ground. The shards catch the light - and maybe something else.",
+            "observer_msg": "{attacker_name} snaps the bottle on the ground. The shards catch the light - and maybe something else."
         },
         {
-            "attacker_msg": "You don’t break it—just wield the already shattered bottle like a scalpel made of regret.",
-            "victim_msg": "{attacker_name} doesn’t break it—just wields the already shattered bottle like a scalpel made of regret.",
-            "observer_msg": "{attacker_name} doesn’t break it—just wields the already shattered bottle like a scalpel made of regret."
+            "attacker_msg": "You don't break it - just wield the already shattered bottle like a scalpel made of regret.",
+            "victim_msg": "{attacker_name} doesn't break it - just wields the already shattered bottle like a scalpel made of regret.",
+            "observer_msg": "{attacker_name} doesn't break it - just wields the already shattered bottle like a scalpel made of regret."
         },
         {
             "attacker_msg": "You let the bottle roll across your fingers, then punch a wall with it. Ready.",
@@ -136,9 +136,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} clutches the neck, jagged edges flaring like teeth. So does their smile."
         },
         {
-            "attacker_msg": "You sharpen the bottle further on stone. It doesn’t need it. You do.",
-            "victim_msg": "{attacker_name} sharpens the bottle further on stone. It doesn’t need it. They do.",
-            "observer_msg": "{attacker_name} sharpens the bottle further on stone. It doesn’t need it. They do."
+            "attacker_msg": "You sharpen the bottle further on stone. It doesn't need it. You do.",
+            "victim_msg": "{attacker_name} sharpens the bottle further on stone. It doesn't need it. They do.",
+            "observer_msg": "{attacker_name} sharpens the bottle further on stone. It doesn't need it. They do."
         },
         {
             "attacker_msg": "You flick a shard off the bottle and step into range.",
@@ -146,9 +146,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} flicks a shard off the bottle and steps into range."
         },
         {
-            "attacker_msg": "You raise the broken glass like a toast—then take a step that says otherwise.",
-            "victim_msg": "{attacker_name} raises the broken glass like a toast—then takes a step that says otherwise.",
-            "observer_msg": "{attacker_name} raises the broken glass like a toast—then takes a step that says otherwise."
+            "attacker_msg": "You raise the broken glass like a toast - then take a step that says otherwise.",
+            "victim_msg": "{attacker_name} raises the broken glass like a toast - then takes a step that says otherwise.",
+            "observer_msg": "{attacker_name} raises the broken glass like a toast - then takes a step that says otherwise."
         }
     ],
     "hit": [
@@ -158,9 +158,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} drives the broken bottle into {target_name}'s {hit_location}, dragging it across fabric and flesh with a wet rip."
         },
         {
-            "attacker_msg": "Glass plunges into {target_name}'s {hit_location}—jagged, unforgiving, and deep. You twist it for good measure.",
-            "victim_msg": "Glass plunges into your {hit_location}—jagged, unforgiving, and deep. {attacker_name} twists it for good measure.",
-            "observer_msg": "Glass plunges into {target_name}'s {hit_location}—jagged, unforgiving, and deep. {attacker_name} twists it for good measure."
+            "attacker_msg": "Glass plunges into {target_name}'s {hit_location} - jagged, unforgiving, and deep. You twist it for good measure.",
+            "victim_msg": "Glass plunges into your {hit_location} - jagged, unforgiving, and deep. {attacker_name} twists it for good measure.",
+            "observer_msg": "Glass plunges into {target_name}'s {hit_location} - jagged, unforgiving, and deep. {attacker_name} twists it for good measure."
         },
         {
             "attacker_msg": "You stab the bottle into {target_name}'s {hit_location}, twisting the jagged edge like a cruel screw.",
@@ -253,9 +253,9 @@ MESSAGES = {
             "observer_msg": "A downward stab lands in {target_name}'s {hit_location}. Their balance is the first to go. {attacker_name} presses the advantage."
         },
         {
-            "attacker_msg": "Glass glints as it slashes across {target_name}'s {hit_location}—shallow, but not clean. You see the fear.",
-            "victim_msg": "Glass glints as it slashes across your {hit_location}—shallow, but not clean. You feel the fear.",
-            "observer_msg": "Glass glints as it slashes across {target_name}'s {hit_location}—shallow, but not clean. {attacker_name} sees the fear."
+            "attacker_msg": "Glass glints as it slashes across {target_name}'s {hit_location} - shallow, but not clean. You see the fear.",
+            "victim_msg": "Glass glints as it slashes across your {hit_location} - shallow, but not clean. You feel the fear.",
+            "observer_msg": "Glass glints as it slashes across {target_name}'s {hit_location} - shallow, but not clean. {attacker_name} sees the fear."
         },
         {
             "attacker_msg": "You dig the bottle into {target_name}'s {hit_location} and yank sideways with a grunt.",
@@ -263,9 +263,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} digs the bottle into {target_name}'s {hit_location} and yanks sideways with a grunt."
         },
         {
-            "attacker_msg": "A hooking slash tears at {target_name}'s {hit_location}. Their hands can’t cover it fast enough. You know it's bad.",
-            "victim_msg": "A hooking slash tears at your {hit_location}. Your hands can’t cover it fast enough. You know it's bad.",
-            "observer_msg": "A hooking slash tears at {target_name}'s {hit_location}. Their hands can’t cover it fast enough. {attacker_name} knows it's bad."
+            "attacker_msg": "A hooking slash tears at {target_name}'s {hit_location}. Their hands can't cover it fast enough. You know it's bad.",
+            "victim_msg": "A hooking slash tears at your {hit_location}. Your hands can't cover it fast enough. You know it's bad.",
+            "observer_msg": "A hooking slash tears at {target_name}'s {hit_location}. Their hands can't cover it fast enough. {attacker_name} knows it's bad."
         },
         {
             "attacker_msg": "The base crashes into {target_name}'s {hit_location}, dazing them before the shards follow up. You see the opening.",
@@ -283,9 +283,9 @@ MESSAGES = {
             "observer_msg": "A short-range stab to the {hit_location} halts {target_name} mid-motion. {attacker_name} feels the resistance."
         },
         {
-            "attacker_msg": "Glass gouges {target_name}'s {hit_location}. The {hit_location} doesn’t work right after that. You kick it out.",
-            "victim_msg": "Glass gouges your {hit_location}. The {hit_location} doesn’t work right after that. {attacker_name} kicks it out.",
-            "observer_msg": "Glass gouges {target_name}'s {hit_location}. The {hit_location} doesn’t work right after that. {attacker_name} kicks it out."
+            "attacker_msg": "Glass gouges {target_name}'s {hit_location}. The {hit_location} doesn't work right after that. You kick it out.",
+            "victim_msg": "Glass gouges your {hit_location}. The {hit_location} doesn't work right after that. {attacker_name} kicks it out.",
+            "observer_msg": "Glass gouges {target_name}'s {hit_location}. The {hit_location} doesn't work right after that. {attacker_name} kicks it out."
         },
         {
             "attacker_msg": "A quick upward slash opens the chin and splashes the wall. You see {target_name}'s surprise.",
@@ -310,9 +310,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} swipes, but {target_name} twists just out of range. The glass hisses through air."
         },
         {
-            "attacker_msg": "The bottle stabs forward—clean, precise—and hits only shadow. You curse.",
-            "victim_msg": "The bottle stabs forward—clean, precise—and hits only shadow. {attacker_name} curses.",
-            "observer_msg": "The bottle stabs forward—clean, precise—and hits only shadow. {attacker_name} curses."
+            "attacker_msg": "The bottle stabs forward - clean, precise - and hits only shadow. You curse.",
+            "victim_msg": "The bottle stabs forward - clean, precise - and hits only shadow. {attacker_name} curses.",
+            "observer_msg": "The bottle stabs forward - clean, precise - and hits only shadow. {attacker_name} curses."
         },
         {
             "attacker_msg": "You lunge too early. {target_name} is already gone.",
@@ -360,9 +360,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} overreaches and stumbles forward as the bottle carves empty space."
         },
         {
-            "attacker_msg": "The jagged edge scrapes off armor—audible, visible, ineffective. You try again.",
-            "victim_msg": "The jagged edge scrapes off your armor—audible, visible, ineffective. {attacker_name} tries again.",
-            "observer_msg": "The jagged edge scrapes off {target_name}'s armor—audible, visible, ineffective. {attacker_name} tries again."
+            "attacker_msg": "The jagged edge scrapes off armor - audible, visible, ineffective. You try again.",
+            "victim_msg": "The jagged edge scrapes off your armor - audible, visible, ineffective. {attacker_name} tries again.",
+            "observer_msg": "The jagged edge scrapes off {target_name}'s armor - audible, visible, ineffective. {attacker_name} tries again."
         },
         {
             "attacker_msg": "You swing for the neck but hit nothing. {target_name}'s breath catches anyway.",
@@ -370,9 +370,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} swings for the neck but hits nothing. {target_name}'s breath catches anyway."
         },
         {
-            "attacker_msg": "The strike lands against metal with a ringing ping. The glass holds—for now. You check it.",
-            "victim_msg": "The strike lands against metal with a ringing ping. The glass holds—for now. {attacker_name} checks it.",
-            "observer_msg": "The strike lands against metal with a ringing ping. The glass holds—for now. {attacker_name} checks it."
+            "attacker_msg": "The strike lands against metal with a ringing ping. The glass holds - for now. You check it.",
+            "victim_msg": "The strike lands against metal with a ringing ping. The glass holds - for now. {attacker_name} checks it.",
+            "observer_msg": "The strike lands against metal with a ringing ping. The glass holds - for now. {attacker_name} checks it."
         },
         {
             "attacker_msg": "You swing underhanded, but {target_name} skips back just in time.",
@@ -380,9 +380,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} swings underhanded, but {target_name} skips back just in time."
         },
         {
-            "attacker_msg": "The bottle clips {target_name}'s coat but doesn’t reach flesh. You curse your luck.",
-            "victim_msg": "The bottle clips your coat but doesn’t reach flesh. {attacker_name} curses their luck.",
-            "observer_msg": "The bottle clips {target_name}'s coat but doesn’t reach flesh. {attacker_name} curses their luck."
+            "attacker_msg": "The bottle clips {target_name}'s coat but doesn't reach flesh. You curse your luck.",
+            "victim_msg": "The bottle clips your coat but doesn't reach flesh. {attacker_name} curses their luck.",
+            "observer_msg": "The bottle clips {target_name}'s coat but doesn't reach flesh. {attacker_name} curses their luck."
         },
         {
             "attacker_msg": "Your slash arcs too wide. {target_name} counters with distance.",
@@ -410,9 +410,9 @@ MESSAGES = {
             "observer_msg": "Glass scrapes a wall as {attacker_name} pulls back from a failed strike."
         },
         {
-            "attacker_msg": "The bottle narrowly misses {target_name}'s nose. Close doesn’t count. You know that.",
-            "victim_msg": "The bottle narrowly misses your nose. Close doesn’t count. You know that.",
-            "observer_msg": "The bottle narrowly misses {target_name}'s nose. Close doesn’t count. {attacker_name} knows that."
+            "attacker_msg": "The bottle narrowly misses {target_name}'s nose. Close doesn't count. You know that.",
+            "victim_msg": "The bottle narrowly misses your nose. Close doesn't count. You know that.",
+            "observer_msg": "The bottle narrowly misses {target_name}'s nose. Close doesn't count. {attacker_name} knows that."
         },
         {
             "attacker_msg": "A sidestep saves {target_name} from a brutal puncture. You snarl.",
@@ -445,9 +445,9 @@ MESSAGES = {
             "observer_msg": "The bottle glances off a chair, scattering slivers instead of blood. {attacker_name} kicks the chair."
         },
         {
-            "attacker_msg": "The final jab comes too slow. {target_name} moves. The moment’s gone.",
-            "victim_msg": "The final jab comes too slow. You move. The moment’s gone.",
-            "observer_msg": "The final jab comes too slow. {target_name} moves. The moment’s gone."
+            "attacker_msg": "The final jab comes too slow. {target_name} moves. The moment's gone.",
+            "victim_msg": "The final jab comes too slow. You move. The moment's gone.",
+            "observer_msg": "The final jab comes too slow. {target_name} moves. The moment's gone."
         }
     ],
     "kill": [
@@ -497,9 +497,9 @@ MESSAGES = {
             "observer_msg": "A sharp jab under the jaw sends glass through brain. {target_name} goes silent instantly. {attacker_name} feels the give."
         },
         {
-            "attacker_msg": "One last lunge. One last puncture. {target_name} doesn't even fall—they melt downward. You let them.",
-            "victim_msg": "One last lunge. One last puncture. You don't even fall—you melt downward. {attacker_name} lets you.",
-            "observer_msg": "One last lunge. One last puncture. {target_name} doesn't even fall—they melt downward. {attacker_name} lets them."
+            "attacker_msg": "One last lunge. One last puncture. {target_name} doesn't even fall - they melt downward. You let them.",
+            "victim_msg": "One last lunge. One last puncture. You don't even fall - you melt downward. {attacker_name} lets you.",
+            "observer_msg": "One last lunge. One last puncture. {target_name} doesn't even fall - they melt downward. {attacker_name} lets them."
         },
         {
             "attacker_msg": "You carve across the throat. {target_name} spasms, then stills.",
@@ -532,9 +532,9 @@ MESSAGES = {
             "observer_msg": "A strike to the spine drops {target_name}. The second one ends it. {attacker_name} makes sure."
         },
         {
-            "attacker_msg": "You use both hands to drive the glass home. It doesn’t take long for {target_name} to stop moving.",
-            "victim_msg": "{attacker_name} uses both hands to drive the glass home. It doesn’t take long for you to stop moving.",
-            "observer_msg": "{attacker_name} uses both hands to drive the glass home. It doesn’t take long for {target_name} to stop moving."
+            "attacker_msg": "You use both hands to drive the glass home. It doesn't take long for {target_name} to stop moving.",
+            "victim_msg": "{attacker_name} uses both hands to drive the glass home. It doesn't take long for you to stop moving.",
+            "observer_msg": "{attacker_name} uses both hands to drive the glass home. It doesn't take long for {target_name} to stop moving."
         },
         {
             "attacker_msg": "The final slash removes most of {target_name}'s throat. The rest collapses. You step away from the mess.",
@@ -562,24 +562,24 @@ MESSAGES = {
             "observer_msg": "One last scream from {target_name}. One last spray. One still body. {attacker_name} is done."
         },
         {
-            "attacker_msg": "You stab again—and again—until {target_name} no longer moves.",
-            "victim_msg": "{attacker_name} stabs again—and again—until you no longer move.",
-            "observer_msg": "{attacker_name} stabs again—and again—until {target_name} no longer moves."
+            "attacker_msg": "You stab again - and again - until {target_name} no longer moves.",
+            "victim_msg": "{attacker_name} stabs again - and again - until you no longer move.",
+            "observer_msg": "{attacker_name} stabs again - and again - until {target_name} no longer moves."
         },
         {
-            "attacker_msg": "The bottle breaks further inside {target_name}. That’s the last thing they feel. You feel it too.",
-            "victim_msg": "The bottle breaks further inside you. That’s the last thing you feel. {attacker_name} feels it too.",
-            "observer_msg": "The bottle breaks further inside {target_name}. That’s the last thing they feel. {attacker_name} feels it too."
+            "attacker_msg": "The bottle breaks further inside {target_name}. That's the last thing they feel. You feel it too.",
+            "victim_msg": "The bottle breaks further inside you. That's the last thing you feel. {attacker_name} feels it too.",
+            "observer_msg": "The bottle breaks further inside {target_name}. That's the last thing they feel. {attacker_name} feels it too."
         },
         {
-            "attacker_msg": "You yank the glass out. {target_name} doesn’t respond.",
-            "victim_msg": "{attacker_name} yanks the glass out. You don’t respond.",
-            "observer_msg": "{attacker_name} yanks the glass out. {target_name} doesn’t respond."
+            "attacker_msg": "You yank the glass out. {target_name} doesn't respond.",
+            "victim_msg": "{attacker_name} yanks the glass out. You don't respond.",
+            "observer_msg": "{attacker_name} yanks the glass out. {target_name} doesn't respond."
         },
         {
-            "attacker_msg": "The floor drinks what’s left of {target_name}. The glass has done its work. You toss it aside.",
-            "victim_msg": "The floor drinks what’s left of you. The glass has done its work. {attacker_name} tosses it aside.",
-            "observer_msg": "The floor drinks what’s left of {target_name}. The glass has done its work. {attacker_name} tosses it aside."
+            "attacker_msg": "The floor drinks what's left of {target_name}. The glass has done its work. You toss it aside.",
+            "victim_msg": "The floor drinks what's left of you. The glass has done its work. {attacker_name} tosses it aside.",
+            "observer_msg": "The floor drinks what's left of {target_name}. The glass has done its work. {attacker_name} tosses it aside."
         },
         {
             "attacker_msg": "A sharp upward jab ends it. {target_name} sighs, then nothing. You catch your breath.",
@@ -587,9 +587,9 @@ MESSAGES = {
             "observer_msg": "A sharp upward jab ends it. {target_name} sighs, then nothing. {attacker_name} catches their breath."
         },
         {
-            "attacker_msg": "You drop the bottle after the kill. It’s done its job.",
-            "victim_msg": "{attacker_name} drops the bottle after the kill. It’s done its job.",
-            "observer_msg": "{attacker_name} drops the bottle after the kill. It’s done its job."
+            "attacker_msg": "You drop the bottle after the kill. It's done its job.",
+            "victim_msg": "{attacker_name} drops the bottle after the kill. It's done its job.",
+            "observer_msg": "{attacker_name} drops the bottle after the kill. It's done its job."
         },
         {
             "attacker_msg": "The final strike cuts clean. {target_name} dies messy. You observe the aftermath.",

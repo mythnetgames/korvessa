@@ -21,9 +21,9 @@ MESSAGES = {
             'observer_msg': "A twist of the wrist and the stake spins into position. {attacker_name}'s eyes stay fixed on {target_name}."
         },
         {
-            'attacker_msg': "It's not elegant, it's not balanced — but it's been buried in worse. You know how to use it.",
-            'victim_msg': "It's not elegant, it's not balanced — but it's been buried in worse. {attacker_name} knows how to use it.",
-            'observer_msg': "It's not elegant, it's not balanced — but it's been buried in worse. {attacker_name} knows how to use it."
+            'attacker_msg': "It's not elegant, it's not balanced - but it's been buried in worse. You know how to use it.",
+            'victim_msg': "It's not elegant, it's not balanced - but it's been buried in worse. {attacker_name} knows how to use it.",
+            'observer_msg': "It's not elegant, it's not balanced - but it's been buried in worse. {attacker_name} knows how to use it."
         },
         {
             'attacker_msg': "One twitch and the stake's raised. Your body tenses like a spring about to snap.",
@@ -51,14 +51,14 @@ MESSAGES = {
             'observer_msg': "The makeshift weapon swings once in the air. The whistle is promise enough."
         },
         {
-            'attacker_msg': "The point gleams, but not from polish — from use. You make it gleam again.",
-            'victim_msg': "The point gleams, but not from polish — from use. {attacker_name} makes it gleam again.",
-            'observer_msg': "The point gleams, but not from polish — from use. {attacker_name} makes it gleam again."
+            'attacker_msg': "The point gleams, but not from polish - from use. You make it gleam again.",
+            'victim_msg': "The point gleams, but not from polish - from use. {attacker_name} makes it gleam again.",
+            'observer_msg': "The point gleams, but not from polish - from use. {attacker_name} makes it gleam again."
         },
         {
-            'attacker_msg': "The sharpened wood scrapes against your belt as it's drawn. This isn't showtime — it's a verdict.",
-            'victim_msg': "The sharpened wood scrapes against {attacker_name}'s belt as it's drawn. This isn't showtime — it's a verdict.",
-            'observer_msg': "The sharpened wood scrapes against {attacker_name}'s belt as it's drawn. This isn't showtime — it's a verdict."
+            'attacker_msg': "The sharpened wood scrapes against your belt as it's drawn. This isn't showtime - it's a verdict.",
+            'victim_msg': "The sharpened wood scrapes against {attacker_name}'s belt as it's drawn. This isn't showtime - it's a verdict.",
+            'observer_msg': "The sharpened wood scrapes against {attacker_name}'s belt as it's drawn. This isn't showtime - it's a verdict."
         },
         {
             'attacker_msg': "The stake is already red at the tip. You plan to finish what someone else started.",
@@ -86,14 +86,14 @@ MESSAGES = {
             'observer_msg': "The weapon is crude, short, unforgiving. So is {attacker_name}'s stance."
         },
         {
-            'attacker_msg': "There's no balance in the tool — only trust. You give it both hands.",
-            'victim_msg': "There's no balance in the tool — only trust. {attacker_name} gives it both hands.",
-            'observer_msg': "There's no balance in the tool — only trust. {attacker_name} gives it both hands."
+            'attacker_msg': "There's no balance in the tool - only trust. You give it both hands.",
+            'victim_msg': "There's no balance in the tool - only trust. {attacker_name} gives it both hands.",
+            'observer_msg': "There's no balance in the tool - only trust. {attacker_name} gives it both hands."
         },
         {
-            'attacker_msg': "This isn't for hunting monsters — unless you count yourself.",
-            'victim_msg': "This isn't for hunting monsters — unless you count {attacker_name}.",
-            'observer_msg': "This isn't for hunting monsters — unless you count {attacker_name}."
+            'attacker_msg': "This isn't for hunting monsters - unless you count yourself.",
+            'victim_msg': "This isn't for hunting monsters - unless you count {attacker_name}.",
+            'observer_msg': "This isn't for hunting monsters - unless you count {attacker_name}."
         },
         {
             'attacker_msg': "With no flourish, you raise the stake like an accusation made real.",
@@ -111,9 +111,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} draws the stake slowly, the point gleaming with intent more than polish."
         },
         {
-            'attacker_msg': "You flip the crude stake between fingers, not fancy — just familiar.",
-            'victim_msg': "{attacker_name} flips the crude stake between fingers, not fancy — just familiar.",
-            'observer_msg': "{attacker_name} flips the crude stake between fingers, not fancy — just familiar."
+            'attacker_msg': "You flip the crude stake between fingers, not fancy - just familiar.",
+            'victim_msg': "{attacker_name} flips the crude stake between fingers, not fancy - just familiar.",
+            'observer_msg': "{attacker_name} flips the crude stake between fingers, not fancy - just familiar."
         },
         {
             'attacker_msg': "You grip the sharpened stake like a conviction. The wood is splintered but ready.",
@@ -131,9 +131,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} holds the stake low, almost reverent. The next movement will be the opposite."
         },
         {
-            'attacker_msg': "You level the point with a steady hand. It shakes — but not from fear.",
-            'victim_msg': "{attacker_name} levels the point with a steady hand. It shakes — but not from fear.",
-            'observer_msg': "{attacker_name} levels the point with a steady hand. It shakes — but not from fear."
+            'attacker_msg': "You level the point with a steady hand. It shakes - but not from fear.",
+            'victim_msg': "{attacker_name} levels the point with a steady hand. It shakes - but not from fear.",
+            'observer_msg': "{attacker_name} levels the point with a steady hand. It shakes - but not from fear."
         },
         {
             'attacker_msg': "You press the point into your palm once. The blood drawn isn't the first.",
@@ -141,9 +141,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} presses the point into their palm once. The blood drawn isn't the first."
         },
         {
-            'attacker_msg': "You roll the stake across your knuckles. The moment it stops — so do doubts.",
-            'victim_msg': "{attacker_name} rolls the stake across their knuckles. The moment it stops — so do doubts.",
-            'observer_msg': "{attacker_name} rolls the stake across their knuckles. The moment it stops — so do doubts."
+            'attacker_msg': "You roll the stake across your knuckles. The moment it stops - so do doubts.",
+            'victim_msg': "{attacker_name} rolls the stake across their knuckles. The moment it stops - so do doubts.",
+            'observer_msg': "{attacker_name} rolls the stake across their knuckles. The moment it stops - so do doubts."
         },
         {
             'attacker_msg': "You tap the sharpened end against your boot. It thuds like a countdown.",
@@ -168,9 +168,9 @@ MESSAGES = {
             'observer_msg': "A forward jab plants the point in {target_name}'s {hit_location}. They recoil violently."
         },
         {
-            'attacker_msg': "A hook with the stake's edge tears into the {hit_location} — not deep, but loud.",
-            'victim_msg': "A hook with the stake's edge tears into your {hit_location} — not deep, but loud.",
-            'observer_msg': "A hook with the stake's edge tears into the {hit_location} — not deep, but loud."
+            'attacker_msg': "A hook with the stake's edge tears into the {hit_location} - not deep, but loud.",
+            'victim_msg': "A hook with the stake's edge tears into your {hit_location} - not deep, but loud.",
+            'observer_msg': "A hook with the stake's edge tears into the {hit_location} - not deep, but loud."
         },
         {
             'attacker_msg': "A quick jab sinks into the soft meat above the {hit_location}. {target_name} shrieks and buckles.",
@@ -188,9 +188,9 @@ MESSAGES = {
             'observer_msg': "A savage jab punctures cloth and flesh. {target_name} doubles over, {hit_location} clutching red."
         },
         {
-            'attacker_msg': "A strike to the {hit_location} gouges flesh. {target_name}'s eye wells up — with blood, not tears.",
-            'victim_msg': "A strike to your {hit_location} gouges flesh. Your eye wells up — with blood, not tears.",
-            'observer_msg': "A strike to the {hit_location} gouges flesh. {target_name}'s eye wells up — with blood, not tears."
+            'attacker_msg': "A strike to the {hit_location} gouges flesh. {target_name}'s eye wells up - with blood, not tears.",
+            'victim_msg': "A strike to your {hit_location} gouges flesh. Your eye wells up - with blood, not tears.",
+            'observer_msg': "A strike to the {hit_location} gouges flesh. {target_name}'s eye wells up - with blood, not tears."
         },
         {
             'attacker_msg': "A thrust splits the {hit_location} of the {hit_location}. Blood fountains in a terrible rhythm.",

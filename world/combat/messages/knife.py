@@ -21,9 +21,9 @@ MESSAGES = {
             "observer_msg": "A hiss of metal against sheath. That's all it takes for {attacker_name} to let the knife start the conversation."
         },
         {
-            "attacker_msg": "You shift to a reverse grip, taking a slow breath. You hold the knife like a promise — and a threat.",
-            "victim_msg": "A reverse grip. A slow breath. {attacker_name} holds the knife like a promise — and a threat.",
-            "observer_msg": "A reverse grip. A slow breath. {attacker_name} holds the knife like a promise — and a threat."
+            "attacker_msg": "You shift to a reverse grip, taking a slow breath. You hold the knife like a promise - and a threat.",
+            "victim_msg": "A reverse grip. A slow breath. {attacker_name} holds the knife like a promise - and a threat.",
+            "observer_msg": "A reverse grip. A slow breath. {attacker_name} holds the knife like a promise - and a threat."
         },
         {
             "attacker_msg": "It's a small weapon for a personal job. You grip it like you're writing a final sentence.",
@@ -61,9 +61,9 @@ MESSAGES = {
             "observer_msg": "The blade is small, curved, and hungry. {attacker_name} twirls it once, then steadies their stance."
         },
         {
-            "attacker_msg": "Your blade is ugly — pitted, chipped, unforgiving. You don't mind. You prefer it that way.",
-            "victim_msg": "The blade is ugly — pitted, chipped, unforgiving. {attacker_name} doesn't mind. They prefer it that way.",
-            "observer_msg": "The blade is ugly — pitted, chipped, unforgiving. {attacker_name} doesn't mind. They prefer it that way."
+            "attacker_msg": "Your blade is ugly - pitted, chipped, unforgiving. You don't mind. You prefer it that way.",
+            "victim_msg": "The blade is ugly - pitted, chipped, unforgiving. {attacker_name} doesn't mind. They prefer it that way.",
+            "observer_msg": "The blade is ugly - pitted, chipped, unforgiving. {attacker_name} doesn't mind. They prefer it that way."
         },
         {
             "attacker_msg": "Your blade's edge glints once as you draw it slowly. There's no rush. There's only inevitability.",
@@ -96,24 +96,24 @@ MESSAGES = {
             "observer_msg": "The weapon gleams with recent use. {attacker_name} doesn't bother wiping it down. Why bother?"
         },
         {
-            "attacker_msg": "Your weapon's size makes it look harmless. You know better — and so will they.",
-            "victim_msg": "The weapon's size makes it look harmless. {attacker_name} knows better — and so will {target_name}.",
-            "observer_msg": "The weapon's size makes it look harmless. {attacker_name} knows better — and so will {target_name}."
+            "attacker_msg": "Your weapon's size makes it look harmless. You know better - and so will they.",
+            "victim_msg": "The weapon's size makes it look harmless. {attacker_name} knows better - and so will {target_name}.",
+            "observer_msg": "The weapon's size makes it look harmless. {attacker_name} knows better - and so will {target_name}."
         },
         {
-            "attacker_msg": "There's no smile, no flair — just a flash of silver in your palm. The knife does all the talking.",
-            "victim_msg": "There's no smile, no flair — just a flash of silver in {attacker_name}'s palm. The knife does all the talking.",
-            "observer_msg": "There's no smile, no flair — just a flash of silver in {attacker_name}'s palm. The knife does all the talking."
+            "attacker_msg": "There's no smile, no flair - just a flash of silver in your palm. The knife does all the talking.",
+            "victim_msg": "There's no smile, no flair - just a flash of silver in {attacker_name}'s palm. The knife does all the talking.",
+            "observer_msg": "There's no smile, no flair - just a flash of silver in {attacker_name}'s palm. The knife does all the talking."
         },
         {
-            "attacker_msg": "With one clean motion, you unsheathe the knife. The gleam on the edge is honest — and cruel.",
-            "victim_msg": "With one clean motion, {attacker_name} unsheathes the knife. The gleam on the edge is honest — and cruel.",
-            "observer_msg": "With one clean motion, {attacker_name} unsheathes the knife. The gleam on the edge is honest — and cruel."
+            "attacker_msg": "With one clean motion, you unsheathe the knife. The gleam on the edge is honest - and cruel.",
+            "victim_msg": "With one clean motion, {attacker_name} unsheathes the knife. The gleam on the edge is honest - and cruel.",
+            "observer_msg": "With one clean motion, {attacker_name} unsheathes the knife. The gleam on the edge is honest - and cruel."
         },
         {
-            "attacker_msg": "You draw the knife from your boot with a smooth, silent motion. It's not showy — it's certain.",
-            "victim_msg": "{attacker_name} draws the knife from their boot with a smooth, silent motion. It's not showy — it's certain.",
-            "observer_msg": "{attacker_name} draws the knife from their boot with a smooth, silent motion. It's not showy — it's certain."
+            "attacker_msg": "You draw the knife from your boot with a smooth, silent motion. It's not showy - it's certain.",
+            "victim_msg": "{attacker_name} draws the knife from their boot with a smooth, silent motion. It's not showy - it's certain.",
+            "observer_msg": "{attacker_name} draws the knife from their boot with a smooth, silent motion. It's not showy - it's certain."
         },
         {
             "attacker_msg": "You draw the knife so smoothly it's like it was always in your hand, just waiting to be noticed.",
@@ -121,9 +121,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} draws the knife so smoothly it's like it was always in hand, just waiting to be noticed."
         },
         {
-            "attacker_msg": "You flick the knife into a reverse grip, holding it low and loose. The real grip is tighter — in your eyes.",
-            "victim_msg": "{attacker_name} flicks the knife into a reverse grip, holding it low and loose. The real grip is tighter — in their eyes.",
-            "observer_msg": "{attacker_name} flicks the knife into a reverse grip, holding it low and loose. The real grip is tighter — in their eyes."
+            "attacker_msg": "You flick the knife into a reverse grip, holding it low and loose. The real grip is tighter - in your eyes.",
+            "victim_msg": "{attacker_name} flicks the knife into a reverse grip, holding it low and loose. The real grip is tighter - in their eyes.",
+            "observer_msg": "{attacker_name} flicks the knife into a reverse grip, holding it low and loose. The real grip is tighter - in their eyes."
         },
         {
             "attacker_msg": "You flip the knife between your fingers, blade flashing like a secret kept too long.",
@@ -168,9 +168,9 @@ MESSAGES = {
             "observer_msg": "The knife lands in the {hit_location} and sticks. {attacker_name} twists it once before pulling back."
         },
         {
-            "attacker_msg": "Your knife lands in the side of their {hit_location}. Not fatal — yet. But close enough to ruin everything.",
-            "victim_msg": "The knife lands in the side of your {hit_location}. Not fatal — yet. But close enough to ruin everything.",
-            "observer_msg": "The knife lands in the side of the {hit_location}. Not fatal — yet. But close enough to ruin everything."
+            "attacker_msg": "Your knife lands in the side of their {hit_location}. Not fatal - yet. But close enough to ruin everything.",
+            "victim_msg": "The knife lands in the side of your {hit_location}. Not fatal - yet. But close enough to ruin everything.",
+            "observer_msg": "The knife lands in the side of the {hit_location}. Not fatal - yet. But close enough to ruin everything."
         },
         {
             "attacker_msg": "Your knife slices across {target_name}'s {hit_location}. A red ribbon follows instantly.",
@@ -178,14 +178,14 @@ MESSAGES = {
             "observer_msg": "The knife slices across {target_name}'s {hit_location}. A red ribbon follows instantly."
         },
         {
-            "attacker_msg": "Your knife slices along {target_name}'s {hit_location}, not deep — just enough to make them scream.",
-            "victim_msg": "The knife slices along your {hit_location}, not deep — just enough to scream.",
-            "observer_msg": "The knife slices along {target_name}'s {hit_location}, not deep — just enough to scream."
+            "attacker_msg": "Your knife slices along {target_name}'s {hit_location}, not deep - just enough to make them scream.",
+            "victim_msg": "The knife slices along your {hit_location}, not deep - just enough to scream.",
+            "observer_msg": "The knife slices along {target_name}'s {hit_location}, not deep - just enough to scream."
         },
         {
-            "attacker_msg": "The point punctures {target_name}'s {hit_location}. Not fatal — but it ruins their grip.",
-            "victim_msg": "The point punctures your {hit_location}. Not fatal — but it ruins your grip.",
-            "observer_msg": "The point punctures {target_name}'s {hit_location}. Not fatal — but it ruins their grip."
+            "attacker_msg": "The point punctures {target_name}'s {hit_location}. Not fatal - but it ruins their grip.",
+            "victim_msg": "The point punctures your {hit_location}. Not fatal - but it ruins your grip.",
+            "observer_msg": "The point punctures {target_name}'s {hit_location}. Not fatal - but it ruins their grip."
         },
         {
             "attacker_msg": "Your stab lands in their {hit_location}. The pull leaves a longer wound than it made.",
@@ -223,9 +223,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} jams the knife into the {hit_location} and pulls sideways. Red floods the ground."
         },
         {
-            "attacker_msg": "You slash across their {hit_location}. The cut is shallow — but the pain is not.",
-            "victim_msg": "{attacker_name} slashes across your {hit_location}. The cut is shallow — but the pain is not.",
-            "observer_msg": "{attacker_name} slashes across the {hit_location}. The cut is shallow — but the pain is not."
+            "attacker_msg": "You slash across their {hit_location}. The cut is shallow - but the pain is not.",
+            "victim_msg": "{attacker_name} slashes across your {hit_location}. The cut is shallow - but the pain is not.",
+            "observer_msg": "{attacker_name} slashes across the {hit_location}. The cut is shallow - but the pain is not."
         },
         {
             "attacker_msg": "You slice open the side of their {hit_location}. Not enough to kill. Just enough to terrify.",
@@ -330,9 +330,9 @@ MESSAGES = {
             "observer_msg": "The knife darts forward, but {target_name} twists away just in time."
         },
         {
-            "attacker_msg": "Your knife skates over their shoulder. No blood — this time.",
-            "victim_msg": "The knife skates over your shoulder. No blood — this time.",
-            "observer_msg": "The knife skates over a shoulder. No blood — this time."
+            "attacker_msg": "Your knife skates over their shoulder. No blood - this time.",
+            "victim_msg": "The knife skates over your shoulder. No blood - this time.",
+            "observer_msg": "The knife skates over a shoulder. No blood - this time."
         },
         {
             "attacker_msg": "Your knife skips off a metal beam. A screech of protest fills the air.",
@@ -365,9 +365,9 @@ MESSAGES = {
             "observer_msg": "{attacker_name} jabs forward, but {target_name} sidesteps. The knife follows a memory instead of flesh."
         },
         {
-            "attacker_msg": "You lunge — too far. Your knife flashes past with menace but no contact.",
-            "victim_msg": "{attacker_name} lunges — too far. The knife flashes past with menace but no contact.",
-            "observer_msg": "{attacker_name} lunges — too far. The knife flashes past with menace but no contact."
+            "attacker_msg": "You lunge - too far. Your knife flashes past with menace but no contact.",
+            "victim_msg": "{attacker_name} lunges - too far. The knife flashes past with menace but no contact.",
+            "observer_msg": "{attacker_name} lunges - too far. The knife flashes past with menace but no contact."
         },
         {
             "attacker_msg": "You slash wide. Your blade sings, but it doesn't bite.",
@@ -447,9 +447,9 @@ MESSAGES = {
             "observer_msg": "The blade disappears into {target_name}'s eye. They drop before anyone sees them fall."
         },
         {
-            "attacker_msg": "Your blade finds the base of their spine. {target_name} seizes — then slumps like an unplugged puppet.",
-            "victim_msg": "The blade finds the base of your spine. You seize — then slump like an unplugged puppet.",
-            "observer_msg": "The blade finds the base of the spine. {target_name} seizes — then slumps like an unplugged puppet."
+            "attacker_msg": "Your blade finds the base of their spine. {target_name} seizes - then slumps like an unplugged puppet.",
+            "victim_msg": "The blade finds the base of your spine. You seize - then slump like an unplugged puppet.",
+            "observer_msg": "The blade finds the base of the spine. {target_name} seizes - then slumps like an unplugged puppet."
         },
         {
             "attacker_msg": "Your blade slashes across their neck. Blood erupts like a fountain of silence.",
@@ -477,9 +477,9 @@ MESSAGES = {
             "observer_msg": "The knife draws across the belly. {target_name} looks down. Then topples sideways in disbelief."
         },
         {
-            "attacker_msg": "Your knife drives into their throat. {target_name} chokes, stumbles, and falls — eyes wide, mouth red.",
-            "victim_msg": "The knife drives into your throat. You choke, stumble, and fall — eyes wide, mouth red.",
-            "observer_msg": "The knife drives into the throat. {target_name} chokes, stumbles, and falls — eyes wide, mouth red."
+            "attacker_msg": "Your knife drives into their throat. {target_name} chokes, stumbles, and falls - eyes wide, mouth red.",
+            "victim_msg": "The knife drives into your throat. You choke, stumble, and fall - eyes wide, mouth red.",
+            "observer_msg": "The knife drives into the throat. {target_name} chokes, stumbles, and falls - eyes wide, mouth red."
         },
         {
             "attacker_msg": "Your knife slices up into their spine. {target_name} drops with a strange gasp and no control.",
@@ -487,9 +487,9 @@ MESSAGES = {
             "observer_msg": "The knife slices up into the spine. {target_name} drops with a strange gasp and no control."
         },
         {
-            "attacker_msg": "Your last stab lands center mass. The end isn't pretty — but it is permanent.",
-            "victim_msg": "The last stab lands center mass. The end isn't pretty — but it is permanent.",
-            "observer_msg": "The last stab lands center mass. The end isn't pretty — but it is permanent."
+            "attacker_msg": "Your last stab lands center mass. The end isn't pretty - but it is permanent.",
+            "victim_msg": "The last stab lands center mass. The end isn't pretty - but it is permanent.",
+            "observer_msg": "The last stab lands center mass. The end isn't pretty - but it is permanent."
         },
         {
             "attacker_msg": "Your weapon carves deep into their chest cavity. {target_name} groans, then slides down the wall.",

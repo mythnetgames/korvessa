@@ -6,9 +6,9 @@ MESSAGES = {
             'observer_msg': "A casual swing arcs through the air. The baton knows the way."
         },
         {
-            'attacker_msg': "A crackling grip and a slow breath — you lift the nightstick. The conversation's over.",
-            'victim_msg': "A crackling grip and a slow breath — {attacker_name} lifts the nightstick. The conversation's over.",
-            'observer_msg': "A crackling grip and a slow breath — {attacker_name} lifts the nightstick. The conversation's over."
+            'attacker_msg': "A crackling grip and a slow breath - you lift the nightstick. The conversation's over.",
+            'victim_msg': "A crackling grip and a slow breath - {attacker_name} lifts the nightstick. The conversation's over.",
+            'observer_msg': "A crackling grip and a slow breath - {attacker_name} lifts the nightstick. The conversation's over."
         },
         {
             'attacker_msg': "A flick of the wrist and the stick slides into position. You already know what you'll hit.",
@@ -16,9 +16,9 @@ MESSAGES = {
             'observer_msg': "A flick of the wrist and the stick slides into position. {attacker_name} already knows what they'll hit."
         },
         {
-            'attacker_msg': "A slow breath, a snap of the wrist — the nightstick responds like it was born for this.",
-            'victim_msg': "A slow breath, a snap of the wrist — the nightstick responds like it was born for this.",
-            'observer_msg': "A slow breath, a snap of the wrist — the nightstick responds like it was born for this."
+            'attacker_msg': "A slow breath, a snap of the wrist - the nightstick responds like it was born for this.",
+            'victim_msg': "A slow breath, a snap of the wrist - the nightstick responds like it was born for this.",
+            'observer_msg': "A slow breath, a snap of the wrist - the nightstick responds like it was born for this."
         },
         {
             'attacker_msg': "It's light, it's fast, it's familiar. You grip the nightstick like it's part of your skeleton.",
@@ -26,9 +26,9 @@ MESSAGES = {
             'observer_msg': "It's light, it's fast, it's familiar. {attacker_name} grips the nightstick like it's part of their skeleton."
         },
         {
-            'attacker_msg': "No blade, no edge — just blunt certainty. You hold it like a promise.",
-            'victim_msg': "No blade, no edge — just blunt certainty. {attacker_name} holds it like a promise.",
-            'observer_msg': "No blade, no edge — just blunt certainty. {attacker_name} holds it like a promise."
+            'attacker_msg': "No blade, no edge - just blunt certainty. You hold it like a promise.",
+            'victim_msg': "No blade, no edge - just blunt certainty. {attacker_name} holds it like a promise.",
+            'observer_msg': "No blade, no edge - just blunt certainty. {attacker_name} holds it like a promise."
         },
         {
             'attacker_msg': "No blade. No blood yet. Just a rod and intent. You move like punishment is a foregone conclusion.",
@@ -36,9 +36,9 @@ MESSAGES = {
             'observer_msg': "No blade. No blood yet. Just a rod and intent. {attacker_name} moves like punishment is a foregone conclusion."
         },
         {
-            'attacker_msg': "The baton doesn't shine. It absorbs the light around it — like it knows what's coming.",
-            'victim_msg': "The baton doesn't shine. It absorbs the light around it — like it knows what's coming.",
-            'observer_msg': "The baton doesn't shine. It absorbs the light around it — like it knows what's coming."
+            'attacker_msg': "The baton doesn't shine. It absorbs the light around it - like it knows what's coming.",
+            'victim_msg': "The baton doesn't shine. It absorbs the light around it - like it knows what's coming.",
+            'observer_msg': "The baton doesn't shine. It absorbs the light around it - like it knows what's coming."
         },
         {
             'attacker_msg': "The baton extends with a hiss and a clack. You hold it like a sentence about to be carried out.",
@@ -61,9 +61,9 @@ MESSAGES = {
             'observer_msg': "The nightstick rests against {attacker_name}'s forearm, a calm before a storm made of plastic and pain."
         },
         {
-            'attacker_msg': "The nightstick spins once before locking into place. You don't look down — only forward.",
-            'victim_msg': "The nightstick spins once before locking into place. {attacker_name} doesn't look down — only forward.",
-            'observer_msg': "The nightstick spins once before locking into place. {attacker_name} doesn't look down — only forward."
+            'attacker_msg': "The nightstick spins once before locking into place. You don't look down - only forward.",
+            'victim_msg': "The nightstick spins once before locking into place. {attacker_name} doesn't look down - only forward.",
+            'observer_msg': "The nightstick spins once before locking into place. {attacker_name} doesn't look down - only forward."
         },
         {
             'attacker_msg': "The polymer baton spins once in your hand. You catch it without looking.",
@@ -71,9 +71,9 @@ MESSAGES = {
             'observer_msg': "The polymer baton spins once in {attacker_name}'s hand. They catch it without looking."
         },
         {
-            'attacker_msg': "The weapon extends with the practiced precision of someone who's done this before — and enjoyed it.",
-            'victim_msg': "The weapon extends with the practiced precision of someone who's done this before — and enjoyed it.",
-            'observer_msg': "The weapon extends with the practiced precision of someone who's done this before — and enjoyed it."
+            'attacker_msg': "The weapon extends with the practiced precision of someone who's done this before - and enjoyed it.",
+            'victim_msg': "The weapon extends with the practiced precision of someone who's done this before - and enjoyed it.",
+            'observer_msg': "The weapon extends with the practiced precision of someone who's done this before - and enjoyed it."
         },
         {
             'attacker_msg': "The weapon is deceptively plain. In your hand, it becomes doctrine.",
@@ -101,9 +101,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} flips the nightstick once in their grip. The movement is automatic, final."
         },
         {
-            'attacker_msg': "You hold the baton loosely at first — then tighten your grip with a sound like bone under stress.",
-            'victim_msg': "{attacker_name} holds the baton loosely at first — then tightens their grip with a sound like bone under stress.",
-            'observer_msg': "{attacker_name} holds the baton loosely at first — then tightens their grip with a sound like bone under stress."
+            'attacker_msg': "You hold the baton loosely at first - then tighten your grip with a sound like bone under stress.",
+            'victim_msg': "{attacker_name} holds the baton loosely at first - then tightens their grip with a sound like bone under stress.",
+            'observer_msg': "{attacker_name} holds the baton loosely at first - then tightens their grip with a sound like bone under stress."
         },
         {
             'attacker_msg': "You hold the nightstick like a judge holds a gavel. The verdict is violence.",
@@ -131,14 +131,14 @@ MESSAGES = {
             'observer_msg': "{attacker_name} slides the baton from its loop and taps it once on their palm. Steel meeting flesh."
         },
         {
-            'attacker_msg': "You slide the nightstick free with a sharp snap. It's not for ceremony — it's for correction.",
-            'victim_msg': "{attacker_name} slides the nightstick free with a sharp snap. It's not for ceremony — it's for correction.",
-            'observer_msg': "{attacker_name} slides the nightstick free with a sharp snap. It's not for ceremony — it's for correction."
+            'attacker_msg': "You slide the nightstick free with a sharp snap. It's not for ceremony - it's for correction.",
+            'victim_msg': "{attacker_name} slides the nightstick free with a sharp snap. It's not for ceremony - it's for correction.",
+            'observer_msg': "{attacker_name} slides the nightstick free with a sharp snap. It's not for ceremony - it's for correction."
         },
         {
-            'attacker_msg': "You spin the nightstick in a slow circle, testing weight, distance, control — all dialed in.",
-            'victim_msg': "{attacker_name} spins the nightstick in a slow circle, testing weight, distance, control — all dialed in.",
-            'observer_msg': "{attacker_name} spins the nightstick in a slow circle, testing weight, distance, control — all dialed in."
+            'attacker_msg': "You spin the nightstick in a slow circle, testing weight, distance, control - all dialed in.",
+            'victim_msg': "{attacker_name} spins the nightstick in a slow circle, testing weight, distance, control - all dialed in.",
+            'observer_msg': "{attacker_name} spins the nightstick in a slow circle, testing weight, distance, control - all dialed in."
         },
         {
             'attacker_msg': "You tap the nightstick against your leg. Each knock feels like a countdown.",
@@ -273,9 +273,9 @@ MESSAGES = {
             'observer_msg': "{attacker_name} crashes the stick into the {hit_location} of {target_name}'s {hit_location}. They topple like bad scaffolding."
         },
         {
-            'attacker_msg': "You drive the baton into {target_name}'s {hit_location}. The breath leaves their lungs — and doesn't come {hit_location} quickly.",
-            'victim_msg': "{attacker_name} drives the baton into your {hit_location}. The breath leaves your lungs — and doesn't come {hit_location} quickly.",
-            'observer_msg': "{attacker_name} drives the baton into {target_name}'s {hit_location}. The breath leaves their lungs — and doesn't come {hit_location} quickly."
+            'attacker_msg': "You drive the baton into {target_name}'s {hit_location}. The breath leaves their lungs - and doesn't come {hit_location} quickly.",
+            'victim_msg': "{attacker_name} drives the baton into your {hit_location}. The breath leaves your lungs - and doesn't come {hit_location} quickly.",
+            'observer_msg': "{attacker_name} drives the baton into {target_name}'s {hit_location}. The breath leaves their lungs - and doesn't come {hit_location} quickly."
         },
         {
             'attacker_msg': "You drive the nightstick into {target_name}'s {hit_location}. The sound is thick. The effect immediate.",
@@ -310,9 +310,9 @@ MESSAGES = {
             'observer_msg': "A forward thrust misses wide. {target_name} watches the stick pass like a storm narrowly missed."
         },
         {
-            'attacker_msg': "A heavy blow catches a table leg. The furniture loses. {target_name} doesn't — yet.",
-            'victim_msg': "A heavy blow catches a table leg. The furniture loses. You don't — yet.",
-            'observer_msg': "A heavy blow catches a table leg. The furniture loses. {target_name} doesn't — yet."
+            'attacker_msg': "A heavy blow catches a table leg. The furniture loses. {target_name} doesn't - yet.",
+            'victim_msg': "A heavy blow catches a table leg. The furniture loses. You don't - yet.",
+            'observer_msg': "A heavy blow catches a table leg. The furniture loses. {target_name} doesn't - yet."
         },
         {
             'attacker_msg': "A high arc misses by inches. The tension it leaves lingers longer.",
@@ -320,9 +320,9 @@ MESSAGES = {
             'observer_msg': "A high arc misses by inches. The tension it leaves lingers longer."
         },
         {
-            'attacker_msg': "A horizontal swing smashes into a desk. The desk folds. {target_name} doesn't — yet.",
-            'victim_msg': "A horizontal swing smashes into a desk. The desk folds. You don't — yet.",
-            'observer_msg': "A horizontal swing smashes into a desk. The desk folds. {target_name} doesn't — yet."
+            'attacker_msg': "A horizontal swing smashes into a desk. The desk folds. {target_name} doesn't - yet.",
+            'victim_msg': "A horizontal swing smashes into a desk. The desk folds. You don't - yet.",
+            'observer_msg': "A horizontal swing smashes into a desk. The desk folds. {target_name} doesn't - yet."
         },
         {
             'attacker_msg': "A low jab hits a bench instead of a shin. The wood gives. Flesh was luckier.",
@@ -330,9 +330,9 @@ MESSAGES = {
             'observer_msg': "A low jab hits a bench instead of a shin. The wood gives. Flesh was luckier."
         },
         {
-            'attacker_msg': "A low strike hits a step instead of an ankle. It leaves a mark — just not the one you wanted.",
-            'victim_msg': "A low strike hits a step instead of an ankle. It leaves a mark — just not the one {attacker_name} wanted.",
-            'observer_msg': "A low strike hits a step instead of an ankle. It leaves a mark — just not the one {attacker_name} wanted."
+            'attacker_msg': "A low strike hits a step instead of an ankle. It leaves a mark - just not the one you wanted.",
+            'victim_msg': "A low strike hits a step instead of an ankle. It leaves a mark - just not the one {attacker_name} wanted.",
+            'observer_msg': "A low strike hits a step instead of an ankle. It leaves a mark - just not the one {attacker_name} wanted."
         },
         {
             'attacker_msg': "A side strike clips a coat rack. It topples. {target_name} doesn't.",
@@ -345,9 +345,9 @@ MESSAGES = {
             'observer_msg': "A tight arc clips a chair leg. The furniture loses its footing."
         },
         {
-            'attacker_msg': "A wide swing bounces off a wall, leaving a dent — and a warning.",
-            'victim_msg': "A wide swing bounces off a wall, leaving a dent — and a warning.",
-            'observer_msg': "A wide swing bounces off a wall, leaving a dent — and a warning."
+            'attacker_msg': "A wide swing bounces off a wall, leaving a dent - and a warning.",
+            'victim_msg': "A wide swing bounces off a wall, leaving a dent - and a warning.",
+            'observer_msg': "A wide swing bounces off a wall, leaving a dent - and a warning."
         },
         {
             'attacker_msg': "One overhead strike crashes into the floor. {target_name} side-steps with a shiver.",
@@ -512,9 +512,9 @@ MESSAGES = {
             'observer_msg': "One clean jab to {target_name}'s temple. They drop like a string was cut."
         },
         {
-            'attacker_msg': "One spinning strike. The stick collides with the base of {target_name}'s skull. They go stiff — then limp.",
-            'victim_msg': "One spinning strike. The stick collides with the base of your skull. You go stiff — then limp.",
-            'observer_msg': "One spinning strike. The stick collides with the base of {target_name}'s skull. They go stiff — then limp."
+            'attacker_msg': "One spinning strike. The stick collides with the base of {target_name}'s skull. They go stiff - then limp.",
+            'victim_msg': "One spinning strike. The stick collides with the base of your skull. You go stiff - then limp.",
+            'observer_msg': "One spinning strike. The stick collides with the base of {target_name}'s skull. They go stiff - then limp."
         },
         {
             'attacker_msg': "One upward jab to {target_name}'s jaw. Their neck snaps. Their eyes don't blink again.",
@@ -537,9 +537,9 @@ MESSAGES = {
             'observer_msg': "The baton breaks {target_name}'s jaw, the rhythm, the resistance. They go down and don't rise."
         },
         {
-            'attacker_msg': "The baton caves in the side of {target_name}'s skull. They don't fall — they drop like dead weight.",
-            'victim_msg': "The baton caves in the side of your skull. You don't fall — you drop like dead weight.",
-            'observer_msg': "The baton caves in the side of {target_name}'s skull. They don't fall — they drop like dead weight."
+            'attacker_msg': "The baton caves in the side of {target_name}'s skull. They don't fall - they drop like dead weight.",
+            'victim_msg': "The baton caves in the side of your skull. You don't fall - you drop like dead weight.",
+            'observer_msg': "The baton caves in the side of {target_name}'s skull. They don't fall - they drop like dead weight."
         },
         {
             'attacker_msg': "The baton comes down like a gavel. Final. {target_name} doesn't appeal.",
