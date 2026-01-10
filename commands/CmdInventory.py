@@ -370,8 +370,12 @@ class CmdInventory(Command):
         if hasattr(obj, 'db') and getattr(obj.db, 'weapon_type', None):
             return True
         # Has damage_bonus
-        if hasattr(obj, 'db') and getattr(obj.db, 'damage_bonus', 0) > 0:
-            return True
+        if hasattr(obj, 'db'):
+            dmg = getattr(obj.db, 'damage_bonus', 0)
+            if dmg is None:
+                dmg = 0
+            if dmg > 0:
+                return True
         # Has is_ranged
         if hasattr(obj, 'db') and getattr(obj.db, 'is_ranged', False):
             return True
