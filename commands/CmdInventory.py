@@ -546,6 +546,24 @@ class CmdDrop(Command):
             caller.msg("You aren't carrying or holding that.")
             return
         
+        # Special handling for TestDummy NPCs that somehow got into hands
+        from typeclasses.test_dummy import TestDummy
+        if isinstance(obj, TestDummy):
+            # Force remove from hands
+            for hand, item in caller.hands.items():
+                if item == obj:
+                    caller.hands[hand] = None
+                    break
+            
+            # Force move to room using the dummy's override move_to method
+            success = obj.move_to(caller.location, quiet=True)
+            if success:
+                caller.msg(f"You release {obj.get_display_name(caller)} and it falls to the ground.")
+                caller.location.msg_contents(f"{caller.key} releases {obj.get_display_name(caller)} and it falls to the ground.", exclude=caller)
+            else:
+                caller.msg(f"Something prevents you from releasing {obj.get_display_name(caller)}.")
+            return
+        
         # Check if item is currently worn
         if hasattr(caller, 'is_item_worn') and caller.is_item_worn(obj):
             caller.msg("You can't drop something you're wearing. Remove it first.")
@@ -661,8 +679,9 @@ class CmdGet(Command):
         if not item:
             return
 
-        # Only allow picking up actual items
-        if not isinstance(item, Item):
+        # Only allow picking up actual items (with special case for test dummies)
+        from typeclasses.test_dummy import TestDummy
+        if not isinstance(item, Item) and not isinstance(item, TestDummy):
             caller.msg(f"You can't pick up {item.get_display_name(caller)}.")
             return
 
