@@ -73,6 +73,20 @@ to its neutral stance between attacks.
         super().at_init()
         self.db.is_active = True
     
+    def at_object_delete(self):
+        """Clean up when test dummy is deleted."""
+        # Cancel any pending auto-revive callbacks
+        # Store the callback handle in ndb so we can cancel it on deletion
+        if hasattr(self.ndb, '_revive_callback'):
+            try:
+                # Remove the scheduled callback
+                self.ndb._revive_callback.remove()
+            except Exception:
+                pass  # Callback may have already fired
+        
+        # Call parent's at_object_delete for normal cleanup
+        super().at_object_delete()
+    
     def at_death(self):
         """
         Handle dummy death - auto-revive after 5 seconds instead of normal death.
@@ -104,7 +118,9 @@ to its neutral stance between attacks.
             pass
         
         # Schedule auto-revive
-        delay(5.0, self._auto_revive)
+        # Store the callback handle so we can cancel it if the dummy is deleted
+        callback = delay(5.0, self._auto_revive)
+        self.ndb._revive_callback = callback
     
     def _auto_revive(self):
         """Auto-revive and heal the test dummy using full_heal."""
