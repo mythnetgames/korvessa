@@ -79,6 +79,10 @@ def node_npc_main(caller, raw_string, **kwargs):
 
 def node_npc_set_name(caller, raw_string, **kwargs):
     if raw_string:
+        # Prevent numeric menu selection from being set as name
+        if raw_string.isdigit():
+            caller.msg("|rPlease enter a valid name, not a number.|n")
+            return "Enter NPC name:", []
         _npc_data(caller).update({'name': raw_string})
         caller.msg(f"|gNPC name set to: {raw_string}|n")
         return node_npc_main(caller, raw_string, **kwargs)
