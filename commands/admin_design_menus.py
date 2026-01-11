@@ -1,6 +1,7 @@
 # =============================
 # SPAWN NPC FROM SAVED DESIGN COMMAND
 from evennia import create_object
+from evennia import Command
 
 class CmdSpawnNPCDesign(Command):
     """
