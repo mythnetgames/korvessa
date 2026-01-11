@@ -652,11 +652,9 @@ def node_quit(caller, raw_string, **kwargs):
 
 # NPC Design Command
 class CmdNPCDesignMenu(Command):
-    """
-    Launch the NPC design menu for builders/admins.
-    Usage:
-        npcdesign
-    """
+    # Launch the NPC design menu for builders/admins.
+    # Usage:
+    #     npcdesign
     key = "npcdesign"
     locks = "cmd:perm(Builder)"
     help_category = "Building"
