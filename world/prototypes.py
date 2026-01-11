@@ -2265,6 +2265,671 @@ CERAMIC_PLATES = {
     ],
 }
 
+# =============================================================================
+# TIERED ARMOR SYSTEM - Mix and Match Protection
+# =============================================================================
+# 5 Tiers: Scrap (1-2), Makeshift (3-4), Standard (5-6), Reinforced (7-8), Military (9-10)
+# 5 Slots: Head, Torso, Arms, Legs, Feet
+# Spawn individual pieces or full sets (e.g., @spawn SCRAP_ARMOR_SET)
+# =============================================================================
+
+# Base armor prototype for spawn permissions
+TIERED_ARMOR_BASE = {
+    "typeclass": "typeclasses.items.Item",
+    "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
+}
+
+# =============================================================================
+# TIER 1: SCRAP ARMOR (Rating 2) - Improvised from junk and scraps
+# =============================================================================
+
+SCRAP_HELMET = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "scrap helmet",
+    "aliases": ["scrap head", "junk helmet", "improvised helmet"],
+    "desc": "A crude helmet cobbled together from scrap metal and leather scraps. Dented panels are held together with wire and rivets. It's ugly, but it might save your skull.",
+    "attrs": [
+        ("coverage", ["head"]),
+        ("worn_desc", "A battered {color}rust-brown|n scrap helmet held together with wire and rivets, its dented metal panels offering crude but functional protection"),
+        ("layer", 3),
+        ("color", "rust"),
+        ("material", "scrap_metal"),
+        ("weight", 1.2),
+        ("armor_rating", 2),
+        ("armor_type", "steel"),
+        ("armor_durability", 40),
+        ("max_armor_durability", 40),
+        ("base_armor_rating", 2),
+        ("armor_tier", "scrap"),
+        ("metal_level", 6),
+        ("magnetic_level", 5),
+    ],
+}
+
+SCRAP_VEST = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "scrap vest",
+    "aliases": ["scrap torso", "junk vest", "improvised vest"],
+    "desc": "A vest of overlapping scrap metal plates sewn onto a leather backing. The mismatched panels clank together when you move, but they'll stop a knife.",
+    "attrs": [
+        ("coverage", ["chest", "back", "abdomen"]),
+        ("worn_desc", "A clanking {color}rust-brown|n scrap vest made of overlapping metal plates on leather backing, its mismatched panels offering street-level protection"),
+        ("layer", 3),
+        ("color", "rust"),
+        ("material", "scrap_metal"),
+        ("weight", 4.5),
+        ("armor_rating", 2),
+        ("armor_type", "steel"),
+        ("armor_durability", 40),
+        ("max_armor_durability", 40),
+        ("base_armor_rating", 2),
+        ("armor_tier", "scrap"),
+        ("deflection_bonus", -0.05),
+        ("metal_level", 7),
+        ("magnetic_level", 6),
+    ],
+}
+
+SCRAP_BRACERS = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "scrap bracers",
+    "aliases": ["scrap arms", "junk bracers", "improvised bracers"],
+    "desc": "Crude arm guards fashioned from scrap metal strips and leather straps. The edges are rough and the fit is poor, but they'll deflect a blade.",
+    "attrs": [
+        ("coverage", ["left_arm", "right_arm"]),
+        ("worn_desc", "Crude {color}rust-brown|n scrap bracers wrapped around {their} forearms, rough metal strips offering basic protection against glancing blows"),
+        ("layer", 3),
+        ("color", "rust"),
+        ("material", "scrap_metal"),
+        ("weight", 1.8),
+        ("armor_rating", 2),
+        ("armor_type", "steel"),
+        ("armor_durability", 40),
+        ("max_armor_durability", 40),
+        ("base_armor_rating", 2),
+        ("armor_tier", "scrap"),
+        ("metal_level", 5),
+        ("magnetic_level", 4),
+    ],
+}
+
+SCRAP_GREAVES = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "scrap greaves",
+    "aliases": ["scrap legs", "junk greaves", "improvised greaves"],
+    "desc": "Leg armor made from salvaged metal sheets strapped to leather padding. The straps are fraying and the metal is dented, but it's better than nothing.",
+    "attrs": [
+        ("coverage", ["left_thigh", "right_thigh", "left_shin", "right_shin"]),
+        ("worn_desc", "Battered {color}rust-brown|n scrap greaves strapped to {their} legs, salvaged metal sheets offering crude protection from knee to thigh"),
+        ("layer", 3),
+        ("color", "rust"),
+        ("material", "scrap_metal"),
+        ("weight", 3.2),
+        ("armor_rating", 2),
+        ("armor_type", "steel"),
+        ("armor_durability", 40),
+        ("max_armor_durability", 40),
+        ("base_armor_rating", 2),
+        ("armor_tier", "scrap"),
+        ("metal_level", 6),
+        ("magnetic_level", 5),
+    ],
+}
+
+SCRAP_BOOTS = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "scrap boots",
+    "aliases": ["scrap feet", "junk boots", "improvised boots"],
+    "desc": "Heavy boots reinforced with scrap metal plates over the toes and ankles. They're clunky and loud, but they'll protect your feet from debris and blows.",
+    "attrs": [
+        ("coverage", ["left_foot", "right_foot"]),
+        ("worn_desc", "Clunky {color}rust-brown|n scrap boots with metal plates protecting toes and ankles, their heavy construction trading stealth for durability"),
+        ("layer", 3),
+        ("color", "rust"),
+        ("material", "scrap_metal"),
+        ("weight", 2.0),
+        ("armor_rating", 2),
+        ("armor_type", "steel"),
+        ("armor_durability", 40),
+        ("max_armor_durability", 40),
+        ("base_armor_rating", 2),
+        ("armor_tier", "scrap"),
+        ("metal_level", 5),
+        ("magnetic_level", 4),
+    ],
+}
+
+# =============================================================================
+# TIER 2: MAKESHIFT ARMOR (Rating 4) - Crafted from available materials
+# =============================================================================
+
+MAKESHIFT_HELMET = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "makeshift helmet",
+    "aliases": ["leather helmet", "padded helmet", "crafted helmet"],
+    "desc": "A helmet constructed from layered leather and padding with a few metal reinforcements at key points. Not pretty, but competently made.",
+    "attrs": [
+        ("coverage", ["head"]),
+        ("worn_desc", "A functional {color}dark brown|n makeshift helmet of layered leather and padding, metal reinforcements at the crown and temples providing reasonable protection"),
+        ("layer", 3),
+        ("color", "brown"),
+        ("material", "leather"),
+        ("weight", 1.0),
+        ("armor_rating", 4),
+        ("armor_type", "leather"),
+        ("armor_durability", 80),
+        ("max_armor_durability", 80),
+        ("base_armor_rating", 4),
+        ("armor_tier", "makeshift"),
+        ("metal_level", 3),
+        ("magnetic_level", 2),
+    ],
+}
+
+MAKESHIFT_VEST = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "makeshift vest",
+    "aliases": ["leather vest", "padded vest", "crafted vest"],
+    "desc": "A vest of thick, layered leather with quilted padding beneath. Metal studs reinforce vital areas. Flexible enough for movement while offering decent protection.",
+    "attrs": [
+        ("coverage", ["chest", "back", "abdomen"]),
+        ("worn_desc", "A well-crafted {color}dark brown|n makeshift vest of layered leather and quilted padding, metal studs reinforcing vital areas while maintaining flexibility"),
+        ("layer", 3),
+        ("color", "brown"),
+        ("material", "leather"),
+        ("weight", 3.5),
+        ("armor_rating", 4),
+        ("armor_type", "leather"),
+        ("armor_durability", 80),
+        ("max_armor_durability", 80),
+        ("base_armor_rating", 4),
+        ("armor_tier", "makeshift"),
+        ("deflection_bonus", 0.0),
+        ("metal_level", 3),
+        ("magnetic_level", 2),
+    ],
+}
+
+MAKESHIFT_BRACERS = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "makeshift bracers",
+    "aliases": ["leather bracers", "padded bracers", "crafted bracers"],
+    "desc": "Arm guards of thick leather with metal strips riveted along the forearm. The fit is snug and the construction solid.",
+    "attrs": [
+        ("coverage", ["left_arm", "right_arm"]),
+        ("worn_desc", "Sturdy {color}dark brown|n makeshift bracers of thick leather with riveted metal strips, protecting {their} forearms without restricting movement"),
+        ("layer", 3),
+        ("color", "brown"),
+        ("material", "leather"),
+        ("weight", 1.4),
+        ("armor_rating", 4),
+        ("armor_type", "leather"),
+        ("armor_durability", 80),
+        ("max_armor_durability", 80),
+        ("base_armor_rating", 4),
+        ("armor_tier", "makeshift"),
+        ("metal_level", 3),
+        ("magnetic_level", 2),
+    ],
+}
+
+MAKESHIFT_GREAVES = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "makeshift greaves",
+    "aliases": ["leather greaves", "padded greaves", "crafted greaves"],
+    "desc": "Leg armor of layered leather panels with metal knee guards. The straps are properly fitted and the padding is adequate for extended wear.",
+    "attrs": [
+        ("coverage", ["left_thigh", "right_thigh", "left_shin", "right_shin"]),
+        ("worn_desc", "Well-fitted {color}dark brown|n makeshift greaves of layered leather panels, metal knee guards offering extra protection at vulnerable joints"),
+        ("layer", 3),
+        ("color", "brown"),
+        ("material", "leather"),
+        ("weight", 2.6),
+        ("armor_rating", 4),
+        ("armor_type", "leather"),
+        ("armor_durability", 80),
+        ("max_armor_durability", 80),
+        ("base_armor_rating", 4),
+        ("armor_tier", "makeshift"),
+        ("metal_level", 3),
+        ("magnetic_level", 2),
+    ],
+}
+
+MAKESHIFT_BOOTS = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "makeshift boots",
+    "aliases": ["leather boots", "padded boots", "crafted boots"],
+    "desc": "Heavy leather boots with reinforced toes and ankle support. Metal plates protect the top of the foot. Comfortable enough for long wear.",
+    "attrs": [
+        ("coverage", ["left_foot", "right_foot"]),
+        ("worn_desc", "Sturdy {color}dark brown|n makeshift boots with reinforced toes and metal plates, offering reliable foot protection without excessive weight"),
+        ("layer", 3),
+        ("color", "brown"),
+        ("material", "leather"),
+        ("weight", 1.6),
+        ("armor_rating", 4),
+        ("armor_type", "leather"),
+        ("armor_durability", 80),
+        ("max_armor_durability", 80),
+        ("base_armor_rating", 4),
+        ("armor_tier", "makeshift"),
+        ("metal_level", 3),
+        ("magnetic_level", 2),
+    ],
+}
+
+# =============================================================================
+# TIER 3: STANDARD ARMOR (Rating 6) - Professional-grade protection
+# =============================================================================
+
+STANDARD_HELMET = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "standard helmet",
+    "aliases": ["riot helmet", "security helmet", "tactical head"],
+    "desc": "A professional-grade security helmet with a polycarbonate shell and impact-absorbing liner. Standard issue for corporate security forces.",
+    "attrs": [
+        ("coverage", ["head"]),
+        ("worn_desc", "A professional {color}matte black|n standard helmet with a polycarbonate shell, its impact-absorbing liner and adjustable straps marking it as corporate security gear"),
+        ("layer", 3),
+        ("color", "black"),
+        ("material", "composite"),
+        ("weight", 1.4),
+        ("armor_rating", 6),
+        ("armor_type", "composite"),
+        ("armor_durability", 120),
+        ("max_armor_durability", 120),
+        ("base_armor_rating", 6),
+        ("armor_tier", "standard"),
+        ("metal_level", 2),
+        ("magnetic_level", 1),
+    ],
+}
+
+STANDARD_VEST = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "standard vest",
+    "aliases": ["security vest", "tactical vest", "body armor"],
+    "desc": "A professional body armor vest with layered ballistic fabric and trauma padding. Standard issue for security contractors and law enforcement.",
+    "attrs": [
+        ("coverage", ["chest", "back", "abdomen"]),
+        ("worn_desc", "A professional {color}matte black|n standard vest of layered ballistic fabric, its trauma padding and modular design marking it as serious protective equipment"),
+        ("layer", 3),
+        ("color", "black"),
+        ("material", "kevlar"),
+        ("weight", 4.0),
+        ("armor_rating", 6),
+        ("armor_type", "kevlar"),
+        ("armor_durability", 120),
+        ("max_armor_durability", 120),
+        ("base_armor_rating", 6),
+        ("armor_tier", "standard"),
+        ("deflection_bonus", -0.02),
+        ("metal_level", 2),
+        ("magnetic_level", 1),
+    ],
+}
+
+STANDARD_BRACERS = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "standard bracers",
+    "aliases": ["security bracers", "tactical bracers", "arm guards"],
+    "desc": "Professional arm guards with hard composite shells over impact-absorbing padding. Articulated joints allow full range of motion.",
+    "attrs": [
+        ("coverage", ["left_arm", "right_arm"]),
+        ("worn_desc", "Professional {color}matte black|n standard bracers with hard composite shells, articulated joints allowing full arm mobility while providing solid protection"),
+        ("layer", 3),
+        ("color", "black"),
+        ("material", "composite"),
+        ("weight", 1.6),
+        ("armor_rating", 6),
+        ("armor_type", "composite"),
+        ("armor_durability", 120),
+        ("max_armor_durability", 120),
+        ("base_armor_rating", 6),
+        ("armor_tier", "standard"),
+        ("metal_level", 2),
+        ("magnetic_level", 1),
+    ],
+}
+
+STANDARD_GREAVES = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "standard greaves",
+    "aliases": ["security greaves", "tactical greaves", "leg guards"],
+    "desc": "Professional leg armor with composite shin guards and articulated knee protection. Designed for extended tactical operations.",
+    "attrs": [
+        ("coverage", ["left_thigh", "right_thigh", "left_shin", "right_shin"]),
+        ("worn_desc", "Professional {color}matte black|n standard greaves with composite shin guards, articulated knee protection allowing mobility during tactical operations"),
+        ("layer", 3),
+        ("color", "black"),
+        ("material", "composite"),
+        ("weight", 2.8),
+        ("armor_rating", 6),
+        ("armor_type", "composite"),
+        ("armor_durability", 120),
+        ("max_armor_durability", 120),
+        ("base_armor_rating", 6),
+        ("armor_tier", "standard"),
+        ("metal_level", 2),
+        ("magnetic_level", 1),
+    ],
+}
+
+STANDARD_BOOTS = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "standard boots",
+    "aliases": ["security boots", "tactical boots", "combat boots"],
+    "desc": "Professional tactical boots with composite toe caps and ankle support. Designed for both protection and all-day comfort in the field.",
+    "attrs": [
+        ("coverage", ["left_foot", "right_foot"]),
+        ("worn_desc", "Professional {color}matte black|n standard boots with composite toe caps and reinforced ankles, their tactical design balancing protection with field comfort"),
+        ("layer", 3),
+        ("color", "black"),
+        ("material", "composite"),
+        ("weight", 1.8),
+        ("armor_rating", 6),
+        ("armor_type", "composite"),
+        ("armor_durability", 120),
+        ("max_armor_durability", 120),
+        ("base_armor_rating", 6),
+        ("armor_tier", "standard"),
+        ("metal_level", 2),
+        ("magnetic_level", 1),
+    ],
+}
+
+# =============================================================================
+# TIER 4: REINFORCED ARMOR (Rating 8) - Heavy-duty protection
+# =============================================================================
+
+REINFORCED_HELMET = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "reinforced helmet",
+    "aliases": ["assault helmet", "heavy helmet", "armored helmet"],
+    "desc": "A heavy-duty assault helmet with layered ceramic-composite construction. The kind of headgear worn by breach teams and frontline operators.",
+    "attrs": [
+        ("coverage", ["head", "left_ear", "right_ear"]),
+        ("worn_desc", "A menacing {color}gunmetal|n reinforced helmet with layered ceramic-composite construction, its heavy-duty design offering serious ballistic protection"),
+        ("layer", 3),
+        ("color", "gunmetal"),
+        ("material", "ceramic"),
+        ("weight", 2.2),
+        ("armor_rating", 8),
+        ("armor_type", "ceramic"),
+        ("armor_durability", 160),
+        ("max_armor_durability", 160),
+        ("base_armor_rating", 8),
+        ("armor_tier", "reinforced"),
+        ("metal_level", 4),
+        ("magnetic_level", 2),
+    ],
+}
+
+REINFORCED_VEST = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "reinforced vest",
+    "aliases": ["assault vest", "heavy vest", "armored vest"],
+    "desc": "A heavy-duty tactical vest with integrated ceramic trauma plates and multi-layer ballistic fabric. Designed to stop rifle rounds.",
+    "attrs": [
+        ("coverage", ["chest", "back", "abdomen"]),
+        ("worn_desc", "A heavy {color}gunmetal|n reinforced vest with integrated ceramic plates, its multi-layer construction designed to stop serious threats"),
+        ("layer", 4),
+        ("color", "gunmetal"),
+        ("material", "ceramic"),
+        ("weight", 6.5),
+        ("armor_rating", 8),
+        ("armor_type", "ceramic"),
+        ("armor_durability", 160),
+        ("max_armor_durability", 160),
+        ("base_armor_rating", 8),
+        ("armor_tier", "reinforced"),
+        ("deflection_bonus", -0.05),
+        ("metal_level", 5),
+        ("magnetic_level", 3),
+    ],
+}
+
+REINFORCED_BRACERS = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "reinforced bracers",
+    "aliases": ["assault bracers", "heavy bracers", "armored bracers"],
+    "desc": "Heavy arm guards with ceramic-composite plates over ballistic fabric. Each bracer has an integrated forearm shield for blocking.",
+    "attrs": [
+        ("coverage", ["left_arm", "right_arm", "left_hand", "right_hand"]),
+        ("worn_desc", "Heavy {color}gunmetal|n reinforced bracers with ceramic-composite plates, integrated forearm shields providing active defense capability"),
+        ("layer", 3),
+        ("color", "gunmetal"),
+        ("material", "ceramic"),
+        ("weight", 2.4),
+        ("armor_rating", 8),
+        ("armor_type", "ceramic"),
+        ("armor_durability", 160),
+        ("max_armor_durability", 160),
+        ("base_armor_rating", 8),
+        ("armor_tier", "reinforced"),
+        ("deflection_bonus", 0.05),
+        ("metal_level", 4),
+        ("magnetic_level", 2),
+    ],
+}
+
+REINFORCED_GREAVES = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "reinforced greaves",
+    "aliases": ["assault greaves", "heavy greaves", "armored greaves"],
+    "desc": "Heavy leg armor with ceramic-composite plating over the thighs, knees, and shins. Articulated joints preserve mobility despite the weight.",
+    "attrs": [
+        ("coverage", ["left_thigh", "right_thigh", "left_shin", "right_shin"]),
+        ("worn_desc", "Heavy {color}gunmetal|n reinforced greaves with ceramic-composite plating, articulated joints preserving mobility despite {their} substantial protection"),
+        ("layer", 3),
+        ("color", "gunmetal"),
+        ("material", "ceramic"),
+        ("weight", 4.2),
+        ("armor_rating", 8),
+        ("armor_type", "ceramic"),
+        ("armor_durability", 160),
+        ("max_armor_durability", 160),
+        ("base_armor_rating", 8),
+        ("armor_tier", "reinforced"),
+        ("metal_level", 4),
+        ("magnetic_level", 2),
+    ],
+}
+
+REINFORCED_BOOTS = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "reinforced boots",
+    "aliases": ["assault boots", "heavy boots", "armored boots"],
+    "desc": "Heavy tactical boots with ceramic-composite toe caps and ankle armor. Steel shanks provide arch support and stomp protection.",
+    "attrs": [
+        ("coverage", ["left_foot", "right_foot"]),
+        ("worn_desc", "Heavy {color}gunmetal|n reinforced boots with ceramic-composite armor, their substantial construction offering maximum foot and ankle protection"),
+        ("layer", 3),
+        ("color", "gunmetal"),
+        ("material", "ceramic"),
+        ("weight", 2.6),
+        ("armor_rating", 8),
+        ("armor_type", "ceramic"),
+        ("armor_durability", 160),
+        ("max_armor_durability", 160),
+        ("base_armor_rating", 8),
+        ("armor_tier", "reinforced"),
+        ("metal_level", 5),
+        ("magnetic_level", 3),
+    ],
+}
+
+# =============================================================================
+# TIER 5: MILITARY ARMOR (Rating 10) - Top-tier combat protection
+# =============================================================================
+
+MILITARY_HELMET = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "military helmet",
+    "aliases": ["combat helmet", "spec ops helmet", "tactical helmet"],
+    "desc": "A state-of-the-art military combat helmet with advanced composite construction, integrated comms, and ballistic face shield. The pinnacle of head protection.",
+    "attrs": [
+        ("coverage", ["head", "face", "left_ear", "right_ear"]),
+        ("worn_desc", "A menacing {color}midnight black|n military helmet with advanced composite construction, its integrated systems and ballistic face shield marking it as top-tier combat gear"),
+        ("layer", 3),
+        ("color", "midnight"),
+        ("material", "advanced_composite"),
+        ("weight", 2.8),
+        ("armor_rating", 10),
+        ("armor_type", "ceramic"),
+        ("armor_durability", 200),
+        ("max_armor_durability", 200),
+        ("base_armor_rating", 10),
+        ("armor_tier", "military"),
+        ("metal_level", 3),
+        ("magnetic_level", 1),
+    ],
+}
+
+MILITARY_VEST = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "military vest",
+    "aliases": ["combat vest", "spec ops vest", "assault armor"],
+    "desc": "Top-of-the-line military body armor with advanced ceramic-composite plates, liquid armor shock absorption, and modular attachment systems. Rated for heavy combat.",
+    "attrs": [
+        ("coverage", ["chest", "back", "abdomen", "groin"]),
+        ("worn_desc", "Imposing {color}midnight black|n military body armor with advanced ceramic-composite plates, its liquid armor technology and modular systems representing the cutting edge of protection"),
+        ("layer", 4),
+        ("color", "midnight"),
+        ("material", "advanced_composite"),
+        ("weight", 8.0),
+        ("armor_rating", 10),
+        ("armor_type", "ceramic"),
+        ("armor_durability", 200),
+        ("max_armor_durability", 200),
+        ("base_armor_rating", 10),
+        ("armor_tier", "military"),
+        ("deflection_bonus", -0.08),
+        ("metal_level", 4),
+        ("magnetic_level", 2),
+    ],
+}
+
+MILITARY_BRACERS = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "military bracers",
+    "aliases": ["combat bracers", "spec ops bracers", "assault bracers"],
+    "desc": "Military-grade arm armor with advanced composite shells, integrated forearm shields, and servo-assisted articulation. Maximum protection with minimal mobility loss.",
+    "attrs": [
+        ("coverage", ["left_arm", "right_arm", "left_hand", "right_hand"]),
+        ("worn_desc", "Sleek {color}midnight black|n military bracers with advanced composite shells, servo-assisted articulation allowing full arm mobility despite maximum protection"),
+        ("layer", 3),
+        ("color", "midnight"),
+        ("material", "advanced_composite"),
+        ("weight", 2.8),
+        ("armor_rating", 10),
+        ("armor_type", "ceramic"),
+        ("armor_durability", 200),
+        ("max_armor_durability", 200),
+        ("base_armor_rating", 10),
+        ("armor_tier", "military"),
+        ("deflection_bonus", 0.08),
+        ("metal_level", 3),
+        ("magnetic_level", 1),
+    ],
+}
+
+MILITARY_GREAVES = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "military greaves",
+    "aliases": ["combat greaves", "spec ops greaves", "assault greaves"],
+    "desc": "Military-grade leg armor with advanced composite plating, servo-assisted knee joints, and integrated shock absorption. Designed for high-mobility combat operations.",
+    "attrs": [
+        ("coverage", ["left_thigh", "right_thigh", "left_shin", "right_shin"]),
+        ("worn_desc", "Sleek {color}midnight black|n military greaves with advanced composite plating, servo-assisted joints enabling high mobility despite {their} substantial armor rating"),
+        ("layer", 3),
+        ("color", "midnight"),
+        ("material", "advanced_composite"),
+        ("weight", 4.8),
+        ("armor_rating", 10),
+        ("armor_type", "ceramic"),
+        ("armor_durability", 200),
+        ("max_armor_durability", 200),
+        ("base_armor_rating", 10),
+        ("armor_tier", "military"),
+        ("metal_level", 3),
+        ("magnetic_level", 1),
+    ],
+}
+
+MILITARY_BOOTS = {
+    "prototype_parent": "TIERED_ARMOR_BASE",
+    "key": "military boots",
+    "aliases": ["combat boots", "spec ops boots", "assault boots"],
+    "desc": "Military-grade tactical boots with advanced composite armor, shock-absorbing soles, and ankle stabilization systems. Built for combat in any environment.",
+    "attrs": [
+        ("coverage", ["left_foot", "right_foot"]),
+        ("worn_desc", "Sleek {color}midnight black|n military boots with advanced composite armor, their shock-absorbing construction and ankle stabilization marking them as top-tier combat footwear"),
+        ("layer", 3),
+        ("color", "midnight"),
+        ("material", "advanced_composite"),
+        ("weight", 3.0),
+        ("armor_rating", 10),
+        ("armor_type", "ceramic"),
+        ("armor_durability", 200),
+        ("max_armor_durability", 200),
+        ("base_armor_rating", 10),
+        ("armor_tier", "military"),
+        ("metal_level", 3),
+        ("magnetic_level", 1),
+    ],
+}
+
+# =============================================================================
+# ARMOR SET PROTOTYPES - Spawn full sets of matching armor
+# Use: @spawn SCRAP_ARMOR_SET (spawns all 5 pieces)
+# =============================================================================
+
+# These are batch spawn helpers - when spawned, they create all pieces of a set
+# Note: Evennia doesn't have native batch spawning, so we use a custom approach
+# Spawn these with: @spawn/batch SCRAP_ARMOR_SET or use the individual pieces
+
+SCRAP_ARMOR_SET = {
+    "prototype_key": "SCRAP_ARMOR_SET",
+    "prototype_desc": "Full set of Tier 1 scrap armor (helmet, vest, bracers, greaves, boots)",
+    "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
+    "prototype_tags": [("armor_set", "tiered_armor"), ("tier", "scrap")],
+    "spawn_batch": ["SCRAP_HELMET", "SCRAP_VEST", "SCRAP_BRACERS", "SCRAP_GREAVES", "SCRAP_BOOTS"],
+}
+
+MAKESHIFT_ARMOR_SET = {
+    "prototype_key": "MAKESHIFT_ARMOR_SET",
+    "prototype_desc": "Full set of Tier 2 makeshift armor (helmet, vest, bracers, greaves, boots)",
+    "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
+    "prototype_tags": [("armor_set", "tiered_armor"), ("tier", "makeshift")],
+    "spawn_batch": ["MAKESHIFT_HELMET", "MAKESHIFT_VEST", "MAKESHIFT_BRACERS", "MAKESHIFT_GREAVES", "MAKESHIFT_BOOTS"],
+}
+
+STANDARD_ARMOR_SET = {
+    "prototype_key": "STANDARD_ARMOR_SET",
+    "prototype_desc": "Full set of Tier 3 standard armor (helmet, vest, bracers, greaves, boots)",
+    "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
+    "prototype_tags": [("armor_set", "tiered_armor"), ("tier", "standard")],
+    "spawn_batch": ["STANDARD_HELMET", "STANDARD_VEST", "STANDARD_BRACERS", "STANDARD_GREAVES", "STANDARD_BOOTS"],
+}
+
+REINFORCED_ARMOR_SET = {
+    "prototype_key": "REINFORCED_ARMOR_SET",
+    "prototype_desc": "Full set of Tier 4 reinforced armor (helmet, vest, bracers, greaves, boots)",
+    "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
+    "prototype_tags": [("armor_set", "tiered_armor"), ("tier", "reinforced")],
+    "spawn_batch": ["REINFORCED_HELMET", "REINFORCED_VEST", "REINFORCED_BRACERS", "REINFORCED_GREAVES", "REINFORCED_BOOTS"],
+}
+
+MILITARY_ARMOR_SET = {
+    "prototype_key": "MILITARY_ARMOR_SET",
+    "prototype_desc": "Full set of Tier 5 military armor (helmet, vest, bracers, greaves, boots)",
+    "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
+    "prototype_tags": [("armor_set", "tiered_armor"), ("tier", "military")],
+    "spawn_batch": ["MILITARY_HELMET", "MILITARY_VEST", "MILITARY_BRACERS", "MILITARY_GREAVES", "MILITARY_BOOTS"],
+}
+
 # =============================================================================  
 # REPAIR TOOL PROTOTYPES (FOR ARMOR MAINTENANCE)
 # =============================================================================
