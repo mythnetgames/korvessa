@@ -76,16 +76,46 @@ to its neutral stance between attacks.
     def at_object_delete(self):
         """Clean up when test dummy is deleted."""
         # Cancel any pending auto-revive callbacks
-        # Store the callback handle in ndb so we can cancel it on deletion
         if hasattr(self.ndb, '_revive_callback'):
             try:
-                # Remove the scheduled callback
-                self.ndb._revive_callback.remove()
+                callback = self.ndb._revive_callback
+                # Try different methods to cancel depending on callback type
+                if hasattr(callback, 'remove'):
+                    callback.remove()
+                elif hasattr(callback, 'cancel'):
+                    callback.cancel()
+                # Clear the reference
+                delattr(self.ndb, '_revive_callback')
             except Exception:
-                pass  # Callback may have already fired
+                pass  # Callback may have already fired or be in an invalid state
         
-        # Call parent's at_object_delete for normal cleanup
+        # Clear any held items from hands to break circular references
+        if hasattr(self, 'hands'):
+            try:
+                hands = self.hands
+                for hand in hands:
+                    if hands[hand]:
+                        hands[hand] = None
+                self.hands = hands
+            except Exception:
+                pass
+        
+        # Clear medical state reference if it exists
+        if hasattr(self, 'medical_state'):
+            try:
+                self.medical_state = None
+            except Exception:
+                pass
+        
+        # Call parent's at_object_delete for normal cleanup (handles NPC registry)
         super().at_object_delete()
+    
+    def delete(self):
+        """Override delete to ensure cleanup happens."""
+        # Perform at_object_delete cleanup explicitly
+        self.at_object_delete()
+        # Call the parent delete (which should now work)
+        return super().delete()
     
     def at_death(self):
         """
