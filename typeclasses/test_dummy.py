@@ -233,16 +233,35 @@ to its neutral stance between attacks.
 
     def at_msg_receive(self, msg, from_obj=None, **kwargs):
         """React to messages in the room. Heal and reset on 'reset', robust to accents and Evennia Msg objects."""
+        # Log ALL messages to see if this is being called
+        try:
+            from evennia.comms.models import ChannelDB
+            splattercast = ChannelDB.objects.get_channel('Splattercast')
+            if splattercast:
+                splattercast.msg(f"[DUMMY at_msg_receive] Called with msg={repr(msg)[:100]}, from_obj={from_obj}")
+        except Exception:
+            pass
+
         if not msg:
             return
         import unicodedata
-        # Always convert to string, handle Evennia Msg objects
+        # Always convert to string, handle Evennia Msg objects and raw text
         try:
-            msg_str = str(msg.message) if hasattr(msg, 'message') else str(msg)
+            # Try multiple ways to extract string
+            if hasattr(msg, 'message'):
+                msg_str = str(msg.message)
+            elif hasattr(msg, 'text'):
+                msg_str = str(msg.text)
+            elif isinstance(msg, str):
+                msg_str = msg
+            else:
+                msg_str = str(msg)
         except Exception:
             msg_str = str(msg)
         msg_str = msg_str.strip().lower()
-        # Normalize to NFC then NFD, then strip accents
+        # Normalize to NFC then NFD, then strip accents and color codes
+        msg_str = msg_str.replace('|', '')  # Remove Evennia color codes first
+        msg_str = msg_str.replace('r', '').replace('g', '').replace('y', '').replace('b', '').replace('n', '')
         msg_str = unicodedata.normalize('NFC', msg_str)
         msg_nfd = unicodedata.normalize('NFD', msg_str)
         msg_normalized = ''.join(c for c in msg_nfd if unicodedata.category(c) != 'Mn')
@@ -252,7 +271,7 @@ to its neutral stance between attacks.
             from evennia.comms.models import ChannelDB
             splattercast = ChannelDB.objects.get_channel('Splattercast')
             if splattercast:
-                splattercast.msg(f"[DUMMY DEBUG] Received: '{msg_str}' | Normalized: '{msg_normalized}'")
+                splattercast.msg(f"[DUMMY DEBUG] msg_str='{msg_str}' | normalized='{msg_normalized}' | contains 'reset'={('reset' in msg_normalized)}")
         except Exception:
             pass
 
