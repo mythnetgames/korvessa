@@ -403,19 +403,17 @@ def node_npc_set_name_handler(caller, raw_string, **kwargs):
 # =============================
 def node_furniture_main(caller, raw_string, **kwargs):
     data = caller.ndb._furniture_design or {}
-    text = f"""
-|c=== Furniture Designer ===|n
-
-|wName:|n {data.get('name', '(unnamed)')}
-|wSeats:|n {data.get('seats', 1)}
-|wSit:|n {'|g[YES]|n' if data.get('can_sit') else '|r[NO]|n'}
-|wLie:|n {'|g[YES]|n' if data.get('can_lie') else '|r[NO]|n'}
-|wRecline:|n {'|g[YES]|n' if data.get('can_recline') else '|r[NO]|n'}
-
-[R] Review
-[S] Save
-[Q] Quit
-"""
+    text = (
+        f"|c=== Furniture Designer ===|n\n"
+        f"\n"
+        f"|wName:|n {data.get('name', '(unnamed)')}\n"
+        f"|wSeats:|n {data.get('seats', 1)}\n"
+        f"|wSit:|n {'|g[YES]|n' if data.get('can_sit') else '|r[NO]|n'}\n"
+        f"|wLie:|n {'|g[YES]|n' if data.get('can_lie') else '|r[NO]|n'}\n"
+        f"|wRecline:|n {'|g[YES]|n' if data.get('can_recline') else '|r[NO]|n'}\n"
+        f"\n"
+        f"[R] Review\n[S] Save\n[Q] Quit\n"
+    )
     options = [
         {"desc": "Set Name", "goto": "node_furniture_set_name"},
         {"desc": "Set Seats", "goto": "node_furniture_set_seats"},
