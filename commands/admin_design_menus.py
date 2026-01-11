@@ -34,10 +34,15 @@ class CmdSpawnNPCDesign(Command):
         msg.append("Type the number of the NPC to spawn, or 'q' to cancel. To spawn multiple, use '2 3' for design 2, 3 copies.")
         self.caller.msg("\n".join(msg))
         self.caller.ndb._spawnnpc_choices = choices
-        self.caller.ndb._spawnnpc_callback = self._do_spawn
-        self.caller.ndb._spawnnpc_waiting = True
+        # Use Evennia's get_input to capture the next input and call the handler
+        def _input_cb(caller, raw_string):
+            self._do_spawn(caller, raw_string)
+        self.caller.ndb.get_input = _input_cb
 
     def _do_spawn(self, caller, raw_string):
+        # Remove the input handler after use
+        if hasattr(caller.ndb, 'get_input'):
+            del caller.ndb.get_input
         if not hasattr(caller.ndb, '_spawnnpc_choices'):
             caller.msg("|rNo spawn session found.|n")
             return
@@ -196,6 +201,10 @@ def _npc_data(caller):
 
 def node_npc_main(caller, raw_string, **kwargs):
     data = _npc_data(caller)
+    stats = data.get('stats', {})
+    skills = data.get('skills', {})
+    statstr = ', '.join(f"{k}: {v}" for k, v in stats.items()) if stats else '(none)'
+    skillstr = ', '.join(f"{k}: {v}" for k, v in skills.items()) if skills else '(none)'
     text = f"""
 |c=== NPC Designer ===|n
 
@@ -204,7 +213,9 @@ def node_npc_main(caller, raw_string, **kwargs):
 |wDescription:|n {data.get('desc', '(none)')}
 |wWandering:|n {'|g[ON]|n' if data.get('wandering') else '|r[OFF]|n'}
 |wCloneable:|n {'|g[YES]|n' if data.get('cloneable') else '|r[NO]|n'}
-
+|wStats:|n {statstr}
+|wSkills:|n {skillstr}
+"""
 [R] Review
 [S] Save
 [L] Load
@@ -216,11 +227,85 @@ def node_npc_main(caller, raw_string, **kwargs):
         {"desc": "Set Description", "goto": "node_npc_set_desc"},
         {"desc": "Toggle Wandering", "goto": "node_npc_toggle_wandering"},
         {"desc": "Set Cloneable", "goto": "node_npc_set_cloneable"},
+        {"desc": "Edit Stats", "goto": "node_npc_edit_stats"},
+        {"desc": "Edit Skills", "goto": "node_npc_edit_skills"},
         {"desc": "Review", "goto": "node_npc_review"},
         {"desc": "Save", "goto": "node_npc_save"},
         {"desc": "Load", "goto": "node_npc_load"},
         {"desc": "Quit", "goto": "node_quit"},
     ]
+
+# --- Edit Stats Node ---
+def node_npc_edit_stats(caller, raw_string, **kwargs):
+    data = _npc_data(caller)
+    stats = data.get('stats', {})
+    statstr = '\n'.join(f"  {k}: {v}" for k, v in stats.items()) if stats else '  (none)'
+    text = (
+        "|c=== Edit NPC Stats ===|n\n\n"
+        f"Current stats:\n{statstr}\n\n"
+        "Type stat name and value (e.g. 'Strength 5'), or 'del statname' to remove, or 'back' to return."
+    )
+    options = ( {"key": "_default", "goto": "node_npc_edit_stats_handler"}, )
+    return text, options
+
+def node_npc_edit_stats_handler(caller, raw_string, **kwargs):
+    data = _npc_data(caller)
+    stats = data.setdefault('stats', {})
+    s = (raw_string or '').strip()
+    if s.lower() == 'back':
+        return "node_npc_main"
+    if s.lower().startswith('del '):
+        stat = s[4:].strip()
+        if stat in stats:
+            del stats[stat]
+            caller.msg(f"|yRemoved stat: {stat}|n")
+        else:
+            caller.msg(f"|rNo such stat: {stat}|n")
+        return "node_npc_edit_stats"
+    parts = s.split()
+    if len(parts) != 2 or not parts[1].isdigit():
+        caller.msg("|rUsage: statname value (e.g. Strength 5)|n")
+        return "node_npc_edit_stats"
+    stat, val = parts[0], int(parts[1])
+    stats[stat] = val
+    caller.msg(f"|gSet stat {stat} = {val}|n")
+    return "node_npc_edit_stats"
+
+# --- Edit Skills Node ---
+def node_npc_edit_skills(caller, raw_string, **kwargs):
+    data = _npc_data(caller)
+    skills = data.get('skills', {})
+    skillstr = '\n'.join(f"  {k}: {v}" for k, v in skills.items()) if skills else '  (none)'
+    text = (
+        "|c=== Edit NPC Skills ===|n\n\n"
+        f"Current skills:\n{skillstr}\n\n"
+        "Type skill name and value (e.g. 'Stealth 3'), or 'del skillname' to remove, or 'back' to return."
+    )
+    options = ( {"key": "_default", "goto": "node_npc_edit_skills_handler"}, )
+    return text, options
+
+def node_npc_edit_skills_handler(caller, raw_string, **kwargs):
+    data = _npc_data(caller)
+    skills = data.setdefault('skills', {})
+    s = (raw_string or '').strip()
+    if s.lower() == 'back':
+        return "node_npc_main"
+    if s.lower().startswith('del '):
+        skill = s[4:].strip()
+        if skill in skills:
+            del skills[skill]
+            caller.msg(f"|yRemoved skill: {skill}|n")
+        else:
+            caller.msg(f"|rNo such skill: {skill}|n")
+        return "node_npc_edit_skills"
+    parts = s.split()
+    if len(parts) != 2 or not parts[1].isdigit():
+        caller.msg("|rUsage: skillname value (e.g. Stealth 3)|n")
+        return "node_npc_edit_skills"
+    skill, val = parts[0], int(parts[1])
+    skills[skill] = val
+    caller.msg(f"|gSet skill {skill} = {val}|n")
+    return "node_npc_edit_skills"
     return text, options
 
 def node_npc_set_name(caller, raw_string, **kwargs):
