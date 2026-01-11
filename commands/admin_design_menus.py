@@ -80,6 +80,8 @@ def node_npc_main(caller, raw_string, **kwargs):
 def node_npc_set_name(caller, raw_string, **kwargs):
 
     # Step 1: Prompt for name
+
+    # Step 1: Prompt for name
     def node_npc_set_name(caller, raw_string, **kwargs):
         text = """
     |c=== Set NPC Name ===|n
@@ -129,7 +131,8 @@ def node_npc_set_name(caller, raw_string, **kwargs):
         if not name:
             return node_npc_set_name(caller, raw_string, **kwargs)
         _npc_data(caller)["name"] = name
-        del caller.ndb._npc_name_candidate
+        if hasattr(caller.ndb, "_npc_name_candidate"):
+            del caller.ndb._npc_name_candidate
         caller.msg(f"|gNPC name set to:|n {name}")
         return node_npc_main(caller, raw_string, **kwargs)
 
