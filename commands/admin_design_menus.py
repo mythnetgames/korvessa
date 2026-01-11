@@ -82,12 +82,12 @@ def node_npc_set_name(caller, raw_string, **kwargs):
         # Reject single-character names and pure numbers
         if len(raw_string.strip()) < 2 or raw_string.strip().isdigit():
             caller.msg("|rPlease enter a longer, non-numeric name.|n")
-            return "Enter NPC name:", []
+            return "Enter NPC name:", [{"key": "input", "goto": "node_npc_set_name"}]
         _npc_data(caller).update({'name': raw_string.strip()})
         caller.msg(f"|gNPC name set to: {raw_string.strip()}|n")
         return node_npc_main(caller, raw_string, **kwargs)
     else:
-        return "Enter NPC name:", []
+        return "Enter NPC name:", [{"key": "input", "goto": "node_npc_set_name"}]
 
 def node_npc_set_prototype(caller, raw_string, **kwargs):
     caller.msg("Enter prototype key (for cloning):")
