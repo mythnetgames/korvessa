@@ -195,6 +195,7 @@ class FoodItem(ObjectParent, DefaultObject):
 #     "msg_finish_self": str,  # 1st person finishing
 #     "msg_finish_others": str,  # 3rd person finishing
 #     "difficulty": int,  # 0-100 cooking skill required
+#     "nutritious": bool,  # If True, eating provides 2-hour healing buff
 #     "status": str,  # "pending", "approved", "rejected"
 #     "creator_dbref": str,
 #     "creator_name": str,
@@ -203,6 +204,32 @@ class FoodItem(ObjectParent, DefaultObject):
 #     "approved_at": datetime,
 #     "keywords": list,  # Searchable keywords
 # }
+
+def get_next_available_recipe_id():
+    """
+    Get the lowest available recipe ID across all recipes.
+    
+    Returns:
+        int: The lowest available ID (starting from 1)
+    """
+    storage = get_recipe_storage()
+    
+    # Collect all used IDs
+    used_ids = set()
+    for recipe in (storage.db.recipes or []):
+        if recipe.get("id"):
+            used_ids.add(recipe["id"])
+    for recipe in (storage.db.pending_recipes or []):
+        if recipe.get("id"):
+            used_ids.add(recipe["id"])
+    
+    # Find lowest available ID
+    next_id = 1
+    while next_id in used_ids:
+        next_id += 1
+    
+    return next_id
+
 
 def get_recipe_storage():
     """
@@ -274,9 +301,8 @@ def add_pending_recipe(recipe_data):
     """
     storage = get_recipe_storage()
     
-    # Assign ID
-    recipe_id = storage.db.next_recipe_id or 1
-    storage.db.next_recipe_id = recipe_id + 1
+    # Assign lowest available ID
+    recipe_id = get_next_available_recipe_id()
     
     recipe_data["id"] = recipe_id
     recipe_data["status"] = "pending"

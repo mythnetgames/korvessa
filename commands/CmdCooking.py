@@ -29,7 +29,7 @@ from typeclasses.cooking import (
     Ingredients, Kitchenette, FoodItem,
     get_recipe_storage, get_all_approved_recipes, get_pending_recipes,
     get_recipe_by_id, add_pending_recipe, approve_recipe, reject_recipe,
-    search_recipes, DIFFICULTY_SCALE
+    search_recipes, DIFFICULTY_SCALE, get_next_available_recipe_id
 )
 
 
@@ -1523,6 +1523,257 @@ class CmdRejectRecipe(Command):
             caller.msg(f"|rFailed to reject recipe #{recipe_id}.|n")
 
 
+class CmdEditRecipe(Command):
+    """
+    Edit a recipe you've created.
+    
+    Usage:
+        editrecipe #<id>
+    
+    This allows you to edit recipes you've created, either pending approval
+    or already approved. The recipe designer menu will load with your current
+    recipe data so you can make changes.
+    
+    Example:
+        editrecipe #5
+    """
+    key = "editrecipe"
+    aliases = ["edit recipe"]
+    locks = "cmd:all()"
+    help_category = "Cooking"
+    
+    def func(self):
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: editrecipe #<id>")
+            return
+        
+        # Parse recipe ID
+        recipe_id_str = self.args.strip().lstrip('#')
+        try:
+            recipe_id = int(recipe_id_str)
+        except ValueError:
+            caller.msg("Usage: editrecipe #<id> (e.g., editrecipe #5)")
+            return
+        
+        # Get recipe
+        recipe = get_recipe_by_id(recipe_id)
+        if not recipe:
+            caller.msg(f"|rRecipe #{recipe_id} not found.|n")
+            return
+        
+        # Check if caller is the creator or an admin
+        creator_dbref = recipe.get("creator_dbref")
+        is_creator = str(caller.dbref) == str(creator_dbref)
+        is_admin = caller.check_permstring("Builder")
+        
+        if not (is_creator or is_admin):
+            caller.msg(f"|rYou can only edit recipes you created.|n")
+            return
+        
+        # Load recipe data into caller's recipe design state
+        caller.ndb._recipe_design = {
+            "name": recipe.get("name", ""),
+            "is_food": recipe.get("is_food", True),
+            "description": recipe.get("description", ""),
+            "taste": recipe.get("taste", ""),
+            "smell": recipe.get("smell", ""),
+            "msg_eat_self": recipe.get("msg_eat_self", ""),
+            "msg_eat_others": recipe.get("msg_eat_others", ""),
+            "msg_finish_self": recipe.get("msg_finish_self", ""),
+            "msg_finish_others": recipe.get("msg_finish_others", ""),
+            "keywords": recipe.get("keywords", []),
+            "difficulty": recipe.get("difficulty", 50),
+            "nutritious": recipe.get("nutritious", False),
+            "recipe_id": recipe_id,  # Track original ID for updates
+        }
+        
+        caller.msg(f"|gLoading recipe #{recipe_id}: {recipe.get('name')}|n")
+        
+        # Start the EvMenu with edit context
+        from evennia.utils.evmenu import EvMenu
+        
+        RecipeDesignMenu(
+            caller,
+            "commands.CmdCooking",
+            startnode="node_edit_main_menu",
+            cmdset_mergetype="Replace",
+            cmd_on_exit=None,
+        )
+
+
+def node_edit_main_menu(caller, raw_string, **kwargs):
+    """Main menu for editing an existing recipe."""
+    data = _recipe_data(caller)
+    recipe_id = data.get("recipe_id")
+    recipe_status = "Editing Recipe"
+    if recipe_id:
+        recipe_status = f"Editing Recipe #{recipe_id}"
+    
+    def status(key):
+        """Show status indicator for field."""
+        return "|g✓|n" if data.get(key) else "|r✗|n"
+    
+    text = f"""
+|c=== {recipe_status} ===|n
+|yChanges are NOT saved until you submit.|n
+
+|w1.|n {status('name')} Name: {data.get('name') or '(not set)'}
+|w2.|n {status('is_food')} Type: {'Food' if data.get('is_food', True) else 'Drink'}
+|w3.|n {status('description')} Description: {len(data.get('description', '')) or 0} chars
+|w4.|n {status('taste')} Taste: {len(data.get('taste', '')) or 0} chars
+|w5.|n {status('smell')} Smell: {len(data.get('smell', '')) or 0} chars
+|w6.|n {status('msg_eat_self')} Consume Message (1st person)
+|w7.|n {status('msg_eat_others')} Consume Message (3rd person)
+|w8.|n {status('msg_finish_self')} Finish Message (1st person)
+|w9.|n {status('msg_finish_others')} Finish Message (3rd person)
+|w10.|n Keywords: {', '.join(data.get('keywords', [])) or '(none)'}
+|w11.|n Difficulty: |w{data.get('difficulty', 50)}|n
+
+|w[R]|n Review changes
+|w[S]|n Save changes (submit for re-approval)
+|w[Q]|n Quit without saving
+"""
+    
+    options = (
+        {"key": "1", "goto": "node_set_name"},
+        {"key": "2", "goto": "node_set_type"},
+        {"key": "3", "goto": "node_set_description"},
+        {"key": "4", "goto": "node_set_taste"},
+        {"key": "5", "goto": "node_set_smell"},
+        {"key": "6", "goto": "node_set_eat_self"},
+        {"key": "7", "goto": "node_set_eat_others"},
+        {"key": "8", "goto": "node_set_finish_self"},
+        {"key": "9", "goto": "node_set_finish_others"},
+        {"key": "10", "goto": "node_set_keywords"},
+        {"key": "11", "goto": "node_set_difficulty"},
+        {"key": "r", "goto": "node_review"},
+        {"key": "R", "goto": "node_review"},
+        {"key": "s", "goto": "node_edit_submit"},
+        {"key": "S", "goto": "node_edit_submit"},
+        {"key": "q", "goto": "node_quit"},
+        {"key": "Q", "goto": "node_quit"},
+        {"key": "_default", "goto": "node_edit_main_menu"},
+    )
+    
+    return text, options
+
+
+def node_edit_submit(caller, raw_string, **kwargs):
+    """Submit edited recipe for re-approval."""
+    data = _recipe_data(caller)
+    recipe_id = data.get("recipe_id")
+    
+    # Validate all required fields
+    required = ['name', 'description', 'taste', 'smell', 
+                'msg_eat_self', 'msg_eat_others', 'msg_finish_self', 'msg_finish_others']
+    missing = [f for f in required if not data.get(f)]
+    
+    if missing:
+        text = f"""
+|r=== Cannot Submit ===|n
+
+The following required fields are not set:
+{', '.join(missing)}
+
+Please complete all fields before submitting.
+
+|w[B]|n Back to main menu
+"""
+        options = (
+            {"key": "b", "goto": "node_edit_main_menu"},
+            {"key": "B", "goto": "node_edit_main_menu"},
+            {"key": "_default", "goto": "node_edit_main_menu"},
+        )
+        return text, options
+    
+    # Confirm submission
+    text = f"""
+|c=== Confirm Re-Submission ===|n
+
+You are about to submit your changes to |w{data.get('name')}|n for re-review.
+
+The recipe will return to pending status and an admin will review your changes.
+You will be notified when the updated recipe is approved.
+
+|w[Y]|n Yes, submit changes for re-approval
+|w[N]|n No, go back
+"""
+    
+    def _confirm_resubmit(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip().lower()
+        
+        if raw_string in ('y', 'yes'):
+            data = _recipe_data(caller)
+            recipe_id = data.get("recipe_id")
+            
+            # Update the recipe
+            storage = get_recipe_storage()
+            all_recipes = (storage.db.recipes or []) + (storage.db.pending_recipes or [])
+            
+            recipe_found = False
+            for recipe in all_recipes:
+                if recipe.get("id") == recipe_id:
+                    # Update recipe fields
+                    recipe["name"] = data["name"]
+                    recipe["is_food"] = data["is_food"]
+                    recipe["description"] = data["description"]
+                    recipe["taste"] = data["taste"]
+                    recipe["smell"] = data["smell"]
+                    recipe["msg_eat_self"] = data["msg_eat_self"]
+                    recipe["msg_eat_others"] = data["msg_eat_others"]
+                    recipe["msg_finish_self"] = data["msg_finish_self"]
+                    recipe["msg_finish_others"] = data["msg_finish_others"]
+                    recipe["keywords"] = data.get("keywords", [])
+                    recipe["difficulty"] = data.get("difficulty", 50)
+                    recipe["nutritious"] = data.get("nutritious", False)
+                    
+                    # If approved, revert to pending for re-review
+                    if recipe.get("status") == "approved":
+                        recipe["status"] = "pending"
+                        # Move back to pending queue
+                        approved = storage.db.recipes or []
+                        approved = [r for r in approved if r.get("id") != recipe_id]
+                        storage.db.recipes = approved
+                        
+                        pending = storage.db.pending_recipes or []
+                        pending.append(recipe)
+                        storage.db.pending_recipes = pending
+                    else:
+                        # Just update in-place for pending recipes
+                        storage.db.recipes = storage.db.recipes or []
+                        storage.db.pending_recipes = storage.db.pending_recipes or []
+                    
+                    recipe_found = True
+                    break
+            
+            if recipe_found:
+                caller.msg(f"|g=== Recipe Updated ===|n")
+                caller.msg(f"Your recipe |w{data['name']}|n has been updated.")
+                if recipe.get("status") == "pending":
+                    caller.msg("It will be reviewed by an admin soon.")
+                else:
+                    caller.msg("|yYour previously approved recipe has been returned to pending status for re-review.|n")
+                
+                # Clear design data
+                if hasattr(caller.ndb, '_recipe_design'):
+                    del caller.ndb._recipe_design
+                
+                # Close menu
+                if hasattr(caller.ndb, '_evmenu'):
+                    caller.ndb._evmenu.close_menu()
+                return None
+            else:
+                caller.msg(f"|rFailed to find recipe #{recipe_id}.|n")
+                return "node_edit_main_menu"
+        
+        return "node_edit_main_menu"
+    
+    options = ({"key": "_default", "goto": _confirm_resubmit},)
+    return text, options
+
+
 class CmdAdminCreateFood(Command):
     """
     Create a food/drink item for shops, stores, and restaurants (admin only).
@@ -1700,6 +1951,7 @@ Design a new {item_type.lower()} recipe. Admin recipes are |gauto-approved|n.
 |w9.|n {status('msg_finish_others')} Finish Message (3rd person)
 |w10.|n Keywords: {', '.join(data.get('keywords', [])) or '(none)'}
 |w11.|n Difficulty: |w{data.get('difficulty', 50)}|n
+|w12.|n Nutritious: {'|g✓|n' if data.get('nutritious', False) else '|r✗|n'} (provides 2-hour healing buff)
 
 |w[R]|n Review before saving
 |w[S]|n Save recipe (auto-approved)
@@ -1718,6 +1970,7 @@ Design a new {item_type.lower()} recipe. Admin recipes are |gauto-approved|n.
         {"key": "9", "goto": "node_set_finish_others"},
         {"key": "10", "goto": "node_set_keywords"},
         {"key": "11", "goto": "node_admin_set_difficulty"},
+        {"key": "12", "goto": "node_admin_set_nutritious"},
         {"key": "r", "goto": "node_admin_review"},
         {"key": "R", "goto": "node_admin_review"},
         {"key": "s", "goto": "node_admin_submit"},
@@ -1770,6 +2023,44 @@ Enter a number from 0-100, or |w[B]|n to go back.
             return "node_admin_set_difficulty"
     
     options = ({"key": "_default", "goto": _set_difficulty},)
+    return text, options
+
+
+def node_admin_set_nutritious(caller, raw_string, **kwargs):
+    """Toggle nutritious flag (admin only)."""
+    data = _recipe_data(caller)
+    current_status = data.get("nutritious", False)
+    
+    text = f"""
+|c=== Toggle Nutritious Flag ===|n
+
+Nutritious food provides a minor healing buff for 2 hours when consumed.
+
+Current status: {'|gYes - This food is nutritious|n' if current_status else '|rNo - This food is regular|n'}
+
+|w[Y]|n Yes, make this nutritious
+|w[N]|n No, make this regular food
+|w[B]|n Go back without changing
+"""
+    
+    def _toggle_nutritious(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip().lower()
+        data = _recipe_data(caller)
+        
+        if raw_string in ('y', 'yes'):
+            data["nutritious"] = True
+            caller.msg("|gThis recipe is now marked as nutritious.|n")
+            return "node_admin_main_menu"
+        elif raw_string in ('n', 'no'):
+            data["nutritious"] = False
+            caller.msg("|yThis recipe is now marked as regular food.|n")
+            return "node_admin_main_menu"
+        elif raw_string in ('b', 'back'):
+            return "node_admin_main_menu"
+        else:
+            return "node_admin_set_nutritious"
+    
+    options = ({"key": "_default", "goto": _toggle_nutritious},)
     return text, options
 
 
@@ -1882,6 +2173,7 @@ This recipe will be immediately available for cooking by all players.
                 "creator_name": caller.key,
                 "created_at": datetime.now(),
                 "difficulty": data.get("difficulty", 50),
+                "nutritious": data.get("nutritious", False),
                 "status": "approved",
                 "is_admin_created": True,
             }
@@ -1890,11 +2182,8 @@ This recipe will be immediately available for cooking by all players.
             storage = get_recipe_storage()
             recipes = storage.db.recipes or []
             
-            # Generate ID
-            all_ids = [r.get("id", 0) for r in recipes]
-            pending = storage.db.pending_recipes or []
-            all_ids.extend([r.get("id", 0) for r in pending])
-            recipe_id = max(all_ids) + 1 if all_ids else 1
+            # Get lowest available ID
+            recipe_id = get_next_available_recipe_id()
             
             recipe_data["id"] = recipe_id
             recipes.append(recipe_data)

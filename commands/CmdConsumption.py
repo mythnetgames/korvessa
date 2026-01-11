@@ -607,6 +607,20 @@ class CmdEat(ConsumptionCommand):
         else:
             # Regular food item
             caller.msg(f"You consumed {item.get_display_name(caller)}.")
+            
+            # Check if this food is nutritious and apply buff
+            recipe_id = getattr(item, 'recipe_id', None)
+            if recipe_id:
+                from typeclasses.cooking import get_recipe_by_id
+                recipe = get_recipe_by_id(recipe_id)
+                if recipe and recipe.get("nutritious", False):
+                    # Apply 2-hour healing buff
+                    from world.medical.conditions import NutritiousBuffCondition
+                    if hasattr(target, 'medical_state'):
+                        buff = NutritiousBuffCondition()
+                        target.medical_state.add_condition(buff)
+                        target.msg("|g[NUTRITIOUS BUFF]|n You feel invigorated - your body will heal more effectively for the next 2 hours.|n")
+            
             item.delete()  # Regular food items are consumed completely
 
 

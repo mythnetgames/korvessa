@@ -373,6 +373,45 @@ def create_condition_from_damage(damage_amount, damage_type, location=None, armo
     return conditions
 
 
+class NutritiousBuffCondition(MedicalCondition):
+    """
+    Buff condition from eating nutritious food.
+    
+    Provides minor healing boost (increased healing effectiveness) for 2 hours.
+    This condition does not require ticker updates - it's purely passive.
+    """
+    
+    def __init__(self):
+        super().__init__("nutritious_buff", 1, location=None, tick_interval=7200)  # 2 hour duration
+        self.requires_ticker = False  # This condition is passive, no tick effects needed
+        self.healing_boost = 0.15  # 15% healing boost
+        self.duration_remaining = 7200  # 2 hours in seconds
+        
+    def get_healing_boost(self):
+        """Return the healing effectiveness multiplier."""
+        return 1.0 + self.healing_boost  # 1.15x healing
+        
+    def should_end(self):
+        """Nutritious buff ends after 2 hours."""
+        self.duration_remaining -= 60  # Decrement by one interval
+        return self.duration_remaining <= 0
+        
+    def to_dict(self):
+        """Serialize for persistence."""
+        data = super().to_dict()
+        data["healing_boost"] = self.healing_boost
+        data["duration_remaining"] = self.duration_remaining
+        return data
+        
+    @classmethod
+    def from_dict(cls, data):
+        """Deserialize from persistence."""
+        condition = cls()
+        condition.duration_remaining = data.get("duration_remaining", 7200)
+        condition.healing_boost = data.get("healing_boost", 0.15)
+        return condition
+
+
 class ConsciousnessSuppressionCondition(MedicalCondition):
     """
     Condition that directly suppresses consciousness levels.

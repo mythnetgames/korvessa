@@ -336,9 +336,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         from commands.CmdCooking import (
             CmdDesignRecipe, CmdCook, CmdEat, CmdDrink, CmdTaste, CmdSmellFood,
             CmdSpawnKitchenette, CmdSpawnIngredients, CmdRecipes, 
-            CmdApproveRecipe, CmdRejectRecipe, CmdAdminDesignRecipe
+            CmdApproveRecipe, CmdRejectRecipe, CmdAdminDesignRecipe, CmdEditRecipe
         )
         self.add(CmdDesignRecipe())      # Player: design new recipes
+        self.add(CmdEditRecipe())        # Player: edit existing recipes
         self.add(CmdCook())              # Player: cook at kitchenettes
         self.add(CmdEat())               # Player: eat food
         self.add(CmdDrink())             # Player: drink beverages
