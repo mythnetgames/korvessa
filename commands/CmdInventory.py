@@ -389,10 +389,22 @@ class CmdInventory(Command):
     def _is_clothing(self, obj):
         """Check if item is wearable clothing."""
         # Has coverage and worn_desc (standard clothing check)
-        coverage = getattr(obj, 'coverage', None) or (hasattr(obj, 'db') and getattr(obj.db, 'coverage', None))
-        worn_desc = getattr(obj, 'worn_desc', None) or (hasattr(obj, 'db') and getattr(obj.db, 'worn_desc', None))
+        # Check db attributes first since that's where tailored items store these
+        coverage = None
+        worn_desc = None
         
-        if coverage and worn_desc:
+        if hasattr(obj, 'db'):
+            coverage = getattr(obj.db, 'coverage', None)
+            worn_desc = getattr(obj.db, 'worn_desc', None)
+        
+        # Fallback to direct attributes
+        if coverage is None:
+            coverage = getattr(obj, 'coverage', None)
+        if worn_desc is None:
+            worn_desc = getattr(obj, 'worn_desc', None)
+        
+        # Both attributes must be present and worn_desc must have content
+        if coverage is not None and worn_desc:
             return True
         
         # Is wearable method check
@@ -405,6 +417,10 @@ class CmdInventory(Command):
         
         # Has clothing tag
         if obj.tags.has("clothing", category="item_category"):
+            return True
+        
+        # Check for is_tailored attribute (tailored items are clothing)
+        if hasattr(obj, 'db') and getattr(obj.db, 'is_tailored', False):
             return True
         
         return False
