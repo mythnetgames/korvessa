@@ -235,6 +235,10 @@ class CmdIP(Command):
         
         target.db.ip = new_ip
         
+        # Force save to ensure persistence
+        if hasattr(target, 'save'):
+            target.save()
+        
         # Send messages
         if amount > 0:
             caller.msg(f"|gGranted {amount} IP to {target.key}.|n New total: |y{new_ip}|n IP")
@@ -323,6 +327,10 @@ class CmdSetSkill(Command):
         
         # Set the skill
         setattr(target.db, skill_internal, new_value)
+        
+        # Force save to ensure persistence
+        if hasattr(target, 'save'):
+            target.save()
         
         display_name = get_skill_display_name(skill_internal)
         formatted_value = format_raw_skill(new_value)
@@ -585,6 +593,10 @@ class CmdInvestConfirm(Command):
         # Apply the changes
         setattr(caller.db, skill_internal, new_raw)
         caller.db.ip = current_ip - ip_cost
+        
+        # Force save to ensure persistence
+        if hasattr(caller, 'save'):
+            caller.save()
         
         # Success message
         caller.msg(f"|g[Investment Complete]|n")

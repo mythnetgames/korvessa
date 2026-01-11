@@ -116,6 +116,10 @@ class CmdStatAdjust(Command):
         # Set the stat
         setattr(target.db, stat_name, new_value)
         
+        # Force save to ensure persistence
+        if hasattr(target, 'save'):
+            target.save()
+        
         self.caller.msg(f"|g✓ {target.key}'s {stat_name.upper()} {op_desc} (now {new_value}).|n")
         target.msg(f"|yAn admin has adjusted your {stat_name.upper()} to {new_value}.|n")
     
