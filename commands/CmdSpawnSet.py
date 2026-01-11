@@ -49,6 +49,10 @@ class CmdSpawnSet(Command):
         prototype_key = self.args.strip().upper()
         location = caller.location
         
+        if not location:
+            caller.msg("You must be in a room to spawn armor sets.")
+            return
+        
         # Try to get the prototype
         try:
             prototype = protlib.search_prototype(prototype_key)
@@ -105,10 +109,14 @@ class CmdSpawnSet(Command):
         
         for item_proto_key in spawn_batch:
             try:
-                # Spawn the item
+                # Spawn the item directly into the location
                 objs = spawner.spawn(item_proto_key, location=location)
                 if objs:
-                    spawned_items.extend(objs)
+                    for obj in objs:
+                        spawned_items.append(obj)
+                        # Ensure it's in the room
+                        if obj.location != location:
+                            obj.location = location
             except Exception as e:
                 caller.msg(f"Error spawning {item_proto_key}: {e}")
                 continue
@@ -118,6 +126,8 @@ class CmdSpawnSet(Command):
         
         if spawned_items:
             item_names = [obj.key for obj in spawned_items]
-            caller.msg(f"Spawned {len(spawned_items)} items: {', '.join(item_names)}")
+            caller.msg(f"Spawned {len(spawned_items)} items in {location.key}: {', '.join(item_names)}")
+            # Also notify the room
+            location.msg_contents(f"{caller.key} has spawned {len(spawned_items)} items here.", exclude=[caller])
         else:
             caller.msg("No items were spawned. Check that the prototype definitions are correct.")
