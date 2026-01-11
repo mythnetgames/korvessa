@@ -381,3 +381,58 @@ class CmdZip(Command):
             )
         else:
             caller.msg(f"You can't {action} the {item.key}.")
+
+
+class CmdFreeHands(Command):
+    """
+    Unwield and free up all items currently held in your hands.
+    
+    This will return all wielded weapons and held items back to your inventory.
+
+    Usage:
+        freehands
+        fh
+
+    Examples:
+        freehands
+        fh
+    """
+
+    key = "freehands"
+    aliases = ["fh"]
+    locks = "cmd:all()"
+    help_category = "Inventory"
+
+    def func(self):
+        caller = self.caller
+        
+        # Get all wielded items
+        hands = getattr(caller, 'hands', {})
+        if not hands:
+            caller.msg("You're not wielding anything.")
+            return
+        
+        # Find all items currently held
+        held_items = [item for item in hands.values() if item is not None]
+        
+        if not held_items:
+            caller.msg("You're not wielding anything.")
+            return
+        
+        # Unwield each item
+        unwielded = []
+        for item in held_items:
+            # Use the existing unwield system
+            success = caller.unwield_item(item)
+            if success:
+                unwielded.append(item.key)
+        
+        if unwielded:
+            caller.msg(f"You free your hands: {', '.join(unwielded)} returned to inventory.")
+            caller.location.msg_contents(
+                f"{caller.get_display_name(None)} frees their hands.",
+                exclude=caller
+            )
+        else:
+            caller.msg("You couldn't free your hands.")
+

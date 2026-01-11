@@ -21,7 +21,7 @@ from commands import CmdInventory
 from commands.CmdInventory import CmdGet, CmdInventory as CmdInv
 from commands import CmdAdmin
 from commands import CmdClothing
-from commands.CmdClothing import CmdWear, CmdRemove
+from commands.CmdClothing import CmdWear, CmdRemove, CmdFreeHands
 from commands import CmdMedical
 from commands.CmdMedical import CmdMedicalInfo
 from commands import CmdConsumption
@@ -322,6 +322,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add clothing commands (wear/remove)
         self.add(CmdWear())
         self.add(CmdRemove())
+        self.add(CmdFreeHands())
         # Add clone/backup commands
         from typeclasses.cloning_pod import CmdCloneStatus, CmdSpawnPod
         self.add(CmdCloneStatus())
