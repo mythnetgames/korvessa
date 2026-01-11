@@ -1802,6 +1802,9 @@ class Character(ObjectParent, DefaultCharacter):
         for location in item_coverage:
             if location in self.worn_items:
                 for worn_item in self.worn_items[location]:
+                    # Skip None items (deleted items)
+                    if worn_item is None:
+                        continue
                     worn_layer = getattr(worn_item, 'layer', 2)
                     
                     # CONFLICT 1: Trying to wear same layer at same location
@@ -1893,6 +1896,9 @@ class Character(ObjectParent, DefaultCharacter):
             
             # Add item to location, maintaining layer order (outer first)
             location_items = self.worn_items[location]
+            # Filter out None items first
+            location_items = [item_obj for item_obj in location_items if item_obj is not None]
+            self.worn_items[location] = location_items
             
             # Find insertion point based on layer
             insert_index = 0
