@@ -230,3 +230,39 @@ to its neutral stance between attacks.
         appearance = super().return_appearance(looker, **kwargs)
         appearance += self.get_dummy_status()
         return appearance
+
+    def at_msg_receive(self, msg, from_obj=None, **kwargs):
+        """React to messages in the room. Heal and stop attacking on 'reset'."""
+        # Only respond to speech or say messages
+        if not msg:
+            return
+        msg_lower = str(msg).strip().lower()
+        if "reset" in msg_lower:
+            # Stop attacking (set inactive)
+            self.db.is_active = False
+            # Remove from combat if needed
+            handler = getattr(self.ndb, NDB_COMBAT_HANDLER, None)
+            if handler:
+                try:
+                    handler.remove_combatant(self)
+                except Exception:
+                    pass
+                try:
+                    delattr(self.ndb, NDB_COMBAT_HANDLER)
+                except Exception:
+                    pass
+            # Heal using resetmedical command (simulate as if called by self)
+            try:
+                self.execute_cmd("resetmedical me")
+            except Exception:
+                # Fallback: call full_heal directly
+                try:
+                    from world.medical.utils import full_heal
+                    full_heal(self)
+                except Exception:
+                    pass
+            # Announce
+            if self.location:
+                self.location.msg_contents(f"|g{self.key} resets and returns to pristine condition.|n")
+        # Call parent if needed
+        super().at_msg_receive(msg, from_obj=from_obj, **kwargs)
