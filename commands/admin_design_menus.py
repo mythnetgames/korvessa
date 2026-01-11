@@ -14,19 +14,26 @@ class CmdSpawnNPCDesign(Command):
     help_category = "Building"
 
 
+
     def func(self):
+        # Check for in-progress design
+        current_design = getattr(self.caller.ndb, '_npc_design', None)
         storage = get_admin_design_storage()
         npcs = storage.db.npcs or []
-        if not npcs:
-            self.caller.msg("|rNo saved NPC designs found.|n")
-            return
-        # List designs
-        msg = ["|cSaved NPC Designs:|n"]
+        choices = []
+        msg = ["|cAvailable NPC Designs:|n"]
+        if current_design:
+            msg.append(f"0. [Current Session] {current_design.get('name', '(unnamed)')}")
+            choices.append(current_design)
         for idx, npc in enumerate(npcs, 1):
             msg.append(f"{idx}. {npc.get('name', '(unnamed)')}")
+            choices.append(npc)
+        if not choices:
+            self.caller.msg("|rNo NPC designs found. Use npcdesign to create one.|n")
+            return
         msg.append("Type the number of the NPC to spawn, or 'q' to cancel. To spawn multiple, use '2 3' for design 2, 3 copies.")
         self.caller.msg("\n".join(msg))
-        self.caller.ndb._spawnnpc_choices = npcs
+        self.caller.ndb._spawnnpc_choices = choices
         self.caller.ndb._spawnnpc_callback = self._do_spawn
         self.caller.ndb._spawnnpc_waiting = True
 
@@ -43,7 +50,7 @@ class CmdSpawnNPCDesign(Command):
             caller.msg("|rPlease enter a valid number or 'q' to cancel.|n")
             return
         try:
-            idx = int(parts[0]) - 1
+            idx = int(parts[0])
             count = int(parts[1]) if len(parts) > 1 else 1
         except Exception:
             caller.msg("|rPlease enter a valid number or 'q' to cancel.|n")
