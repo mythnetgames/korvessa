@@ -25,7 +25,7 @@ def get_admin_design_storage():
     storage = ScriptDB.objects.filter(db_key=ADMIN_DESIGN_STORAGE_KEY).first()
     if storage:
         return storage
-    storage = create_object(DefaultScript, key=ADMIN_DESIGN_STORAGE_KEY, desc="Admin design storage")
+        storage = create_script(DefaultScript, key=ADMIN_DESIGN_STORAGE_KEY)
     storage.persistent = True
     storage.db.npcs = []
     storage.db.furniture = []
