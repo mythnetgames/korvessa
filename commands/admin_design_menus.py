@@ -195,22 +195,18 @@ def node_npc_main(caller, raw_string, **kwargs):
     skills = data.get('skills', {})
     statstr = ', '.join(f"{k}: {v}" for k, v in stats.items()) if stats else '(none)'
     skillstr = ', '.join(f"{k}: {v}" for k, v in skills.items()) if skills else '(none)'
-    text = f"""
-|c=== NPC Designer ===|n
-
-|wName:|n {data.get('name', '(unnamed)')}
-|wPrototype Key:|n {data.get('prototype_key', '(none)')}
-|wDescription:|n {data.get('desc', '(none)')}
-|wWandering:|n {'|g[ON]|n' if data.get('wandering') else '|r[OFF]|n'}
-|wCloneable:|n {'|g[YES]|n' if data.get('cloneable') else '|r[NO]|n'}
-|wStats:|n {statstr}
-|wSkills:|n {skillstr}
-"""
-[R] Review
-[S] Save
-[L] Load
-[Q] Quit
-"""
+    text = (
+        f"|c=== NPC Designer ===|n\n"
+        f"\n"
+        f"|wName:|n {data.get('name', '(unnamed)')}\n"
+        f"|wPrototype Key:|n {data.get('prototype_key', '(none)')}\n"
+        f"|wDescription:|n {data.get('desc', '(none)')}\n"
+        f"|wWandering:|n {'|g[ON]|n' if data.get('wandering') else '|r[OFF]|n'}\n"
+        f"|wCloneable:|n {'|g[YES]|n' if data.get('cloneable') else '|r[NO]|n'}\n"
+        f"|wStats:|n {statstr}\n"
+        f"|wSkills:|n {skillstr}\n"
+        f"[R] Review\n[S] Save\n[L] Load\n[Q] Quit\n"
+    )
     options = [
         {"desc": "Set Name", "goto": "node_npc_set_name"},
         {"desc": "Set Prototype Key", "goto": "node_npc_set_prototype"},
