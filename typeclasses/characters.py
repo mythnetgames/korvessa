@@ -1988,14 +1988,16 @@ class Character(ObjectParent, DefaultCharacter):
             return []
         
         if location:
-            return self.worn_items.get(location, [])
+            # Filter out None items that may have been deleted
+            return [item for item in self.worn_items.get(location, []) if item is not None]
         
         # Return all worn items (deduplicated since items can cover multiple locations)
         seen_items = set()
         all_items = []
         for items in self.worn_items.values():
             for item in items:
-                if item not in seen_items:
+                # Skip None items (deleted items)
+                if item is not None and item not in seen_items:
                     seen_items.add(item)
                     all_items.append(item)
         return all_items
@@ -2029,7 +2031,10 @@ class Character(ObjectParent, DefaultCharacter):
         for location, items in self.worn_items.items():
             if items:
                 # First item is outermost due to layer ordering
-                coverage[location] = items[0]
+                # Filter out None items that may have been deleted
+                valid_items = [item for item in items if item is not None]
+                if valid_items:
+                    coverage[location] = valid_items[0]
         
         return coverage
 
@@ -2088,7 +2093,8 @@ class Character(ObjectParent, DefaultCharacter):
                 clothing_item = coverage_map[location]
                 
                 # Only add each clothing item once, regardless of how many locations it covers
-                if clothing_item not in added_clothing_items:
+                # Also check that clothing_item is not None (items can be deleted)
+                if clothing_item and clothing_item not in added_clothing_items:
                     # Use new method with $pron() processing and color integration
                     desc = clothing_item.get_current_worn_desc_with_perspective(looker, self)
                     if desc:
@@ -2140,7 +2146,8 @@ class Character(ObjectParent, DefaultCharacter):
                 if location in coverage_map:
                     # Extended location with clothing
                     clothing_item = coverage_map[location]
-                    if clothing_item not in added_clothing_items:
+                    # Check that clothing_item is not None (items can be deleted)
+                    if clothing_item and clothing_item not in added_clothing_items:
                         # Use new method with $pron() processing and color integration
                         desc = clothing_item.get_current_worn_desc_with_perspective(looker, self)
                         if desc:

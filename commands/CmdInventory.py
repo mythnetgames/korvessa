@@ -221,7 +221,7 @@ class CmdInventory(Command):
         
         # Add worn items to Clothing category if not already there
         for worn_item in worn_items:
-            if worn_item not in all_items:
+            if worn_item and worn_item not in all_items:
                 # Item is worn but not in contents (shouldn't happen, but be safe)
                 categories["Clothing"].append(worn_item)
         
@@ -230,6 +230,8 @@ class CmdInventory(Command):
         
         for category_name in category_order:
             category_items = categories.get(category_name, [])
+            # Filter out None items that may have been deleted
+            category_items = [obj for obj in category_items if obj is not None]
             if category_items:
                 lines.append(f"|c{category_name}:|n")
                 
