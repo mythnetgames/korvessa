@@ -82,6 +82,7 @@ def node_npc_set_name(caller, raw_string, **kwargs):
     # Step 1: Prompt for name
 
 
+
     # --- Step 1: Prompt for name ---
     def node_npc_set_name(caller, raw_string, **kwargs):
         text = (
@@ -95,49 +96,58 @@ def node_npc_set_name(caller, raw_string, **kwargs):
 
     # --- Step 1b: Validate name and go to confirm ---
     def node_npc_set_name_validate(caller, raw_string, **kwargs):
-        name = (raw_string or '').strip()
-        if name.lower() == 'back':
-            return node_npc_main(caller, raw_string, **kwargs)
-        if len(name) < 3:
-            caller.msg("|rName must be at least 3 characters.|n")
-            return node_npc_set_name(caller, '', **kwargs)
-        if len(name) > 80:
-            caller.msg("|rName must be 80 characters or less.|n")
-            return node_npc_set_name(caller, '', **kwargs)
-        if name.isdigit():
-            caller.msg("|rPlease enter a non-numeric name.|n")
-            return node_npc_set_name(caller, '', **kwargs)
-        caller.ndb._npc_name_candidate = name
-        return node_npc_confirm_name(caller, '', **kwargs)
+        try:
+            name = (raw_string or '').strip()
+            if name.lower() == 'back':
+                return "node_npc_main"
+            if len(name) < 3:
+                caller.msg("|rName must be at least 3 characters.|n")
+                return "node_npc_set_name"
+            if len(name) > 80:
+                caller.msg("|rName must be 80 characters or less.|n")
+                return "node_npc_set_name"
+            if name.isdigit():
+                caller.msg("|rPlease enter a non-numeric name.|n")
+                return "node_npc_set_name"
+            caller.ndb._npc_name_candidate = name
+            return "node_npc_confirm_name"
+        except Exception:
+            return "node_npc_main"
 
     # --- Step 2: Confirm name ---
     def node_npc_confirm_name(caller, raw_string, **kwargs):
-        name = getattr(caller.ndb, '_npc_name_candidate', None)
-        if not name:
-            return node_npc_set_name(caller, '', **kwargs)
-        text = (
-            f"|c=== Confirm NPC Name ===|n\n\n"
-            f"You entered: |w{name}|n\n\n"
-            "Is this correct?\n"
-            "|g1.|n Yes, use this name\n"
-            "|r2.|n No, re-enter name\n"
-        )
-        options = [
-            {"desc": "Yes, use this name", "key": ("1", "yes", "y"), "goto": "node_npc_save_name"},
-            {"desc": "No, re-enter name", "key": ("2", "no", "n"), "goto": "node_npc_set_name"},
-        ]
-        return text, options
+        try:
+            name = getattr(caller.ndb, '_npc_name_candidate', None)
+            if not name:
+                return "node_npc_set_name"
+            text = (
+                f"|c=== Confirm NPC Name ===|n\n\n"
+                f"You entered: |w{name}|n\n\n"
+                "Is this correct?\n"
+                "|g1.|n Yes, use this name\n"
+                "|r2.|n No, re-enter name\n"
+            )
+            options = [
+                {"desc": "Yes, use this name", "key": ("1", "yes", "y"), "goto": "node_npc_save_name"},
+                {"desc": "No, re-enter name", "key": ("2", "no", "n"), "goto": "node_npc_set_name"},
+            ]
+            return text, options
+        except Exception:
+            return "node_npc_main"
 
     # --- Step 3: Save name and return ---
     def node_npc_save_name(caller, raw_string, **kwargs):
-        name = getattr(caller.ndb, '_npc_name_candidate', None)
-        if not name:
-            return node_npc_set_name(caller, '', **kwargs)
-        _npc_data(caller)["name"] = name
-        if hasattr(caller.ndb, '_npc_name_candidate'):
-            del caller.ndb._npc_name_candidate
-        caller.msg(f"|gNPC name set to:|n {name}")
-        return node_npc_main(caller, '', **kwargs)
+        try:
+            name = getattr(caller.ndb, '_npc_name_candidate', None)
+            if not name:
+                return "node_npc_set_name"
+            _npc_data(caller)["name"] = name
+            if hasattr(caller.ndb, '_npc_name_candidate'):
+                del caller.ndb._npc_name_candidate
+            caller.msg(f"|gNPC name set to:|n {name}")
+            return "node_npc_main"
+        except Exception:
+            return "node_npc_main"
 
 def node_npc_set_prototype(caller, raw_string, **kwargs):
     caller.msg("Enter prototype key (for cloning):")
