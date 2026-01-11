@@ -269,6 +269,19 @@ DAGGER = {
     "damage_type": "stab",  # Medical system injury type
 }
 
+# Brass Knuckles (brawling weapon)
+BRASS_KNUCKLES = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "brass knuckles",
+    "aliases": ["knuckles", "brass", "knucks"],
+    "desc": "A set of brass knuckles worn over the fingers. The weight feels right in your hand, cold and purposeful. Each ring has been used enough to show scratches and dents from countless encounters. Simple, brutal, effective.",
+    "damage": 9,
+    "deflection_bonus": 0.05,  # +1 to deflection threshold (hands-on defense)
+    "weapon_type": "brass_knuckles",  # Custom message type for brass knuckles
+    "damage_type": "blunt",  # Medical system injury type
+    "hands_required": 1,
+}
+
 # Tessen (iron war fan)
 FIGHTING_FAN = {
     "prototype_parent": "MELEE_WEAPON_BASE",
@@ -291,6 +304,884 @@ CHAINSAW = {
     "deflection_bonus": -0.50,  # -10 to deflection threshold (major penalty - chainsaws are terrible for defense)
     "weapon_type": "chainsaw",  # Using our newly converted message type
     "damage_type": "laceration",  # Medical system injury type
+}
+
+# =============================================================================
+# BLADES SKILL WEAPONS
+# =============================================================================
+
+# Bokken (wooden practice sword)
+BOKKEN = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "bokken",
+    "aliases": ["wooden sword", "practice sword"],
+    "desc": "A solid oak bokken - the traditional wooden training sword of Japanese martial arts. Despite being made of wood, a properly swung bokken can break bones and crack skulls. The smooth grain shows wear from countless practice sessions.",
+    "damage": 6,
+    "deflection_bonus": 0.15,
+    "weapon_type": "bokken",
+    "damage_type": "blunt",
+}
+
+# Box Cutter
+BOX_CUTTER = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "box cutter",
+    "aliases": ["utility knife", "razor blade"],
+    "desc": "A retractable box cutter with a fresh blade. The yellow plastic handle is worn smooth from use. Small, concealable, and surprisingly effective in close quarters.",
+    "damage": 4,
+    "deflection_bonus": -0.10,
+    "weapon_type": "box_cutter",
+    "damage_type": "cut",
+}
+
+# Claymore
+CLAYMORE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "claymore",
+    "aliases": ["great sword", "two-handed sword"],
+    "desc": "A massive Scottish claymore with a cruciform hilt and leather-wrapped grip. The blade stretches nearly five feet, meant for sweeping strikes that keep enemies at distance. The weight demands respect and strength.",
+    "damage": 18,
+    "deflection_bonus": 0.20,
+    "weapon_type": "claymore",
+    "damage_type": "cut",
+    "hands_required": 2,
+}
+
+# Combat Knife
+COMBAT_KNIFE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "combat knife",
+    "aliases": ["tactical knife", "fighting knife"],
+    "desc": "A military-grade combat knife with a blackened blade and serrated spine. The handle is wrapped in paracord for grip, and the pommel is weighted for striking. Built to kill, not to cut boxes.",
+    "damage": 8,
+    "deflection_bonus": 0.05,
+    "weapon_type": "combat_knife",
+    "damage_type": "stab",
+}
+
+# Cutlass
+CUTLASS = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "cutlass",
+    "aliases": ["pirate sword", "saber"],
+    "desc": "A curved cutlass with a brass basket guard. The blade shows salt-air corrosion and old nicks, but the edge is freshly honed. Balanced for slashing in tight quarters.",
+    "damage": 10,
+    "deflection_bonus": 0.15,
+    "weapon_type": "cutlass",
+    "damage_type": "cut",
+}
+
+# Falchion
+FALCHION = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "falchion",
+    "aliases": ["chopping sword", "cleaving sword"],
+    "desc": "A heavy falchion with a single-edged blade that widens toward the tip. Built for chopping through armor and bone alike. The weight is concentrated forward for devastating cuts.",
+    "damage": 12,
+    "deflection_bonus": 0.10,
+    "weapon_type": "falchion",
+    "damage_type": "cut",
+}
+
+# Gladius
+GLADIUS = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "gladius",
+    "aliases": ["roman sword", "short sword"],
+    "desc": "A reproduction Roman gladius with a leaf-shaped blade. Designed for stabbing in close formation combat. The edge is secondary to the point, which finds gaps in armor with surgical precision.",
+    "damage": 9,
+    "deflection_bonus": 0.10,
+    "weapon_type": "gladius",
+    "damage_type": "stab",
+}
+
+# Glass Shard
+GLASS_SHARD = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "glass shard",
+    "aliases": ["broken glass", "glass shiv"],
+    "desc": "A wicked shard of broken glass wrapped at one end with cloth tape. Cuts the wielder almost as easily as the victim. Desperate, ugly, effective.",
+    "damage": 5,
+    "deflection_bonus": -0.15,
+    "weapon_type": "glass_shard",
+    "damage_type": "cut",
+}
+
+# Kukri
+KUKRI = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "kukri",
+    "aliases": ["gurkha knife", "khukuri"],
+    "desc": "A traditional Nepalese kukri with its distinctive inward-curved blade. The weight is forward, designed for powerful chopping strikes. Gurkha regiments made this blade legendary.",
+    "damage": 11,
+    "deflection_bonus": 0.05,
+    "weapon_type": "kukri",
+    "damage_type": "cut",
+}
+
+# Machete
+MACHETE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "machete",
+    "aliases": ["brush cutter", "cane knife"],
+    "desc": "A long-bladed machete with a wooden handle. Originally meant for clearing brush, it's found equal utility clearing paths through crowds. The blade is stained with rust and other things.",
+    "damage": 10,
+    "deflection_bonus": 0.05,
+    "weapon_type": "machete",
+    "damage_type": "cut",
+}
+
+# Meat Cleaver
+MEAT_CLEAVER = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "meat cleaver",
+    "aliases": ["cleaver", "butcher knife"],
+    "desc": "A heavy rectangular meat cleaver from a butcher's block. The blade is thick steel, built to chop through bone. In a pinch, it chops through other things just as well.",
+    "damage": 9,
+    "deflection_bonus": 0.0,
+    "weapon_type": "meat_cleaver",
+    "damage_type": "cut",
+}
+
+# Mirror Shard
+MIRROR_SHARD = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "mirror shard",
+    "aliases": ["broken mirror", "mirror shiv"],
+    "desc": "A triangular piece of broken mirror, the reflective coating fragmenting your image as you grip it. Someone stares back at you from its surface. Maybe it's you. Maybe it isn't anymore.",
+    "damage": 5,
+    "deflection_bonus": -0.15,
+    "weapon_type": "mirror_shard",
+    "damage_type": "cut",
+}
+
+# Rapier
+RAPIER = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "rapier",
+    "aliases": ["fencing sword", "epee"],
+    "desc": "An elegant rapier with a swept hilt and wire-wrapped grip. The blade is impossibly thin but remarkably rigid, designed for precise thrusts that slip between ribs. A duelist's weapon.",
+    "damage": 9,
+    "deflection_bonus": 0.15,
+    "weapon_type": "rapier",
+    "damage_type": "stab",
+}
+
+# Scalpel
+SCALPEL = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "scalpel",
+    "aliases": ["surgical blade", "medical knife"],
+    "desc": "A surgical scalpel with a disposable blade. The edge is impossibly sharp, meant to part flesh with minimal trauma. In combat, it trades reach for precision cuts.",
+    "damage": 3,
+    "deflection_bonus": -0.15,
+    "weapon_type": "scalpel",
+    "damage_type": "cut",
+}
+
+# Scimitar
+SCIMITAR = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "scimitar",
+    "aliases": ["curved sword", "shamshir"],
+    "desc": "A sweeping scimitar with an elegantly curved blade. The design maximizes cutting power in cavalry slashes, drawing across the target. The edge whispers through the air.",
+    "damage": 11,
+    "deflection_bonus": 0.10,
+    "weapon_type": "scimitar",
+    "damage_type": "cut",
+}
+
+# Shiv
+SHIV = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "shiv",
+    "aliases": ["prison knife", "homemade knife"],
+    "desc": "A crude shiv fashioned from sharpened metal. The handle is wrapped in torn cloth. It's ugly, it's simple, and it's ended more lives in dark corners than fancy swords ever will.",
+    "damage": 5,
+    "deflection_bonus": -0.10,
+    "weapon_type": "shiv",
+    "damage_type": "stab",
+}
+
+# Small Knife
+SMALL_KNIFE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "small knife",
+    "aliases": ["pocket knife", "folding knife"],
+    "desc": "A small folding knife with a three-inch blade. Nothing fancy, nothing tactical - just a working knife that happens to fit in a pocket and opens with a satisfying click.",
+    "damage": 4,
+    "deflection_bonus": -0.10,
+    "weapon_type": "small_knife",
+    "damage_type": "stab",
+}
+
+# Straight Razor
+STRAIGHT_RAZOR = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "straight razor",
+    "aliases": ["cutthroat razor", "barber razor"],
+    "desc": "An old-fashioned straight razor with a bone handle. The blade folds into the handle with a menacing click. Originally for shaving, but the edge doesn't care what it cuts.",
+    "damage": 4,
+    "deflection_bonus": -0.15,
+    "weapon_type": "straight_razor",
+    "damage_type": "cut",
+}
+
+# =============================================================================
+# MELEE SKILL WEAPONS (blunt weapons, improvised, tools)
+# =============================================================================
+
+# Baton
+BATON = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "baton",
+    "aliases": ["club", "billy club"],
+    "desc": "A solid metal baton with a rubberized grip. Standard issue for security and law enforcement. Extended, it's about two feet of pain compliance.",
+    "damage": 7,
+    "deflection_bonus": 0.10,
+    "weapon_type": "baton",
+    "damage_type": "blunt",
+}
+
+# Battle Axe
+BATTLE_AXE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "battle axe",
+    "aliases": ["war axe", "viking axe"],
+    "desc": "A proper battle axe with a crescent-shaped head on a long haft. The weight demands two hands, but the devastation it delivers justifies the commitment.",
+    "damage": 16,
+    "deflection_bonus": 0.05,
+    "weapon_type": "battle_axe",
+    "damage_type": "cut",
+    "hands_required": 2,
+}
+
+# Blowtorch
+BLOWTORCH = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "blowtorch",
+    "aliases": ["torch", "welding torch"],
+    "desc": "A handheld blowtorch with a blue-hot flame. Meant for welding and cutting metal. The tank sloshes with propane, and the igniter clicks with promise.",
+    "damage": 8,
+    "deflection_bonus": -0.20,
+    "weapon_type": "blowtorch",
+    "damage_type": "burn",
+}
+
+# Brick
+BRICK = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "brick",
+    "aliases": ["red brick", "building brick"],
+    "desc": "A standard red construction brick. Heavy, rough, and absolutely final when applied to someone's skull. The simplest weapon is often the most effective.",
+    "damage": 6,
+    "deflection_bonus": -0.05,
+    "weapon_type": "brick",
+    "damage_type": "blunt",
+}
+
+# Broken Bottle
+BROKEN_BOTTLE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "broken bottle",
+    "aliases": ["bottle", "glass bottle"],
+    "desc": "A broken bottle with jagged edges. The neck makes a convenient handle while the shattered base becomes a crown of glass teeth. Classic bar fight weaponry.",
+    "damage": 5,
+    "deflection_bonus": -0.10,
+    "weapon_type": "broken_bottle",
+    "damage_type": "cut",
+}
+
+# Catchpole
+CATCHPOLE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "catchpole",
+    "aliases": ["catch pole", "control pole"],
+    "desc": "A long pole with a loop of cable at the end, normally used for animal control. The loop can restrain a neck surprisingly well, regardless of species.",
+    "damage": 4,
+    "deflection_bonus": 0.10,
+    "weapon_type": "catchpole",
+    "damage_type": "blunt",
+}
+
+# Chain
+CHAIN = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "chain",
+    "aliases": ["heavy chain", "bike chain"],
+    "desc": "A length of heavy chain, about three feet long. Each link is solid steel. Swung with intent, it wraps around limbs and crushes bone.",
+    "damage": 8,
+    "deflection_bonus": 0.05,
+    "weapon_type": "chain",
+    "damage_type": "blunt",
+}
+
+# Cricket Bat
+CRICKET_BAT = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "cricket bat",
+    "aliases": ["bat", "willow bat"],
+    "desc": "A traditional cricket bat made of willow wood. The flat striking surface is perfect for hitting things - balls, heads, whatever needs hitting.",
+    "damage": 8,
+    "deflection_bonus": 0.25,
+    "weapon_type": "cricket_bat",
+    "damage_type": "blunt",
+}
+
+# Crowbar
+CROWBAR = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "crowbar",
+    "aliases": ["pry bar", "iron bar"],
+    "desc": "A heavy steel crowbar with a curved claw at one end. Originally designed for prying open crates and doors, it pries open other things equally well.",
+    "damage": 9,
+    "deflection_bonus": 0.10,
+    "weapon_type": "crowbar",
+    "damage_type": "blunt",
+}
+
+# Fire Axe
+FIRE_AXE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "fire axe",
+    "aliases": ["axe", "emergency axe"],
+    "desc": "A red-painted fire axe pulled from an emergency case. The blade is sharp, the handle is fiberglass, and the weight is perfect for breaching doors - or skulls.",
+    "damage": 14,
+    "deflection_bonus": 0.05,
+    "weapon_type": "fire_axe",
+    "damage_type": "cut",
+}
+
+# Flare
+FLARE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "flare",
+    "aliases": ["road flare", "emergency flare"],
+    "desc": "A lit road flare spitting red sparks. The chemical burn is intense enough to melt synthetic fabric. As a weapon, it's more psychological than practical - but burns are burns.",
+    "damage": 4,
+    "deflection_bonus": -0.15,
+    "weapon_type": "flare",
+    "damage_type": "burn",
+}
+
+# Garden Shears
+GARDEN_SHEARS = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "garden shears",
+    "aliases": ["shears", "pruning shears"],
+    "desc": "Heavy-duty garden shears meant for trimming branches. The blades are long and slightly curved, with enough leverage to cut through surprisingly thick... branches.",
+    "damage": 7,
+    "deflection_bonus": -0.05,
+    "weapon_type": "garden_shears",
+    "damage_type": "cut",
+}
+
+# Hammer
+HAMMER = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "hammer",
+    "aliases": ["claw hammer", "framing hammer"],
+    "desc": "A standard claw hammer with a fiberglass handle. The head is weighted for driving nails. The claw is curved for pulling them out. Both ends work on people.",
+    "damage": 7,
+    "deflection_bonus": 0.0,
+    "weapon_type": "hammer",
+    "damage_type": "blunt",
+}
+
+# Hatchet
+HATCHET = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "hatchet",
+    "aliases": ["small axe", "hand axe"],
+    "desc": "A compact hatchet with a leather-wrapped handle. Designed for light chopping and camping tasks. The blade is sharp enough for finer work than a full axe allows.",
+    "damage": 9,
+    "deflection_bonus": 0.0,
+    "weapon_type": "hatchet",
+    "damage_type": "cut",
+}
+
+# Ice Pick
+ICE_PICK = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "ice pick",
+    "aliases": ["pick", "awl"],
+    "desc": "An old-fashioned ice pick with a wooden handle and steel spike. Originally meant for chipping ice blocks. The point finds other uses in dark alleys.",
+    "damage": 6,
+    "deflection_bonus": -0.10,
+    "weapon_type": "ice_pick",
+    "damage_type": "stab",
+}
+
+# Improvised Shield
+IMPROVISED_SHIELD = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "improvised shield",
+    "aliases": ["makeshift shield", "riot shield"],
+    "desc": "A large piece of scrap metal or plastic fashioned into a crude shield. The edges are rough and the grip is uncomfortable, but it stops incoming attacks.",
+    "damage": 4,
+    "deflection_bonus": 0.40,
+    "weapon_type": "improvised_shield",
+    "damage_type": "blunt",
+}
+
+# Large Axe
+LARGE_AXE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "large axe",
+    "aliases": ["wood axe", "splitting axe"],
+    "desc": "A heavy wood-splitting axe with a long handle. The wedge-shaped head is built for cleaving logs. It cleaves other things with equal enthusiasm.",
+    "damage": 13,
+    "deflection_bonus": 0.05,
+    "weapon_type": "large_axe",
+    "damage_type": "cut",
+    "hands_required": 2,
+}
+
+# Large Shield
+LARGE_SHIELD = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "large shield",
+    "aliases": ["tower shield", "riot shield"],
+    "desc": "A proper large shield offering full torso coverage. Heavy and cumbersome, but it turns you into a walking wall. The edge can be used to bash.",
+    "damage": 5,
+    "deflection_bonus": 0.50,
+    "weapon_type": "large_shield",
+    "damage_type": "blunt",
+}
+
+# Meat Hook
+MEAT_HOOK = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "meat hook",
+    "aliases": ["hook", "butcher hook"],
+    "desc": "A curved steel meat hook stained with old blood. The point is sharp enough to pierce, and the curve ensures whatever it catches doesn't come free easily.",
+    "damage": 8,
+    "deflection_bonus": -0.05,
+    "weapon_type": "meat_hook",
+    "damage_type": "stab",
+}
+
+# Metal Club
+METAL_CLUB = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "metal club",
+    "aliases": ["pipe club", "iron club"],
+    "desc": "A solid piece of metal shaped into a crude club. No elegance, no subtlety - just weight and violence in a convenient package.",
+    "damage": 9,
+    "deflection_bonus": 0.05,
+    "weapon_type": "metal_club",
+    "damage_type": "blunt",
+}
+
+# Nail Bat
+NAIL_BAT = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "nail bat",
+    "aliases": ["spiked bat", "nailed bat"],
+    "desc": "A baseball bat studded with rusty nails. The wood is wrapped in duct tape for grip, and each nail promises tetanus along with trauma.",
+    "damage": 11,
+    "deflection_bonus": 0.15,
+    "weapon_type": "nail_bat",
+    "damage_type": "blunt",
+}
+
+# Nailed Board
+NAILED_BOARD = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "nailed board",
+    "aliases": ["board with nails", "spiked board"],
+    "desc": "A rough wooden board with nails driven through it. The nails stick out at various angles, bent but sharp. Primitive, brutal, effective.",
+    "damage": 8,
+    "deflection_bonus": 0.0,
+    "weapon_type": "nailed_board",
+    "damage_type": "blunt",
+}
+
+# Nightstick
+NIGHTSTICK = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "nightstick",
+    "aliases": ["police baton", "truncheon"],
+    "desc": "A wooden nightstick with a side handle. Classic law enforcement issue, designed for controlling suspects. The weight is perfectly balanced for repeated strikes.",
+    "damage": 7,
+    "deflection_bonus": 0.15,
+    "weapon_type": "nightstick",
+    "damage_type": "blunt",
+}
+
+# Pipe
+PIPE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "pipe",
+    "aliases": ["metal pipe", "lead pipe"],
+    "desc": "A length of metal pipe, probably from some plumbing. Heavy, sturdy, and anonymous - the kind of weapon that could have come from anywhere and leaves no distinctive marks.",
+    "damage": 8,
+    "deflection_bonus": 0.10,
+    "weapon_type": "pipe",
+    "damage_type": "blunt",
+}
+
+# Pipe Wrench
+PIPE_WRENCH = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "pipe wrench",
+    "aliases": ["wrench", "plumber's wrench"],
+    "desc": "A heavy pipe wrench with adjustable jaws. The weight is concentrated in the head, making it swing like a mace. Plumbers know - this is the real tool of the trade.",
+    "damage": 10,
+    "deflection_bonus": 0.05,
+    "weapon_type": "pipe_wrench",
+    "damage_type": "blunt",
+}
+
+# Pool Cue
+POOL_CUE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "pool cue",
+    "aliases": ["cue stick", "billiard cue"],
+    "desc": "A two-piece pool cue screwed together. The wood is polished smooth, tapering to a fine point. Break it over someone's back and you have two weapons.",
+    "damage": 6,
+    "deflection_bonus": 0.10,
+    "weapon_type": "pool_cue",
+    "damage_type": "blunt",
+}
+
+# Rebar
+REBAR = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "rebar",
+    "aliases": ["reinforcing bar", "steel rod"],
+    "desc": "A length of construction rebar with ridged surfaces for gripping concrete. The ridges also grip flesh quite effectively. About three feet of solid steel.",
+    "damage": 9,
+    "deflection_bonus": 0.10,
+    "weapon_type": "rebar",
+    "damage_type": "blunt",
+}
+
+# Screwdriver
+SCREWDRIVER = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "screwdriver",
+    "aliases": ["flathead", "phillips"],
+    "desc": "A long screwdriver with a hardened steel shaft. The grip is rubberized for comfort. The point is meant for turning screws, but anatomy has screws of its own.",
+    "damage": 5,
+    "deflection_bonus": -0.10,
+    "weapon_type": "screwdriver",
+    "damage_type": "stab",
+}
+
+# Shovel
+SHOVEL = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "shovel",
+    "aliases": ["spade", "entrenching tool"],
+    "desc": "A standard garden shovel with a steel blade and wooden handle. It digs graves before and after use. The edge isn't sharp, but edge doesn't matter at this speed.",
+    "damage": 10,
+    "deflection_bonus": 0.10,
+    "weapon_type": "shovel",
+    "damage_type": "blunt",
+}
+
+# Sledgehammer
+SLEDGEHAMMER = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "sledgehammer",
+    "aliases": ["maul", "heavy hammer"],
+    "desc": "A ten-pound sledgehammer with a fiberglass handle. Built for demolition work. The head moves slow but carries enough momentum to end arguments permanently.",
+    "damage": 15,
+    "deflection_bonus": -0.10,
+    "weapon_type": "sledgehammer",
+    "damage_type": "blunt",
+    "hands_required": 2,
+}
+
+# Small Axe
+SMALL_AXE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "small axe",
+    "aliases": ["camp axe", "boy scout axe"],
+    "desc": "A small camp axe with a short handle. Compact enough to carry easily, heavy enough to do damage. The head is slightly rusted but the edge is keen.",
+    "damage": 8,
+    "deflection_bonus": 0.0,
+    "weapon_type": "small_axe",
+    "damage_type": "cut",
+}
+
+# Small Shield
+SMALL_SHIELD = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "small shield",
+    "aliases": ["buckler", "round shield"],
+    "desc": "A small round shield meant for parrying and punching. Light enough to maneuver quickly, solid enough to deflect blows. The boss can be used to strike.",
+    "damage": 4,
+    "deflection_bonus": 0.30,
+    "weapon_type": "small_shield",
+    "damage_type": "blunt",
+}
+
+# Stake
+STAKE = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "stake",
+    "aliases": ["wooden stake", "tent stake"],
+    "desc": "A sharpened wooden stake about a foot long. Originally for securing tents or fencing. The point is crude but effective against anything with a chest cavity.",
+    "damage": 6,
+    "deflection_bonus": -0.10,
+    "weapon_type": "stake",
+    "damage_type": "stab",
+}
+
+# Tire Iron
+TIRE_IRON = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "tire iron",
+    "aliases": ["lug wrench", "wheel brace"],
+    "desc": "A heavy tire iron with a bent end for leverage. Every car has one. Every driver has considered using it for something other than changing tires.",
+    "damage": 8,
+    "deflection_bonus": 0.10,
+    "weapon_type": "tire_iron",
+    "damage_type": "blunt",
+}
+
+# Whip
+WHIP = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "whip",
+    "aliases": ["bullwhip", "leather whip"],
+    "desc": "A braided leather whip about eight feet long. The tip moves faster than sound when cracked. Leaves welts that last for weeks and scars that last longer.",
+    "damage": 6,
+    "deflection_bonus": 0.05,
+    "weapon_type": "whip",
+    "damage_type": "blunt",
+}
+
+# =============================================================================
+# PISTOL SKILL WEAPONS
+# =============================================================================
+
+# Flare Gun
+FLARE_GUN = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "flare gun",
+    "aliases": ["signal gun", "distress pistol"],
+    "desc": "An orange plastic flare gun meant for signaling distress. The 12-gauge flare it fires can also signal distress in a more direct way when aimed at someone.",
+    "damage": 10,
+    "attrs": [
+        ("weapon_type", "flare_gun"),
+        ("damage_type", "burn"),
+        ("hands_required", 1),
+    ]
+}
+
+# Heavy Revolver
+HEAVY_REVOLVER = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "heavy revolver",
+    "aliases": ["magnum", "44 magnum", "wheel gun"],
+    "desc": "A massive double-action revolver with a six-inch barrel. The cylinder holds six rounds of ammunition that could stop a charging bear. The recoil requires commitment.",
+    "damage": 20,
+    "attrs": [
+        ("weapon_type", "heavy_revolver"),
+        ("damage_type", "bullet"),
+        ("hands_required", 1),
+    ]
+}
+
+# Light Revolver
+LIGHT_REVOLVER = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "light revolver",
+    "aliases": ["snubnose", "pocket revolver", "38 special"],
+    "desc": "A compact revolver with a snub-nosed barrel. Five shots, no safety, and small enough to hide almost anywhere. The classic backup piece.",
+    "damage": 10,
+    "attrs": [
+        ("weapon_type", "light_revolver"),
+        ("damage_type", "bullet"),
+        ("hands_required", 1),
+    ]
+}
+
+# Machine Pistol
+MACHINE_PISTOL = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "machine pistol",
+    "aliases": ["auto pistol", "glock 18"],
+    "desc": "A compact machine pistol with a extended magazine and folding stock. The selector switch offers semi-auto and full-auto fire. Accuracy suffers, but volume compensates.",
+    "damage": 9,
+    "attrs": [
+        ("weapon_type", "machine_pistol"),
+        ("damage_type", "bullet"),
+        ("hands_required", 1),
+    ]
+}
+
+# Nail Gun
+NAIL_GUN = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "nail gun",
+    "aliases": ["pneumatic nailer", "framing nailer"],
+    "desc": "A pneumatic nail gun with a full magazine of 3-inch framing nails. Construction safety protocols exist for good reason. This is that reason.",
+    "damage": 8,
+    "attrs": [
+        ("weapon_type", "nail_gun"),
+        ("damage_type", "stab"),
+        ("hands_required", 1),
+    ]
+}
+
+# Stun Gun
+STUN_GUN = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "stun gun",
+    "aliases": ["taser", "electroshock"],
+    "desc": "A handheld stun gun that fires two barbed probes trailing thin wires. The electrical discharge causes immediate muscle lockup. Range is limited, but so is target resistance.",
+    "damage": 5,
+    "attrs": [
+        ("weapon_type", "stun_gun"),
+        ("damage_type", "burn"),
+        ("hands_required", 1),
+    ]
+}
+
+# =============================================================================
+# RIFLE SKILL WEAPONS
+# =============================================================================
+
+# Bowel Disruptor
+BOWEL_DISRUPTOR = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "bowel disruptor",
+    "aliases": ["disruptor", "sonic rifle"],
+    "desc": "A bulky weapon that emits focused infrasound waves. The effect on human bowels is as advertised. Banned by most conventions. Available at better arms dealers.",
+    "damage": 15,
+    "attrs": [
+        ("weapon_type", "bowel_disruptor"),
+        ("damage_type", "blunt"),
+    ]
+}
+
+# Flamethrower
+FLAMETHROWER = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "flamethrower",
+    "aliases": ["flame thrower", "fire sprayer"],
+    "desc": "A backpack-mounted flamethrower with a long nozzle and pilot light. The fuel tank gurgles ominously. The stream of burning gel sticks to everything it touches.",
+    "damage": 18,
+    "attrs": [
+        ("weapon_type", "flamethrower"),
+        ("damage_type", "burn"),
+    ]
+}
+
+# Heavy Machine Gun
+HEAVY_MACHINE_GUN = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "heavy machine gun",
+    "aliases": ["HMG", "mounted gun", "50 cal"],
+    "desc": "A heavy machine gun designed for vehicle or tripod mounting. The belt feed allows sustained fire, and the caliber allows sustained devastation. Portable only in the most generous sense.",
+    "damage": 30,
+    "attrs": [
+        ("weapon_type", "heavy_machine_gun"),
+        ("damage_type", "bullet"),
+    ]
+}
+
+# Lever-Action Rifle
+LEVER_ACTION_RIFLE = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "lever-action rifle",
+    "aliases": ["lever rifle", "winchester", "cowboy rifle"],
+    "desc": "A classic lever-action rifle with a tubular magazine under the barrel. The lever cycles with a satisfying mechanical precision. Frontier technology that never stopped being effective.",
+    "damage": 18,
+    "attrs": [
+        ("weapon_type", "lever-action_rifle"),
+        ("damage_type", "bullet"),
+    ]
+}
+
+# Lever-Action Shotgun
+LEVER_ACTION_SHOTGUN = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "lever-action shotgun",
+    "aliases": ["lever shotgun", "mare's leg"],
+    "desc": "A compact lever-action shotgun with a shortened stock. The lever cycles 12-gauge shells with cowboy style. Fast, loud, and devastating at close range.",
+    "damage": 18,
+    "attrs": [
+        ("weapon_type", "lever-action_shotgun"),
+        ("damage_type", "bullet"),
+    ]
+}
+
+# Semi-Auto Rifle
+SEMI_AUTO_RIFLE = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "semi-auto rifle",
+    "aliases": ["battle rifle", "carbine"],
+    "desc": "A semi-automatic rifle with a detachable magazine. One trigger pull, one shot, as fast as you can pull. The receiver is stamped with military proof marks.",
+    "damage": 16,
+    "attrs": [
+        ("weapon_type", "semi-auto_rifle"),
+        ("damage_type", "bullet"),
+    ]
+}
+
+# Semi-Auto Shotgun
+SEMI_AUTO_SHOTGUN = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "semi-auto shotgun",
+    "aliases": ["auto shotgun", "combat shotgun"],
+    "desc": "A semi-automatic shotgun with gas operation and an extended magazine. Each trigger pull chambers a fresh shell automatically. Volume of fire meets close-range devastation.",
+    "damage": 18,
+    "attrs": [
+        ("weapon_type", "semi-auto_shotgun"),
+        ("damage_type", "bullet"),
+    ]
+}
+
+# Sniper Rifle
+SNIPER_RIFLE = {
+    "prototype_parent": "RANGED_WEAPON_BASE",
+    "key": "sniper rifle",
+    "aliases": ["precision rifle", "marksman rifle"],
+    "desc": "A precision rifle with a heavy barrel, bipod, and high-powered scope. Built for one shot, one kill at extreme range. The bolt action is glass-smooth.",
+    "damage": 28,
+    "attrs": [
+        ("weapon_type", "bolt-action_rifle"),
+        ("damage_type", "bullet"),
+    ]
+}
+
+# =============================================================================
+# BRAWLING SKILL WEAPONS
+# =============================================================================
+
+# Tiger Claws (moved to Martial Arts as it requires trained technique)
+
+# =============================================================================
+# MARTIAL ARTS SKILL WEAPONS
+# =============================================================================
+
+# Nunchaku
+NUNCHAKU = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "nunchaku",
+    "aliases": ["nunchucks", "chain sticks"],
+    "desc": "A pair of wooden batons connected by a short chain. The weapon requires training to use effectively without striking yourself. In skilled hands, they're a blur of controlled chaos.",
+    "damage": 8,
+    "deflection_bonus": 0.15,
+    "weapon_type": "nunchaku",
+    "damage_type": "blunt",
+}
+
+# Tiger Claws
+TIGER_CLAWS = {
+    "prototype_parent": "MELEE_WEAPON_BASE",
+    "key": "tiger claws",
+    "aliases": ["bagh nakh", "claw weapon"],
+    "desc": "A set of curved metal claws worn over the fingers like brass knuckles. The blades extend from between the knuckles, turning each punch into a raking slash.",
+    "damage": 10,
+    "deflection_bonus": 0.0,
+    "weapon_type": "tiger_claws",
+    "damage_type": "cut",
 }
 
 # =============================================================================
