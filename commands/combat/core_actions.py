@@ -13,7 +13,7 @@ from evennia import Command
 from evennia.utils.utils import inherits_from
 from random import randint, choice
 from world.combat.handler import get_or_create_combat
-from world.combat.constants import COMBAT_SCRIPT_KEY
+from world.combat.constants import COMBAT_SCRIPT_KEY, NDB_COMBAT_HANDLER
 from world.combat.messages import get_combat_message
 from evennia.comms.models import ChannelDB
 from evennia.utils import utils
