@@ -232,11 +232,16 @@ to its neutral stance between attacks.
         return appearance
 
     def at_msg_receive(self, msg, from_obj=None, **kwargs):
-        """React to messages in the room. Heal and reset on 'reset'."""
+        """React to messages in the room. Heal and reset on 'reset', robust to accents."""
         if not msg:
             return
-        msg_lower = str(msg).strip().lower()
-        if "reset" in msg_lower:
+        import unicodedata
+        def strip_accents(text):
+            return ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
+
+        msg_str = str(msg).strip().lower()
+        msg_normalized = strip_accents(msg_str)
+        if "reset" in msg_normalized:
             # Remove from combat if needed
             handler = getattr(self.ndb, NDB_COMBAT_HANDLER, None)
             if handler:
