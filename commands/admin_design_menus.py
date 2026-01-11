@@ -270,6 +270,13 @@ def node_clothes_main(caller, raw_string, **kwargs):
 
 |wName:|n {data.get('name', '(unnamed)')}
 |wIs Armor:|n {'|g[YES]|n' if data.get('is_armor') else '|r[NO]|n'}
+|wCoverage:|n {', '.join(data.get('coverage', [])) or '(none)'}
+|wColor:|n {data.get('color', '(none)')}
+|wSee-Thru:|n {'|g[YES]|n' if data.get('see_thru') else '|r[NO]|n'}
+|wDescription:|n {data.get('desc', '(none)')}
+|wWear Msg:|n {data.get('wear_msg', '(default)')}
+|wRemove Msg:|n {data.get('remove_msg', '(default)')}
+|wWorn Msg:|n {data.get('worn_msg', '(default)')}
 
 [R] Review
 [S] Save
@@ -278,11 +285,58 @@ def node_clothes_main(caller, raw_string, **kwargs):
     options = [
         {"desc": "Set Name", "goto": "node_clothes_set_name"},
         {"desc": "Toggle Is Armor", "goto": "node_clothes_toggle_armor"},
+        {"desc": "Set Coverage", "goto": "node_clothes_set_coverage"},
+        {"desc": "Set Color", "goto": "node_clothes_set_color"},
+        {"desc": "Toggle See-Thru", "goto": "node_clothes_toggle_see_thru"},
+        {"desc": "Set Description", "goto": "node_clothes_set_desc"},
+        {"desc": "Set Wear Msg", "goto": "node_clothes_set_wear_msg"},
+        {"desc": "Set Remove Msg", "goto": "node_clothes_set_remove_msg"},
+        {"desc": "Set Worn Msg", "goto": "node_clothes_set_worn_msg"},
         {"desc": "Review", "goto": "node_clothes_review"},
         {"desc": "Save", "goto": "node_clothes_save"},
         {"desc": "Quit", "goto": "node_quit"},
     ]
     return text, options
+def node_clothes_set_coverage(caller, raw_string, **kwargs):
+    caller.msg("Enter comma-separated body locations for coverage (e.g. chest, arms, legs):")
+    return "Enter coverage:", [
+        {"key": "_input", "goto": "node_clothes_main", "exec": lambda c, s: c.ndb._clothes_design.update({'coverage': [loc.strip() for loc in s.split(',') if loc.strip()]})}
+    ]
+
+def node_clothes_set_color(caller, raw_string, **kwargs):
+    caller.msg("Enter color:")
+    return "Enter color:", [
+        {"key": "_input", "goto": "node_clothes_main", "exec": lambda c, s: c.ndb._clothes_design.update({'color': s.strip()})}
+    ]
+
+def node_clothes_toggle_see_thru(caller, raw_string, **kwargs):
+    data = caller.ndb._clothes_design
+    data['see_thru'] = not data.get('see_thru', False)
+    return node_clothes_main(caller, raw_string, **kwargs)
+
+def node_clothes_set_desc(caller, raw_string, **kwargs):
+    caller.msg("Enter description:")
+    return "Enter description:", [
+        {"key": "_input", "goto": "node_clothes_main", "exec": lambda c, s: c.ndb._clothes_design.update({'desc': s.strip()})}
+    ]
+
+def node_clothes_set_wear_msg(caller, raw_string, **kwargs):
+    caller.msg("Enter wear message:")
+    return "Enter wear message:", [
+        {"key": "_input", "goto": "node_clothes_main", "exec": lambda c, s: c.ndb._clothes_design.update({'wear_msg': s.strip()})}
+    ]
+
+def node_clothes_set_remove_msg(caller, raw_string, **kwargs):
+    caller.msg("Enter remove message:")
+    return "Enter remove message:", [
+        {"key": "_input", "goto": "node_clothes_main", "exec": lambda c, s: c.ndb._clothes_design.update({'remove_msg': s.strip()})}
+    ]
+
+def node_clothes_set_worn_msg(caller, raw_string, **kwargs):
+    caller.msg("Enter worn message:")
+    return "Enter worn message:", [
+        {"key": "_input", "goto": "node_clothes_main", "exec": lambda c, s: c.ndb._clothes_design.update({'worn_msg': s.strip()})}
+    ]
 
 def node_clothes_set_name(caller, raw_string, **kwargs):
     caller.msg("Enter clothing name:")
@@ -291,13 +345,30 @@ def node_clothes_set_name(caller, raw_string, **kwargs):
     ]
 
 def node_clothes_toggle_armor(caller, raw_string, **kwargs):
+        return node_clothes_main(caller, raw_string, **kwargs)
+
+    def node_clothes_toggle_see_thru(caller, raw_string, **kwargs):
+        data = caller.ndb._clothes_design
+        data['see_thru'] = not data.get('see_thru', False)
+        return node_clothes_main(caller, raw_string, **kwargs)
     data = caller.ndb._clothes_design
     data['is_armor'] = not data.get('is_armor', False)
     return node_clothes_main(caller, raw_string, **kwargs)
 
 def node_clothes_review(caller, raw_string, **kwargs):
     data = caller.ndb._clothes_design
-    text = f"Review Clothes/Armor:\nName: {data.get('name')}\nIs Armor: {data.get('is_armor')}"
+    text = f"""
+|c=== Review Clothes/Armor ===|n
+Name: {data.get('name')}
+Is Armor: {data.get('is_armor')}
+Coverage: {', '.join(data.get('coverage', []))}
+Color: {data.get('color')}
+See-Thru: {data.get('see_thru')}
+Description: {data.get('desc')}
+Wear Msg: {data.get('wear_msg')}
+Remove Msg: {data.get('remove_msg')}
+Worn Msg: {data.get('worn_msg')}
+"""
     return text, [{"desc": "Back", "goto": "node_clothes_main"}]
 
 def node_clothes_save(caller, raw_string, **kwargs):
