@@ -31,11 +31,18 @@ class CmdSetStat(Command):
 
     def func(self):
         if not self.args:
-            self.caller.msg("Usage: setstat <target> <stat> <value>")
+            self.caller.msg("Usage: setstat \"<target>\" <stat> <value>")
             return
-        args = self.args.strip().split()
+        
+        import shlex
+        try:
+            args = shlex.split(self.args.strip())
+        except ValueError:
+            self.caller.msg("Invalid quoting in arguments.")
+            return
+        
         if len(args) != 3:
-            self.caller.msg("Usage: setstat <target> <stat> <value>")
+            self.caller.msg("Usage: setstat \"<target>\" <stat> <value>")
             return
         target_name, stat, value = args
         target = self.caller.search(target_name)

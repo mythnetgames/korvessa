@@ -277,17 +277,22 @@ class CmdSetSkill(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: setskill <character> <skill> <value>")
-            caller.msg("       setskill <character> <skill> +/-<amount>")
+            caller.msg("Usage: setskill \"<character>\" <skill> <value>")
+            caller.msg("       setskill \"<character>\" <skill> +/-<amount>")
             return
         
-        args = self.args.strip().split(None, 2)  # Split into at most 3 parts
+        import shlex
+        try:
+            args = shlex.split(self.args.strip())
+        except ValueError:
+            caller.msg("Invalid quoting in arguments.")
+            return
         
         if len(args) < 3:
-            caller.msg("Usage: setskill <character> <skill> <value>")
+            caller.msg("Usage: setskill \"<character>\" <skill> <value>")
             return
         
-        char_name, skill_name, value_str = args
+        char_name, skill_name, value_str = args[0], args[1], args[2]
         
         # Find target character
         target = caller.search(char_name, global_search=True)
