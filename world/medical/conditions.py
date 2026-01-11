@@ -305,19 +305,28 @@ class InfectionCondition(MedicalCondition):
         self.progression_chance = 0
 
 
-def create_condition_from_damage(damage_amount, damage_type, location=None):
+def create_condition_from_damage(damage_amount, damage_type, location=None, armor_protection=0.0):
     """
     Create appropriate medical conditions based on damage dealt.
     
+    Armor protection reduces the chance of conditions like bleeding, bruising, and cuts.
+    Higher armor protection (0.0-1.0) means better protection against injuries.
+    
     Args:
-        damage_amount: Amount of damage dealt
+        damage_amount: Amount of damage dealt (after armor reduction)
         damage_type: Type of damage (bullet, blade, blunt, etc.)
         location: Body location affected
+        armor_protection: 0.0-1.0 ratio of damage absorbed by armor
         
     Returns:
         list: List of MedicalCondition instances
     """
     conditions = []
+    
+    # Armor protection reduces condition chances
+    # At 50% armor protection, bleeding chance is halved
+    # At 90% armor protection, bleeding is almost completely prevented
+    condition_prevention_chance = armor_protection * 100  # Convert to percentage
     
     # Weapon-specific bleeding thresholds
     # Blades and bullets cause bleeding more readily due to wound characteristics
@@ -325,24 +334,39 @@ def create_condition_from_damage(damage_amount, damage_type, location=None):
         # Sharp/penetrating wounds bleed easily - lower threshold
         bleeding_threshold = 8  # Bleed at 8+ damage
         if damage_amount >= bleeding_threshold:
-            # Severity scales with damage: 8 damage = 1 severity, 16 damage = 4 severity, etc.
-            bleeding_severity = min(10, max(1, damage_amount // 4))
-            conditions.append(BleedingCondition(bleeding_severity, location))
+            # Armor can prevent bleeding - roll against armor protection
+            if random.randint(1, 100) > condition_prevention_chance:
+                # Severity scales with damage: 8 damage = 1 severity, 16 damage = 4 severity, etc.
+                # Armor also reduces severity if bleeding still occurs
+                base_severity = min(10, max(1, damage_amount // 4))
+                severity_reduction = int(base_severity * armor_protection * 0.5)  # Up to 50% severity reduction from armor
+                bleeding_severity = max(1, base_severity - severity_reduction)
+                conditions.append(BleedingCondition(bleeding_severity, location))
     else:
         # Other damage types (blunt, burn, etc.) have higher thresholds
         threshold = BLEEDING_DAMAGE_THRESHOLDS.get('minor', 10)
         if damage_amount >= threshold:
-            bleeding_severity = min(10, max(1, damage_amount // 3))
-            conditions.append(BleedingCondition(bleeding_severity, location))
+            # Armor can prevent bleeding
+            if random.randint(1, 100) > condition_prevention_chance:
+                base_severity = min(10, max(1, damage_amount // 3))
+                severity_reduction = int(base_severity * armor_protection * 0.5)
+                bleeding_severity = max(1, base_severity - severity_reduction)
+                conditions.append(BleedingCondition(bleeding_severity, location))
     
-    # Add pain for any damage
+    # Add pain for any damage (armor reduces pain severity but doesn't prevent it)
     if damage_amount > 0:
-        pain_severity = min(8, max(1, damage_amount // 2))
+        base_pain = min(8, max(1, damage_amount // 2))
+        # Armor can reduce pain severity by up to 30% (padding absorbs impact)
+        pain_reduction = int(base_pain * armor_protection * 0.3)
+        pain_severity = max(1, base_pain - pain_reduction)
         conditions.append(PainCondition(pain_severity, location))
     
     # Add infection risk for penetrating wounds
+    # Armor makes it harder for foreign materials to enter wounds
     if damage_type in ['bullet', 'blade', 'pierce', 'stab', 'laceration'] and damage_amount >= 6:
-        if random.randint(1, 100) <= 25:  # 25% chance
+        # Base 25% infection chance, reduced by armor protection
+        infection_chance = int(25 * (1 - armor_protection * 0.8))  # Up to 80% reduction
+        if random.randint(1, 100) <= infection_chance:
             infection_severity = random.randint(1, 3)
             conditions.append(InfectionCondition(infection_severity, location))
     

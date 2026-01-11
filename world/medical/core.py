@@ -560,7 +560,9 @@ class MedicalState:
         """
         try:
             from .conditions import create_condition_from_damage
-            conditions = create_condition_from_damage(damage_amount, injury_type, location)
+            # Pass armor protection to reduce chance of bleeding/bruising/cuts
+            armor_protection = getattr(self, '_current_armor_protection', 0.0)
+            conditions = create_condition_from_damage(damage_amount, injury_type, location, armor_protection)
             return conditions
         except ImportError as e:
             # Fallback if conditions module not available

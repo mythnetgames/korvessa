@@ -432,7 +432,7 @@ def distribute_damage_to_organs(location, total_damage, medical_state, injury_ty
     return damage_distribution
 
 
-def apply_anatomical_damage(character, damage_amount, location, injury_type="generic", target_organ=None):
+def apply_anatomical_damage(character, damage_amount, location, injury_type="generic", target_organ=None, armor_protection=0.0):
     """
     Apply damage to a specific body location, affecting relevant organs.
     
@@ -444,6 +444,7 @@ def apply_anatomical_damage(character, damage_amount, location, injury_type="gen
         location (str): Body location hit
         injury_type (str): Type of injury
         target_organ (str): If specified, target this specific organ
+        armor_protection (float): 0.0-1.0 ratio of damage absorbed by armor (reduces condition chances)
         
     Returns:
         dict: Results of damage application
@@ -457,6 +458,9 @@ def apply_anatomical_damage(character, damage_amount, location, injury_type="gen
         medical_state = character.medical_state
         
     medical_state = character.medical_state
+    
+    # Store armor protection for condition creation
+    medical_state._current_armor_protection = armor_protection
     
     # Distribute damage to organs in the location (only to functional organs)
     damage_distribution = distribute_damage_to_organs(location, damage_amount, medical_state, injury_type, target_organ)
@@ -492,6 +496,9 @@ def apply_anatomical_damage(character, damage_amount, location, injury_type="gen
             
             if was_destroyed:
                 results["organs_destroyed"].append(organ_name)
+    
+    # Clear armor protection after use
+    medical_state._current_armor_protection = 0.0
                 
     # Note: Medical conditions are now automatically created by 
     # MedicalState.take_organ_damage() in core.py, so we don't need

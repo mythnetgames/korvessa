@@ -525,12 +525,15 @@ class Character(ObjectParent, DefaultCharacter):
         # Check for armor before applying damage
         final_damage = self._calculate_armor_damage_reduction(amount, location, injury_type)
         
+        # Calculate armor protection for condition reduction
+        armor_absorbed = amount - final_damage
+        armor_protection_ratio = armor_absorbed / amount if amount > 0 else 0.0
+        
         # Debug log damage before and after armor
         try:
             from world.combat.utils import debug_broadcast
             if final_damage < amount:
-                damage_absorbed = amount - final_damage
-                debug_broadcast(f"{self.key} took {amount} raw damage → armor absorbed {damage_absorbed} → {final_damage} damage applied", 
+                debug_broadcast(f"{self.key} took {amount} raw damage → armor absorbed {armor_absorbed} → {final_damage} damage applied (protection: {armor_protection_ratio:.1%})", 
                                "DAMAGE", "ARMOR_CALC")
             else:
                 debug_broadcast(f"{self.key} took {amount} raw damage (no armor protection)", 
@@ -539,8 +542,9 @@ class Character(ObjectParent, DefaultCharacter):
             pass
         
         # Apply anatomical damage through medical system
+        # Pass armor protection ratio to reduce chance of bleeding/bruising/cuts
         from world.medical.utils import apply_anatomical_damage
-        damage_results = apply_anatomical_damage(self, final_damage, location, injury_type, target_organ)
+        damage_results = apply_anatomical_damage(self, final_damage, location, injury_type, target_organ, armor_protection_ratio)
         
         # Save medical state after damage
         self.save_medical_state()
