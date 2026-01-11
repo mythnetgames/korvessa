@@ -83,7 +83,9 @@ def node_npc_set_name(caller, raw_string, **kwargs):
 
 
 
-    # --- Step 1: Prompt for name ---
+
+
+    # --- Canonical EvMenu input pattern ---
     def node_npc_set_name(caller, raw_string, **kwargs):
         text = (
             "|c=== Set NPC Name ===|n\n\n"
@@ -91,63 +93,25 @@ def node_npc_set_name(caller, raw_string, **kwargs):
             "Examples: |wLu Bu|n, |wStreet Vendor|n, |wCybernetic Guard|n\n\n"
             "|wType your name and press Enter, or type 'back' to return.|n"
         )
-        options = ( {"key": "_default", "goto": "node_npc_set_name_validate"}, )
+        options = ( {"key": "_default", "goto": "node_npc_set_name_handler"}, )
         return text, options
 
-    # --- Step 1b: Validate name and go to confirm ---
-    def node_npc_set_name_validate(caller, raw_string, **kwargs):
-        try:
-            name = (raw_string or '').strip()
-            if name.lower() == 'back':
-                return "node_npc_main"
-            if len(name) < 3:
-                caller.msg("|rName must be at least 3 characters.|n")
-                return "node_npc_set_name"
-            if len(name) > 80:
-                caller.msg("|rName must be 80 characters or less.|n")
-                return "node_npc_set_name"
-            if name.isdigit():
-                caller.msg("|rPlease enter a non-numeric name.|n")
-                return "node_npc_set_name"
-            caller.ndb._npc_name_candidate = name
-            return "node_npc_confirm_name"
-        except Exception:
+    def node_npc_set_name_handler(caller, raw_string, **kwargs):
+        name = (raw_string or '').strip()
+        if name.lower() == 'back':
             return "node_npc_main"
-
-    # --- Step 2: Confirm name ---
-    def node_npc_confirm_name(caller, raw_string, **kwargs):
-        try:
-            name = getattr(caller.ndb, '_npc_name_candidate', None)
-            if not name:
-                return "node_npc_set_name"
-            text = (
-                f"|c=== Confirm NPC Name ===|n\n\n"
-                f"You entered: |w{name}|n\n\n"
-                "Is this correct?\n"
-                "|g1.|n Yes, use this name\n"
-                "|r2.|n No, re-enter name\n"
-            )
-            options = [
-                {"desc": "Yes, use this name", "key": ("1", "yes", "y"), "goto": "node_npc_save_name"},
-                {"desc": "No, re-enter name", "key": ("2", "no", "n"), "goto": "node_npc_set_name"},
-            ]
-            return text, options
-        except Exception:
-            return "node_npc_main"
-
-    # --- Step 3: Save name and return ---
-    def node_npc_save_name(caller, raw_string, **kwargs):
-        try:
-            name = getattr(caller.ndb, '_npc_name_candidate', None)
-            if not name:
-                return "node_npc_set_name"
-            _npc_data(caller)["name"] = name
-            if hasattr(caller.ndb, '_npc_name_candidate'):
-                del caller.ndb._npc_name_candidate
-            caller.msg(f"|gNPC name set to:|n {name}")
-            return "node_npc_main"
-        except Exception:
-            return "node_npc_main"
+        if len(name) < 3:
+            caller.msg("|rName must be at least 3 characters.|n")
+            return "node_npc_set_name"
+        if len(name) > 80:
+            caller.msg("|rName must be 80 characters or less.|n")
+            return "node_npc_set_name"
+        if name.isdigit():
+            caller.msg("|rPlease enter a non-numeric name.|n")
+            return "node_npc_set_name"
+        _npc_data(caller)["name"] = name
+        caller.msg(f"|gNPC name set to:|n {name}")
+        return "node_npc_main"
 
 def node_npc_set_prototype(caller, raw_string, **kwargs):
     caller.msg("Enter prototype key (for cloning):")
@@ -166,42 +130,34 @@ def node_npc_toggle_wandering(caller, raw_string, **kwargs):
     data['wandering'] = not data.get('wandering', False)
     return node_npc_main(caller, raw_string, **kwargs)
 
-def node_npc_toggle_cloneable(caller, raw_string, **kwargs):
-    data = _npc_data(caller)
-    data['cloneable'] = not data.get('cloneable', False)
-    return node_npc_main(caller, raw_string, **kwargs)
 
-def node_npc_review(caller, raw_string, **kwargs):
-    data = _npc_data(caller)
-    text = f"""
-|c=== NPC Review ===|n
-Name: {data.get('name')}
-Prototype Key: {data.get('prototype_key')}
-Description: {data.get('desc')}
-Wandering: {data.get('wandering')}
-Cloneable: {data.get('cloneable')}
-"""
-    return text, [{"desc": "Back", "goto": "node_npc_main"}]
-
-def node_npc_save(caller, raw_string, **kwargs):
-    storage = get_admin_design_storage()
-    npc_data = dict(_npc_data(caller))
-    storage.db.npcs.append(npc_data)
-    caller.msg(f"|gNPC '{npc_data.get('name')}' saved!|n")
-    return node_npc_main(caller, raw_string, **kwargs)
-
-def node_npc_load(caller, raw_string, **kwargs):
-    storage = get_admin_design_storage()
-    npcs = storage.db.npcs or []
-    if not npcs:
-        caller.msg("No saved NPCs.")
-        return node_npc_main(caller, raw_string, **kwargs)
-    text = "|cSaved NPCs:|n\n" + "\n".join(f"{i+1}. {npc.get('name')}" for i, npc in enumerate(npcs))
-    options = [{"desc": f"Load {npc.get('name')}", "goto": "node_npc_load_apply", "exec": (lambda c, s, idx=i: c.ndb._npc_design.update(npcs[idx]))} for i, npc in enumerate(npcs)]
-    options.append({"desc": "Back", "goto": "node_npc_main"})
+# --- Canonical EvMenu input pattern ---
+def node_npc_set_name(caller, raw_string, **kwargs):
+    text = (
+        "|c=== Set NPC Name ===|n\n\n"
+        "Enter the name for your NPC. This is what the NPC will be called.\n\n"
+        "Examples: |wLu Bu|n, |wStreet Vendor|n, |wCybernetic Guard|n\n\n"
+        "|wType your name and press Enter, or type 'back' to return.|n"
+    )
+    options = ( {"key": "_default", "goto": "node_npc_set_name_handler"}, )
     return text, options
 
-def node_npc_load_apply(caller, raw_string, **kwargs):
+def node_npc_set_name_handler(caller, raw_string, **kwargs):
+    name = (raw_string or '').strip()
+    if name.lower() == 'back':
+        return "node_npc_main"
+    if len(name) < 3:
+        caller.msg("|rName must be at least 3 characters.|n")
+        return "node_npc_set_name"
+    if len(name) > 80:
+        caller.msg("|rName must be 80 characters or less.|n")
+        return "node_npc_set_name"
+    if name.isdigit():
+        caller.msg("|rPlease enter a non-numeric name.|n")
+        return "node_npc_set_name"
+    _npc_data(caller)["name"] = name
+    caller.msg(f"|gNPC name set to:|n {name}")
+    return "node_npc_main"
     return node_npc_main(caller, raw_string, **kwargs)
 
 # =============================
