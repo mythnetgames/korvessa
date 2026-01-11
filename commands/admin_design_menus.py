@@ -527,23 +527,21 @@ def node_weapon_save(caller, raw_string, **kwargs):
 # =============================
 def node_clothes_main(caller, raw_string, **kwargs):
     data = caller.ndb._clothes_design or {}
-    text = f"""
-|c=== Clothes/Armor Designer ===|n
-
-|wName:|n {data.get('name', '(unnamed)')}
-|wIs Armor:|n {'|g[YES]|n' if data.get('is_armor') else '|r[NO]|n'}
-|wCoverage:|n {', '.join(data.get('coverage', [])) or '(none)'}
-|wColor:|n {data.get('color', '(none)')}
-|wSee-Thru:|n {'|g[YES]|n' if data.get('see_thru') else '|r[NO]|n'}
-|wDescription:|n {data.get('desc', '(none)')}
-|wWear Msg:|n {data.get('wear_msg', '(default)')}
-|wRemove Msg:|n {data.get('remove_msg', '(default)')}
-|wWorn Msg:|n {data.get('worn_msg', '(default)')}
-
-[R] Review
-[S] Save
-[Q] Quit
-"""
+    text = (
+        f"|c=== Clothes/Armor Designer ===|n\n"
+        f"\n"
+        f"|wName:|n {data.get('name', '(unnamed)')}\n"
+        f"|wIs Armor:|n {'|g[YES]|n' if data.get('is_armor') else '|r[NO]|n'}\n"
+        f"|wCoverage:|n {', '.join(data.get('coverage', [])) or '(none)'}\n"
+        f"|wColor:|n {data.get('color', '(none)')}\n"
+        f"|wSee-Thru:|n {'|g[YES]|n' if data.get('see_thru') else '|r[NO]|n'}\n"
+        f"|wDescription:|n {data.get('desc', '(none)')}\n"
+        f"|wWear Msg:|n {data.get('wear_msg', '(default)')}\n"
+        f"|wRemove Msg:|n {data.get('remove_msg', '(default)')}\n"
+        f"|wWorn Msg:|n {data.get('worn_msg', '(default)')}\n"
+        f"\n"
+        f"[R] Review\n[S] Save\n[Q] Quit\n"
+    )
     options = [
         {"desc": "Set Name", "goto": "node_clothes_set_name"},
         {"desc": "Toggle Is Armor", "goto": "node_clothes_toggle_armor"},
