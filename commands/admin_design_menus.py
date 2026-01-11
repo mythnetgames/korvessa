@@ -1,3 +1,42 @@
+def node_npc_set_cloneable(caller, raw_string, **kwargs):
+    data = _npc_data(caller)
+    current = '|gYES|n' if data.get('cloneable') else '|rNO|n'
+    text = (
+        f"|c=== Set Cloneable Status ===|n\n\n"
+        f"Current: {current}\n\n"
+        "Should this NPC design be cloneable?\n"
+        "If |gYES|n, you can use this design as a template to spawn new NPCs.\n"
+        "If |rNO|n, this design is just a one-off.\n\n"
+        "Type |g1|n or |gyes|n for YES, |r2|n or |rno|n for NO, or 'back' to return."
+    )
+    options = ( {"key": "_default", "goto": "node_npc_set_cloneable_handler"}, )
+    return text, options
+
+def node_npc_set_cloneable_handler(caller, raw_string, **kwargs):
+    val = (raw_string or '').strip().lower()
+    if val == 'back':
+        return "node_npc_main"
+    if val in ('1', 'yes', 'y', 'true'):
+        _npc_data(caller)['cloneable'] = True
+        caller.msg("|gCloneable set to YES.|n")
+        return "node_npc_main"
+    if val in ('2', 'no', 'n', 'false'):
+        _npc_data(caller)['cloneable'] = False
+        caller.msg("|rCloneable set to NO.|n")
+        return "node_npc_main"
+    caller.msg("|rPlease type 1/yes or 2/no, or 'back' to return.|n")
+    return "node_npc_set_cloneable"
+# =============================
+# NPC SAVE NODE (re-added/fixed)
+def node_npc_save(caller, raw_string, **kwargs):
+    storage = get_admin_design_storage()
+    npc_data = dict(_npc_data(caller))
+    if not npc_data.get("name"):
+        caller.msg("|rYou must set a name before saving!|n")
+        return "node_npc_main"
+    storage.db.npcs.append(npc_data)
+    caller.msg(f"|gNPC '{npc_data.get('name')}' saved!|n")
+    return "node_npc_main"
 """
 Admin Design Menus - Builder+ EvMenu tools for creating and saving NPCs, furniture, weapons, clothes, and armor.
 
@@ -69,7 +108,7 @@ def node_npc_main(caller, raw_string, **kwargs):
         {"desc": "Set Prototype Key", "goto": "node_npc_set_prototype"},
         {"desc": "Set Description", "goto": "node_npc_set_desc"},
         {"desc": "Toggle Wandering", "goto": "node_npc_toggle_wandering"},
-        {"desc": "Toggle Cloneable", "goto": "node_npc_toggle_cloneable"},
+        {"desc": "Set Cloneable", "goto": "node_npc_set_cloneable"},
         {"desc": "Review", "goto": "node_npc_review"},
         {"desc": "Save", "goto": "node_npc_save"},
         {"desc": "Load", "goto": "node_npc_load"},
