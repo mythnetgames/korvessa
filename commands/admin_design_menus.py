@@ -78,7 +78,10 @@ def node_npc_main(caller, raw_string, **kwargs):
     return text, options
 
 def node_npc_set_name(caller, raw_string, **kwargs):
-    text = """
+
+    # Step 1: Prompt for name
+    def node_npc_set_name(caller, raw_string, **kwargs):
+        text = """
     |c=== Set NPC Name ===|n
 
     Enter the name for your NPC. This is what the NPC will be called.
@@ -87,26 +90,48 @@ def node_npc_set_name(caller, raw_string, **kwargs):
 
     |wType your name and press Enter, or type 'back' to return.|n
     """
+        options = ( {"key": "_default", "goto": "node_npc_confirm_name"}, )
+        return text, options
 
-    def _set_name(caller, raw_string, **kwargs):
-        raw_string = raw_string.strip()
-        if raw_string.lower() == 'back':
-            return "node_npc_main"
-        if len(raw_string) < 3:
+    # Step 2: Confirm name
+    def node_npc_confirm_name(caller, raw_string, **kwargs):
+        name = raw_string.strip()
+        if name.lower() == 'back':
+            return node_npc_main(caller, raw_string, **kwargs)
+        if len(name) < 3:
             caller.msg("|rName must be at least 3 characters.|n")
-            return "node_npc_set_name"
-        if len(raw_string) > 80:
+            return node_npc_set_name(caller, raw_string, **kwargs)
+        if len(name) > 80:
             caller.msg("|rName must be 80 characters or less.|n")
-            return "node_npc_set_name"
-        if raw_string.isdigit():
+            return node_npc_set_name(caller, raw_string, **kwargs)
+        if name.isdigit():
             caller.msg("|rPlease enter a non-numeric name.|n")
-            return "node_npc_set_name"
-        _npc_data(caller)["name"] = raw_string
-        caller.msg(f"|gNPC name set to:|n {raw_string}")
-        return "node_npc_main"
+            return node_npc_set_name(caller, raw_string, **kwargs)
+        caller.ndb._npc_name_candidate = name
+        text = f"""
+    |c=== Confirm NPC Name ===|n
 
-    options = ( {"key": "_default", "goto": _set_name}, )
-    return text, options
+    You entered: |w{name}|n
+
+    Is this correct?
+    |g1.|n Yes, use this name
+    |r2.|n No, re-enter name
+    """
+        options = [
+            {"desc": "Yes, use this name", "key": ("1", "yes", "y"), "goto": "node_npc_save_name"},
+            {"desc": "No, re-enter name", "key": ("2", "no", "n"), "goto": "node_npc_set_name"},
+        ]
+        return text, options
+
+    # Step 3: Save name and return
+    def node_npc_save_name(caller, raw_string, **kwargs):
+        name = getattr(caller.ndb, "_npc_name_candidate", None)
+        if not name:
+            return node_npc_set_name(caller, raw_string, **kwargs)
+        _npc_data(caller)["name"] = name
+        del caller.ndb._npc_name_candidate
+        caller.msg(f"|gNPC name set to:|n {name}")
+        return node_npc_main(caller, raw_string, **kwargs)
 
 def node_npc_set_prototype(caller, raw_string, **kwargs):
     caller.msg("Enter prototype key (for cloning):")
