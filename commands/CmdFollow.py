@@ -41,6 +41,11 @@ class CmdFollow(Command):
             caller.msg("You can't follow yourself.")
             return
         
+        # Can't follow someone who is sitting or prone
+        if self._is_sitting_or_prone(target):
+            caller.msg(f"You can't follow {target.get_display_name(caller)} while they're sitting or lying down.")
+            return
+        
         # Can't follow something already being followed by you
         if hasattr(caller.ndb, 'following') and caller.ndb.following == target:
             caller.msg(f"You are already following {target.get_display_name(caller)}.")
@@ -79,6 +84,21 @@ class CmdFollow(Command):
         
         caller.msg(f"You don't see '{targetname}' here.")
         return None
+    
+    def _is_sitting_or_prone(self, character):
+        """Check if a character is sitting or lying down."""
+        # Check if character has a 'prone' or 'sitting' state
+        if hasattr(character.ndb, 'prone') and character.ndb.prone:
+            return True
+        if hasattr(character.ndb, 'sitting') and character.ndb.sitting:
+            return True
+        # Check database attributes as fallback
+        if hasattr(character, 'db'):
+            if getattr(character.db, 'prone', False):
+                return True
+            if getattr(character.db, 'sitting', False):
+                return True
+        return False
 
 
 class CmdUnfollow(Command):

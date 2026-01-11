@@ -414,7 +414,7 @@ class Character(ObjectParent, DefaultCharacter):
             # Trigger the follow system
             try:
                 from scripts.follow_system import handle_character_move
-                handle_character_move(self, self.location)
+                handle_character_move(self, self.location, original_location)
             except Exception as e:
                 # Don't break movement if follow system fails
                 pass

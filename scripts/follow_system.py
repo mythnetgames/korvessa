@@ -64,20 +64,24 @@ def get_follow_script():
     return script
 
 
-def handle_character_move(character, new_location):
+def handle_character_move(character, new_location, original_location=None):
     """
     Called when a character moves to handle follower logic.
     
     Args:
         character: The character moving
         new_location: The location they're moving to
+        original_location: The location they're moving from (if None, uses character's current location)
     """
+    # Determine the location to check for followers
+    check_location = original_location if original_location else character.location
+    
     # Get all followers from NDB
     followers_to_move = []
     
     # Check all characters in the original location for followers
-    if character.location:
-        for obj in character.location.contents:
+    if check_location:
+        for obj in check_location.contents:
             if hasattr(obj, 'ndb') and hasattr(obj.ndb, 'following'):
                 if obj.ndb.following == character:
                     followers_to_move.append(obj)
@@ -91,7 +95,7 @@ def handle_character_move(character, new_location):
         # Attempt to move the follower
         try:
             follower.move_to(new_location, quiet=True)
-            follower.msg(f"|c{character.get_display_name(follower)} moves, and you follow.|n")
+            # Silent follow - no message spam
         except Exception as e:
             # Log but don't break
             pass
