@@ -345,14 +345,13 @@ def node_clothes_set_name(caller, raw_string, **kwargs):
     ]
 
 def node_clothes_toggle_armor(caller, raw_string, **kwargs):
-        return node_clothes_main(caller, raw_string, **kwargs)
-
-    def node_clothes_toggle_see_thru(caller, raw_string, **kwargs):
-        data = caller.ndb._clothes_design
-        data['see_thru'] = not data.get('see_thru', False)
-        return node_clothes_main(caller, raw_string, **kwargs)
     data = caller.ndb._clothes_design
     data['is_armor'] = not data.get('is_armor', False)
+    return node_clothes_main(caller, raw_string, **kwargs)
+
+def node_clothes_toggle_see_thru(caller, raw_string, **kwargs):
+    data = caller.ndb._clothes_design
+    data['see_thru'] = not data.get('see_thru', False)
     return node_clothes_main(caller, raw_string, **kwargs)
 
 def node_clothes_review(caller, raw_string, **kwargs):
