@@ -33,27 +33,44 @@ def get_admin_design_storage():
     return storage
 
 # =============================
-# NPC DESIGN MENU
+# NPC DESIGN MENU (Expanded)
 # =============================
+def _npc_data(caller):
+    if not hasattr(caller.ndb, '_npc_design') or caller.ndb._npc_design is None:
+        caller.ndb._npc_design = {
+            "name": "",
+            "desc": "",
+            "prototype_key": "",
+            "wandering": False,
+            "cloneable": False,
+        }
+    return caller.ndb._npc_design
+
 def node_npc_main(caller, raw_string, **kwargs):
-    data = caller.ndb._npc_design or {}
+    data = _npc_data(caller)
     text = f"""
 |c=== NPC Designer ===|n
 
 |wName:|n {data.get('name', '(unnamed)')}
+|wPrototype Key:|n {data.get('prototype_key', '(none)')}
+|wDescription:|n {data.get('desc', '(none)')}
 |wWandering:|n {'|g[ON]|n' if data.get('wandering') else '|r[OFF]|n'}
 |wCloneable:|n {'|g[YES]|n' if data.get('cloneable') else '|r[NO]|n'}
 
 [R] Review
 [S] Save
+[L] Load
 [Q] Quit
 """
     options = [
         {"desc": "Set Name", "goto": "node_npc_set_name"},
+        {"desc": "Set Prototype Key", "goto": "node_npc_set_prototype"},
+        {"desc": "Set Description", "goto": "node_npc_set_desc"},
         {"desc": "Toggle Wandering", "goto": "node_npc_toggle_wandering"},
         {"desc": "Toggle Cloneable", "goto": "node_npc_toggle_cloneable"},
         {"desc": "Review", "goto": "node_npc_review"},
         {"desc": "Save", "goto": "node_npc_save"},
+        {"desc": "Load", "goto": "node_npc_load"},
         {"desc": "Quit", "goto": "node_quit"},
     ]
     return text, options
@@ -61,29 +78,62 @@ def node_npc_main(caller, raw_string, **kwargs):
 def node_npc_set_name(caller, raw_string, **kwargs):
     caller.msg("Enter NPC name:")
     return "Enter NPC name:", [
-        {"key": "_input", "goto": "node_npc_main", "exec": lambda c, s: c.ndb._npc_design.update({'name': s})}
+        {"key": "_input", "goto": "node_npc_main", "exec": lambda c, s: _npc_data(c).update({'name': s})}
+    ]
+
+def node_npc_set_prototype(caller, raw_string, **kwargs):
+    caller.msg("Enter prototype key (for cloning):")
+    return "Enter prototype key:", [
+        {"key": "_input", "goto": "node_npc_main", "exec": lambda c, s: _npc_data(c).update({'prototype_key': s})}
+    ]
+
+def node_npc_set_desc(caller, raw_string, **kwargs):
+    caller.msg("Enter NPC description:")
+    return "Enter NPC description:", [
+        {"key": "_input", "goto": "node_npc_main", "exec": lambda c, s: _npc_data(c).update({'desc': s})}
     ]
 
 def node_npc_toggle_wandering(caller, raw_string, **kwargs):
-    data = caller.ndb._npc_design
+    data = _npc_data(caller)
     data['wandering'] = not data.get('wandering', False)
     return node_npc_main(caller, raw_string, **kwargs)
 
 def node_npc_toggle_cloneable(caller, raw_string, **kwargs):
-    data = caller.ndb._npc_design
+    data = _npc_data(caller)
     data['cloneable'] = not data.get('cloneable', False)
     return node_npc_main(caller, raw_string, **kwargs)
 
 def node_npc_review(caller, raw_string, **kwargs):
-    data = caller.ndb._npc_design
-    text = f"Review NPC:\nName: {data.get('name')}\nWandering: {data.get('wandering')}\nCloneable: {data.get('cloneable')}"
+    data = _npc_data(caller)
+    text = f"""
+|c=== NPC Review ===|n
+Name: {data.get('name')}
+Prototype Key: {data.get('prototype_key')}
+Description: {data.get('desc')}
+Wandering: {data.get('wandering')}
+Cloneable: {data.get('cloneable')}
+"""
     return text, [{"desc": "Back", "goto": "node_npc_main"}]
 
 def node_npc_save(caller, raw_string, **kwargs):
     storage = get_admin_design_storage()
-    npc_data = dict(caller.ndb._npc_design)
+    npc_data = dict(_npc_data(caller))
     storage.db.npcs.append(npc_data)
     caller.msg(f"|gNPC '{npc_data.get('name')}' saved!|n")
+    return node_npc_main(caller, raw_string, **kwargs)
+
+def node_npc_load(caller, raw_string, **kwargs):
+    storage = get_admin_design_storage()
+    npcs = storage.db.npcs or []
+    if not npcs:
+        caller.msg("No saved NPCs.")
+        return node_npc_main(caller, raw_string, **kwargs)
+    text = "|cSaved NPCs:|n\n" + "\n".join(f"{i+1}. {npc.get('name')}" for i, npc in enumerate(npcs))
+    options = [{"desc": f"Load {npc.get('name')}", "goto": "node_npc_load_apply", "exec": (lambda c, s, idx=i: c.ndb._npc_design.update(npcs[idx]))} for i, npc in enumerate(npcs)]
+    options.append({"desc": "Back", "goto": "node_npc_main"})
+    return text, options
+
+def node_npc_load_apply(caller, raw_string, **kwargs):
     return node_npc_main(caller, raw_string, **kwargs)
 
 # =============================
