@@ -13,6 +13,21 @@ from evennia.utils.utils import delay
 from evennia.comms.models import ChannelDB
 from world.combat.constants import SPLATTERCAST_CHANNEL, NDB_COMBAT_HANDLER
 
+# All stats that can be set on the test dummy
+DUMMY_STATS = [
+    "body", "ref", "dex", "tech", "smrt", "will", "edge", "emp"
+]
+
+# All skills that can be set on the test dummy
+DUMMY_SKILLS = [
+    "chemical", "modern_medicine", "holistic_medicine", "surgery", "science",
+    "dodge", "blades", "pistols", "rifles", "melee", "brawling", "martial_arts",
+    "grappling", "snooping", "stealing", "hiding", "sneaking", "disguise",
+    "tailoring", "tinkering", "manufacturing", "cooking", "forensics",
+    "decking", "electronics", "mercantile", "streetwise", "paint_draw_sculpt",
+    "instrument", "athletics"
+]
+
 
 class TestDummy(NPC):
     """
@@ -32,17 +47,15 @@ class TestDummy(NPC):
         # Mark as test dummy
         self.db.is_test_dummy = True
         
-        # Default combat stats (can be adjusted)
-        self.db.body = 3
-        self.db.dexterity = 3
-        self.db.reflexes = 3
-        self.db.technique = 3
-        
-        # Medical/health stats
-        self.db.smarts = 1
-        self.db.willpower = 1
-        self.db.edge = 1
-        self.db.empathy = 1
+        # Default stats (can be adjusted)
+        self.body = 3
+        self.ref = 3
+        self.dex = 3
+        self.tech = 3
+        self.smrt = 1
+        self.will = 1
+        self.edge = 1
+        self.emp = 2  # Auto-calculated as edge + will, but set explicitly
         
         # Test dummy specific
         self.db.is_active = True  # Whether dummy is actively fighting
@@ -94,8 +107,10 @@ to its neutral stance between attacks.
         delay(5.0, self._auto_revive)
     
     def _auto_revive(self):
-        """Auto-revive and heal the test dummy."""
+        """Auto-revive and heal the test dummy using full_heal."""
         from evennia.comms.models import ChannelDB
+        from world.medical.utils import full_heal
+        from world.medical.script import stop_medical_script
         
         if not self.location:
             return  # Dummy has been deleted
@@ -104,25 +119,50 @@ to its neutral stance between attacks.
             splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
             splattercast.msg(f"TEST_DUMMY_REVIVE: {self.key} is reviving")
         except:
+            splattercast = None
+        
+        # Stop any running medical script first
+        try:
+            stop_medical_script(self)
+        except:
             pass
+        
+        # Use full_heal to properly reset everything
+        try:
+            full_heal(self)
+            if splattercast:
+                splattercast.msg(f"TEST_DUMMY_HEALED: {self.key} fully healed")
+        except Exception as e:
+            if splattercast:
+                splattercast.msg(f"TEST_DUMMY_HEAL_ERROR: {e}")
+            # Manual fallback healing
+            if hasattr(self, 'medical_state') and self.medical_state:
+                self.medical_state.conditions.clear()
+                self.medical_state.blood_level = 100.0
+                self.medical_state.pain_level = 0.0
+                self.medical_state.consciousness = 1.0
+                for organ in self.medical_state.organs.values():
+                    organ.current_hp = organ.max_hp
+                    organ.conditions.clear()
+                self.save_medical_state()
         
         # Mark as active again
         self.db.is_active = True
         
+        # Clear death state flags
+        if hasattr(self.ndb, 'death_processed'):
+            self.ndb.death_processed = False
+        if hasattr(self.db, 'death_processed'):
+            del self.db.death_processed
+        
         # Reset placement
         self.override_place = None
         
-        # Full heal - reset all organ HP
-        if hasattr(self, 'medical_state') and self.medical_state:
-            for organ in self.medical_state.organs.values():
-                organ.current_hp = organ.max_hp
-                organ.conditions.clear()
-        
-        # Clear death state
-        self.remove_death_state()
-        
-        # Clear override placement (was showing as dead)
-        self.override_place = None
+        # Remove death cmdset and restore normal one
+        try:
+            self.remove_death_state()
+        except:
+            pass
         
         # Show revive message
         self.location.msg_contents(f"|g{self.key} hums back to life, mechanisms clicking and whirring into motion.|n")
@@ -133,25 +173,55 @@ to its neutral stance between attacks.
     
     def get_combat_stats(self):
         """Get all combat stats as a dict."""
-        return {
-            "body": self.db.body or 3,
-            "dexterity": self.db.dexterity or 3,
-            "reflexes": self.db.reflexes or 3,
-            "technique": self.db.technique or 3,
-        }
+        stats = {}
+        for stat in DUMMY_STATS:
+            value = getattr(self.db, stat, None)
+            if value is not None and value > 0:
+                stats[stat] = value
+        return stats
+    
+    def get_skills(self):
+        """Get all skills above 0 as a dict."""
+        skills = {}
+        for skill in DUMMY_SKILLS:
+            value = getattr(self.db, skill, None)
+            if value is not None and value > 0:
+                skills[skill] = value
+        return skills
     
     def get_dummy_status(self):
         """Get status string for examination."""
-        status = f"\n|wCombat Stats:|n\n"
-        stats = self.get_combat_stats()
-        for stat, value in stats.items():
-            status += f"  {stat.capitalize()}: |w{value}|n\n"
+        status = ""
         
+        # Combat stats
+        stats = self.get_combat_stats()
+        if stats:
+            status += f"\n|wCombat Stats:|n\n"
+            for stat, value in sorted(stats.items()):
+                status += f"  {stat.capitalize()}: |w{value}|n\n"
+        
+        # Skills
+        skills = self.get_skills()
+        if skills:
+            status += f"\n|wSkills:|n\n"
+            for skill, value in sorted(skills.items()):
+                # Format skill name nicely
+                display_name = skill.replace("_", " ").title()
+                status += f"  {display_name}: |c{value}|n\n"
+        
+        # Activity status
         status += f"\n|wStatus:|n "
         if self.db.is_active:
             status += "|gActive|n - Ready for combat"
         else:
             status += "|rInactive|n - Preparing to revive"
+        
+        # Health info if available
+        if hasattr(self, 'medical_state') and self.medical_state:
+            blood = getattr(self.medical_state, 'blood_level', 100)
+            pain = getattr(self.medical_state, 'pain_level', 0)
+            conditions = len(getattr(self.medical_state, 'conditions', []))
+            status += f"\n|wHealth:|n Blood: |r{blood:.0f}%|n | Pain: |y{pain:.0f}|n | Conditions: {conditions}"
         
         return status
     
