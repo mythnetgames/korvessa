@@ -373,14 +373,13 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdLose())              # Player: shake off followers
         # Add admin design menus for NPCs, furniture, weapons, armor/clothes
         from commands.admin_design_menus import (
-            CmdNPCDesignMenu, CmdFurnitureDesignMenu, CmdWeaponDesignMenu, CmdArmorDesignMenu
+            CmdNPCDesignMenu, CmdFurnitureDesignMenu, CmdWeaponDesignMenu, CmdArmorDesignMenu, CmdSpawnNPCDesign, CmdSpawnClothingDesign
         )
         self.add(CmdNPCDesignMenu())      # Builder+: NPC designer (npcdesign)
         self.add(CmdFurnitureDesignMenu())  # Builder+: Furniture designer (furnituredesign)
         self.add(CmdWeaponDesignMenu())     # Builder+: Weapon designer (weapondesign)
         self.add(CmdArmorDesignMenu())      # Builder+: Armor/Clothes designer (armordesign, clothesdesign)
-        # Add spawn clothing design command
-        from commands.admin_design_menus import CmdSpawnClothingDesign
+        self.add(CmdSpawnNPCDesign())       # Builder+: spawn NPC from design (spawnnpc)
         self.add(CmdSpawnClothingDesign())  # Builder+: spawn clothing/armor from design
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
