@@ -330,10 +330,21 @@ class CmdInventory(Command):
         Determine the category for a single item.
         Also applies appropriate tags if missing.
         """
+        # Clear any existing category tags so we re-evaluate correctly
+        for tag in ["weapon", "clothing", "medical", "consumable", "container", "material", "misc"]:
+            obj.tags.remove(tag, category="item_category")
+        
         # Check for Medical (including chrome) - check BEFORE weapon/clothing
         if self._is_medical(obj):
             self._ensure_tag(obj, "medical", "item_category")
             return "Medical"
+        
+        # Check for Clothing BEFORE weapons - clothing might have damage_bonus for armor
+        if self._is_clothing(obj):
+            self._ensure_tag(obj, "clothing", "item_category")
+            return "Clothing"
+            return "Clothing"
+        
         # Check for Weapons
         if self._is_weapon(obj):
             self._ensure_tag(obj, "weapon", "item_category")
@@ -348,11 +359,6 @@ class CmdInventory(Command):
         if self._is_container(obj):
             self._ensure_tag(obj, "container", "item_category")
             return "Containers"
-        
-        # Check for Clothing - check AFTER medical so chrome isn't caught
-        if self._is_clothing(obj):
-            self._ensure_tag(obj, "clothing", "item_category")
-            return "Clothing"
         
         # Check for tailoring materials -> Misc
         if self._is_tailoring_material(obj):
