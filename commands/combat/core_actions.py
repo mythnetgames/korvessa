@@ -18,6 +18,7 @@ from world.combat.messages import get_combat_message
 from evennia.comms.models import ChannelDB
 from evennia.utils import utils
 from evennia.utils.evtable import EvTable
+from world.medical.utils import full_heal
 
 from world.combat.constants import (
     MSG_ATTACK_WHO, MSG_SELF_TARGET, MSG_NOT_IN_COMBAT, MSG_NO_COMBAT_DATA,
@@ -576,3 +577,59 @@ class CmdStop(Command):
             # Normal aiming cleanup
             if hasattr(aimer, 'override_place'):
                 aimer.override_place = ""
+
+
+class CmdDummyReset(Command):
+    """
+    Reset and revive the test dummy in your location.
+    Usage:
+        dummyreset
+    """
+    key = "dummyreset"
+    locks = "cmd:all()"
+    help_category = "Combat"
+
+    def func(self):
+        caller = self.caller
+        location = getattr(caller, 'location', None)
+        if not location:
+            caller.msg("You are nowhere.")
+            return
+        # Find test dummy in room
+        dummy = None
+        for obj in location.contents:
+            if hasattr(obj, 'db') and getattr(obj.db, 'is_test_dummy', False):
+                dummy = obj
+                break
+        if not dummy:
+            caller.msg("No test dummy found here.")
+            return
+        # Remove from combat
+        handler = getattr(dummy.ndb, NDB_COMBAT_HANDLER, None)
+        if handler:
+            try:
+                handler.remove_combatant(dummy)
+            except Exception:
+                pass
+            try:
+                delattr(dummy.ndb, NDB_COMBAT_HANDLER)
+            except Exception:
+                pass
+        # Revive if dead or unconscious
+        if getattr(dummy.db, 'is_dead', False) or getattr(dummy.db, 'is_unconscious', False):
+            dummy.db.is_dead = False
+            dummy.db.is_unconscious = False
+            dummy.db.health = getattr(dummy.db, 'max_health', 100)
+            dummy.location.msg_contents(f"|g{dummy.key} is revived!|n")
+        # Heal fully
+        try:
+            full_heal(dummy)
+        except Exception:
+            pass
+        dummy.db.is_active = True
+        # Announce and update appearance
+        dummy.location.msg_contents(f"|g{dummy.key} resets and returns to pristine condition.|n")
+        for obj in dummy.location.contents:
+            if hasattr(obj, 'msg'):
+                obj.msg(dummy.return_appearance(obj))
+        caller.msg("Test dummy has been reset.")
