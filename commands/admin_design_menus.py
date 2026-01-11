@@ -618,18 +618,18 @@ def node_clothes_toggle_see_thru(caller, raw_string, **kwargs):
 
 def node_clothes_review(caller, raw_string, **kwargs):
     data = caller.ndb._clothes_design
-    text = f"""
-|c=== Review Clothes/Armor ===|n
-Name: {data.get('name')}
-Is Armor: {data.get('is_armor')}
-Coverage: {', '.join(data.get('coverage', []))}
-Color: {data.get('color')}
-See-Thru: {data.get('see_thru')}
-Description: {data.get('desc')}
-Wear Msg: {data.get('wear_msg')}
-Remove Msg: {data.get('remove_msg')}
-Worn Msg: {data.get('worn_msg')}
-"""
+    text = (
+        f"|c=== Review Clothes/Armor ===|n\n"
+        f"Name: {data.get('name')}\n"
+        f"Is Armor: {data.get('is_armor')}\n"
+        f"Coverage: {', '.join(data.get('coverage', []))}\n"
+        f"Color: {data.get('color')}\n"
+        f"See-Thru: {data.get('see_thru')}\n"
+        f"Description: {data.get('desc')}\n"
+        f"Wear Msg: {data.get('wear_msg')}\n"
+        f"Remove Msg: {data.get('remove_msg')}\n"
+        f"Worn Msg: {data.get('worn_msg')}\n"
+    )
     return text, [{"desc": "Back", "goto": "node_clothes_main"}]
 
 def node_clothes_save(caller, raw_string, **kwargs):
