@@ -78,13 +78,12 @@ def node_npc_main(caller, raw_string, **kwargs):
     return text, options
 
 def node_npc_set_name(caller, raw_string, **kwargs):
-    caller.msg("Enter NPC name:")
-    def set_name_and_confirm(c, s):
-        _npc_data(c).update({'name': s})
-        c.msg(f"|gNPC name set to: {s}|n")
-    return "Enter NPC name:", [
-        {"key": "_input", "goto": "node_npc_main", "exec": set_name_and_confirm}
-    ]
+    if raw_string:
+        _npc_data(caller).update({'name': raw_string})
+        caller.msg(f"|gNPC name set to: {raw_string}|n")
+        return node_npc_main(caller, raw_string, **kwargs)
+    else:
+        return "Enter NPC name:", []
 
 def node_npc_set_prototype(caller, raw_string, **kwargs):
     caller.msg("Enter prototype key (for cloning):")
