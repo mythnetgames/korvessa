@@ -1318,6 +1318,7 @@ class CmdRecipes(Command):
             caller.msg(f"|w#{recipe['id']}|n {recipe['name']}")
             caller.msg(f"    Creator: {creator} | Submitted: {created}")
             caller.msg(f"    Type: {'Food' if recipe.get('is_food', True) else 'Drink'}")
+            caller.msg(f"    |wsetnutritious #{recipe['id']} yes/no|n to set nutritious flag")
             caller.msg(f"    |wapproverecipe #{recipe['id']} <difficulty>|n to approve")
             caller.msg(f"    |wrejectrecipe #{recipe['id']} <reason>|n to reject")
             caller.msg("")
@@ -1368,6 +1369,7 @@ class CmdRecipes(Command):
         
         if status == "pending":
             caller.msg("")
+            caller.msg(f"|wsetnutritious #{recipe_id} yes/no|n to set nutritious flag")
             caller.msg(f"|wapproverecipe #{recipe_id} <difficulty>|n to approve")
             caller.msg(f"|wrejectrecipe #{recipe_id} <reason>|n to reject")
 
@@ -1521,6 +1523,84 @@ class CmdRejectRecipe(Command):
                     creator.msg(f"|wReason:|n {reason}")
         else:
             caller.msg(f"|rFailed to reject recipe #{recipe_id}.|n")
+
+
+class CmdSetNutritious(Command):
+    """
+    Set the nutritious flag for a pending recipe.
+    
+    Usage:
+        setnutritious #<id> yes
+        setnutritious #<id> no
+    
+    Sets whether a recipe provides a nutritious food buff when consumed.
+    Nutritious food gives a 15% healing boost for 2 hours.
+    
+    Example:
+        setnutritious #5 yes
+    """
+    key = "setnutritious"
+    aliases = ["set nutritious"]
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: setnutritious #<id> yes/no")
+            return
+        
+        parts = self.args.strip().split()
+        if len(parts) < 2:
+            caller.msg("Usage: setnutritious #<id> yes/no")
+            return
+        
+        # Parse recipe ID
+        id_str = parts[0]
+        if id_str.startswith('#'):
+            id_str = id_str[1:]
+        
+        try:
+            recipe_id = int(id_str)
+        except ValueError:
+            caller.msg("|rInvalid recipe ID.|n")
+            return
+        
+        # Parse yes/no
+        flag_str = parts[1].lower()
+        if flag_str in ('yes', 'true', '1', 'on'):
+            is_nutritious = True
+        elif flag_str in ('no', 'false', '0', 'off'):
+            is_nutritious = False
+        else:
+            caller.msg("|rUse 'yes' or 'no' to set the nutritious flag.|n")
+            return
+        
+        # Get recipe
+        storage = get_recipe_storage()
+        recipe = get_recipe_by_id(recipe_id)
+        
+        if not recipe:
+            caller.msg(f"|rRecipe #{recipe_id} not found.|n")
+            return
+        
+        if recipe.get("status") != "pending":
+            caller.msg(f"|rRecipe #{recipe_id} is not pending approval.|n")
+            return
+        
+        # Update the recipe's nutritious flag
+        recipe["nutritious"] = is_nutritious
+        storage.db.pending_recipes = storage.db.pending_recipes or []
+        
+        # Find and update in pending list
+        for pending in storage.db.pending_recipes:
+            if pending.get("id") == recipe_id:
+                pending["nutritious"] = is_nutritious
+                break
+        
+        status_text = "|gnutritious|n" if is_nutritious else "|rnot nutritious|n"
+        caller.msg(f"|gRecipe #{recipe_id} '{recipe['name']}' is now {status_text}.|n")
 
 
 class CmdEditRecipe(Command):

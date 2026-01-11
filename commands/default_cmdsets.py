@@ -336,7 +336,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         from commands.CmdCooking import (
             CmdDesignRecipe, CmdCook, CmdEat, CmdDrink, CmdTaste, CmdSmellFood,
             CmdSpawnKitchenette, CmdSpawnIngredients, CmdRecipes, 
-            CmdApproveRecipe, CmdRejectRecipe, CmdAdminDesignRecipe, CmdEditRecipe
+            CmdApproveRecipe, CmdRejectRecipe, CmdAdminDesignRecipe, CmdEditRecipe, CmdSetNutritious
         )
         self.add(CmdDesignRecipe())      # Player: design new recipes
         self.add(CmdEditRecipe())        # Player: edit existing recipes
@@ -350,11 +350,18 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRecipes())           # Admin: manage recipe queue
         self.add(CmdApproveRecipe())     # Admin: approve recipes
         self.add(CmdRejectRecipe())      # Admin: reject recipes
+        self.add(CmdSetNutritious())     # Admin: set nutritious flag
         self.add(CmdAdminDesignRecipe()) # Admin: design auto-approved recipes
         from commands.CmdDeleteRecipe import CmdDeleteRecipe
         self.add(CmdDeleteRecipe())      # Admin: delete approved recipes
         # Add pickup toggle command
         self.add(CmdTogglePickup())      # Admin: toggle if objects can be picked up
+        # Add test dummy commands
+        from commands.CmdTestDummy import CmdSpawnDummy, CmdDummyStats, CmdDummyHeal, CmdDummyInfo
+        self.add(CmdSpawnDummy())        # Admin: spawn test dummy
+        self.add(CmdDummyStats())        # Admin: adjust dummy stats
+        self.add(CmdDummyHeal())         # Admin: force heal dummy
+        self.add(CmdDummyInfo())         # Admin: view dummy info
         # Add follow commands
         self.add(CmdFollow())            # Player: follow another character
         self.add(CmdUnfollow())          # Player: stop following
