@@ -691,11 +691,9 @@ class CmdArmorDesignMenu(Command):
 
 # Spawn Clothing Design Command
 class CmdSpawnClothingDesign(Command):
-    """
-    Spawn a clothing/armor item from a saved design.
-    Usage:
-        spawnclothing <name> [to <character>]
-    """
+    # Spawn a clothing/armor item from a saved design.
+    # Usage:
+    #     spawnclothing <name> [to <character>]
     key = "spawnclothing"
     locks = "cmd:perm(Builder)"
     help_category = "Building"
