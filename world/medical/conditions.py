@@ -330,7 +330,7 @@ def create_condition_from_damage(damage_amount, damage_type, location=None, armo
     
     # Weapon-specific bleeding thresholds
     # Blades and bullets cause bleeding more readily due to wound characteristics
-    if damage_type in ['bullet', 'blade', 'stab', 'laceration']:
+    if damage_type in ['bullet', 'blade', 'stab', 'laceration', 'cut']:
         # Sharp/penetrating wounds bleed easily - lower threshold
         bleeding_threshold = 8  # Bleed at 8+ damage
         if damage_amount >= bleeding_threshold:
@@ -363,7 +363,7 @@ def create_condition_from_damage(damage_amount, damage_type, location=None, armo
     
     # Add infection risk for penetrating wounds
     # Armor makes it harder for foreign materials to enter wounds
-    if damage_type in ['bullet', 'blade', 'pierce', 'stab', 'laceration'] and damage_amount >= 6:
+    if damage_type in ['bullet', 'blade', 'pierce', 'stab', 'laceration', 'cut'] and damage_amount >= 6:
         # Base 25% infection chance, reduced by armor protection
         infection_chance = int(25 * (1 - armor_protection * 0.8))  # Up to 80% reduction
         if random.randint(1, 100) <= infection_chance:
