@@ -148,17 +148,7 @@ def node_npc_save(caller, raw_string, **kwargs):
     storage.db.npcs.append(npc_data)
     caller.msg(f"|gNPC '{npc_data.get('name')}' saved!|n")
     return "node_npc_main"
-"""
-Admin Design Menus - Builder+ EvMenu tools for creating and saving NPCs, furniture, weapons, clothes, and armor.
 
-Features:
-- Unified EvMenu system for all object types
-- Save/load similar to recipe system
-- NPCs: name, save, clone, toggle wandering
-- Furniture: name, seating count, sit/lie/recline toggles
-- Weapons: name, ammo toggle, ammo type
-- Clothes/Armor: tailoring menu, ask if armor
-"""
 
 from evennia.utils.evmenu import EvMenu
 from evennia import create_object
