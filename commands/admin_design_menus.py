@@ -472,17 +472,15 @@ def node_furniture_save(caller, raw_string, **kwargs):
 # =============================
 def node_weapon_main(caller, raw_string, **kwargs):
     data = caller.ndb._weapon_design or {}
-    text = f"""
-|c=== Weapon Designer ===|n
-
-|wName:|n {data.get('name', '(unnamed)')}
-|wAmmo:|n {'|g[YES]|n' if data.get('uses_ammo') else '|r[NO]|n'}
-|wAmmo Type:|n {data.get('ammo_type', '(none)')}
-
-[R] Review
-[S] Save
-[Q] Quit
-"""
+    text = (
+        f"|c=== Weapon Designer ===|n\n"
+        f"\n"
+        f"|wName:|n {data.get('name', '(unnamed)')}\n"
+        f"|wAmmo:|n {'|g[YES]|n' if data.get('uses_ammo') else '|r[NO]|n'}\n"
+        f"|wAmmo Type:|n {data.get('ammo_type', '(none)')}\n"
+        f"\n"
+        f"[R] Review\n[S] Save\n[Q] Quit\n"
+    )
     options = [
         {"desc": "Set Name", "goto": "node_weapon_set_name"},
         {"desc": "Toggle Uses Ammo", "goto": "node_weapon_toggle_ammo"},
