@@ -1,3 +1,101 @@
+# =============================
+# SPAWN NPC FROM SAVED DESIGN COMMAND
+from evennia import create_object
+
+class CmdSpawnNPCDesign(Command):
+    """
+    Spawn an NPC from a saved design.
+    Usage:
+        spawnnpc
+    """
+    key = "spawnnpc"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+
+
+    def func(self):
+        storage = get_admin_design_storage()
+        npcs = storage.db.npcs or []
+        if not npcs:
+            self.caller.msg("|rNo saved NPC designs found.|n")
+            return
+        # List designs
+        msg = ["|cSaved NPC Designs:|n"]
+        for idx, npc in enumerate(npcs, 1):
+            msg.append(f"{idx}. {npc.get('name', '(unnamed)')}")
+        msg.append("Type the number of the NPC to spawn, or 'q' to cancel. To spawn multiple, use '2 3' for design 2, 3 copies.")
+        self.caller.msg("\n".join(msg))
+        self.caller.ndb._spawnnpc_choices = npcs
+        self.caller.ndb._spawnnpc_callback = self._do_spawn
+        self.caller.ndb._spawnnpc_waiting = True
+
+    def _do_spawn(self, caller, raw_string):
+        if not hasattr(caller.ndb, '_spawnnpc_choices'):
+            caller.msg("|rNo spawn session found.|n")
+            return
+        if raw_string.strip().lower() in ('q', 'quit', 'exit'):
+            caller.msg("Aborted.")
+            self._cleanup(caller)
+            return
+        parts = raw_string.strip().split()
+        if not parts:
+            caller.msg("|rPlease enter a valid number or 'q' to cancel.|n")
+            return
+        try:
+            idx = int(parts[0]) - 1
+            count = int(parts[1]) if len(parts) > 1 else 1
+        except Exception:
+            caller.msg("|rPlease enter a valid number or 'q' to cancel.|n")
+            return
+        npcs = caller.ndb._spawnnpc_choices
+        if idx < 0 or idx >= len(npcs) or count < 1 or count > 20:
+            caller.msg("|rInvalid selection or count (max 20).|n")
+            return
+        npcdata = npcs[idx]
+        base_name = npcdata.get("name", "NPC")
+        spawned = []
+        for i in range(1, count+1):
+            name = f"{base_name} #{i}" if count > 1 else base_name
+            npc = create_object("typeclasses.characters.Character", key=name, location=caller.location)
+            npc.db.desc = npcdata.get("desc", "")
+            npc.db.prototype_key = npcdata.get("prototype_key", "")
+            npc.db.wandering = npcdata.get("wandering", False)
+            npc.db.cloneable = npcdata.get("cloneable", False)
+            spawned.append(npc.key)
+        caller.msg(f"|gSpawned: {', '.join(spawned)}|n")
+        self._cleanup(caller)
+
+    def _cleanup(self, caller):
+        for attr in ("_spawnnpc_choices", "_spawnnpc_callback", "_spawnnpc_waiting"):
+            if hasattr(caller.ndb, attr):
+                delattr(caller.ndb, attr)
+
+# Add to command set (for reference, add to default_cmdsets.py as well)
+# =============================
+# NPC LOAD NODE (re-added/fixed)
+def node_npc_load(caller, raw_string, **kwargs):
+    storage = get_admin_design_storage()
+    npcs = storage.db.npcs or []
+    if not npcs:
+        caller.msg("|rNo saved NPC designs found.|n")
+        return "node_npc_main"
+    text = "|c=== Load NPC Design ===|n\n\nSelect a design to load:\n\n"
+    options = []
+    for idx, npc in enumerate(npcs, 1):
+        name = npc.get("name", f"NPC {idx}")
+        options.append({"desc": f"{idx}. {name}", "key": str(idx), "goto": "node_npc_load_apply", "args": [idx-1]})
+    options.append({"desc": "Back", "key": ("back", "q"), "goto": "node_npc_main"})
+    return text, options
+
+def node_npc_load_apply(caller, raw_string, idx, **kwargs):
+    storage = get_admin_design_storage()
+    npcs = storage.db.npcs or []
+    if idx < 0 or idx >= len(npcs):
+        caller.msg("|rInvalid selection.|n")
+        return "node_npc_load"
+    caller.ndb._npc_design = dict(npcs[idx])
+    caller.msg(f"|gLoaded NPC design: {npcs[idx].get('name', '(unnamed)')}|n")
+    return "node_npc_main"
 def node_npc_set_cloneable(caller, raw_string, **kwargs):
     data = _npc_data(caller)
     current = '|gYES|n' if data.get('cloneable') else '|rNO|n'
