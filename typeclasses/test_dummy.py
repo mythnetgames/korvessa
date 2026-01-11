@@ -268,6 +268,12 @@ to its neutral stance between attacks.
                     delattr(self.ndb, NDB_COMBAT_HANDLER)
                 except Exception:
                     pass
+            # Revive if dead or unconscious
+            if self.db.is_dead or self.db.is_unconscious:
+                self.db.is_dead = False
+                self.db.is_unconscious = False
+                self.db.health = self.db.max_health if hasattr(self.db, 'max_health') else 100
+                self.location.msg_contents(f"|g{self.key} is revived!|n")
             # Heal fully
             try:
                 from world.medical.utils import full_heal
