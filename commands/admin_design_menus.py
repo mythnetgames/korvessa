@@ -25,7 +25,8 @@ def get_admin_design_storage():
     storage = ScriptDB.objects.filter(db_key=ADMIN_DESIGN_STORAGE_KEY).first()
     if storage:
         return storage
-        storage = create_script(DefaultScript, key=ADMIN_DESIGN_STORAGE_KEY)
+    from evennia import create_script
+    storage = create_script(DefaultScript, key=ADMIN_DESIGN_STORAGE_KEY)
     storage.persistent = True
     storage.db.npcs = []
     storage.db.furniture = []
