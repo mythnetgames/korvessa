@@ -78,16 +78,35 @@ def node_npc_main(caller, raw_string, **kwargs):
     return text, options
 
 def node_npc_set_name(caller, raw_string, **kwargs):
-    if raw_string:
-        # Reject single-character names and pure numbers
-        if len(raw_string.strip()) < 2 or raw_string.strip().isdigit():
-            caller.msg("|rPlease enter a longer, non-numeric name.|n")
-            return "Enter NPC name:", [{"key": "input", "goto": "node_npc_set_name"}]
-        _npc_data(caller).update({'name': raw_string.strip()})
-        caller.msg(f"|gNPC name set to: {raw_string.strip()}|n")
-        return node_npc_main(caller, raw_string, **kwargs)
-    else:
-        return "Enter NPC name:", [{"key": "input", "goto": "node_npc_set_name"}]
+    text = """
+    |c=== Set NPC Name ===|n
+
+    Enter the name for your NPC. This is what the NPC will be called.
+
+    Examples: |wLu Bu|n, |wStreet Vendor|n, |wCybernetic Guard|n
+
+    |wType your name and press Enter, or type 'back' to return.|n
+    """
+
+    def _set_name(caller, raw_string, **kwargs):
+        raw_string = raw_string.strip()
+        if raw_string.lower() == 'back':
+            return "node_npc_main"
+        if len(raw_string) < 3:
+            caller.msg("|rName must be at least 3 characters.|n")
+            return "node_npc_set_name"
+        if len(raw_string) > 80:
+            caller.msg("|rName must be 80 characters or less.|n")
+            return "node_npc_set_name"
+        if raw_string.isdigit():
+            caller.msg("|rPlease enter a non-numeric name.|n")
+            return "node_npc_set_name"
+        _npc_data(caller)["name"] = raw_string
+        caller.msg(f"|gNPC name set to:|n {raw_string}")
+        return "node_npc_main"
+
+    options = ( {"key": "_default", "goto": _set_name}, )
+    return text, options
 
 def node_npc_set_prototype(caller, raw_string, **kwargs):
     caller.msg("Enter prototype key (for cloning):")
