@@ -1894,21 +1894,23 @@ class Character(ObjectParent, DefaultCharacter):
             if location not in self.db.worn_items:
                 self.db.worn_items[location] = []
             
-            # Add item to location, maintaining layer order (outer first)
-            location_items = self.db.worn_items[location]
-            # Filter out None items first
-            location_items = [item_obj for item_obj in location_items if item_obj is not None]
-            self.db.worn_items[location] = location_items
+            # Get current items and filter out None items
+            location_items = [item_obj for item_obj in self.db.worn_items[location] if item_obj is not None]
             
-            # Find insertion point based on layer
+            # Find insertion point based on layer (outer layers first, higher numbers first)
             insert_index = 0
             for i, worn_item in enumerate(location_items):
-                if item.layer <= worn_item.layer:
+                if worn_item is None:
+                    continue
+                worn_layer = getattr(worn_item, 'layer', 2)
+                if item.layer <= worn_layer:
                     insert_index = i + 1
                 else:
                     break
             
+            # Insert and reassign to trigger db save
             location_items.insert(insert_index, item)
+            self.db.worn_items[location] = location_items
         
         return True, f"You put on {item.key}."
     
@@ -1973,11 +1975,14 @@ class Character(ObjectParent, DefaultCharacter):
         
         # No blocking - proceed with removal
         if self.db.worn_items:
-            for location, items in list(self.db.worn_items.items()):
+            for location in list(self.db.worn_items.keys()):
+                items = self.db.worn_items[location]
                 if item in items:
-                    items.remove(item)
-                    # Clean up empty lists
-                    if not items:
+                    # Create new list without the item and reassign to trigger db save
+                    new_items = [i for i in items if i != item]
+                    if new_items:
+                        self.db.worn_items[location] = new_items
+                    else:
                         del self.db.worn_items[location]
         
         return True, f"You remove {item.key}."
