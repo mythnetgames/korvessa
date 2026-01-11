@@ -47,6 +47,7 @@ class CmdSpawnSet(Command):
             return
         
         prototype_key = self.args.strip().upper()
+        location = caller.location
         
         # Try to get the prototype
         try:
@@ -68,14 +69,6 @@ class CmdSpawnSet(Command):
                 return
             prototype = prototype[0]
         
-        # Check for spawn_batch attribute
-        spawn_batch = prototype.get("spawn_batch", [])
-        
-        if not spawn_batch:
-            caller.msg(f"Prototype '{prototype_key}' is not a batch spawn prototype. "
-                      "Use the regular @spawn command instead.")
-            return
-        
         # Check permissions via prototype_locks
         prototype_locks = prototype.get("prototype_locks", "")
         if "spawn:perm(Builder)" in prototype_locks:
@@ -83,9 +76,32 @@ class CmdSpawnSet(Command):
                 caller.msg("You don't have permission to spawn this prototype.")
                 return
         
+        # Spawn the set prototype first to get the object with attributes
+        try:
+            objs = spawner.spawn(prototype_key, location=location)
+        except Exception as e:
+            caller.msg(f"Error spawning set template: {e}")
+            return
+        
+        if not objs:
+            caller.msg("Failed to spawn set template.")
+            return
+        
+        set_obj = objs[0]
+        
+        # Get the spawn_batch list from the object's attributes
+        spawn_batch = None
+        if hasattr(set_obj.db, 'spawn_batch'):
+            spawn_batch = set_obj.db.spawn_batch
+        
+        if not spawn_batch:
+            caller.msg(f"Set template '{prototype_key}' has no spawn_batch data.")
+            # Clean up the template object
+            set_obj.delete()
+            return
+        
         # Spawn each item in the batch
         spawned_items = []
-        location = caller.location
         
         for item_proto_key in spawn_batch:
             try:
@@ -96,6 +112,9 @@ class CmdSpawnSet(Command):
             except Exception as e:
                 caller.msg(f"Error spawning {item_proto_key}: {e}")
                 continue
+        
+        # Delete the template object
+        set_obj.delete()
         
         if spawned_items:
             item_names = [obj.key for obj in spawned_items]

@@ -2887,47 +2887,77 @@ MILITARY_BOOTS = {
 # =============================================================================
 
 # These are batch spawn helpers - when spawned, they create all pieces of a set
-# Note: Evennia doesn't have native batch spawning, so we use a custom approach
-# Spawn these with: @spawn/batch SCRAP_ARMOR_SET or use the individual pieces
+# Note: Armor sets stored as actual spawn-able objects with spawn_batch attribute
+# These create a dummy object with metadata about what to spawn
 
 SCRAP_ARMOR_SET = {
     "prototype_key": "SCRAP_ARMOR_SET",
     "prototype_desc": "Full set of Tier 1 scrap armor (helmet, vest, bracers, greaves, boots)",
     "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
-    "prototype_tags": [("armor_set", "tiered_armor"), ("tier", "scrap")],
-    "spawn_batch": ["SCRAP_HELMET", "SCRAP_VEST", "SCRAP_BRACERS", "SCRAP_GREAVES", "SCRAP_BOOTS"],
+    "key": "scrap armor set (template)",
+    "typeclass": "typeclasses.items.Item",
+    "desc": "This is a template for spawning a full set of scrap armor. This shouldn't appear in-game.",
+    "attrs": [
+        ("spawn_batch", ["SCRAP_HELMET", "SCRAP_VEST", "SCRAP_BRACERS", "SCRAP_GREAVES", "SCRAP_BOOTS"]),
+        ("is_armor_set", True),
+        ("armor_tier", "scrap"),
+    ],
 }
 
 MAKESHIFT_ARMOR_SET = {
     "prototype_key": "MAKESHIFT_ARMOR_SET",
     "prototype_desc": "Full set of Tier 2 makeshift armor (helmet, vest, bracers, greaves, boots)",
     "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
-    "prototype_tags": [("armor_set", "tiered_armor"), ("tier", "makeshift")],
-    "spawn_batch": ["MAKESHIFT_HELMET", "MAKESHIFT_VEST", "MAKESHIFT_BRACERS", "MAKESHIFT_GREAVES", "MAKESHIFT_BOOTS"],
+    "key": "makeshift armor set (template)",
+    "typeclass": "typeclasses.items.Item",
+    "desc": "This is a template for spawning a full set of makeshift armor. This shouldn't appear in-game.",
+    "attrs": [
+        ("spawn_batch", ["MAKESHIFT_HELMET", "MAKESHIFT_VEST", "MAKESHIFT_BRACERS", "MAKESHIFT_GREAVES", "MAKESHIFT_BOOTS"]),
+        ("is_armor_set", True),
+        ("armor_tier", "makeshift"),
+    ],
 }
 
 STANDARD_ARMOR_SET = {
     "prototype_key": "STANDARD_ARMOR_SET",
     "prototype_desc": "Full set of Tier 3 standard armor (helmet, vest, bracers, greaves, boots)",
     "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
-    "prototype_tags": [("armor_set", "tiered_armor"), ("tier", "standard")],
-    "spawn_batch": ["STANDARD_HELMET", "STANDARD_VEST", "STANDARD_BRACERS", "STANDARD_GREAVES", "STANDARD_BOOTS"],
+    "key": "standard armor set (template)",
+    "typeclass": "typeclasses.items.Item",
+    "desc": "This is a template for spawning a full set of standard armor. This shouldn't appear in-game.",
+    "attrs": [
+        ("spawn_batch", ["STANDARD_HELMET", "STANDARD_VEST", "STANDARD_BRACERS", "STANDARD_GREAVES", "STANDARD_BOOTS"]),
+        ("is_armor_set", True),
+        ("armor_tier", "standard"),
+    ],
 }
 
 REINFORCED_ARMOR_SET = {
     "prototype_key": "REINFORCED_ARMOR_SET",
     "prototype_desc": "Full set of Tier 4 reinforced armor (helmet, vest, bracers, greaves, boots)",
     "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
-    "prototype_tags": [("armor_set", "tiered_armor"), ("tier", "reinforced")],
-    "spawn_batch": ["REINFORCED_HELMET", "REINFORCED_VEST", "REINFORCED_BRACERS", "REINFORCED_GREAVES", "REINFORCED_BOOTS"],
+    "key": "reinforced armor set (template)",
+    "typeclass": "typeclasses.items.Item",
+    "desc": "This is a template for spawning a full set of reinforced armor. This shouldn't appear in-game.",
+    "attrs": [
+        ("spawn_batch", ["REINFORCED_HELMET", "REINFORCED_VEST", "REINFORCED_BRACERS", "REINFORCED_GREAVES", "REINFORCED_BOOTS"]),
+        ("is_armor_set", True),
+        ("armor_tier", "reinforced"),
+    ],
 }
 
 MILITARY_ARMOR_SET = {
     "prototype_key": "MILITARY_ARMOR_SET",
     "prototype_desc": "Full set of Tier 5 military armor (helmet, vest, bracers, greaves, boots)",
     "prototype_locks": "spawn:perm(Builder);edit:perm(Admin)",
-    "prototype_tags": [("armor_set", "tiered_armor"), ("tier", "military")],
-    "spawn_batch": ["MILITARY_HELMET", "MILITARY_VEST", "MILITARY_BRACERS", "MILITARY_GREAVES", "MILITARY_BOOTS"],
+    "key": "military armor set (template)",
+    "typeclass": "typeclasses.items.Item",
+    "desc": "This is a template for spawning a full set of military armor. This shouldn't appear in-game.",
+    "attrs": [
+        ("spawn_batch", ["MILITARY_HELMET", "MILITARY_VEST", "MILITARY_BRACERS", "MILITARY_GREAVES", "MILITARY_BOOTS"]),
+        ("is_armor_set", True),
+        ("armor_tier", "military"),
+    ],
 }
 
 # =============================================================================  
