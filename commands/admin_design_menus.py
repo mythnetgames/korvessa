@@ -90,7 +90,7 @@ def node_npc_set_name(caller, raw_string, **kwargs):
             "Examples: |wLu Bu|n, |wStreet Vendor|n, |wCybernetic Guard|n\n\n"
             "|wType your name and press Enter, or type 'back' to return.|n"
         )
-        options = ( {"key": "_default", "goto": node_npc_set_name_validate}, )
+        options = ( {"key": "_default", "goto": "node_npc_set_name_validate"}, )
         return text, options
 
     # --- Step 1b: Validate name and go to confirm ---
@@ -123,8 +123,8 @@ def node_npc_set_name(caller, raw_string, **kwargs):
             "|r2.|n No, re-enter name\n"
         )
         options = [
-            {"desc": "Yes, use this name", "key": ("1", "yes", "y"), "goto": node_npc_save_name},
-            {"desc": "No, re-enter name", "key": ("2", "no", "n"), "goto": node_npc_set_name},
+            {"desc": "Yes, use this name", "key": ("1", "yes", "y"), "goto": "node_npc_save_name"},
+            {"desc": "No, re-enter name", "key": ("2", "no", "n"), "goto": "node_npc_set_name"},
         ]
         return text, options
 
