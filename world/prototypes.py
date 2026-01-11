@@ -980,6 +980,8 @@ FLARE_GUN = {
         ("weapon_type", "flare_gun"),
         ("damage_type", "burn"),
         ("hands_required", 1),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "flare"),
         ("ammo_capacity", 1),
         ("current_ammo", 1),
@@ -997,6 +999,8 @@ HEAVY_REVOLVER = {
         ("weapon_type", "heavy_revolver"),
         ("damage_type", "bullet"),
         ("hands_required", 1),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "44mag"),
         ("ammo_capacity", 6),
         ("current_ammo", 6),
@@ -1014,6 +1018,8 @@ LIGHT_REVOLVER = {
         ("weapon_type", "light_revolver"),
         ("damage_type", "bullet"),
         ("hands_required", 1),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "38special"),
         ("ammo_capacity", 5),
         ("current_ammo", 5),
@@ -1031,6 +1037,8 @@ MACHINE_PISTOL = {
         ("weapon_type", "machine_pistol"),
         ("damage_type", "bullet"),
         ("hands_required", 1),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "9mm"),
         ("ammo_capacity", 33),
         ("current_ammo", 33),
@@ -1048,6 +1056,8 @@ NAIL_GUN = {
         ("weapon_type", "nail_gun"),
         ("damage_type", "stab"),
         ("hands_required", 1),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "nail"),
         ("ammo_capacity", 50),
         ("current_ammo", 50),
@@ -1065,6 +1075,7 @@ STUN_GUN = {
         ("weapon_type", "stun_gun"),
         ("damage_type", "burn"),
         ("hands_required", 1),
+        ("is_ranged", True),
         ("uses_ammo", False),  # Electric, doesn't use conventional ammo
     ]
 }
@@ -1083,6 +1094,7 @@ BOWEL_DISRUPTOR = {
     "attrs": [
         ("weapon_type", "bowel_disruptor"),
         ("damage_type", "blunt"),
+        ("is_ranged", True),
         ("uses_ammo", False),  # Energy weapon
     ]
 }
@@ -1097,6 +1109,8 @@ FLAMETHROWER = {
     "attrs": [
         ("weapon_type", "flamethrower"),
         ("damage_type", "burn"),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "fuel"),
         ("ammo_capacity", 10),
         ("current_ammo", 10),
@@ -1113,6 +1127,8 @@ HEAVY_MACHINE_GUN = {
     "attrs": [
         ("weapon_type", "heavy_machine_gun"),
         ("damage_type", "bullet"),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "50bmg"),
         ("ammo_capacity", 100),
         ("current_ammo", 100),
@@ -1129,6 +1145,8 @@ LEVER_ACTION_RIFLE = {
     "attrs": [
         ("weapon_type", "lever-action_rifle"),
         ("damage_type", "bullet"),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "308win"),
         ("ammo_capacity", 8),
         ("current_ammo", 8),
@@ -1145,6 +1163,8 @@ LEVER_ACTION_SHOTGUN = {
     "attrs": [
         ("weapon_type", "lever-action_shotgun"),
         ("damage_type", "bullet"),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "12gauge"),
         ("ammo_capacity", 6),
         ("current_ammo", 6),
@@ -1161,6 +1181,8 @@ SEMI_AUTO_RIFLE = {
     "attrs": [
         ("weapon_type", "semi-auto_rifle"),
         ("damage_type", "bullet"),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "762nato"),
         ("ammo_capacity", 20),
         ("current_ammo", 20),
@@ -1177,6 +1199,8 @@ SEMI_AUTO_SHOTGUN = {
     "attrs": [
         ("weapon_type", "semi-auto_shotgun"),
         ("damage_type", "bullet"),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "12gauge"),
         ("ammo_capacity", 8),
         ("current_ammo", 8),
@@ -1193,6 +1217,8 @@ SNIPER_RIFLE = {
     "attrs": [
         ("weapon_type", "bolt-action_rifle"),
         ("damage_type", "bullet"),
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "762nato"),
         ("ammo_capacity", 5),
         ("current_ammo", 5),
@@ -1334,6 +1360,8 @@ LIGHT_PISTOL = {
         ("weapon_type", "light_pistol"),
         ("damage_type", "bullet"),  # Medical system injury type
         ("hands_required", 1),  # Pistols can be fired one-handed
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "9mm"),
         ("ammo_capacity", 15),
         ("current_ammo", 15),
@@ -1351,6 +1379,8 @@ HEAVY_PISTOL = {
         ("weapon_type", "heavy_pistol"),
         ("damage_type", "bullet"),  # Medical system injury type
         ("hands_required", 1),  # Can be fired one-handed but difficult
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "45acp"),
         ("ammo_capacity", 12),
         ("current_ammo", 12),
@@ -1367,6 +1397,8 @@ PUMP_SHOTGUN = {
     "attrs": [
         ("weapon_type", "pump-action_shotgun"),
         ("damage_type", "bullet"),  # Medical system injury type
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "12gauge"),
         ("ammo_capacity", 7),
         ("current_ammo", 7),
@@ -1383,6 +1415,8 @@ BREAK_SHOTGUN = {
     "attrs": [
         ("weapon_type", "break-action_shotgun"),
         ("damage_type", "bullet"),  # Medical system injury type
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "12gauge"),
         ("ammo_capacity", 2),
         ("current_ammo", 2),
@@ -1399,6 +1433,8 @@ BOLT_RIFLE = {
     "attrs": [
         ("weapon_type", "bolt-action_rifle"),
         ("damage_type", "bullet"),  # Medical system injury type
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "762nato"),
         ("ammo_capacity", 5),
         ("current_ammo", 5),
@@ -1416,6 +1452,8 @@ ANTI_MATERIAL_RIFLE = {
         ("weapon_type", "anti-material_rifle"),
         ("damage_type", "bullet"),  # Medical system injury type
         ("hands_required", 2),  # Requires bipod/support
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "50bmg"),
         ("ammo_capacity", 10),
         ("current_ammo", 10),
@@ -1432,6 +1470,8 @@ ASSAULT_RIFLE = {
     "attrs": [
         ("weapon_type", "assault_rifle"),  # May need to create message file
         ("damage_type", "bullet"),  # Medical system injury type
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "556nato"),
         ("ammo_capacity", 30),
         ("current_ammo", 30),
@@ -1449,6 +1489,8 @@ SMG = {
         ("weapon_type", "smg"),  # May need to create message file
         ("damage_type", "bullet"),  # Medical system injury type
         ("hands_required", 1),  # Can be fired one-handed
+        ("is_ranged", True),
+        ("uses_ammo", True),
         ("ammo_type", "9mm"),
         ("ammo_capacity", 30),
         ("current_ammo", 30),

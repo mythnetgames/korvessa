@@ -1095,7 +1095,7 @@ class Ammunition(Item):
         """Get ammunition type information."""
         return AMMO_TYPES.get(self.ammo_type, AMMO_TYPES["9mm"])
     
-    def get_display_name(self):
+    def get_display_name(self, looker=None, **kwargs):
         """Get the display name based on count and type."""
         info = self.get_ammo_info()
         if self.current_rounds == 1:
