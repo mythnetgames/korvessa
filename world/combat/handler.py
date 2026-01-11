@@ -1074,6 +1074,37 @@ class CombatHandler(DefaultScript):
         
         return False
     
+    def _validate_and_clean_weapons(self, character):
+        """
+        Validate that all wielded weapons are still in the character's inventory.
+        Clears hands of any weapons that have been lost or dropped.
+        
+        Args:
+            character: The character to validate
+        """
+        splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        
+        if not hasattr(character, 'hands'):
+            return
+        
+        hands = character.hands
+        weapons_lost = []
+        
+        for hand, weapon in hands.items():
+            if weapon and weapon.location != character:
+                # Weapon is no longer in character's inventory
+                weapons_lost.append((hand, weapon))
+                hands[hand] = None
+        
+        if weapons_lost:
+            # Save the cleaned hands
+            character.hands = hands
+            
+            # Log lost weapons
+            for hand, weapon in weapons_lost:
+                character.msg(f"|r[Combat System] Your {weapon.key} was lost!|n")
+                splattercast.msg(f"WEAPON_LOST: {character.key} lost {weapon.key} from {hand} hand (location mismatch)")
+    
     def _calculate_attack_delay(self, attacker, initiative_order):
         """
         Calculate attack delay to stagger combat messages within a round.
@@ -1110,6 +1141,9 @@ class CombatHandler(DefaultScript):
             combatants_list: List of all combat entries at time of scheduling
         """
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        
+        # Validate that attacker still has weapons they're supposed to wield
+        self._validate_and_clean_weapons(attacker)
         
         # Validate that combat is still active
         if not getattr(self.db, DB_COMBAT_RUNNING, False):
@@ -1183,6 +1217,9 @@ class CombatHandler(DefaultScript):
             combatants_list: List of all combat entries
         """
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        
+        # Validate attacker's wielded weapons are still in inventory
+        self._validate_and_clean_weapons(attacker)
         
         # Check if target is already dead or unconscious - prevents attacking incapacitated characters
         if target.is_dead():

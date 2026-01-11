@@ -78,6 +78,15 @@ class CmdAttack(Command):
         hands = getattr(caller, "hands", {})
         weapon_obj = next((item for hand, item in hands.items() if item), None)
         
+        # VALIDATE WEAPON STILL IN INVENTORY before using it
+        if weapon_obj and weapon_obj.location != caller:
+            # Weapon is lost/dropped - clean up hands and report
+            hands[next((h for h, w in hands.items() if w == weapon_obj))] = None
+            caller.hands = hands
+            caller.msg(f"|r[Error] Your {weapon_obj.key} is no longer in your possession!|n")
+            splattercast.msg(f"WEAPON_LOST: {caller.key} tried to attack with lost weapon {weapon_obj.key}")
+            weapon_obj = None  # Fall back to unarmed
+        
         # Debug weapon detection
         splattercast.msg(f"WEAPON_DETECT: {caller.key} hands={hands}, weapon_obj={weapon_obj.key if weapon_obj else 'None'}")
         if weapon_obj:

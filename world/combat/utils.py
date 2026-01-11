@@ -612,6 +612,7 @@ def is_ammo_compatible(ammo_type, weapon_ammo_type):
 def get_wielded_weapon(character):
     """
     Get the first weapon found in character's hands.
+    Validates that the weapon is actually in the character's inventory.
     
     Args:
         character: The character to check
@@ -620,12 +621,22 @@ def get_wielded_weapon(character):
         The weapon object, or None if no weapon is wielded
     """
     hands = getattr(character, "hands", {})
-    return next((item for hand, item in hands.items() if item), None)
+    for hand, item in hands.items():
+        if item:
+            # Validate weapon is still in character's inventory
+            if item.location == character:
+                return item
+            else:
+                # Weapon is no longer in inventory, clear the hand
+                hands[hand] = None
+                character.hands = hands
+    return None
 
 
 def is_wielding_ranged_weapon(character):
     """
     Check if a character is wielding a ranged weapon.
+    Validates that the weapon is actually in the character's inventory.
     
     Args:
         character: The character to check
@@ -636,8 +647,17 @@ def is_wielding_ranged_weapon(character):
     # Use the same hands detection logic as core_actions.py
     hands = getattr(character, "hands", {})
     for hand, weapon in hands.items():
-        if weapon and hasattr(weapon, 'db') and getattr(weapon.db, 'is_ranged', False):
-            return True
+        if weapon:
+            # Validate weapon is still in character's inventory
+            if weapon.location != character:
+                # Weapon is no longer in inventory, clear the hand
+                hands[hand] = None
+                character.hands = hands
+                continue
+            
+            # Check if it's a ranged weapon
+            if hasattr(weapon, 'db') and getattr(weapon.db, 'is_ranged', False):
+                return True
     
     return False
 
@@ -645,6 +665,7 @@ def is_wielding_ranged_weapon(character):
 def get_wielded_weapons(character):
     """
     Get all weapons a character is currently wielding.
+    Validates that all weapons are actually in the character's inventory.
     
     Args:
         character: The character to check
@@ -657,7 +678,13 @@ def get_wielded_weapons(character):
     
     for hand, weapon in hands.items():
         if weapon:
-            weapons.append(weapon)
+            # Validate weapon is still in character's inventory
+            if weapon.location == character:
+                weapons.append(weapon)
+            else:
+                # Weapon is no longer in inventory, clear the hand
+                hands[hand] = None
+                character.hands = hands
     
     return weapons
 
