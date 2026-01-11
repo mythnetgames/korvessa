@@ -58,6 +58,7 @@ from commands.debugsensors import CmdDebugSensors
 from commands.mapper import CmdMapColor
 from commands.adminkill import CmdAdminKill
 from commands.CmdTogglePickup import CmdTogglePickup
+from commands.CmdFollow import CmdFollow, CmdUnfollow, CmdLose
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -349,6 +350,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdDeleteRecipe())      # Admin: delete approved recipes
         # Add pickup toggle command
         self.add(CmdTogglePickup())      # Admin: toggle if objects can be picked up
+        # Add follow commands
+        self.add(CmdFollow())            # Player: follow another character
+        self.add(CmdUnfollow())          # Player: stop following
+        self.add(CmdLose())              # Player: shake off followers
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """

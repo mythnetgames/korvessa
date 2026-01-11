@@ -398,6 +398,30 @@ class Character(ObjectParent, DefaultCharacter):
         from world.medical.utils import initialize_character_medical_state
         initialize_character_medical_state(self)
 
+    def move_to(self, destination, quiet=False, emit_to_obj=None, use_destination=True):
+        """
+        Override move_to to handle follower movement.
+        When a character moves, their followers move with them.
+        """
+        # Store the original location for follow system
+        original_location = self.location
+        
+        # Call the parent move_to method
+        result = super().move_to(destination, quiet=quiet, emit_to_obj=emit_to_obj, use_destination=use_destination)
+        
+        # Handle followers after successful move
+        if result and original_location and self.location != original_location:
+            # Trigger the follow system
+            try:
+                from scripts.follow_system import handle_character_move
+                handle_character_move(self, self.location)
+            except Exception as e:
+                # Don't break movement if follow system fails
+                pass
+        
+        return result
+
+
     @property
     def medical_state(self):
         """Get the character's medical state, loading from db if needed."""
