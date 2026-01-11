@@ -232,15 +232,30 @@ to its neutral stance between attacks.
         return appearance
 
     def at_msg_receive(self, msg, from_obj=None, **kwargs):
-        """React to messages in the room. Heal and reset on 'reset', robust to accents."""
+        """React to messages in the room. Heal and reset on 'reset', robust to accents and Evennia Msg objects."""
         if not msg:
             return
         import unicodedata
-        def strip_accents(text):
-            return ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn')
+        # Always convert to string, handle Evennia Msg objects
+        try:
+            msg_str = str(msg.message) if hasattr(msg, 'message') else str(msg)
+        except Exception:
+            msg_str = str(msg)
+        msg_str = msg_str.strip().lower()
+        # Normalize to NFC then NFD, then strip accents
+        msg_str = unicodedata.normalize('NFC', msg_str)
+        msg_nfd = unicodedata.normalize('NFD', msg_str)
+        msg_normalized = ''.join(c for c in msg_nfd if unicodedata.category(c) != 'Mn')
 
-        msg_str = str(msg).strip().lower()
-        msg_normalized = strip_accents(msg_str)
+        # Debug: show what the dummy is receiving
+        try:
+            from evennia.comms.models import ChannelDB
+            splattercast = ChannelDB.objects.get_channel('Splattercast')
+            if splattercast:
+                splattercast.msg(f"[DUMMY DEBUG] Received: '{msg_str}' | Normalized: '{msg_normalized}'")
+        except Exception:
+            pass
+
         if "reset" in msg_normalized:
             # Remove from combat if needed
             handler = getattr(self.ndb, NDB_COMBAT_HANDLER, None)
