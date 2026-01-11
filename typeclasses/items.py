@@ -21,6 +21,12 @@ COLOR_DEFINITIONS = {
     "bright_magenta": "|M", # Bright Magenta
     "bright_cyan": "|C",  # Bright Cyan
     "bright_white": "|W", # Bright White
+    # Additional colors for armor and materials
+    "gunmetal": "|=l",    # Gunmetal gray
+    "rust-brown": "|y",   # Rust brown
+    "dark brown": "|y",   # Dark brown
+    "matte black": "|=l", # Matte black
+    "steel": "|w",        # Steel gray/white
 }
 
 class Item(DefaultObject):
