@@ -19,7 +19,7 @@ class CmdControl(Command):
     The player will see the command as if they typed it, and the admin will see the output as well.
     """
     key = "control"
-    locks = "cmd:perm(Immortal)"
+    locks = "cmd:perm(Immortal) or perm(Builder)"
     help_category = "Admin"
 
     def func(self):

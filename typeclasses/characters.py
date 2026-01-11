@@ -584,7 +584,7 @@ class Character(ObjectParent, DefaultCharacter):
             int: Final damage after armor reduction from all layers
         """
         # If no clothing system available, no armor protection
-        if not hasattr(self, 'worn_items') or not self.worn_items:
+        if not hasattr(self, 'db') or not self.db.worn_items:
             return damage
             
         # Find all armor covering this location, sorted by layer (outermost first)
@@ -593,7 +593,7 @@ class Character(ObjectParent, DefaultCharacter):
         coverage_cache = {}
         seen_items = set()
         
-        for loc, items in self.worn_items.items():
+        for loc, items in self.db.worn_items.items():
             for item in items:
                 # Skip if we've already processed this item
                 if id(item) in seen_items:
@@ -1794,14 +1794,14 @@ class Character(ObjectParent, DefaultCharacter):
         item_layer = getattr(item, 'layer', 2)
         
         # Check for layer conflicts before wearing
-        if not self.worn_items:
-            self.worn_items = {}
+        if not self.db.worn_items:
+            self.db.worn_items = {}
         
         # Detect layer conflicts
         conflicts = []
         for location in item_coverage:
-            if location in self.worn_items:
-                for worn_item in self.worn_items[location]:
+            if location in self.db.worn_items:
+                for worn_item in self.db.worn_items[location]:
                     # Skip None items (deleted items)
                     if worn_item is None:
                         continue
@@ -1891,14 +1891,14 @@ class Character(ObjectParent, DefaultCharacter):
         
         # No conflicts - proceed with wearing
         for location in item_coverage:
-            if location not in self.worn_items:
-                self.worn_items[location] = []
+            if location not in self.db.worn_items:
+                self.db.worn_items[location] = []
             
             # Add item to location, maintaining layer order (outer first)
-            location_items = self.worn_items[location]
+            location_items = self.db.worn_items[location]
             # Filter out None items first
             location_items = [item_obj for item_obj in location_items if item_obj is not None]
-            self.worn_items[location] = location_items
+            self.db.worn_items[location] = location_items
             
             # Find insertion point based on layer
             insert_index = 0
@@ -1918,15 +1918,19 @@ class Character(ObjectParent, DefaultCharacter):
         if not self.is_item_worn(item):
             return False, "You're not wearing that item."
         
+        # Ensure worn_items is initialized
+        if not self.db.worn_items:
+            self.db.worn_items = {}
+        
         # Check if any outer layers are blocking removal
         item_layer = getattr(item, 'layer', 2)
         item_coverage = getattr(item, 'get_current_coverage', lambda: getattr(item, 'coverage', []))()
         
         blocking_items = []
-        if self.worn_items:
+        if self.db.worn_items:
             for location in item_coverage:
-                if location in self.worn_items:
-                    for worn_item in self.worn_items[location]:
+                if location in self.db.worn_items:
+                    for worn_item in self.db.worn_items[location]:
                         if worn_item == item:
                             continue
                         worn_layer = getattr(worn_item, 'layer', 2)
@@ -1968,39 +1972,39 @@ class Character(ObjectParent, DefaultCharacter):
             return False, error_msg
         
         # No blocking - proceed with removal
-        if self.worn_items:
-            for location, items in list(self.worn_items.items()):
+        if self.db.worn_items:
+            for location, items in list(self.db.worn_items.items()):
                 if item in items:
                     items.remove(item)
                     # Clean up empty lists
                     if not items:
-                        del self.worn_items[location]
+                        del self.db.worn_items[location]
         
         return True, f"You remove {item.key}."
     
     def is_item_worn(self, item):
         """Check if a specific item is currently worn"""
-        if not self.worn_items:
+        if not self.db.worn_items:
             return False
         
-        for items in self.worn_items.values():
+        for items in self.db.worn_items.values():
             if item in items:
                 return True
         return False
     
     def get_worn_items(self, location=None):
         """Get worn items, optionally filtered by location"""
-        if not self.worn_items:
+        if not self.db.worn_items:
             return []
         
         if location:
             # Filter out None items that may have been deleted
-            return [item for item in self.worn_items.get(location, []) if item is not None]
+            return [item for item in self.db.worn_items.get(location, []) if item is not None]
         
         # Return all worn items (deduplicated since items can cover multiple locations)
         seen_items = set()
         all_items = []
-        for items in self.worn_items.values():
+        for items in self.db.worn_items.values():
             for item in items:
                 # Skip None items (deleted items)
                 if item is not None and item not in seen_items:
@@ -2010,18 +2014,18 @@ class Character(ObjectParent, DefaultCharacter):
     
     def is_location_covered(self, location):
         """Check if body location is covered by clothing"""
-        if not self.worn_items:
+        if not self.db.worn_items:
             return False
         
-        return bool(self.worn_items.get(location, []))
+        return bool(self.db.worn_items.get(location, []))
     
     def get_coverage_description(self, location):
         """Get clothing description for covered location"""
-        if not self.worn_items or location not in self.worn_items:
+        if not self.db.worn_items or location not in self.db.worn_items:
             return None
         
         # Get outermost (first) item for this location
-        items = self.worn_items[location]
+        items = self.db.worn_items[location]
         if not items:
             return None
         
@@ -2031,10 +2035,10 @@ class Character(ObjectParent, DefaultCharacter):
     def _build_clothing_coverage_map(self):
         """Map each body location to outermost covering clothing item."""
         coverage = {}
-        if not self.worn_items:
+        if not self.db.worn_items:
             return coverage
         
-        for location, items in self.worn_items.items():
+        for location, items in self.db.worn_items.items():
             if items:
                 # First item is outermost due to layer ordering
                 # Filter out None items that may have been deleted
