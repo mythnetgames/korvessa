@@ -63,154 +63,154 @@ MESSAGES = {
     ],
     "hit": [
         {
-            "attacker_msg": "You crack {target_name} across the {hit_location} -",
-            "victim_msg": "{attacker_name} cracks you across the {hit_location} -",
-            "observer_msg": "{attacker_name} cracks {target_name} across the {hit_location} -"
+            "attacker_msg": "You crack {target_name} across the {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} cracks you across the {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} cracks {target_name} across the {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "Your knuckles sink into {target_name}'s {hit_location}, winding them.",
-            "victim_msg": "{attacker_name}'s knuckles sink into your {hit_location}, winding you.",
-            "observer_msg": "{attacker_name}'s knuckles sink into {target_name}'s {hit_location}, winding them."
+            "attacker_msg": "Your knuckles sink into {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name}'s knuckles sink into your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name}'s knuckles sink into {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You drive a knee into {target_name}'s {hit_location}.",
-            "victim_msg": "{attacker_name} drives a knee into your {hit_location}.",
-            "observer_msg": "{attacker_name} drives a knee into {target_name}'s {hit_location}."
+            "attacker_msg": "You drive a knee into {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} drives a knee into your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} drives a knee into {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You slap {target_name}'s {hit_location} hard enough to echo down the alley.",
-            "victim_msg": "{attacker_name} slaps your {hit_location} hard enough to echo down the alley.",
-            "observer_msg": "{attacker_name} slaps {target_name}'s {hit_location} hard enough to echo down the alley."
+            "attacker_msg": "You slap {target_name}'s {hit_location} hard enough to echo - {impact}.",
+            "victim_msg": "{attacker_name} slaps your {hit_location} hard enough to echo - {impact}.",
+            "observer_msg": "{attacker_name} slaps {target_name}'s {hit_location} hard enough to echo - {impact}."
         },
         {
-            "attacker_msg": "You land a boot to {target_name}'s {hit_location} with a sickening thud.",
-            "victim_msg": "{attacker_name} lands a boot to your {hit_location} with a sickening thud.",
-            "observer_msg": "{attacker_name} lands a boot to {target_name}'s {hit_location} with a sickening thud."
+            "attacker_msg": "You land a boot to {target_name}'s {hit_location} with a sickening thud, {impact}.",
+            "victim_msg": "{attacker_name} lands a boot to your {hit_location} with a sickening thud, {impact}.",
+            "observer_msg": "{attacker_name} lands a boot to {target_name}'s {hit_location} with a sickening thud, {impact}."
         },
         {
-            "attacker_msg": "You catch {target_name}'s {hit_location} with an elbow.",
-            "victim_msg": "{attacker_name} catches your {hit_location} with an elbow.",
-            "observer_msg": "{attacker_name} catches {target_name}'s {hit_location} with an elbow."
+            "attacker_msg": "You catch {target_name}'s {hit_location} with an elbow, {impact}.",
+            "victim_msg": "{attacker_name} catches your {hit_location} with an elbow, {impact}.",
+            "observer_msg": "{attacker_name} catches {target_name}'s {hit_location} with an elbow, {impact}."
         },
         {
-            "attacker_msg": "You drive a fist into {target_name}'s {hit_location}.",
-            "victim_msg": "{attacker_name} drives a fist into your {hit_location}.",
-            "observer_msg": "{attacker_name} drives a fist into {target_name}'s {hit_location}."
+            "attacker_msg": "You drive a fist into {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} drives a fist into your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} drives a fist into {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You rake {target_name}'s {hit_location} with a backhand that draws blood.",
-            "victim_msg": "{attacker_name} rakes your {hit_location} with a backhand that draws blood.",
-            "observer_msg": "{attacker_name} rakes {target_name}'s {hit_location} with a backhand that draws blood."
+            "attacker_msg": "You rake {target_name}'s {hit_location} with a backhand, {impact}.",
+            "victim_msg": "{attacker_name} rakes your {hit_location} with a backhand, {impact}.",
+            "observer_msg": "{attacker_name} rakes {target_name}'s {hit_location} with a backhand, {impact}."
         },
         {
-            "attacker_msg": "You knock {target_name}'s {hit_location} sideways with a quick jab.",
-            "victim_msg": "{attacker_name} knocks your {hit_location} sideways with a quick jab.",
-            "observer_msg": "{attacker_name} knocks {target_name}'s {hit_location} sideways with a quick jab."
+            "attacker_msg": "You knock {target_name}'s {hit_location} sideways with a quick jab, {impact}.",
+            "victim_msg": "{attacker_name} knocks your {hit_location} sideways with a quick jab, {impact}.",
+            "observer_msg": "{attacker_name} knocks {target_name}'s {hit_location} sideways with a quick jab, {impact}."
         },
         {
-            "attacker_msg": "You send {target_name} stumbling with a {hit_location} check.",
-            "victim_msg": "{attacker_name} sends you stumbling with a {hit_location} check.",
-            "observer_msg": "{attacker_name} sends {target_name} stumbling with a {hit_location} check."
+            "attacker_msg": "You send {target_name} stumbling with a hit to the {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} sends you stumbling with a hit to the {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} sends {target_name} stumbling with a hit to the {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "Your punch lands like a hammer - right to {target_name}'s {hit_location}.",
-            "victim_msg": "{attacker_name}'s punch lands like a hammer - right to your {hit_location}.",
-            "observer_msg": "{attacker_name}'s punch lands like a hammer - right to {target_name}'s {hit_location}."
+            "attacker_msg": "Your punch lands like a hammer - right to {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name}'s punch lands like a hammer - right to your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name}'s punch lands like a hammer - right to {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You pound {target_name}'s {hit_location} with both fists, gorilla-style.",
-            "victim_msg": "{attacker_name} pounds your {hit_location} with both fists, gorilla-style.",
-            "observer_msg": "{attacker_name} pounds {target_name}'s {hit_location} with both fists, gorilla-style."
+            "attacker_msg": "You pound {target_name}'s {hit_location} with both fists, {impact}.",
+            "victim_msg": "{attacker_name} pounds your {hit_location} with both fists, {impact}.",
+            "observer_msg": "{attacker_name} pounds {target_name}'s {hit_location} with both fists, {impact}."
         },
         {
-            "attacker_msg": "You grab and slam {target_name} into a nearby wall.",
-            "victim_msg": "{attacker_name} grabs and slams you into a nearby wall.",
-            "observer_msg": "{attacker_name} grabs and slams {target_name} into a nearby wall."
+            "attacker_msg": "You grab and slam {target_name} into a nearby wall, {impact}.",
+            "victim_msg": "{attacker_name} grabs and slams you into a nearby wall, {impact}.",
+            "observer_msg": "{attacker_name} grabs and slams {target_name} into a nearby wall, {impact}."
         },
         {
-            "attacker_msg": "You deliver a brutal headbutt to {target_name}'s {hit_location}.",
-            "victim_msg": "{attacker_name} delivers a brutal headbutt to your {hit_location}.",
-            "observer_msg": "{attacker_name} delivers a brutal headbutt to {target_name}'s {hit_location}."
+            "attacker_msg": "You deliver a brutal headbutt to {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} delivers a brutal headbutt to your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} delivers a brutal headbutt to {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "Your uppercut to {target_name}'s {hit_location} lifts them off their damn feet.",
-            "victim_msg": "{attacker_name}'s uppercut to your {hit_location} lifts you off your damn feet.",
-            "observer_msg": "{attacker_name}'s uppercut to {target_name}'s {hit_location} lifts them off their damn feet."
+            "attacker_msg": "Your uppercut to {target_name}'s {hit_location} lifts them off their feet, {impact}.",
+            "victim_msg": "{attacker_name}'s uppercut to your {hit_location} lifts you off your feet, {impact}.",
+            "observer_msg": "{attacker_name}'s uppercut to {target_name}'s {hit_location} lifts them off their feet, {impact}."
         },
         {
-            "attacker_msg": "You pummel {target_name}'s {hit_location} with rapid, dirty punches.",
-            "victim_msg": "{attacker_name} pummels your {hit_location} with rapid, dirty punches.",
-            "observer_msg": "{attacker_name} pummels {target_name}'s {hit_location} with rapid, dirty punches."
+            "attacker_msg": "You pummel {target_name}'s {hit_location} with rapid, dirty punches, {impact}.",
+            "victim_msg": "{attacker_name} pummels your {hit_location} with rapid, dirty punches, {impact}.",
+            "observer_msg": "{attacker_name} pummels {target_name}'s {hit_location} with rapid, dirty punches, {impact}."
         },
         {
-            "attacker_msg": "Your palm strike snaps {target_name}'s {hit_location} back.",
-            "victim_msg": "{attacker_name}'s palm strike snaps your {hit_location} back.",
-            "observer_msg": "{attacker_name}'s palm strike snaps {target_name}'s {hit_location} back."
+            "attacker_msg": "Your palm strike snaps {target_name}'s {hit_location} back, {impact}.",
+            "victim_msg": "{attacker_name}'s palm strike snaps your {hit_location} back, {impact}.",
+            "observer_msg": "{attacker_name}'s palm strike snaps {target_name}'s {hit_location} back, {impact}."
         },
         {
-            "attacker_msg": "You stomp on {target_name}'s {hit_location} and punch them hard.",
-            "victim_msg": "{attacker_name} stomps on your {hit_location} and punches you hard.",
-            "observer_msg": "{attacker_name} stomps on {target_name}'s {hit_location} and punches them hard."
+            "attacker_msg": "You stomp on {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} stomps on your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} stomps on {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You slam your forehead into {target_name}'s {hit_location}.",
-            "victim_msg": "{attacker_name} slams their forehead into your {hit_location}.",
-            "observer_msg": "{attacker_name} slams their forehead into {target_name}'s {hit_location}."
+            "attacker_msg": "You slam your forehead into {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} slams their forehead into your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} slams their forehead into {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You kick {target_name}'s {hit_location} and drop them.",
-            "victim_msg": "{attacker_name} kicks your {hit_location} and drops you.",
-            "observer_msg": "{attacker_name} kicks {target_name}'s {hit_location} and drops them."
+            "attacker_msg": "You kick {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} kicks your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} kicks {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You strike {target_name}'s {hit_location} with the precision of an alley cat -",
-            "victim_msg": "{attacker_name} strikes your {hit_location} with the precision of an alley cat -",
-            "observer_msg": "{attacker_name} strikes {target_name}'s {hit_location} with the precision of an alley cat -"
+            "attacker_msg": "You strike {target_name}'s {hit_location} with vicious precision, {impact}.",
+            "victim_msg": "{attacker_name} strikes your {hit_location} with vicious precision, {impact}.",
+            "observer_msg": "{attacker_name} strikes {target_name}'s {hit_location} with vicious precision, {impact}."
         },
         {
-            "attacker_msg": "Your punch draws blood from {target_name}'s {hit_location}.",
-            "victim_msg": "{attacker_name}'s punch draws blood from your {hit_location}.",
-            "observer_msg": "{attacker_name}'s punch draws blood from {target_name}'s {hit_location}."
+            "attacker_msg": "Your punch draws blood from {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name}'s punch draws blood from your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name}'s punch draws blood from {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You slap {target_name}'s {hit_location} so hard it rings.",
-            "victim_msg": "{attacker_name} slaps your {hit_location} so hard it rings.",
-            "observer_msg": "{attacker_name} slaps {target_name}'s {hit_location} so hard it rings."
+            "attacker_msg": "You slap {target_name}'s {hit_location} so hard it rings, {impact}.",
+            "victim_msg": "{attacker_name} slaps your {hit_location} so hard it rings, {impact}.",
+            "observer_msg": "{attacker_name} slaps {target_name}'s {hit_location} so hard it rings, {impact}."
         },
         {
-            "attacker_msg": "You launch into {target_name}'s {hit_location} like a wild animal.",
-            "victim_msg": "{attacker_name} launches into your {hit_location} like a wild animal.",
-            "observer_msg": "{attacker_name} launches into {target_name}'s {hit_location} like a wild animal."
+            "attacker_msg": "You launch into {target_name}'s {hit_location} like a wild animal, {impact}.",
+            "victim_msg": "{attacker_name} launches into your {hit_location} like a wild animal, {impact}.",
+            "observer_msg": "{attacker_name} launches into {target_name}'s {hit_location} like a wild animal, {impact}."
         },
         {
-            "attacker_msg": "Your bare knuckles crunch on {target_name}'s {hit_location}.",
-            "victim_msg": "{attacker_name}'s bare knuckles crunch on your {hit_location}.",
-            "observer_msg": "{attacker_name}'s bare knuckles crunch on {target_name}'s {hit_location}."
+            "attacker_msg": "Your bare knuckles crunch on {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name}'s bare knuckles crunch on your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name}'s bare knuckles crunch on {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You use both fists like hammers on {target_name}'s {hit_location}.",
-            "victim_msg": "{attacker_name} uses both fists like hammers on your {hit_location}.",
-            "observer_msg": "{attacker_name} uses both fists like hammers on {target_name}'s {hit_location}."
+            "attacker_msg": "You use both fists like hammers on {target_name}'s {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} uses both fists like hammers on your {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} uses both fists like hammers on {target_name}'s {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You hook {target_name} across the {hit_location} with a snarl.",
-            "victim_msg": "{attacker_name} hooks you across the {hit_location} with a snarl.",
-            "observer_msg": "{attacker_name} hooks {target_name} across the {hit_location} with a snarl."
+            "attacker_msg": "You hook {target_name} across the {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} hooks you across the {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} hooks {target_name} across the {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "You knock the wind and pride out of {target_name} with a hit to the {hit_location}.",
-            "victim_msg": "{attacker_name} knocks the wind and pride out of you with a hit to the {hit_location}.",
-            "observer_msg": "{attacker_name} knocks wind and pride out of {target_name} with a hit to the {hit_location}."
+            "attacker_msg": "You knock the wind out of {target_name} with a hit to the {hit_location}, {impact}.",
+            "victim_msg": "{attacker_name} knocks the wind out of you with a hit to the {hit_location}, {impact}.",
+            "observer_msg": "{attacker_name} knocks the wind out of {target_name} with a hit to the {hit_location}, {impact}."
         },
         {
-            "attacker_msg": "Your fists blur as you strike {target_name}'s {hit_location} again and again.",
-            "victim_msg": "{attacker_name}'s fists blur as they strike your {hit_location} again and again.",
-            "observer_msg": "{attacker_name}'s fists blur as they strike {target_name}'s {hit_location} again and again."
+            "attacker_msg": "Your fists blur as you strike {target_name}'s {hit_location} again and again, {impact}.",
+            "victim_msg": "{attacker_name}'s fists blur as they strike your {hit_location} again and again, {impact}.",
+            "observer_msg": "{attacker_name}'s fists blur as they strike {target_name}'s {hit_location} again and again, {impact}."
         },
         {
-            "attacker_msg": "You growl and slam {target_name}'s {hit_location} against the pavement.",
-            "victim_msg": "{attacker_name} growls and slams your {hit_location} against the pavement.",
-            "observer_msg": "{attacker_name} growls and slams {target_name}'s {hit_location} against the pavement."
+            "attacker_msg": "You growl and slam {target_name}'s {hit_location} against the pavement, {impact}.",
+            "victim_msg": "{attacker_name} growls and slams your {hit_location} against the pavement, {impact}.",
+            "observer_msg": "{attacker_name} growls and slams {target_name}'s {hit_location} against the pavement, {impact}."
         },
     ],
     "miss": [
@@ -317,64 +317,64 @@ MESSAGES = {
     ],
     "kill": [
         {
-            "attacker_msg": "You beat {target_name} into bloody stillness.",
-            "victim_msg": "{attacker_name} beats you into bloody stillness. Darkness takes you...",
-            "observer_msg": "{attacker_name} beats {target_name} into bloody stillness."
+            "attacker_msg": "You beat {target_name}'s {hit_location} into bloody stillness. {kill_desc}",
+            "victim_msg": "{attacker_name} beats your {hit_location} into bloody stillness. {kill_desc}",
+            "observer_msg": "{attacker_name} beats {target_name}'s {hit_location} into bloody stillness. {kill_desc}"
         },
         {
-            "attacker_msg": "Your last punch folds {target_name} like paper.",
-            "victim_msg": "{attacker_name}'s last punch folds you like paper. It's over.",
-            "observer_msg": "{attacker_name}'s last punch folds {target_name} like paper."
+            "attacker_msg": "Your last punch to {target_name}'s {hit_location} folds them like paper. {kill_desc}",
+            "victim_msg": "{attacker_name}'s last punch to your {hit_location} folds you like paper. {kill_desc}",
+            "observer_msg": "{attacker_name}'s last punch to {target_name}'s {hit_location} folds them like paper. {kill_desc}"
         },
         {
-            "attacker_msg": "You stomp down hard. {target_name} stops moving.",
-            "victim_msg": "{attacker_name} stomps down hard. You stop moving.",
-            "observer_msg": "{attacker_name} stomps down hard. {target_name} stops moving."
+            "attacker_msg": "You stomp down hard on {target_name}'s {hit_location}. {kill_desc}",
+            "victim_msg": "{attacker_name} stomps down hard on your {hit_location}. {kill_desc}",
+            "observer_msg": "{attacker_name} stomps down hard on {target_name}'s {hit_location}. {kill_desc}"
         },
         {
-            "attacker_msg": "You finish {target_name} with a final, brutal strike.",
-            "victim_msg": "{attacker_name} finishes you with a final, brutal strike. You are slain.",
-            "observer_msg": "{attacker_name} finishes {target_name} with a final, brutal strike."
+            "attacker_msg": "You finish {target_name} with a brutal strike to their {hit_location}. {kill_desc}",
+            "victim_msg": "{attacker_name} finishes you with a brutal strike to your {hit_location}. {kill_desc}",
+            "observer_msg": "{attacker_name} finishes {target_name} with a brutal strike to the {hit_location}. {kill_desc}"
         },
         {
-            "attacker_msg": "You crush {target_name}'s face with a roar. Silence follows.",
-            "victim_msg": "{attacker_name} crushes your face with a roar. Silence follows your demise.",
-            "observer_msg": "{attacker_name} crushes {target_name}'s face with a roar. Silence follows."
+            "attacker_msg": "You crush {target_name}'s {hit_location} with a roar. {kill_desc}",
+            "victim_msg": "{attacker_name} crushes your {hit_location} with a roar. {kill_desc}",
+            "observer_msg": "{attacker_name} crushes {target_name}'s {hit_location} with a roar. {kill_desc}"
         },
         {
-            "attacker_msg": "You drive {target_name} into the dirt until they stop twitching.",
-            "victim_msg": "{attacker_name} drives you into the dirt until you stop twitching. Life fades...",
-            "observer_msg": "{attacker_name} drives {target_name} into the dirt until they stop twitching."
+            "attacker_msg": "You drive {target_name}'s {hit_location} into the dirt until they stop twitching. {kill_desc}",
+            "victim_msg": "{attacker_name} drives your {hit_location} into the dirt until you stop twitching. {kill_desc}",
+            "observer_msg": "{attacker_name} drives {target_name}'s {hit_location} into the dirt. {kill_desc}"
         },
         {
-            "attacker_msg": "Your fists are slick with {target_name}'s blood. They are done.",
-            "victim_msg": "{attacker_name}'s fists are slick with your blood. You are done.",
-            "observer_msg": "{attacker_name}'s fists are slick with blood. {target_name} is done."
+            "attacker_msg": "Your fists are slick with {target_name}'s blood. They are done. {kill_desc}",
+            "victim_msg": "{attacker_name}'s fists are slick with your blood. You are done. {kill_desc}",
+            "observer_msg": "{attacker_name}'s fists are slick with blood. {target_name} is done. {kill_desc}"
         },
         {
-            "attacker_msg": "You drop {target_name} with a bone-snapping crunch.",
-            "victim_msg": "{attacker_name} drops you with a bone-snapping crunch. You have fallen.",
-            "observer_msg": "{attacker_name} drops {target_name} with a bone-snapping crunch."
+            "attacker_msg": "You drop {target_name} with a bone-snapping blow to the {hit_location}. {kill_desc}",
+            "victim_msg": "{attacker_name} drops you with a bone-snapping blow to your {hit_location}. {kill_desc}",
+            "observer_msg": "{attacker_name} drops {target_name} with a bone-snapping blow to the {hit_location}. {kill_desc}"
         },
         {
-            "attacker_msg": "You kick {target_name} one last time for good measure. They're finished.",
-            "victim_msg": "{attacker_name} kicks you one last time for good measure. You're finished.",
-            "observer_msg": "{attacker_name} kicks {target_name} one last time for good measure."
+            "attacker_msg": "You kick {target_name}'s {hit_location} one last time. They are finished. {kill_desc}",
+            "victim_msg": "{attacker_name} kicks your {hit_location} one last time. You are finished. {kill_desc}",
+            "observer_msg": "{attacker_name} kicks {target_name}'s {hit_location} one last time. {kill_desc}"
         },
         {
-            "attacker_msg": "You shove {target_name} down hard - and they don't get back up.",
-            "victim_msg": "{attacker_name} shoves you down hard - and you don't get back up.",
-            "observer_msg": "{attacker_name} shoves {target_name} down hard - and they don't get back up."
+            "attacker_msg": "You shove {target_name} down hard - and they don't get back up. {kill_desc}",
+            "victim_msg": "{attacker_name} shoves you down hard - and you don't get back up. {kill_desc}",
+            "observer_msg": "{attacker_name} shoves {target_name} down hard - and they don't get back up. {kill_desc}"
         },
         {
-            "attacker_msg": "You stand over {target_name}'s body, panting.",
-            "victim_msg": "{attacker_name} stands over your body, panting. Your fight is over.",
-            "observer_msg": "{attacker_name} stands over {target_name}'s body, panting."
+            "attacker_msg": "You stand over {target_name}'s body, panting. {kill_desc}",
+            "victim_msg": "{attacker_name} stands over your body, panting. {kill_desc}",
+            "observer_msg": "{attacker_name} stands over {target_name}'s body, panting. {kill_desc}"
         },
         {
-            "attacker_msg": "Your knuckles split open as {target_name} goes limp.",
-            "victim_msg": "{attacker_name}'s knuckles split open as you go limp. You are defeated.",
-            "observer_msg": "{attacker_name}'s knuckles split open as {target_name} goes limp."
+            "attacker_msg": "Your knuckles split open as {target_name} goes limp. {kill_desc}",
+            "victim_msg": "{attacker_name}'s knuckles split open as you go limp. {kill_desc}",
+            "observer_msg": "{attacker_name}'s knuckles split open as {target_name} goes limp. {kill_desc}"
         },
     ]
 }

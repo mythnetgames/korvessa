@@ -1,6 +1,16 @@
 import importlib
 import random
 
+from .body_parts import (
+    get_impact_description,
+    get_wound_description,
+    get_kill_description,
+    get_wound_type_for_weapon,
+    format_location_for_display,
+    is_vital_hit
+)
+
+
 def get_combat_message(weapon_type, phase, attacker=None, target=None, item=None, **kwargs):
     """
     Load the appropriate combat message from a specific weapon_type module.
@@ -12,7 +22,7 @@ def get_combat_message(weapon_type, phase, attacker=None, target=None, item=None
         attacker (Object): The attacker
         target (Object): The target
         item (Object): The weapon/item used (can be None for unarmed)
-        **kwargs: Any extra variables for formatting (e.g., damage)
+        **kwargs: Any extra variables for formatting (e.g., damage, hit_location)
 
     Returns:
         dict: A dictionary containing formatted "attacker_msg", "victim_msg",
@@ -49,13 +59,6 @@ def get_combat_message(weapon_type, phase, attacker=None, target=None, item=None
         "victim_msg": f"{{attacker_name}} {third_person_verb} you with {{item_name}}.",
         "observer_msg": f"{{attacker_name}} {third_person_verb} {{target_name}} with {{item_name}}."
     }
-    # Simpler fallbacks if item is not always relevant or desired in fallback
-    # fallback_template_set = {
-    #     "attacker_msg": f"You {attacker_verb} {{target_name}}.",
-    #     "victim_msg": f"{{attacker_name}} {third_person_verb} you.",
-    #     "observer_msg": f"{{attacker_name}} {third_person_verb} {{target_name}}."
-    # }
-
 
     chosen_template_set = None
     try:
@@ -77,6 +80,17 @@ def get_combat_message(weapon_type, phase, attacker=None, target=None, item=None
     if not chosen_template_set:
         chosen_template_set = fallback_template_set
 
+    # Get hit location and generate body-part-specific content
+    hit_location_raw = kwargs.get("hit_location", "chest")
+    hit_location_display = format_location_for_display(hit_location_raw)
+    wound_type = get_wound_type_for_weapon(weapon_type)
+    
+    # Generate body-part-specific descriptions for templates to use
+    impact_desc = get_impact_description(hit_location_raw)
+    wound_desc = get_wound_description(hit_location_raw, wound_type)
+    kill_desc = get_kill_description(hit_location_raw)
+    vital_hit = is_vital_hit(hit_location_raw)
+
     # Prepare combined kwargs for formatting.
     # These are the names templates should use, e.g., {attacker_name}, {target_name}, {item_name}, {damage}
     format_kwargs = {
@@ -87,12 +101,14 @@ def get_combat_message(weapon_type, phase, attacker=None, target=None, item=None
         "target": target_s,      # Alias for convenience if templates use {target}
         "item": item_s,          # Alias for convenience if templates use {item}
         "phase": phase,          # Pass phase itself if templates need it
-        **kwargs                 # e.g., damage, any other custom placeholders
+        # Body part context
+        "hit_location": hit_location_display,
+        "impact": impact_desc,
+        "wound": wound_desc,
+        "kill_desc": kill_desc,
+        "vital_hit": vital_hit,
+        **{k: v for k, v in kwargs.items() if k != "hit_location"}  # Other kwargs except raw hit_location
     }
-    
-    # Format hit_location to replace underscores with spaces for readability
-    if "hit_location" in format_kwargs:
-        format_kwargs["hit_location"] = format_kwargs["hit_location"].replace("_", " ")
 
     final_messages = {}
     # Define which phases should be colored red for "successful hits"
