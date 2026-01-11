@@ -321,3 +321,14 @@ to its neutral stance between attacks.
                 if hasattr(obj, 'msg'):
                     obj.msg(self.return_appearance(obj))
         super().at_msg_receive(msg, from_obj=from_obj, **kwargs)
+    
+    def at_object_receive(self, moved_object, source):
+        """When the dummy receives an item, immediately free its hands (not full heal), but keep the item."""
+        result = super().at_object_receive(moved_object, source)
+        # Free all hands (set to None)
+        if hasattr(self, 'hands'):
+            hands = self.hands
+            for hand in hands:
+                hands[hand] = None
+            self.hands = hands
+        return result
