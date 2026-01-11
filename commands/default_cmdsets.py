@@ -371,14 +371,14 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdFollow())            # Player: follow another character
         self.add(CmdUnfollow())          # Player: stop following
         self.add(CmdLose())              # Player: shake off followers
-        # Add admin design menus for NPCs, furniture, weapons, clothes/armor
+        # Add admin design menus for NPCs, furniture, weapons, armor/clothes
         from commands.admin_design_menus import (
-            CmdAdminDesignMenu, CmdFurnitureDesignMenu, CmdWeaponDesignMenu, CmdClothesDesignMenu
+            CmdNPCDesignMenu, CmdFurnitureDesignMenu, CmdWeaponDesignMenu, CmdArmorDesignMenu
         )
-        self.add(CmdAdminDesignMenu())      # Builder+: NPC designer
-        self.add(CmdFurnitureDesignMenu())  # Builder+: Furniture designer
-        self.add(CmdWeaponDesignMenu())     # Builder+: Weapon designer
-        self.add(CmdClothesDesignMenu())    # Builder+: Clothes/armor designer
+        self.add(CmdNPCDesignMenu())      # Builder+: NPC designer (npcdesign)
+        self.add(CmdFurnitureDesignMenu())  # Builder+: Furniture designer (furnituredesign)
+        self.add(CmdWeaponDesignMenu())     # Builder+: Weapon designer (weapondesign)
+        self.add(CmdArmorDesignMenu())      # Builder+: Armor/Clothes designer (armordesign, clothesdesign)
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """

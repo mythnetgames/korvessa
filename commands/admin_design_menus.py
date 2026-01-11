@@ -317,19 +317,22 @@ def node_quit(caller, raw_string, **kwargs):
 # =============================
 # MENU LAUNCHERS
 # =============================
-class CmdAdminDesignMenu(Command):
+
+# NPC Design Command
+class CmdNPCDesignMenu(Command):
     """
-    Launch the admin design menu for builders/admins.
+    Launch the NPC design menu for builders/admins.
     Usage:
-        admindesign
+        npcdesign
     """
-    key = "admindesign"
+    key = "npcdesign"
     locks = "cmd:perm(Builder)"
     help_category = "Building"
 
     def func(self):
         EvMenu(self.caller, "commands.admin_design_menus", startnode="node_npc_main")
 
+# Furniture Design Command
 class CmdFurnitureDesignMenu(Command):
     key = "furnituredesign"
     locks = "cmd:perm(Builder)"
@@ -337,6 +340,7 @@ class CmdFurnitureDesignMenu(Command):
     def func(self):
         EvMenu(self.caller, "commands.admin_design_menus", startnode="node_furniture_main")
 
+# Weapon Design Command
 class CmdWeaponDesignMenu(Command):
     key = "weapondesign"
     locks = "cmd:perm(Builder)"
@@ -344,8 +348,10 @@ class CmdWeaponDesignMenu(Command):
     def func(self):
         EvMenu(self.caller, "commands.admin_design_menus", startnode="node_weapon_main")
 
-class CmdClothesDesignMenu(Command):
-    key = "clothesdesign"
+# Armor/Clothes Design Command (alias: armordesign)
+class CmdArmorDesignMenu(Command):
+    key = "armordesign"
+    aliases = ["clothesdesign", "clothdesign"]
     locks = "cmd:perm(Builder)"
     help_category = "Building"
     def func(self):
