@@ -1693,7 +1693,7 @@ def node_edit_main_menu(caller, raw_string, **kwargs):
     
     def status(key):
         """Show status indicator for field."""
-        return "|g✓|n" if data.get(key) else "|r✗|n"
+        return "|g[SET]|n" if data.get(key) else "|r[---]|n"
     
     text = f"""
 |c=== {recipe_status} ===|n
@@ -2031,7 +2031,7 @@ Design a new {item_type.lower()} recipe. Admin recipes are |gauto-approved|n.
 |w9.|n {status('msg_finish_others')} Finish Message (3rd person)
 |w10.|n Keywords: {', '.join(data.get('keywords', [])) or '(none)'}
 |w11.|n Difficulty: |w{data.get('difficulty', 50)}|n
-|w12.|n Nutritious: {'|g✓|n' if data.get('nutritious', False) else '|r✗|n'} (provides 2-hour healing buff)
+|w12.|n Nutritious: {'|g[YES]|n' if data.get('nutritious', False) else '|r[NO]|n'} (provides 2-hour healing buff)
 
 |w[R]|n Review before saving
 |w[S]|n Save recipe (auto-approved)
