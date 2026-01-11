@@ -15,6 +15,7 @@ from evennia import create_object
 from evennia.utils.search import search_object
 from evennia.scripts.models import ScriptDB
 from evennia import Command
+from evennia.scripts.scripts import DefaultScript
 
 # Storage script key for admin designs
 ADMIN_DESIGN_STORAGE_KEY = "admin_design_storage"
@@ -24,8 +25,8 @@ def get_admin_design_storage():
     storage = ScriptDB.objects.filter(db_key=ADMIN_DESIGN_STORAGE_KEY).first()
     if storage:
         return storage
-    from evennia.scripts.scripts import DefaultScript
-    storage = create_object(DefaultScript, key=ADMIN_DESIGN_STORAGE_KEY, persistent=True, desc="Admin design storage")
+    storage = create_object(DefaultScript, key=ADMIN_DESIGN_STORAGE_KEY, desc="Admin design storage")
+    storage.persistent = True
     storage.db.npcs = []
     storage.db.furniture = []
     storage.db.weapons = []
