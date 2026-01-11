@@ -426,3 +426,50 @@ class CmdArmorDesignMenu(Command):
     help_category = "Building"
     def func(self):
         EvMenu(self.caller, "commands.admin_design_menus", startnode="node_clothes_main")
+
+# Spawn Clothing Design Command
+class CmdSpawnClothingDesign(Command):
+    """
+    Spawn a clothing/armor item from a saved design.
+    Usage:
+        spawnclothing <name> [to <character>]
+    """
+    key = "spawnclothing"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+
+    def func(self):
+        args = self.args.strip()
+        if not args:
+            self.caller.msg("Usage: spawnclothing <name> [to <character>]")
+            return
+        parts = args.split(" to ", 1)
+        name = parts[0].strip()
+        target = self.caller
+        if len(parts) > 1:
+            from evennia.utils.search import search_object
+            targets = search_object(parts[1].strip())
+            if not targets:
+                self.caller.msg(f"Target '{parts[1].strip()}' not found.")
+                return
+            target = targets[0]
+        storage = get_admin_design_storage()
+        designs = storage.db.clothes or []
+        design = next((d for d in designs if d.get('name', '').lower() == name.lower()), None)
+        if not design:
+            self.caller.msg(f"No saved clothing/armor design named '{name}'.")
+            return
+        # Create the clothing/armor object (replace with your typeclass as needed)
+        from evennia import create_object
+        obj = create_object("typeclasses.clothing.Clothing", key=design.get('name'), location=target)
+        obj.db.is_armor = design.get('is_armor', False)
+        obj.db.coverage = design.get('coverage', [])
+        obj.db.color = design.get('color', '')
+        obj.db.see_thru = design.get('see_thru', False)
+        obj.db.desc = design.get('desc', '')
+        obj.db.wear_msg = design.get('wear_msg', '')
+        obj.db.remove_msg = design.get('remove_msg', '')
+        obj.db.worn_msg = design.get('worn_msg', '')
+        self.caller.msg(f"|gSpawned '{obj.key}' for {target.key}.|n")
+        if target != self.caller:
+            target.msg(f"|y{self.caller.key} has given you '{obj.key}'.|n")

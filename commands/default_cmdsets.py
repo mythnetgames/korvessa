@@ -379,6 +379,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdFurnitureDesignMenu())  # Builder+: Furniture designer (furnituredesign)
         self.add(CmdWeaponDesignMenu())     # Builder+: Weapon designer (weapondesign)
         self.add(CmdArmorDesignMenu())      # Builder+: Armor/Clothes designer (armordesign, clothesdesign)
+        # Add spawn clothing design command
+        from commands.admin_design_menus import CmdSpawnClothingDesign
+        self.add(CmdSpawnClothingDesign())  # Builder+: spawn clothing/armor from design
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
