@@ -75,47 +75,82 @@ to its neutral stance between attacks.
     
     def at_object_delete(self):
         """Clean up when test dummy is deleted."""
-        # Cancel any pending auto-revive callbacks
-        if hasattr(self.ndb, '_revive_callback'):
-            try:
-                callback = self.ndb._revive_callback
-                # Try different methods to cancel depending on callback type
-                if hasattr(callback, 'remove'):
-                    callback.remove()
-                elif hasattr(callback, 'cancel'):
-                    callback.cancel()
-                # Clear the reference
-                delattr(self.ndb, '_revive_callback')
-            except Exception:
-                pass  # Callback may have already fired or be in an invalid state
-        
-        # Clear any held items from hands to break circular references
-        if hasattr(self, 'hands'):
-            try:
-                hands = self.hands
-                for hand in hands:
-                    if hands[hand]:
-                        hands[hand] = None
-                self.hands = hands
-            except Exception:
-                pass
-        
-        # Clear medical state reference if it exists
-        if hasattr(self, 'medical_state'):
-            try:
-                self.medical_state = None
-            except Exception:
-                pass
+        try:
+            # Cancel any pending auto-revive callbacks
+            if hasattr(self.ndb, '_revive_callback'):
+                try:
+                    callback = self.ndb._revive_callback
+                    # Try different methods to cancel depending on callback type
+                    if hasattr(callback, 'remove'):
+                        callback.remove()
+                    elif hasattr(callback, 'cancel'):
+                        callback.cancel()
+                    # Clear the reference
+                    delattr(self.ndb, '_revive_callback')
+                except Exception:
+                    pass  # Callback may have already fired or be in an invalid state
+            
+            # Clear any held items from hands to break circular references
+            if hasattr(self, 'hands'):
+                try:
+                    hands = self.hands
+                    for hand in hands:
+                        if hands[hand]:
+                            hands[hand] = None
+                    self.hands = hands
+                except Exception:
+                    pass
+            
+            # Clear medical state reference if it exists
+            if hasattr(self, 'medical_state'):
+                try:
+                    self.medical_state = None
+                except Exception:
+                    pass
+        except Exception:
+            pass  # Don't let cleanup errors prevent deletion
         
         # Call parent's at_object_delete for normal cleanup (handles NPC registry)
-        super().at_object_delete()
+        try:
+            super().at_object_delete()
+        except Exception:
+            pass  # Don't let parent cleanup errors prevent deletion
     
     def delete(self):
-        """Override delete to ensure cleanup happens."""
-        # Perform at_object_delete cleanup explicitly
-        self.at_object_delete()
-        # Call the parent delete (which should now work)
-        return super().delete()
+        """Override delete to ensure cleanup happens and deletion succeeds."""
+        try:
+            # Remove death state if applied (prevents deletion issues)
+            self.remove_death_state()
+        except Exception:
+            pass
+        
+        try:
+            # Perform at_object_delete cleanup explicitly
+            self.at_object_delete()
+        except Exception:
+            pass
+        
+        try:
+            # Reset to active state to clear any death-related flags
+            self.db.is_active = True
+            self.db.is_dead = False
+            self.db.is_unconscious = False
+        except Exception:
+            pass
+        
+        try:
+            # Call the parent delete
+            result = super().delete()
+            return result
+        except Exception as e:
+            # If parent delete fails, try to force it anyway
+            # This is a last resort
+            try:
+                from evennia.objects.models import ObjectDB
+                ObjectDB.objects.filter(pk=self.pk).delete()
+                return True
+            except Exception:
+                return False
     
     def at_death(self):
         """
@@ -378,3 +413,19 @@ to its neutral stance between attacks.
                 hands[hand] = None
             self.hands = hands
         return result
+    
+    def at_pre_move(self, destination, **kwargs):
+        """
+        Called before the dummy moves.
+        If moving to a character's inventory (being held), remove death state to allow movement.
+        """
+        # If destination is a Character (being picked up/held), remove death state
+        # This allows the dummy to be dropped/moved even if it was killed
+        from typeclasses.characters import Character
+        if isinstance(destination, Character) and self.is_dead():
+            try:
+                self.remove_death_state()
+            except Exception:
+                pass
+        
+        return super().at_pre_move(destination, **kwargs)
