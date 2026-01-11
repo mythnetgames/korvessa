@@ -12,7 +12,7 @@ structure that follows Python and Evennia best practices.
 from evennia import CmdSet
 
 # Import commands from our organized modules
-from .core_actions import CmdAttack, CmdStop
+from .core_actions import CmdAttack, CmdStop, CmdDummyReset
 from .movement import CmdFlee, CmdRetreat, CmdAdvance, CmdCharge, CmdJump
 from .special_actions import CmdEscapeGrapple, CmdReleaseGrapple, CmdDisarm, CmdReload, CmdAmmo
 # Note: CmdLook moved to main character cmdset to be available outside combat
@@ -39,6 +39,7 @@ class CombatCmdSet(CmdSet):
         # Core combat actions
         self.add(CmdAttack)
         self.add(CmdStop)
+        self.add(CmdDummyReset)
         
         # Movement commands
         self.add(CmdFlee)
