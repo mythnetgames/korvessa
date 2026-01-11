@@ -231,8 +231,20 @@ to its neutral stance between attacks.
         appearance += self.get_dummy_status()
         return appearance
 
+    def msg(self, text=None, from_obj=None, session=None, **kwargs):
+        """
+        Override msg to bypass death filtering and always allow at_msg_receive to be called.
+        Test dummies need to hear 'reset' even when dead.
+        """
+        # Skip the Character death filtering, go straight to DefaultObject.msg
+        from evennia.objects.objects import DefaultObject
+        return DefaultObject.msg(self, text=text, from_obj=from_obj, session=session, **kwargs)
+
     def at_msg_receive(self, msg, from_obj=None, **kwargs):
         """React to messages in the room. Heal and reset on 'reset', robust to accents and Evennia Msg objects."""
+        import unicodedata
+        import re
+        
         # Log ALL messages to see if this is being called
         try:
             from evennia.comms.models import ChannelDB
@@ -244,10 +256,9 @@ to its neutral stance between attacks.
 
         if not msg:
             return
-        import unicodedata
+        
         # Always convert to string, handle Evennia Msg objects and raw text
         try:
-            # Try multiple ways to extract string
             if hasattr(msg, 'message'):
                 msg_str = str(msg.message)
             elif hasattr(msg, 'text'):
@@ -258,10 +269,12 @@ to its neutral stance between attacks.
                 msg_str = str(msg)
         except Exception:
             msg_str = str(msg)
+        
+        # Strip Evennia color codes properly (|r, |g, |n, etc.) - NOT individual letters!
+        msg_str = re.sub(r'\|[a-zA-Z0-9/=_]', '', msg_str)
         msg_str = msg_str.strip().lower()
-        # Normalize to NFC then NFD, then strip accents and color codes
-        msg_str = msg_str.replace('|', '')  # Remove Evennia color codes first
-        msg_str = msg_str.replace('r', '').replace('g', '').replace('y', '').replace('b', '').replace('n', '')
+        
+        # Normalize to NFC then NFD, then strip accents
         msg_str = unicodedata.normalize('NFC', msg_str)
         msg_nfd = unicodedata.normalize('NFD', msg_str)
         msg_normalized = ''.join(c for c in msg_nfd if unicodedata.category(c) != 'Mn')
