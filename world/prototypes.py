@@ -206,6 +206,7 @@ SWORD = {
     "damage": 10,
     "weapon_type": "long_sword",  # Using existing message type
     "damage_type": "cut",  # Medical system injury type
+    "hands_required": 2,
 }
 
 # Baseball bat (enhanced deflection)
@@ -218,6 +219,7 @@ BASEBALL_BAT = {
     "deflection_bonus": 0.30,  # +6 to deflection threshold (0.30 * 20)
     "weapon_type": "baseball_bat",  # Using existing message type
     "damage_type": "blunt",  # Medical system injury type
+    "hands_required": 2,
 }
 
 # Staff (good deflection)
@@ -230,6 +232,7 @@ STAFF = {
     "deflection_bonus": 0.10,  # +2 to deflection threshold (0.10 * 20)
     "weapon_type": "staff",  # Using existing message type
     "damage_type": "blunt",  # Medical system injury type
+    "hands_required": 2,
 }
 
 # Tennis Racket (excellent deflection!)
@@ -255,6 +258,7 @@ KATANA = {
     "deflection_bonus": 0.25,  # +5 to deflection threshold (excellent for parrying)
     "weapon_type": "katana",  # Using existing katana message type
     "damage_type": "cut",  # Medical system injury type
+    "hands_required": 2,
 }
 
 # Dagger (poor deflection)
@@ -272,14 +276,14 @@ DAGGER = {
 # Brass Knuckles (brawling weapon)
 BRASS_KNUCKLES = {
     "prototype_parent": "MELEE_WEAPON_BASE",
-    "key": "brass knuckles",
-    "aliases": ["knuckles", "brass", "knucks"],
-    "desc": "A set of brass knuckles worn over the fingers. The weight feels right in your hand, cold and purposeful. Each ring has been used enough to show scratches and dents from countless encounters. Simple, brutal, effective.",
+    "key": "pair of brass knuckles",
+    "aliases": ["knuckles", "brass", "knucks", "brass knuckles"],
+    "desc": "A pair of brass knuckles, one for each fist. The weight feels right in your hands, cold and purposeful. Each ring has been used enough to show scratches and dents from countless encounters. Simple, brutal, effective.",
     "damage": 9,
     "deflection_bonus": 0.05,  # +1 to deflection threshold (hands-on defense)
     "weapon_type": "brass_knuckles",  # Custom message type for brass knuckles
     "damage_type": "blunt",  # Medical system injury type
-    "hands_required": 1,
+    "hands_required": 2,
 }
 
 # Tessen (iron war fan)
@@ -602,6 +606,7 @@ CATCHPOLE = {
     "deflection_bonus": 0.10,
     "weapon_type": "catchpole",
     "damage_type": "blunt",
+    "hands_required": 2,
 }
 
 # Chain
@@ -626,6 +631,7 @@ CRICKET_BAT = {
     "deflection_bonus": 0.25,
     "weapon_type": "cricket_bat",
     "damage_type": "blunt",
+    "hands_required": 2,
 }
 
 # Crowbar
@@ -650,6 +656,7 @@ FIRE_AXE = {
     "deflection_bonus": 0.05,
     "weapon_type": "fire_axe",
     "damage_type": "cut",
+    "hands_required": 2,
 }
 
 # Flare
@@ -674,6 +681,7 @@ GARDEN_SHEARS = {
     "deflection_bonus": -0.05,
     "weapon_type": "garden_shears",
     "damage_type": "cut",
+    "hands_required": 2,
 }
 
 # Hammer
@@ -783,6 +791,7 @@ NAIL_BAT = {
     "deflection_bonus": 0.15,
     "weapon_type": "nail_bat",
     "damage_type": "blunt",
+    "hands_required": 2,
 }
 
 # Nailed Board
@@ -843,6 +852,7 @@ POOL_CUE = {
     "deflection_bonus": 0.10,
     "weapon_type": "pool_cue",
     "damage_type": "blunt",
+    "hands_required": 2,
 }
 
 # Rebar
@@ -879,6 +889,7 @@ SHOVEL = {
     "deflection_bonus": 0.10,
     "weapon_type": "shovel",
     "damage_type": "blunt",
+    "hands_required": 2,
 }
 
 # Sledgehammer
@@ -1170,6 +1181,7 @@ NUNCHAKU = {
     "deflection_bonus": 0.15,
     "weapon_type": "nunchaku",
     "damage_type": "blunt",
+    "hands_required": 2,
 }
 
 # Tiger Claws
