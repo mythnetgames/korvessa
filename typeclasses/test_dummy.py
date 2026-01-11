@@ -118,9 +118,28 @@ to its neutral stance between attacks.
     
     def delete(self):
         """Override delete to ensure cleanup happens and deletion succeeds."""
+        # First, remove ourselves from any holder's hands
+        if hasattr(self, 'location') and self.location:
+            holder = self.location
+            if hasattr(holder, 'hands'):
+                try:
+                    hands = holder.hands
+                    for hand, item in hands.items():
+                        if item == self:
+                            hands[hand] = None
+                    holder.hands = hands
+                except Exception:
+                    pass
+        
         try:
             # Remove death state if applied (prevents deletion issues)
             self.remove_death_state()
+        except Exception:
+            pass
+        
+        try:
+            # Clear all cmdsets that might interfere
+            self.cmdset.clear()
         except Exception:
             pass
         
@@ -139,18 +158,26 @@ to its neutral stance between attacks.
             pass
         
         try:
+            # Force location to None first
+            self.location = None
+        except Exception:
+            pass
+        
+        try:
             # Call the parent delete
             result = super().delete()
-            return result
-        except Exception as e:
-            # If parent delete fails, try to force it anyway
-            # This is a last resort
-            try:
-                from evennia.objects.models import ObjectDB
-                ObjectDB.objects.filter(pk=self.pk).delete()
+            if result:
                 return True
-            except Exception:
-                return False
+        except Exception:
+            pass
+        
+        # If parent delete fails, try to force it anyway
+        try:
+            from evennia.objects.models import ObjectDB
+            ObjectDB.objects.filter(pk=self.pk).delete()
+            return True
+        except Exception:
+            return False
     
     def at_death(self):
         """
@@ -417,15 +444,60 @@ to its neutral stance between attacks.
     def at_pre_move(self, destination, **kwargs):
         """
         Called before the dummy moves.
-        If moving to a character's inventory (being held), remove death state to allow movement.
+        Always remove death state to allow movement regardless of destination.
         """
-        # If destination is a Character (being picked up/held), remove death state
-        # This allows the dummy to be dropped/moved even if it was killed
-        from typeclasses.characters import Character
-        if isinstance(destination, Character) and self.is_dead():
+        # Always remove death state before any move to bypass cmdset movement restrictions
+        if hasattr(self, 'is_dead') and self.is_dead():
             try:
                 self.remove_death_state()
             except Exception:
                 pass
         
-        return super().at_pre_move(destination, **kwargs)
+        return True  # Always allow movement for test dummies
+    
+    def move_to(self, destination, quiet=False, emit_to_obj=None, use_destination=True, to_none=False, move_type="move", **kwargs):
+        """
+        Override move_to to force movement even if cmdset restrictions normally prevent it.
+        This ensures test dummies can always be dropped/moved even when in death state.
+        """
+        # Remove death state and cmdset restrictions before moving
+        if hasattr(self, 'is_dead') and self.is_dead():
+            try:
+                self.remove_death_state()
+            except Exception:
+                pass
+        
+        # Clear any cmdset that might block movement
+        try:
+            self.cmdset.remove_default()
+        except Exception:
+            pass
+        
+        # Also clear the holder's reference to this in hands if being dropped
+        if hasattr(self, 'location') and self.location:
+            holder = self.location
+            if hasattr(holder, 'hands'):
+                try:
+                    hands = holder.hands
+                    for hand, item in hands.items():
+                        if item == self:
+                            hands[hand] = None
+                    holder.hands = hands
+                except Exception:
+                    pass
+        
+        # Perform the move - bypass normal restrictions by setting location directly
+        try:
+            old_location = self.location
+            self.location = destination
+            
+            # Emit arrival/departure messages if not quiet
+            if not quiet:
+                if old_location and hasattr(old_location, 'msg_contents'):
+                    old_location.msg_contents(f"{self.key} is moved away.", exclude=[self])
+                if destination and hasattr(destination, 'msg_contents'):
+                    destination.msg_contents(f"{self.key} arrives.", exclude=[self])
+            
+            return True
+        except Exception:
+            return False
