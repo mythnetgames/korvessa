@@ -28,11 +28,11 @@ from commands import CmdConsumption
 from commands import CmdMedicalItems
 from commands.CmdSpawnMob import CmdSpawnMob
 from commands.CmdBug import CmdBug
-from commands.CmdAdmin import CmdHeal, CmdPeace, CmdTestDeathCurtain, CmdWeather, CmdResetMedical, CmdMedicalAudit, CmdTestDeath, CmdTestUnconscious
+from commands.CmdAdmin import CmdHeal, CmdPeace, CmdTestDeathCurtain, CmdWeather, CmdResetMedical, CmdMedicalAudit, CmdTestDeath, CmdTestUnconscious, CmdSpawnAmmo
 from commands.CmdRevive import CmdRevive
 from commands.CmdFixCharacterOwnership import CmdFixCharacterOwnership
 from commands.combat.cmdset_combat import CombatCmdSet
-from commands.combat.special_actions import CmdAim, CmdGrapple
+from commands.combat.special_actions import CmdAim, CmdGrapple, CmdReload, CmdAmmo
 from commands.CmdThrow import (
     CmdThrow, CmdPull, CmdCatch, CmdRig, CmdDefuse,
     CmdScan, CmdDetonate, CmdDetonateList, CmdClearDetonator
@@ -232,8 +232,13 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdMedicalInfo())
         # Add revive command (admin)
         self.add(CmdRevive())
+        # Add spawn commands (admin)
+        self.add(CmdSpawnAmmo())
         # Add combat commands
         self.add(CombatCmdSet())
+        # Add ammo management commands (available outside combat too)
+        self.add(CmdReload())
+        self.add(CmdAmmo())
         # Add wield command
         self.add(CmdWield())
         # Add shop commands

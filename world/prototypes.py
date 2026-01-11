@@ -980,6 +980,9 @@ FLARE_GUN = {
         ("weapon_type", "flare_gun"),
         ("damage_type", "burn"),
         ("hands_required", 1),
+        ("ammo_type", "flare"),
+        ("ammo_capacity", 1),
+        ("current_ammo", 1),
     ]
 }
 
@@ -994,6 +997,9 @@ HEAVY_REVOLVER = {
         ("weapon_type", "heavy_revolver"),
         ("damage_type", "bullet"),
         ("hands_required", 1),
+        ("ammo_type", "44mag"),
+        ("ammo_capacity", 6),
+        ("current_ammo", 6),
     ]
 }
 
@@ -1008,6 +1014,9 @@ LIGHT_REVOLVER = {
         ("weapon_type", "light_revolver"),
         ("damage_type", "bullet"),
         ("hands_required", 1),
+        ("ammo_type", "38special"),
+        ("ammo_capacity", 5),
+        ("current_ammo", 5),
     ]
 }
 
@@ -1022,6 +1031,9 @@ MACHINE_PISTOL = {
         ("weapon_type", "machine_pistol"),
         ("damage_type", "bullet"),
         ("hands_required", 1),
+        ("ammo_type", "9mm"),
+        ("ammo_capacity", 33),
+        ("current_ammo", 33),
     ]
 }
 
@@ -1036,6 +1048,9 @@ NAIL_GUN = {
         ("weapon_type", "nail_gun"),
         ("damage_type", "stab"),
         ("hands_required", 1),
+        ("ammo_type", "nail"),
+        ("ammo_capacity", 50),
+        ("current_ammo", 50),
     ]
 }
 
@@ -1050,6 +1065,7 @@ STUN_GUN = {
         ("weapon_type", "stun_gun"),
         ("damage_type", "burn"),
         ("hands_required", 1),
+        ("uses_ammo", False),  # Electric, doesn't use conventional ammo
     ]
 }
 
@@ -1067,6 +1083,7 @@ BOWEL_DISRUPTOR = {
     "attrs": [
         ("weapon_type", "bowel_disruptor"),
         ("damage_type", "blunt"),
+        ("uses_ammo", False),  # Energy weapon
     ]
 }
 
@@ -1080,6 +1097,9 @@ FLAMETHROWER = {
     "attrs": [
         ("weapon_type", "flamethrower"),
         ("damage_type", "burn"),
+        ("ammo_type", "fuel"),
+        ("ammo_capacity", 10),
+        ("current_ammo", 10),
     ]
 }
 
@@ -1093,6 +1113,9 @@ HEAVY_MACHINE_GUN = {
     "attrs": [
         ("weapon_type", "heavy_machine_gun"),
         ("damage_type", "bullet"),
+        ("ammo_type", "50bmg"),
+        ("ammo_capacity", 100),
+        ("current_ammo", 100),
     ]
 }
 
@@ -1106,6 +1129,9 @@ LEVER_ACTION_RIFLE = {
     "attrs": [
         ("weapon_type", "lever-action_rifle"),
         ("damage_type", "bullet"),
+        ("ammo_type", "308win"),
+        ("ammo_capacity", 8),
+        ("current_ammo", 8),
     ]
 }
 
@@ -1119,6 +1145,9 @@ LEVER_ACTION_SHOTGUN = {
     "attrs": [
         ("weapon_type", "lever-action_shotgun"),
         ("damage_type", "bullet"),
+        ("ammo_type", "12gauge"),
+        ("ammo_capacity", 6),
+        ("current_ammo", 6),
     ]
 }
 
@@ -1132,6 +1161,9 @@ SEMI_AUTO_RIFLE = {
     "attrs": [
         ("weapon_type", "semi-auto_rifle"),
         ("damage_type", "bullet"),
+        ("ammo_type", "762nato"),
+        ("ammo_capacity", 20),
+        ("current_ammo", 20),
     ]
 }
 
@@ -1145,6 +1177,9 @@ SEMI_AUTO_SHOTGUN = {
     "attrs": [
         ("weapon_type", "semi-auto_shotgun"),
         ("damage_type", "bullet"),
+        ("ammo_type", "12gauge"),
+        ("ammo_capacity", 8),
+        ("current_ammo", 8),
     ]
 }
 
@@ -1158,6 +1193,9 @@ SNIPER_RIFLE = {
     "attrs": [
         ("weapon_type", "bolt-action_rifle"),
         ("damage_type", "bullet"),
+        ("ammo_type", "762nato"),
+        ("ammo_capacity", 5),
+        ("current_ammo", 5),
     ]
 }
 
@@ -1276,6 +1314,12 @@ RANGED_WEAPON_BASE = {
         ("is_ranged", True),  # Ranged weapons
         ("hands_required", 2),  # Most firearms require two hands
         ("deflection_bonus", 0.0),  # Base deflection capability
+        # Ammunition system attributes
+        ("uses_ammo", True),  # Whether this weapon uses ammunition
+        ("ammo_type", "9mm"),  # Default ammo type (should be overridden)
+        ("ammo_capacity", 10),  # Magazine/chamber capacity
+        ("current_ammo", 10),  # Current loaded rounds
+        ("installed_mods", {}),  # Installed weapon modifications
     ]
 }
 
@@ -1283,13 +1327,16 @@ RANGED_WEAPON_BASE = {
 LIGHT_PISTOL = {
     "prototype_parent": "RANGED_WEAPON_BASE",
     "key": "PAM Model 6 pistol",
-    "aliases": ["pistol", "model 9", "m9", "pam pistol", "pam m9", "handgun", "9mm"],
-    "desc": "A Pioneer Arms Manufacturing Model 6 pistol in 6mm - the ubiquitous sidearm of frontier colonies across human space. The polymer frame keeps weight down while the slide is precision-machined steel with a corrosion-resistant finish that stands up to harsh planetary environments. Fixed three-dot sights are robust and simple, requiring no batteries or adjustment. The trigger is heavy but predictable, designed for reliability over refinement. No frills, no unnecessary features - just a working person's pistol that starts every time and keeps running through dust, mud, and neglect. You'll find Model 9s in the holsters of security guards, cargo haulers, and frontier marshals across a thousand worlds. It's not the best pistol ever made, but it might be the most common.",
+    "aliases": ["pistol", "model 6", "m6", "pam pistol", "pam m6", "handgun", "9mm"],
+    "desc": "A Pioneer Arms Manufacturing Model 6 pistol in 9mm - the ubiquitous sidearm of frontier colonies across human space. The polymer frame keeps weight down while the slide is precision-machined steel with a corrosion-resistant finish that stands up to harsh planetary environments. Fixed three-dot sights are robust and simple, requiring no batteries or adjustment. The trigger is heavy but predictable, designed for reliability over refinement. No frills, no unnecessary features - just a working person's pistol that starts every time and keeps running through dust, mud, and neglect. You'll find Model 6s in the holsters of security guards, cargo haulers, and frontier marshals across a thousand worlds. It's not the best pistol ever made, but it might be the most common.",
     "damage": 12,
     "attrs": [
         ("weapon_type", "light_pistol"),
         ("damage_type", "bullet"),  # Medical system injury type
         ("hands_required", 1),  # Pistols can be fired one-handed
+        ("ammo_type", "9mm"),
+        ("ammo_capacity", 15),
+        ("current_ammo", 15),
     ]
 }
 
@@ -1304,6 +1351,9 @@ HEAVY_PISTOL = {
         ("weapon_type", "heavy_pistol"),
         ("damage_type", "bullet"),  # Medical system injury type
         ("hands_required", 1),  # Can be fired one-handed but difficult
+        ("ammo_type", "45acp"),
+        ("ammo_capacity", 12),
+        ("current_ammo", 12),
     ]
 }
 
@@ -1317,6 +1367,9 @@ PUMP_SHOTGUN = {
     "attrs": [
         ("weapon_type", "pump-action_shotgun"),
         ("damage_type", "bullet"),  # Medical system injury type
+        ("ammo_type", "12gauge"),
+        ("ammo_capacity", 7),
+        ("current_ammo", 7),
     ]
 }
 
@@ -1330,6 +1383,9 @@ BREAK_SHOTGUN = {
     "attrs": [
         ("weapon_type", "break-action_shotgun"),
         ("damage_type", "bullet"),  # Medical system injury type
+        ("ammo_type", "12gauge"),
+        ("ammo_capacity", 2),
+        ("current_ammo", 2),
     ]
 }
 
@@ -1343,6 +1399,9 @@ BOLT_RIFLE = {
     "attrs": [
         ("weapon_type", "bolt-action_rifle"),
         ("damage_type", "bullet"),  # Medical system injury type
+        ("ammo_type", "762nato"),
+        ("ammo_capacity", 5),
+        ("current_ammo", 5),
     ]
 }
 
@@ -1357,6 +1416,9 @@ ANTI_MATERIAL_RIFLE = {
         ("weapon_type", "anti-material_rifle"),
         ("damage_type", "bullet"),  # Medical system injury type
         ("hands_required", 2),  # Requires bipod/support
+        ("ammo_type", "50bmg"),
+        ("ammo_capacity", 10),
+        ("current_ammo", 10),
     ]
 }
 
@@ -1370,6 +1432,9 @@ ASSAULT_RIFLE = {
     "attrs": [
         ("weapon_type", "assault_rifle"),  # May need to create message file
         ("damage_type", "bullet"),  # Medical system injury type
+        ("ammo_type", "556nato"),
+        ("ammo_capacity", 30),
+        ("current_ammo", 30),
     ]
 }
 
@@ -1384,6 +1449,9 @@ SMG = {
         ("weapon_type", "smg"),  # May need to create message file
         ("damage_type", "bullet"),  # Medical system injury type
         ("hands_required", 1),  # Can be fired one-handed
+        ("ammo_type", "9mm"),
+        ("ammo_capacity", 30),
+        ("current_ammo", 30),
     ]
 }
 

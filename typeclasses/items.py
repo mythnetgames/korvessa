@@ -890,3 +890,499 @@ class RemoteDetonator(Item):
                         explosive_obj.db.scanned_by_detonator = None
         
         super().at_delete()
+
+
+# =============================================================================
+# AMMUNITION SYSTEM
+# =============================================================================
+
+# Ammunition caliber/type definitions
+AMMO_TYPES = {
+    # Pistol ammunition
+    "9mm": {
+        "name": "9mm Parabellum",
+        "category": "pistol",
+        "damage_mod": 0,
+        "desc_single": "a single 9mm round",
+        "desc_plural": "9mm rounds",
+    },
+    "45acp": {
+        "name": ".45 ACP",
+        "category": "pistol", 
+        "damage_mod": 2,
+        "desc_single": "a single .45 ACP round",
+        "desc_plural": ".45 ACP rounds",
+    },
+    "44mag": {
+        "name": ".44 Magnum",
+        "category": "pistol",
+        "damage_mod": 4,
+        "desc_single": "a single .44 Magnum round",
+        "desc_plural": ".44 Magnum rounds",
+    },
+    "38special": {
+        "name": ".38 Special",
+        "category": "pistol",
+        "damage_mod": 0,
+        "desc_single": "a single .38 Special round",
+        "desc_plural": ".38 Special rounds",
+    },
+    # Rifle ammunition
+    "556nato": {
+        "name": "5.56x45mm NATO",
+        "category": "rifle",
+        "damage_mod": 2,
+        "desc_single": "a single 5.56 NATO round",
+        "desc_plural": "5.56 NATO rounds",
+    },
+    "762nato": {
+        "name": "7.62x51mm NATO",
+        "category": "rifle",
+        "damage_mod": 4,
+        "desc_single": "a single 7.62 NATO round",
+        "desc_plural": "7.62 NATO rounds",
+    },
+    "308win": {
+        "name": ".308 Winchester",
+        "category": "rifle",
+        "damage_mod": 4,
+        "desc_single": "a single .308 Winchester round",
+        "desc_plural": ".308 Winchester rounds",
+    },
+    "50bmg": {
+        "name": ".50 BMG",
+        "category": "heavy",
+        "damage_mod": 10,
+        "desc_single": "a single .50 BMG round",
+        "desc_plural": ".50 BMG rounds",
+    },
+    # Shotgun ammunition
+    "12gauge": {
+        "name": "12 Gauge",
+        "category": "shotgun",
+        "damage_mod": 3,
+        "desc_single": "a single 12 gauge shell",
+        "desc_plural": "12 gauge shells",
+    },
+    "12gauge_slug": {
+        "name": "12 Gauge Slug",
+        "category": "shotgun",
+        "damage_mod": 5,
+        "desc_single": "a single 12 gauge slug",
+        "desc_plural": "12 gauge slugs",
+    },
+    # Specialty ammunition
+    "flare": {
+        "name": "12 Gauge Flare",
+        "category": "signal",
+        "damage_mod": 0,
+        "desc_single": "a single 12 gauge flare cartridge",
+        "desc_plural": "12 gauge flare cartridges",
+    },
+    "nail": {
+        "name": "Framing Nail Strip",
+        "category": "tool",
+        "damage_mod": 0,
+        "desc_single": "a strip of framing nails",
+        "desc_plural": "strips of framing nails",
+    },
+    "fuel": {
+        "name": "Incendiary Fuel Canister",
+        "category": "fuel",
+        "damage_mod": 0,
+        "desc_single": "an incendiary fuel canister",
+        "desc_plural": "incendiary fuel canisters",
+    },
+}
+
+# Dark thematic descriptions for ammunition
+AMMO_DARK_DESCRIPTIONS = {
+    "single_bullet": [
+        "Weighs as much as a human life.",
+        "A small brass promise of violence.",
+        "Cold to the touch. Colder in application.",
+        "Someone, somewhere, cast this with purpose. Not a good one.",
+        "The weight of possibility - mostly the bad kind.",
+        "A question that can only be answered once.",
+        "Small enough to hold. Heavy enough to end everything.",
+        "The last thing some people will ever see coming.",
+    ],
+    "single_shell": [
+        "Rattles with the sound of finality.",
+        "Packed with enough hate to spread around.",
+        "A shell game where everyone loses.",
+        "The brass casing catches light. The contents catch flesh.",
+        "Close range, wide damage, narrow chances of walking away.",
+    ],
+    "magazine": [
+        "A spring-loaded nightmare waiting to happen.",
+        "Rows of brass soldiers, eager for deployment.",
+        "The mathematics of violence: capacity times intent.",
+        "Heavy with potential. The bad kind.",
+        "Click, lock, ready. That's all it takes.",
+        "An organized queue for oblivion.",
+        "Someone's last magazine is always the heaviest.",
+    ],
+    "clip": [
+        "Metal fingers holding brass promises.",
+        "Strips of organized destruction.",
+        "The assembly line of entropy.",
+        "Load, chamber, fire, repeat. Simple mathematics.",
+    ],
+    "drum": [
+        "A carousel of carnage.",
+        "Round and round, in and out, until everyone stops moving.",
+        "The sound it makes when full is a death rattle in reverse.",
+        "Capacity that exceeds most people's nightmares.",
+    ],
+}
+
+
+class Ammunition(Item):
+    """
+    Base class for all ammunition types.
+    
+    Ammunition can exist as:
+    - Single rounds (bullets, shells)
+    - Magazines (detachable box magazines)
+    - Clips (stripper clips, moon clips)
+    - Drums (drum magazines)
+    
+    Dark thematic descriptions emphasize the lethal nature of ammunition.
+    """
+    
+    # Ammo type (matches keys in AMMO_TYPES)
+    ammo_type = AttributeProperty("9mm", autocreate=True)
+    
+    # Current round count
+    current_rounds = AttributeProperty(1, autocreate=True)
+    
+    # Maximum capacity (for magazines/drums)
+    max_rounds = AttributeProperty(1, autocreate=True)
+    
+    # Container type: "loose", "magazine", "clip", "drum"
+    container_type = AttributeProperty("loose", autocreate=True)
+    
+    def at_object_creation(self):
+        """Initialize ammunition with dark descriptions."""
+        super().at_object_creation()
+        self.db.is_ammo = True
+        self._set_thematic_description()
+    
+    def _set_thematic_description(self):
+        """Set the dark thematic description based on container type."""
+        import random
+        
+        container = self.container_type
+        if container == "loose":
+            if self.ammo_type in ["12gauge", "12gauge_slug"]:
+                desc_list = AMMO_DARK_DESCRIPTIONS.get("single_shell", [])
+            else:
+                desc_list = AMMO_DARK_DESCRIPTIONS.get("single_bullet", [])
+        elif container == "magazine":
+            desc_list = AMMO_DARK_DESCRIPTIONS.get("magazine", [])
+        elif container == "clip":
+            desc_list = AMMO_DARK_DESCRIPTIONS.get("clip", [])
+        elif container == "drum":
+            desc_list = AMMO_DARK_DESCRIPTIONS.get("drum", [])
+        else:
+            desc_list = AMMO_DARK_DESCRIPTIONS.get("single_bullet", [])
+        
+        if desc_list:
+            self.db.thematic_line = random.choice(desc_list)
+    
+    def get_ammo_info(self):
+        """Get ammunition type information."""
+        return AMMO_TYPES.get(self.ammo_type, AMMO_TYPES["9mm"])
+    
+    def get_display_name(self):
+        """Get the display name based on count and type."""
+        info = self.get_ammo_info()
+        if self.current_rounds == 1:
+            return info["desc_single"]
+        else:
+            return f"{self.current_rounds} {info['desc_plural']}"
+    
+    def return_appearance(self, looker, **kwargs):
+        """Enhanced appearance with ammo details and dark theme."""
+        info = self.get_ammo_info()
+        
+        # Build appearance
+        appearance = f"|w{self.key}|n\n"
+        
+        # Container-specific description
+        if self.container_type == "loose":
+            if self.current_rounds == 1:
+                appearance += f"\n{info['desc_single'].capitalize()}."
+            else:
+                appearance += f"\nA handful of {info['desc_plural']} - {self.current_rounds} rounds."
+        elif self.container_type == "magazine":
+            appearance += f"\nA magazine containing {info['desc_plural']}."
+            appearance += f"\n|wCapacity:|n {self.current_rounds}/{self.max_rounds} rounds"
+        elif self.container_type == "clip":
+            appearance += f"\nA stripper clip loaded with {info['desc_plural']}."
+            appearance += f"\n|wLoaded:|n {self.current_rounds}/{self.max_rounds} rounds"
+        elif self.container_type == "drum":
+            appearance += f"\nA drum magazine packed with {info['desc_plural']}."
+            appearance += f"\n|wCapacity:|n {self.current_rounds}/{self.max_rounds} rounds"
+        
+        # Add caliber info
+        appearance += f"\n|wCaliber:|n {info['name']}"
+        
+        # Add thematic line
+        if hasattr(self.db, 'thematic_line') and self.db.thematic_line:
+            appearance += f"\n\n|=l{self.db.thematic_line}|n"
+        
+        return appearance
+    
+    def use_rounds(self, count=1):
+        """
+        Consume rounds from this ammunition.
+        
+        Args:
+            count: Number of rounds to use
+            
+        Returns:
+            int: Actual number of rounds consumed
+        """
+        actual = min(count, self.current_rounds)
+        self.current_rounds -= actual
+        
+        # Delete if empty loose ammo (not magazines)
+        if self.current_rounds <= 0 and self.container_type == "loose":
+            self.delete()
+        
+        return actual
+    
+    def add_rounds(self, count):
+        """
+        Add rounds to this ammunition container.
+        
+        Args:
+            count: Number of rounds to add
+            
+        Returns:
+            int: Number of rounds actually added (limited by capacity)
+        """
+        space = self.max_rounds - self.current_rounds
+        actual = min(count, space)
+        self.current_rounds += actual
+        return actual
+    
+    def is_compatible_with(self, weapon):
+        """
+        Check if this ammo is compatible with a weapon.
+        
+        Args:
+            weapon: The weapon to check compatibility with
+            
+        Returns:
+            bool: True if compatible
+        """
+        if not weapon or not hasattr(weapon, 'db'):
+            return False
+        
+        weapon_ammo_type = getattr(weapon.db, 'ammo_type', None)
+        if not weapon_ammo_type:
+            return False
+        
+        return self.ammo_type == weapon_ammo_type
+
+
+class Magazine(Ammunition):
+    """
+    A detachable box magazine for firearms.
+    Can be loaded into compatible weapons for quick reloading.
+    """
+    
+    def at_object_creation(self):
+        """Initialize magazine defaults."""
+        self.container_type = "magazine"
+        self.max_rounds = 15  # Standard pistol mag
+        self.current_rounds = 15
+        super().at_object_creation()
+
+
+class Clip(Ammunition):
+    """
+    A stripper clip or speed loader for quick reloading.
+    Used with revolvers and some rifles.
+    """
+    
+    def at_object_creation(self):
+        """Initialize clip defaults."""
+        self.container_type = "clip"
+        self.max_rounds = 6  # Standard revolver speedloader
+        self.current_rounds = 6
+        super().at_object_creation()
+
+
+class DrumMagazine(Ammunition):
+    """
+    A high-capacity drum magazine.
+    Heavy and bulky, but provides extended firepower.
+    """
+    
+    def at_object_creation(self):
+        """Initialize drum magazine defaults."""
+        self.container_type = "drum"
+        self.max_rounds = 50  # Standard drum size
+        self.current_rounds = 50
+        super().at_object_creation()
+
+
+# =============================================================================
+# WEAPON MODIFICATION SYSTEM
+# =============================================================================
+
+class WeaponMod(Item):
+    """
+    Base class for weapon modifications.
+    
+    Mods can be attached to compatible weapons using the tinkering skill.
+    Each mod has a difficulty rating that determines the skill check required.
+    """
+    
+    # Tinkering skill required (0-100 scale)
+    tinkering_difficulty = AttributeProperty(25, autocreate=True)
+    
+    # Compatible weapon types (list of weapon_type strings)
+    compatible_weapons = AttributeProperty([], autocreate=True)
+    
+    # Mod slot type (magazine, barrel, stock, sight, etc.)
+    mod_slot = AttributeProperty("magazine", autocreate=True)
+    
+    # Stat modifications when attached
+    stat_mods = AttributeProperty({}, autocreate=True)
+    
+    def at_object_creation(self):
+        """Initialize weapon mod."""
+        super().at_object_creation()
+        self.db.is_weapon_mod = True
+    
+    def can_attach_to(self, weapon):
+        """
+        Check if this mod can be attached to a weapon.
+        
+        Args:
+            weapon: The weapon to check
+            
+        Returns:
+            tuple: (can_attach: bool, reason: str)
+        """
+        if not weapon or not hasattr(weapon, 'db'):
+            return False, "Invalid weapon."
+        
+        weapon_type = getattr(weapon.db, 'weapon_type', None)
+        if not weapon_type:
+            return False, "This item cannot accept modifications."
+        
+        if self.compatible_weapons and weapon_type not in self.compatible_weapons:
+            return False, f"This mod is not compatible with {weapon_type} weapons."
+        
+        # Check if slot is already occupied
+        installed_mods = getattr(weapon.db, 'installed_mods', {})
+        if self.mod_slot in installed_mods:
+            return False, f"This weapon already has a {self.mod_slot} modification installed."
+        
+        return True, "Compatible."
+    
+    def get_tinkering_description(self):
+        """Get description of difficulty for tinkering."""
+        diff = self.tinkering_difficulty
+        if diff <= 20:
+            return "trivial (anyone can do this)"
+        elif diff <= 35:
+            return "simple (basic mechanical knowledge)"
+        elif diff <= 50:
+            return "moderate (trained technician)"
+        elif diff <= 70:
+            return "difficult (experienced gunsmith)"
+        elif diff <= 85:
+            return "very difficult (master craftsman)"
+        else:
+            return "nearly impossible (legendary skill required)"
+
+
+class ExtendedMagazine(WeaponMod):
+    """
+    An extended magazine modification that increases ammo capacity.
+    Relatively easy to install on most weapons.
+    """
+    
+    def at_object_creation(self):
+        """Initialize extended magazine mod."""
+        super().at_object_creation()
+        self.key = "extended magazine"
+        self.aliases = ["ext mag", "extended mag"]
+        self.db.desc = "An extended magazine base plate and spring assembly. Adds extra capacity at the cost of slightly increased weight and profile."
+        
+        self.mod_slot = "magazine"
+        self.tinkering_difficulty = 25  # Easy - just sliding in a longer mag
+        
+        # Compatible with most pistol-type weapons
+        self.compatible_weapons = [
+            "light_pistol", "heavy_pistol", "machine_pistol",
+            "light_revolver", "heavy_revolver",  # Speed loaders
+        ]
+        
+        # Stat modifications
+        self.stat_mods = {
+            "ammo_capacity_bonus": 5,  # +5 rounds
+        }
+
+
+class DrumMagazineMod(WeaponMod):
+    """
+    A drum magazine modification for extreme capacity.
+    Requires more skill to install and maintain.
+    """
+    
+    def at_object_creation(self):
+        """Initialize drum magazine mod."""
+        super().at_object_creation()
+        self.key = "drum magazine modification"
+        self.aliases = ["drum mag", "drum mod"]
+        self.db.desc = "A drum magazine conversion kit. Replaces the standard magazine well with a high-capacity drum feed system. Heavy, awkward, but holds an obscene amount of ammunition."
+        
+        self.mod_slot = "magazine"
+        self.tinkering_difficulty = 55  # Moderate - requires feeding mechanism work
+        
+        # Compatible with automatic weapons
+        self.compatible_weapons = [
+            "machine_pistol", "submachine_gun", "assault_rifle",
+        ]
+        
+        # Stat modifications
+        self.stat_mods = {
+            "ammo_capacity_multiplier": 3,  # Triple capacity
+            "weight_penalty": 2,  # Heavier
+        }
+
+
+class RifleDrumMod(WeaponMod):
+    """
+    A heavy drum magazine for rifles and LMGs.
+    Complex installation requiring advanced skills.
+    """
+    
+    def at_object_creation(self):
+        """Initialize rifle drum mod."""
+        super().at_object_creation()
+        self.key = "rifle drum magazine"
+        self.aliases = ["rifle drum", "lmg drum"]
+        self.db.desc = "A heavy-duty drum magazine designed for sustained fire from rifles and light machine guns. The installation requires significant modification to the weapon's receiver and feeding mechanism."
+        
+        self.mod_slot = "magazine"
+        self.tinkering_difficulty = 70  # Difficult - major weapon modification
+        
+        # Compatible with rifle-type weapons
+        self.compatible_weapons = [
+            "assault_rifle", "semi-auto_rifle", "heavy_machine_gun",
+        ]
+        
+        # Stat modifications  
+        self.stat_mods = {
+            "ammo_capacity_multiplier": 4,  # Quadruple capacity
+            "weight_penalty": 4,  # Much heavier
+        }

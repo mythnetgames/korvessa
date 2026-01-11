@@ -44,6 +44,26 @@ DEFAULT_WEAPON_TYPE = "unarmed"
 FALLBACK_WEAPON_NAME = "your fists"
 
 # ===================================================================
+# AMMUNITION SYSTEM CONSTANTS
+# ===================================================================
+
+# Combat action for reloading
+COMBAT_ACTION_RELOAD = "reload"
+
+# NDB attribute for tracking reload state
+NDB_RELOADING = "reloading_weapon"
+
+# Default ammo capacity if not specified
+DEFAULT_AMMO_CAPACITY = 10
+
+# Messages for ammo system
+MSG_OUT_OF_AMMO = "|r*CLICK*|n Your {weapon} is empty! Reloading..."
+MSG_RELOADING = "|y{name} ejects an empty magazine and slams a fresh one into their {weapon}.|n"
+MSG_RELOADED = "|gYou finish reloading your {weapon}.|n"
+MSG_NO_AMMO_AVAILABLE = "|rYou have no ammunition for your {weapon}!|n"
+MSG_AMMO_STATUS = "|w[{current}/{max}]|n"
+
+# ===================================================================
 # LONGDESC SYSTEM CONSTANTS
 # ===================================================================
 

@@ -938,3 +938,145 @@ class CmdMedicalAudit(Command):
                 caller.msg(f"  {detail}")
             if len(details) > 20:
                 caller.msg(f"  ... and {len(details) - 20} more")
+
+
+class CmdSpawnAmmo(Command):
+    """
+    Spawn ammunition items for testing or distribution.
+    
+    Usage:
+        @spawnammo <ammo_type> [quantity] [container_type]
+        @spawnammo list
+        
+    Arguments:
+        ammo_type      - The caliber/type of ammunition (e.g., 9mm, 45acp, 12gauge)
+        quantity       - Number of rounds (default varies by container)
+        container_type - magazine, clip, drum, or loose (default: magazine)
+        
+    Examples:
+        @spawnammo list                  - Show all available ammo types
+        @spawnammo 9mm                   - Spawn a 9mm magazine (15 rounds)
+        @spawnammo 9mm 30 magazine       - Spawn a 30-round 9mm magazine
+        @spawnammo 45acp 6 clip          - Spawn a 6-round .45 speedloader
+        @spawnammo 12gauge 8 loose       - Spawn 8 loose 12-gauge shells
+        @spawnammo 556nato 100 drum      - Spawn a 100-round 5.56 drum
+        
+    Container types:
+        magazine - Standard detachable magazine
+        clip     - Speedloader/stripper clip for revolvers/bolt rifles
+        drum     - High-capacity drum magazine
+        loose    - Individual loose rounds
+    """
+    
+    key = "@spawnammo"
+    aliases = ["@spammo", "@createammo"]
+    locks = "cmd:perm(Builders) or perm(Developers)"
+    help_category = "Admin"
+    
+    def func(self):
+        from typeclasses.items import AMMO_TYPES
+        from evennia import create_object
+        
+        caller = self.caller
+        
+        if not self.args or self.args.strip().lower() == "list":
+            # List available ammo types
+            caller.msg("|cAvailable ammunition types:|n")
+            for ammo_type, info in AMMO_TYPES.items():
+                caller.msg(f"  |w{ammo_type}|n - {info['name']} ({info['damage_mod']:+d} damage)")
+            caller.msg("\n|cContainer types:|n magazine, clip, drum, loose")
+            return
+        
+        args = self.args.strip().lower().split()
+        
+        ammo_type = args[0]
+        
+        if ammo_type not in AMMO_TYPES:
+            caller.msg(f"|rUnknown ammo type '{ammo_type}'. Use '@spawnammo list' to see options.|n")
+            return
+        
+        ammo_info = AMMO_TYPES[ammo_type]
+        
+        # Parse quantity
+        quantity = None
+        container_type = "magazine"
+        
+        if len(args) >= 2:
+            try:
+                quantity = int(args[1])
+            except ValueError:
+                # Second arg is container type
+                container_type = args[1]
+        
+        if len(args) >= 3:
+            container_type = args[2]
+        
+        # Validate container type
+        valid_containers = ["magazine", "clip", "drum", "loose"]
+        if container_type not in valid_containers:
+            caller.msg(f"|rInvalid container type '{container_type}'. Use: {', '.join(valid_containers)}|n")
+            return
+        
+        # Set default quantities based on container type
+        if quantity is None:
+            if container_type == "magazine":
+                quantity = 15
+            elif container_type == "clip":
+                quantity = 6
+            elif container_type == "drum":
+                quantity = 50
+            elif container_type == "loose":
+                quantity = 10
+        
+        # Create the ammunition object
+        if container_type == "magazine":
+            ammo = create_object(
+                "typeclasses.items.Magazine",
+                key=f"{ammo_info['name']} Magazine",
+                location=caller.location
+            )
+            ammo.db.ammo_type = ammo_type
+            ammo.db.current_rounds = quantity
+            ammo.db.max_rounds = quantity
+            ammo.db.container_type = "magazine"
+            ammo.db.damage_modifier = ammo_info['damage_mod']
+            
+        elif container_type == "clip":
+            ammo = create_object(
+                "typeclasses.items.Clip",
+                key=f"{ammo_info['name']} Speedloader",
+                location=caller.location
+            )
+            ammo.db.ammo_type = ammo_type
+            ammo.db.current_rounds = quantity
+            ammo.db.max_rounds = quantity
+            ammo.db.container_type = "clip"
+            ammo.db.damage_modifier = ammo_info['damage_mod']
+            
+        elif container_type == "drum":
+            ammo = create_object(
+                "typeclasses.items.DrumMagazine",
+                key=f"{ammo_info['name']} Drum",
+                location=caller.location
+            )
+            ammo.db.ammo_type = ammo_type
+            ammo.db.current_rounds = quantity
+            ammo.db.max_rounds = quantity
+            ammo.db.container_type = "drum"
+            ammo.db.damage_modifier = ammo_info['damage_mod']
+            
+        elif container_type == "loose":
+            # Create a generic ammunition container for loose rounds
+            ammo = create_object(
+                "typeclasses.items.Ammunition",
+                key=f"{ammo_info['name']} x{quantity}",
+                location=caller.location
+            )
+            ammo.db.ammo_type = ammo_type
+            ammo.db.current_rounds = quantity
+            ammo.db.max_rounds = quantity
+            ammo.db.container_type = "loose"
+            ammo.db.damage_modifier = ammo_info['damage_mod']
+        
+        caller.msg(f"|gSpawned: {ammo.key} ({quantity} rounds of {ammo_type})|n")
+        caller.location.msg_contents(f"|y{caller.key} creates {ammo.key} out of thin air.|n", exclude=[caller])

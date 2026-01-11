@@ -780,3 +780,197 @@ class CmdAim(Command):
         else:
             # Normal aiming cleanup
             aimer.override_place = ""
+
+
+class CmdReload(Command):
+    """
+    Manually reload your wielded weapon.
+    
+    Usage:
+        reload
+        
+    Reloads your currently wielded ranged weapon from ammunition in your
+    inventory. If you're in combat, this will queue a reload for your next
+    turn (taking your full combat action).
+    
+    Outside of combat, reloading is instant.
+    """
+    key = "reload"
+    aliases = ["rel"]
+    locks = "cmd:all()"
+    help_category = "Combat"
+    
+    def func(self):
+        from world.combat.utils import get_wielded_weapon, is_wielding_ranged_weapon
+        from world.combat.handler import get_or_create_combat
+        from world.combat.constants import (
+            COMBAT_ACTION_RELOAD, DEFAULT_AMMO_CAPACITY, SPLATTERCAST_CHANNEL,
+            MSG_RELOADED, MSG_RELOADING, MSG_NO_AMMO_AVAILABLE
+        )
+        
+        caller = self.caller
+        splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        
+        # Get wielded weapon
+        weapon = get_wielded_weapon(caller)
+        
+        if not weapon:
+            caller.msg("|rYou aren't holding a weapon to reload.|n")
+            return
+        
+        uses_ammo = getattr(weapon.db, 'uses_ammo', False)
+        if not uses_ammo:
+            caller.msg(f"|r{weapon.key} doesn't use ammunition.|n")
+            return
+        
+        ammo_capacity = getattr(weapon.db, 'ammo_capacity', DEFAULT_AMMO_CAPACITY)
+        current_ammo = getattr(weapon.db, 'current_ammo', 0) or 0
+        
+        # Check if already full
+        if current_ammo >= ammo_capacity:
+            caller.msg(f"|y{weapon.key} is already fully loaded |w[{current_ammo}/{ammo_capacity}]|n.|n")
+            return
+        
+        # Check if in combat
+        handler = getattr(caller.ndb, "combat_handler", None)
+        
+        if handler and handler.is_active:
+            # In combat - queue reload action
+            combatants = handler.db.combatants or []
+            for entry in combatants:
+                if entry.get("char") == caller:
+                    entry["combat_action"] = COMBAT_ACTION_RELOAD
+                    caller.msg(f"|yYou prepare to reload your {weapon.key} |w[{current_ammo}/{ammo_capacity}]|n.|n")
+                    splattercast.msg(f"RELOAD_QUEUED: {caller.key} queued reload for {weapon.key}.")
+                    return
+            
+            # Not in combatants list somehow
+            caller.msg("|rSomething went wrong - you're in combat but not registered.|n")
+            return
+        
+        # Not in combat - instant reload
+        # Find compatible ammo
+        weapon_ammo_type = getattr(weapon.db, 'ammo_type', None)
+        ammo_source = None
+        
+        for item in caller.contents:
+            if hasattr(item, 'is_compatible_with') and callable(item.is_compatible_with):
+                if item.is_compatible_with(weapon):
+                    source_rounds = getattr(item.db, 'current_rounds', 0) or 0
+                    if source_rounds > 0:
+                        ammo_source = item
+                        break
+            elif hasattr(item.db, 'ammo_type') and item.db.ammo_type == weapon_ammo_type:
+                source_rounds = getattr(item.db, 'current_rounds', 0) or 0
+                if source_rounds > 0:
+                    ammo_source = item
+                    break
+        
+        if not ammo_source:
+            caller.msg(MSG_NO_AMMO_AVAILABLE.format(weapon=weapon.key))
+            return
+        
+        # Calculate rounds to transfer
+        rounds_needed = ammo_capacity - current_ammo
+        source_rounds = getattr(ammo_source.db, 'current_rounds', 0) or 0
+        rounds_to_load = min(rounds_needed, source_rounds)
+        
+        # Transfer rounds
+        weapon.db.current_ammo = current_ammo + rounds_to_load
+        ammo_source.db.current_rounds = source_rounds - rounds_to_load
+        
+        # Delete empty ammo container
+        if ammo_source.db.current_rounds <= 0:
+            container_type = getattr(ammo_source.db, 'container_type', 'ammunition')
+            ammo_source.delete()
+            splattercast.msg(f"RELOAD: Empty {container_type} deleted after reload.")
+        
+        caller.msg(MSG_RELOADED.format(weapon=weapon.key) + f" |w[{weapon.db.current_ammo}/{ammo_capacity}]|n")
+        caller.location.msg_contents(
+            MSG_RELOADING.format(name=caller.key, weapon=weapon.key),
+            exclude=[caller]
+        )
+        splattercast.msg(f"RELOAD: {caller.key} reloaded {weapon.key} ({weapon.db.current_ammo}/{ammo_capacity}).")
+
+
+class CmdAmmo(Command):
+    """
+    Check the ammunition status of your wielded weapon.
+    
+    Usage:
+        ammo
+        
+    Displays the current ammunition count and capacity of your wielded
+    ranged weapon.
+    """
+    key = "ammo"
+    aliases = ["ammocheck", "ammostatus"]
+    locks = "cmd:all()"
+    help_category = "Combat"
+    
+    def func(self):
+        from world.combat.utils import get_wielded_weapon
+        from world.combat.constants import DEFAULT_AMMO_CAPACITY
+        
+        caller = self.caller
+        
+        # Get wielded weapon
+        weapon = get_wielded_weapon(caller)
+        
+        if not weapon:
+            caller.msg("|yYou aren't holding any weapon.|n")
+            return
+        
+        uses_ammo = getattr(weapon.db, 'uses_ammo', False)
+        
+        if not uses_ammo:
+            caller.msg(f"|y{weapon.key} doesn't use ammunition.|n")
+            return
+        
+        ammo_capacity = getattr(weapon.db, 'ammo_capacity', DEFAULT_AMMO_CAPACITY)
+        current_ammo = getattr(weapon.db, 'current_ammo', 0) or 0
+        ammo_type = getattr(weapon.db, 'ammo_type', 'unknown')
+        
+        # Calculate percentage for visual bar
+        if ammo_capacity > 0:
+            fill_percent = int((current_ammo / ammo_capacity) * 10)
+        else:
+            fill_percent = 0
+        
+        # Create visual ammo bar
+        if current_ammo <= 0:
+            bar_color = "|r"
+        elif current_ammo <= ammo_capacity * 0.25:
+            bar_color = "|R"
+        elif current_ammo <= ammo_capacity * 0.5:
+            bar_color = "|y"
+        else:
+            bar_color = "|g"
+        
+        filled = "█" * fill_percent
+        empty = "░" * (10 - fill_percent)
+        ammo_bar = f"{bar_color}{filled}|n{empty}"
+        
+        caller.msg(f"|w{weapon.key}|n: [{ammo_bar}] {bar_color}{current_ammo}|n/{ammo_capacity} ({ammo_type})")
+        
+        # Count ammo in inventory
+        total_reserve = 0
+        ammo_sources = []
+        weapon_ammo_type = getattr(weapon.db, 'ammo_type', None)
+        
+        for item in caller.contents:
+            item_ammo_type = getattr(item.db, 'ammo_type', None)
+            if item_ammo_type == weapon_ammo_type:
+                rounds = getattr(item.db, 'current_rounds', 0) or 0
+                if rounds > 0:
+                    container_type = getattr(item.db, 'container_type', 'ammo')
+                    total_reserve += rounds
+                    ammo_sources.append(f"{item.key} ({rounds})")
+        
+        if total_reserve > 0:
+            caller.msg(f"|cReserve ammunition|n: {total_reserve} rounds")
+            if len(ammo_sources) <= 5:
+                for source in ammo_sources:
+                    caller.msg(f"  - {source}")
+        else:
+            caller.msg(f"|rNo reserve ammunition for {ammo_type}.|n")

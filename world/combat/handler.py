@@ -29,7 +29,10 @@ from .constants import (
     DEBUG_PREFIX_HANDLER, DEBUG_SUCCESS, DEBUG_FAIL, DEBUG_ERROR, DEBUG_CLEANUP,
     MSG_GRAPPLE_AUTO_ESCAPE_VIOLENT, MSG_GRAPPLE_AUTO_YIELD,
     COMBAT_ACTION_RETREAT, COMBAT_ACTION_ADVANCE, COMBAT_ACTION_CHARGE, COMBAT_ACTION_DISARM,
-    COMBAT_ROUND_INTERVAL, STAGGER_DELAY_INTERVAL, MAX_STAGGER_DELAY
+    COMBAT_ROUND_INTERVAL, STAGGER_DELAY_INTERVAL, MAX_STAGGER_DELAY,
+    # Ammunition system constants
+    COMBAT_ACTION_RELOAD, NDB_RELOADING, DEFAULT_AMMO_CAPACITY,
+    MSG_OUT_OF_AMMO, MSG_RELOADING, MSG_RELOADED, MSG_NO_AMMO_AVAILABLE
 )
 from .utils import (
     get_numeric_stat, log_combat_action, get_display_name_safe,
@@ -766,6 +769,10 @@ class CombatHandler(DefaultScript):
                         current_char_combat_entry["combat_action"] = None
                         current_char_combat_entry["combat_action_target"] = None
                         continue
+                    elif combat_action == COMBAT_ACTION_RELOAD:
+                        self._resolve_reload(char, current_char_combat_entry)
+                        current_char_combat_entry["combat_action"] = None
+                        continue
                 elif isinstance(combat_action, dict):
                     intent_type = combat_action.get("type")
                     action_target_char = combat_action.get("target")
@@ -1187,6 +1194,32 @@ class CombatHandler(DefaultScript):
         
         # Check if attacker is wielding a ranged weapon
         is_ranged_attack = is_wielding_ranged_weapon(attacker)
+        
+        # Ammo check for ranged weapons
+        if is_ranged_attack:
+            weapon = get_wielded_weapon(attacker)
+            if weapon and getattr(weapon.db, 'uses_ammo', False):
+                current_ammo = getattr(weapon.db, 'current_ammo', 0) or 0
+                ammo_capacity = getattr(weapon.db, 'ammo_capacity', DEFAULT_AMMO_CAPACITY)
+                
+                if current_ammo <= 0:
+                    # Out of ammo - trigger automatic reload
+                    attacker.msg(MSG_OUT_OF_AMMO.format(weapon=weapon.key))
+                    
+                    # Check if ammo is available
+                    ammo_source = self._find_compatible_ammo(attacker, weapon)
+                    if ammo_source:
+                        # Queue reload action for next turn
+                        attacker_entry["combat_action"] = COMBAT_ACTION_RELOAD
+                        splattercast.msg(f"AUTO_RELOAD: {attacker.key} out of ammo, queuing reload for next turn.")
+                    else:
+                        attacker.msg(MSG_NO_AMMO_AVAILABLE.format(weapon=weapon.key))
+                        splattercast.msg(f"NO_AMMO: {attacker.key} has no ammunition for {weapon.key}.")
+                    return
+                
+                # Consume one round of ammo
+                weapon.db.current_ammo = current_ammo - 1
+                splattercast.msg(f"AMMO_CONSUMED: {attacker.key} fired {weapon.key} [{weapon.db.current_ammo}/{ammo_capacity}] remaining.")
         
         # For melee attacks, check same-room and proximity requirements
         if not is_ranged_attack:
@@ -2105,3 +2138,150 @@ class CombatHandler(DefaultScript):
         )
         log_combat_action(char, "disarm_success", target, details=f"disarmed {item.key}")
         splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_DISARM: {char.key} successfully disarmed {item.key} from {target.key}.")
+
+    def _find_compatible_ammo(self, char, weapon):
+        """
+        Find compatible ammunition in character's inventory.
+        
+        Args:
+            char: Character to search inventory of
+            weapon: Weapon to find ammo for
+            
+        Returns:
+            Ammunition object if found, None otherwise
+        """
+        if not weapon or not getattr(weapon.db, 'uses_ammo', False):
+            return None
+        
+        weapon_ammo_type = getattr(weapon.db, 'ammo_type', None)
+        if not weapon_ammo_type:
+            return None
+        
+        # Search character's inventory for compatible ammo
+        for item in char.contents:
+            # Check if it's an ammunition item
+            if hasattr(item, 'is_compatible_with') and callable(item.is_compatible_with):
+                if item.is_compatible_with(weapon):
+                    # Make sure it has rounds available
+                    current_rounds = getattr(item.db, 'current_rounds', 0) or 0
+                    if current_rounds > 0:
+                        return item
+            # Also check for loose ammo with matching type
+            elif hasattr(item.db, 'ammo_type') and item.db.ammo_type == weapon_ammo_type:
+                current_rounds = getattr(item.db, 'current_rounds', 0) or 0
+                if current_rounds > 0:
+                    return item
+        
+        return None
+    
+    def _reload_weapon(self, char, weapon, ammo_source=None):
+        """
+        Reload a weapon from an ammunition source.
+        
+        Args:
+            char: Character doing the reload
+            weapon: Weapon to reload
+            ammo_source: Optional specific ammo to use, or find automatically
+            
+        Returns:
+            tuple: (success, rounds_loaded, message)
+        """
+        splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        
+        if not weapon:
+            return (False, 0, "No weapon to reload.")
+        
+        uses_ammo = getattr(weapon.db, 'uses_ammo', False)
+        if not uses_ammo:
+            return (False, 0, f"{weapon.key} doesn't use ammunition.")
+        
+        ammo_capacity = getattr(weapon.db, 'ammo_capacity', DEFAULT_AMMO_CAPACITY)
+        current_ammo = getattr(weapon.db, 'current_ammo', 0) or 0
+        
+        # Check if weapon is already full
+        if current_ammo >= ammo_capacity:
+            return (False, 0, f"{weapon.key} is already fully loaded.")
+        
+        # Find ammo source if not provided
+        if not ammo_source:
+            ammo_source = self._find_compatible_ammo(char, weapon)
+        
+        if not ammo_source:
+            return (False, 0, MSG_NO_AMMO_AVAILABLE.format(weapon=weapon.key))
+        
+        # Calculate how many rounds to transfer
+        rounds_needed = ammo_capacity - current_ammo
+        source_rounds = getattr(ammo_source.db, 'current_rounds', 0) or 0
+        rounds_to_load = min(rounds_needed, source_rounds)
+        
+        if rounds_to_load <= 0:
+            return (False, 0, f"No rounds available in {ammo_source.key}.")
+        
+        # Transfer rounds
+        weapon.db.current_ammo = current_ammo + rounds_to_load
+        ammo_source.db.current_rounds = source_rounds - rounds_to_load
+        
+        # Delete empty ammo container
+        if ammo_source.db.current_rounds <= 0:
+            container_type = getattr(ammo_source.db, 'container_type', 'magazine')
+            ammo_source.delete()
+            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RELOAD: Empty {container_type} deleted after reload.")
+        
+        splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RELOAD: {char.key} loaded {rounds_to_load} rounds into {weapon.key} ({weapon.db.current_ammo}/{ammo_capacity}).")
+        
+        return (True, rounds_to_load, MSG_RELOADED.format(weapon=weapon.key))
+    
+    def _resolve_reload(self, char, entry):
+        """
+        Resolve a reload action during combat.
+        Takes a full combat turn.
+        
+        Args:
+            char: Character performing the reload
+            entry: Character's combat entry
+        """
+        from .utils import log_combat_action
+        splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        
+        splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RELOAD: {char.key} executing reload action.")
+        
+        # Get wielded weapon
+        weapon = get_wielded_weapon(char)
+        
+        if not weapon:
+            char.msg("|rYou aren't holding a weapon to reload.|n")
+            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RELOAD: {char.key} has no weapon to reload.")
+            return
+        
+        uses_ammo = getattr(weapon.db, 'uses_ammo', False)
+        if not uses_ammo:
+            char.msg(f"|r{weapon.key} doesn't use ammunition.|n")
+            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RELOAD: {weapon.key} doesn't use ammo.")
+            return
+        
+        # Check if already full
+        ammo_capacity = getattr(weapon.db, 'ammo_capacity', DEFAULT_AMMO_CAPACITY)
+        current_ammo = getattr(weapon.db, 'current_ammo', 0) or 0
+        
+        if current_ammo >= ammo_capacity:
+            char.msg(f"|y{weapon.key} is already fully loaded [{current_ammo}/{ammo_capacity}].|n")
+            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RELOAD: {weapon.key} already full.")
+            return
+        
+        # Attempt reload
+        success, rounds_loaded, message = self._reload_weapon(char, weapon)
+        
+        if success:
+            # Announce reload to room
+            new_ammo = getattr(weapon.db, 'current_ammo', 0)
+            char.msg(message)
+            char.location.msg_contents(
+                MSG_RELOADING.format(name=char.key, weapon=weapon.key),
+                exclude=[char]
+            )
+            log_combat_action(char, "reload_success", details=f"loaded {rounds_loaded} into {weapon.key} ({new_ammo}/{ammo_capacity})")
+            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RELOAD_SUCCESS: {char.key} reloaded {weapon.key}.")
+        else:
+            char.msg(message)
+            log_combat_action(char, "reload_fail", details=message)
+            splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RELOAD_FAIL: {char.key} failed to reload: {message}")
