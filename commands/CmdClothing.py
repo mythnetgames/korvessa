@@ -109,8 +109,16 @@ class CmdRemove(Command):
                 caller.msg("You're not wearing anything.")
                 return
             
+            # Filter to only actual clothing items (those with layer attribute > 1)
+            # This prevents removing basic inventory items
+            clothing_items = [item for item in worn_items if hasattr(item, 'layer') and item.layer > 1]
+            
+            if not clothing_items:
+                caller.msg("You're not wearing anything.")
+                return
+            
             removed_items = []
-            for item in worn_items:
+            for item in clothing_items:
                 success, message = caller.remove_item(item)
                 if success:
                     removed_items.append(item.key)
@@ -413,18 +421,18 @@ class CmdFreeHands(Command):
             return
         
         # Find all items currently held
-        held_items = [item for item in hands.values() if item is not None]
+        held_hands = {hand: item for hand, item in hands.items() if item is not None}
         
-        if not held_items:
+        if not held_hands:
             caller.msg("You're not wielding anything.")
             return
         
         # Unwield each item
         unwielded = []
-        for item in held_items:
-            # Use the existing unwield system
-            success = caller.unwield_item(item)
-            if success:
+        for hand, item in held_hands.items():
+            # Use the existing unwield system - pass hand name
+            result = caller.unwield_item(hand)
+            if "unwield" in result.lower():
                 unwielded.append(item.key)
         
         if unwielded:
