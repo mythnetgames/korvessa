@@ -120,10 +120,27 @@ def node_npc_set_prototype(caller, raw_string, **kwargs):
     ]
 
 def node_npc_set_desc(caller, raw_string, **kwargs):
-    caller.msg("Enter NPC description:")
-    return "Enter NPC description:", [
-        {"key": "_input", "goto": "node_npc_main", "exec": lambda c, s: _npc_data(c).update({'desc': s})}
-    ]
+    text = (
+        "|c=== Set NPC Description ===|n\n\n"
+        "Enter a description for your NPC. This will be shown when someone examines the NPC.\n\n"
+        "|wType your description and press Enter, or type 'back' to return.|n"
+    )
+    options = ( {"key": "_default", "goto": "node_npc_set_desc_handler"}, )
+    return text, options
+
+def node_npc_set_desc_handler(caller, raw_string, **kwargs):
+    desc = (raw_string or '').strip()
+    if desc.lower() == 'back':
+        return "node_npc_main"
+    if len(desc) < 5:
+        caller.msg("|rDescription must be at least 5 characters.|n")
+        return "node_npc_set_desc"
+    if len(desc) > 2000:
+        caller.msg("|rDescription must be 2000 characters or less.|n")
+        return "node_npc_set_desc"
+    _npc_data(caller)["desc"] = desc
+    caller.msg(f"|gNPC description set.|n")
+    return "node_npc_main"
 
 def node_npc_toggle_wandering(caller, raw_string, **kwargs):
     data = _npc_data(caller)
