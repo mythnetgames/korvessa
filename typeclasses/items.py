@@ -1186,7 +1186,17 @@ class Ammunition(Item):
         if not weapon_ammo_type:
             return False
         
-        return self.ammo_type == weapon_ammo_type
+        # Exact match
+        if self.ammo_type == weapon_ammo_type:
+            return True
+        
+        # Compatible ammo types (e.g., 12gauge_slug works in 12gauge weapons)
+        COMPATIBLE_AMMO = {
+            "12gauge": ["12gauge", "12gauge_slug"],  # Shotguns accept both buckshot and slugs
+        }
+        
+        compatible_types = COMPATIBLE_AMMO.get(weapon_ammo_type, [])
+        return self.ammo_type in compatible_types
 
 
 class Magazine(Ammunition):

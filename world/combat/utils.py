@@ -580,6 +580,35 @@ def clear_character_proximity(character):
 # WEAPON & ITEM HELPERS
 # ===================================================================
 
+# Compatible ammo types (e.g., 12gauge_slug works in 12gauge weapons)
+COMPATIBLE_AMMO_TYPES = {
+    "12gauge": ["12gauge", "12gauge_slug"],  # Shotguns accept both buckshot and slugs
+}
+
+
+def is_ammo_compatible(ammo_type, weapon_ammo_type):
+    """
+    Check if an ammo type is compatible with a weapon's ammo type.
+    
+    Args:
+        ammo_type (str): The ammo type to check
+        weapon_ammo_type (str): The weapon's required ammo type
+        
+    Returns:
+        bool: True if compatible
+    """
+    if not ammo_type or not weapon_ammo_type:
+        return False
+    
+    # Exact match
+    if ammo_type == weapon_ammo_type:
+        return True
+    
+    # Check compatibility table
+    compatible_types = COMPATIBLE_AMMO_TYPES.get(weapon_ammo_type, [])
+    return ammo_type in compatible_types
+
+
 def get_wielded_weapon(character):
     """
     Get the first weapon found in character's hands.

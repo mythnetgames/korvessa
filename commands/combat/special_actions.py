@@ -801,7 +801,7 @@ class CmdReload(Command):
     help_category = "Combat"
     
     def func(self):
-        from world.combat.utils import get_wielded_weapon, is_wielding_ranged_weapon
+        from world.combat.utils import get_wielded_weapon, is_wielding_ranged_weapon, is_ammo_compatible
         from world.combat.handler import get_or_create_combat
         from world.combat.constants import (
             COMBAT_ACTION_RELOAD, DEFAULT_AMMO_CAPACITY, SPLATTERCAST_CHANNEL,
@@ -860,7 +860,7 @@ class CmdReload(Command):
                     if source_rounds > 0:
                         ammo_source = item
                         break
-            elif hasattr(item.db, 'ammo_type') and item.db.ammo_type == weapon_ammo_type:
+            elif hasattr(item.db, 'ammo_type') and is_ammo_compatible(item.db.ammo_type, weapon_ammo_type):
                 source_rounds = getattr(item.db, 'current_rounds', 0) or 0
                 if source_rounds > 0:
                     ammo_source = item

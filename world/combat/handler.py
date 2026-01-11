@@ -40,7 +40,7 @@ from .utils import (
     get_weapon_damage, add_combatant, remove_combatant, cleanup_combatant_state,
     cleanup_all_combatants, get_combatant_target, get_combatant_grappling_target,
     get_combatant_grappled_by, get_character_dbref, get_character_by_dbref,
-    resolve_bonus_attack, get_combatants_safe,
+    resolve_bonus_attack, get_combatants_safe, is_ammo_compatible,
     # New 0-100 skill system
     skill_to_bonus, skill_roll, opposed_skill_roll, get_combat_skill_value, combat_roll
 )
@@ -2166,8 +2166,8 @@ class CombatHandler(DefaultScript):
                     current_rounds = getattr(item.db, 'current_rounds', 0) or 0
                     if current_rounds > 0:
                         return item
-            # Also check for loose ammo with matching type
-            elif hasattr(item.db, 'ammo_type') and item.db.ammo_type == weapon_ammo_type:
+            # Also check for loose ammo with matching type (using compatibility check)
+            elif hasattr(item.db, 'ammo_type') and is_ammo_compatible(item.db.ammo_type, weapon_ammo_type):
                 current_rounds = getattr(item.db, 'current_rounds', 0) or 0
                 if current_rounds > 0:
                     return item
