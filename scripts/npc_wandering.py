@@ -135,18 +135,35 @@ class NPCWanderingScript(DefaultScript):
         # Store current location for messaging
         old_location = npc.location
         
+        # Determine direction (simple coordinate diff)
+        direction = None
+        if hasattr(old_location, 'db') and hasattr(destination, 'db'):
+            dx = getattr(destination.db, 'x', None)
+            dy = getattr(destination.db, 'y', None)
+            ox = getattr(old_location.db, 'x', None)
+            oy = getattr(old_location.db, 'y', None)
+            if dx is not None and dy is not None and ox is not None and oy is not None:
+                if dx > ox:
+                    direction = 'east'
+                elif dx < ox:
+                    direction = 'west'
+                elif dy > oy:
+                    direction = 'north'
+                elif dy < oy:
+                    direction = 'south'
+        
         try:
             # Move the NPC
             npc.location = destination
             
-            # Optional: Send departure message to old location
+            # Send departure message to old location
             if old_location and hasattr(old_location, "msg_contents"):
-                old_location.msg_contents(f"|r{npc.name} wanders away.|n")
-            
-            # Optional: Send arrival message to new location
+                msg = f"{npc.name} leaves to the {direction}." if direction else f"{npc.name} leaves."
+                old_location.msg_contents(msg)
+            # Send arrival message to new location
             if destination and hasattr(destination, "msg_contents"):
-                destination.msg_contents(f"|r{npc.name} wanders in.|n")
-        
+                msg = f"{npc.name} arrives from the {direction}." if direction else f"{npc.name} arrives."
+                destination.msg_contents(msg)
         except Exception as e:
             # Movement failed, try to restore original location
             try:
