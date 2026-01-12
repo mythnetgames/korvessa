@@ -7,7 +7,7 @@ class CmdSpawnNPCDesign(Command):
     """
     Spawn an NPC from a saved design.
     Usage:
-        spawnnpc
+        spawnnpc [<number> [<count>]]
     """
     key = "spawnnpc"
     locks = "cmd:perm(Builder)"
@@ -30,10 +30,14 @@ class CmdSpawnNPCDesign(Command):
         if not choices:
             caller.msg("|rNo NPC designs found. Use npcdesign to create one.|n")
             return
+        caller.ndb._spawnnpc_choices = choices
+        # If arguments are given, process immediately
+        if self.args:
+            self._handle_input(caller, self.args.strip())
+            return
+        # Otherwise, prompt for input interactively
         msg.append("Type the number of the NPC to spawn, or 'q' to cancel. To spawn multiple, use '2 3' for design 2, 3 copies.")
         caller.msg("\n".join(msg))
-        caller.ndb._spawnnpc_choices = choices
-        # Always set get_input handler for robust input
         def _input_cb(caller, raw_string):
             self._handle_input(caller, raw_string)
         caller.ndb.get_input = _input_cb
