@@ -299,20 +299,32 @@ class Character(ObjectParent, DefaultCharacter):
     def at_look(self, target=None, **kwargs):
         """
         Called when the character uses the look command.
-        When looking at the room (or nothing), shows the room and map.
+        When looking at the room (or nothing), shows the room and map (if mapper enabled).
         When looking at an object/character, shows their description.
         """
         if target is None or target == self.location:
-            # Looking at the room - show map and room
+            # Looking at the room
+            # Check if mapper is enabled (account.db for persistence, ndb for session)
+            mapper_enabled = False
             if self.account and hasattr(self.account, 'db'):
-                self.account.db.mapper_enabled = True
-            self.ndb.mapper_enabled = True
-            from commands.mapper import CmdMap
-            cmd = CmdMap()
-            cmd.caller = self
-            cmd.args = ""
-            cmd.func()
-            return
+                mapper_enabled = getattr(self.account.db, 'mapper_enabled', False)
+            if not mapper_enabled:
+                mapper_enabled = getattr(self.ndb, 'mapper_enabled', False)
+            
+            if mapper_enabled:
+                # Show map view with room description on right side
+                from commands.mapper import CmdMap
+                cmd = CmdMap()
+                cmd.caller = self
+                cmd.args = ""
+                cmd.func()
+                return
+            else:
+                # Mapper disabled (screenreader mode) - show plain room description
+                self.ndb.show_room_desc = True
+                appearance = self.location.return_appearance(self, force_display=True)
+                self.ndb.show_room_desc = False
+                return appearance
         else:
             # Looking at an object/character - show their description
             return target.return_appearance(self)

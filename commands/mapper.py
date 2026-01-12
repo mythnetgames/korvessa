@@ -53,9 +53,9 @@ class CmdMapRoom(Command):
 class CmdMapOn(Command):
     """
     Turn on the mapper for this session.
-    Usage: @mapon
+    Usage: mapon
     """
-    key = "@mapon"
+    key = "mapon"
     locks = "cmd:all()"
     help_category = "Mapping"
 
@@ -74,9 +74,9 @@ class CmdMapOn(Command):
 class CmdMapOff(Command):
     """
     Turn off the mapper for this session.
-    Usage: @mapoff
+    Usage: mapoff
     """
-    key = "@mapoff"
+    key = "mapoff"
     locks = "cmd:all()"
     help_category = "Mapping"
 
