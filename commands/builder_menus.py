@@ -301,7 +301,8 @@ def furniture_save(caller, raw_string, **kwargs):
     if hasattr(caller.ndb, '_furniture_data'):
         delattr(caller.ndb, '_furniture_data')
     
-    return text, [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+    caller.msg(text)
+    return None  # Exit menu
 
 
 def furniture_cancel(caller, raw_string, **kwargs):
@@ -309,7 +310,8 @@ def furniture_cancel(caller, raw_string, **kwargs):
     if hasattr(caller.ndb, '_furniture_data'):
         delattr(caller.ndb, '_furniture_data')
     
-    return "Cancelled.", [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+    caller.msg("|rCancelled.|n")
+    return None  # Exit menu
 
 
 # ============================================================================
@@ -737,7 +739,8 @@ def npc_save(caller, raw_string, **kwargs):
     if hasattr(caller.ndb, '_npc_data'):
         delattr(caller.ndb, '_npc_data')
     
-    return text, [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+    caller.msg(text)
+    return None  # Exit menu
 
 
 def npc_cancel(caller, raw_string, **kwargs):
@@ -745,7 +748,8 @@ def npc_cancel(caller, raw_string, **kwargs):
     if hasattr(caller.ndb, '_npc_data'):
         delattr(caller.ndb, '_npc_data')
     
-    return "Cancelled.", [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+    caller.msg("|rCancelled.|n")
+    return None  # Exit menu
 
 
 # ============================================================================
@@ -983,7 +987,8 @@ def weapon_save(caller, raw_string, **kwargs):
     if hasattr(caller.ndb, '_weapon_data'):
         delattr(caller.ndb, '_weapon_data')
     
-    return text, [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+    caller.msg(text)
+    return None  # Exit menu
 
 
 def weapon_cancel(caller, raw_string, **kwargs):
@@ -991,7 +996,8 @@ def weapon_cancel(caller, raw_string, **kwargs):
     if hasattr(caller.ndb, '_weapon_data'):
         delattr(caller.ndb, '_weapon_data')
     
-    return "Cancelled.", [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+    caller.msg("|rCancelled.|n")
+    return None  # Exit menu
 
 
 # ============================================================================
@@ -1204,5 +1210,6 @@ def clothing_save(caller, raw_string, **kwargs):
     if hasattr(caller.ndb, '_clothing_data'):
         delattr(caller.ndb, '_clothing_data')
     
-    return text, [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+    caller.msg(text)
+    return None  # Exit menu
 
