@@ -219,11 +219,24 @@ class NPCWanderingScript(DefaultScript):
         
         # Traverse the exit
         try:
+            # Store original location before moving
+            original_location = npc.location
+            
             exit_obj.at_traverse(npc, destination)
             
             # Update last move timestamp
             import time
             npc.ndb.last_pathfind_move = time.time()
+            
+            # Handle followers after successful move
+            if npc.location and npc.location != original_location:
+                try:
+                    from scripts.follow_system import handle_character_move
+                    handle_character_move(npc, npc.location, original_location)
+                except Exception as follow_err:
+                    # Log follow failure but don't break NPC movement
+                    if channel:
+                        channel.msg(f"PATH_FOLLOW_ERROR: {npc.name} - Failed to move followers: {follow_err}")
             
             if channel:
                 channel.msg(f"PATH_SUCCESS: {npc.name} traversed '{exit_obj.key}' to '{destination.key}'")
