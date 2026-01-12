@@ -200,15 +200,21 @@ class NPCWanderingScript(DefaultScript):
         current_y = getattr(current_room.db, 'y', None)
         current_z = getattr(current_room.db, 'z', None)
         
+        if channel:
+            channel.msg(f"PATH_DEST_CHECK: {npc.name} - current=({current_x},{current_y},{current_z}), dest=({dest_x},{dest_y},{dest_z})")
+        
         need_new_dest = False
         if dest_x is None or dest_y is None:
+            if channel:
+                channel.msg(f"PATH_NO_DEST: {npc.name} - No destination set, picking new one")
             need_new_dest = True
         elif current_x == dest_x and current_y == dest_y:
             # Check z coordinate if it was specified
             if dest_z is not None:
                 if current_z != dest_z:
                     # Haven't reached z yet
-                    pass
+                    if channel:
+                        channel.msg(f"PATH_Z_MISMATCH: {npc.name} - At ({current_x},{current_y}) but z={current_z}, need z={dest_z}")
                 else:
                     # Reached full 3D destination
                     if channel:
@@ -218,6 +224,7 @@ class NPCWanderingScript(DefaultScript):
                 # No z specified, 2D destination reached
                 if channel:
                     channel.msg(f"PATH_ARRIVED: {npc.name} reached destination ({dest_x},{dest_y})")
+                need_new_dest = True
                 need_new_dest = True
         
         if need_new_dest:
