@@ -164,6 +164,18 @@ class NPCWanderingScript(DefaultScript):
                 channel.msg(f"PATH_FAIL: {npc.name} - No current location")
             return
         
+        # Clean up stale combat handler FIRST before any other checks
+        if hasattr(npc.ndb, 'combat_handler'):
+            handler = npc.ndb.combat_handler
+            if not handler or not getattr(handler, 'is_active', False):
+                delattr(npc.ndb, 'combat_handler')
+                if channel:
+                    channel.msg(f"PATH_CLEANUP: {npc.name} - Cleared stale combat_handler")
+        
+        # Clear any movement lock that shouldn't be there
+        if hasattr(npc.ndb, '_movement_locked'):
+            delattr(npc.ndb, '_movement_locked')
+        
         # Rate limiting: Require at least 1 second between moves
         last_move_time = getattr(npc.ndb, 'last_pathfind_move', None)
         if last_move_time is None:
@@ -231,65 +243,18 @@ class NPCWanderingScript(DefaultScript):
         if channel:
             channel.msg(f"PATH_STEP: {npc.name} - Taking '{exit_obj.key}' towards ({dest_x},{dest_y})")
         
-        # Move the NPC directly using move_to instead of at_traverse
-        # at_traverse has many player-centric checks (aiming, combat restrictions, etc.)
-        # that don't apply to NPC wandering
+        # Move the NPC using move_to
         try:
             # Store original location before moving
             original_location = npc.location
             
+            # Call move_to with normal hooks enabled so at_post_move fires and sends messages
             try:
-                # Debug: Check for common blocking conditions
-                if channel:
-                    try:
-                        movement_locked = getattr(npc.ndb, '_movement_locked', False)
-                        combat_handler = getattr(npc.ndb, 'combat_handler', None)
-                        channel.msg(f"PATH_DEBUG: {npc.name} - movement_locked={movement_locked}, combat_handler={combat_handler}, dest={destination.key if destination else 'None'}")
-                    except Exception as debug_err:
-                        channel.msg(f"PATH_DEBUG_ERROR: {debug_err}")
-            except Exception as e:
-                pass  # Debug code failed, continue
-            
-            # Clear any stale blocking state before moving
-            try:
-                if hasattr(npc.ndb, '_movement_locked'):
-                    delattr(npc.ndb, '_movement_locked')
-            except:
-                pass
-                
-            try:
-                if hasattr(npc.ndb, 'combat_handler'):
-                    handler = npc.ndb.combat_handler
-                    # Only clear if handler is dead or NPC isn't actually in combat
-                    if not handler or not getattr(handler, 'is_active', False):
-                        delattr(npc.ndb, 'combat_handler')
-                        if channel:
-                            channel.msg(f"PATH_CLEANUP: {npc.name} - Cleared dead combat_handler")
-            except:
-                pass
-            
-            # Try calling move_to and catch any exceptions
-            if channel:
-                channel.msg(f"PATH_ATTEMPT: {npc.name} calling move_to({destination.key if destination else 'None'})")
-            
-            try:
-                # Try move_to with move_hooks=False to bypass pre_move checks
-                result = npc.move_to(destination, quiet=False, move_hooks=False)
-            except TypeError:
-                # move_hooks parameter not supported, try without it
-                try:
-                    result = npc.move_to(destination, quiet=False)
-                except Exception as move_err:
-                    if channel:
-                        channel.msg(f"PATH_MOVE_ERROR: {npc.name} - move_to raised exception: {move_err}")
-                    result = False
+                result = npc.move_to(destination, quiet=False)
             except Exception as move_err:
                 if channel:
                     channel.msg(f"PATH_MOVE_ERROR: {npc.name} - move_to raised exception: {move_err}")
                 result = False
-            
-            if channel:
-                channel.msg(f"PATH_RESULT: {npc.name} - move_to returned {result}, location before={original_location.key}, location after={npc.location.key if npc.location else 'None'}")
             
             # Check if movement actually occurred
             if result and npc.location and npc.location != original_location:
