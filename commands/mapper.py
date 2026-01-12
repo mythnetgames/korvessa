@@ -238,7 +238,8 @@ class CmdMap(Command):
         # Build output: left column is map, right column is desc
         map_lines = grid + ["  " * 5] * (max(len(grid), 5) - len(grid))
         # Insert coordinate line ONLY in left column, not as a paired line
-        map_lines.append(f"{' ' * (map_width // 2 - 6)}x={x}, y={y}, z={z}")
+        coord_str = f"x={x}, y={y}, z={z}"
+        map_lines.append(f"{coord_str}".ljust(map_width))
         # Right column: desc_lines, no blank line for coordinates
         output = []
         for i in range(max(len(map_lines), len(desc_lines))):

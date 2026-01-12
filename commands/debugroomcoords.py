@@ -12,4 +12,4 @@ class CmdDebugRoomCoords(Command):
         x = getattr(room.db, "x", None)
         y = getattr(room.db, "y", None)
         z = getattr(room.db, "z", None)
-        caller.msg(f"Room '{room.key}' coordinates: x={x}, y={y}, z={z}")
+        caller.msg(f"Room '{room.key}' - x={x}, y={y}, z={z}")

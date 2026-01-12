@@ -133,7 +133,7 @@ class CmdMap(Command):
         else:
             caller.msg("\n".join(found_rooms))
         map_str = "\n".join(grid)
-        coord_str = f"Current coordinates: x={x0}, y={y0}, z={z_view}"
+        coord_str = f"x={x0}, y={y0}, z={z_view}"
         z_conn_str = ''
         if up_conn:
             z_conn_str += up_conn + " "
