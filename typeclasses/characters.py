@@ -304,12 +304,10 @@ class Character(ObjectParent, DefaultCharacter):
         """
         if target is None or target == self.location:
             # Looking at the room
-            # Check if mapper is enabled (account.db for persistence, ndb for session)
+            # Check if mapper is enabled (account.db is the persistent source of truth)
             mapper_enabled = False
             if self.account and hasattr(self.account, 'db'):
                 mapper_enabled = getattr(self.account.db, 'mapper_enabled', False)
-            if not mapper_enabled:
-                mapper_enabled = getattr(self.ndb, 'mapper_enabled', False)
             
             if mapper_enabled:
                 # Show map view with room description on right side
