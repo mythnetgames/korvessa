@@ -140,12 +140,25 @@ class NPCWanderingScript(DefaultScript):
             npc: The NPC character object
             zone: The zone identifier string
         """
+        import time
+        
         channel = get_or_create_channel("wanderers")
         
         current_room = npc.location
         if not current_room:
             if channel:
                 channel.msg(f"PATH_FAIL: {npc.name} - No current location")
+            return
+        
+        # Rate limiting: Require at least 1 second between moves
+        last_move_time = getattr(npc.ndb, 'last_pathfind_move', 0)
+        current_time = time.time()
+        time_since_last = current_time - last_move_time
+        
+        if time_since_last < 1.0:
+            # Too soon since last move, skip this step
+            if channel:
+                channel.msg(f"PATH_RATE_LIMIT: {npc.name} - Only {time_since_last:.1f}s since last move (min 1.0s)")
             return
         
         # Get or set destination
@@ -190,6 +203,11 @@ class NPCWanderingScript(DefaultScript):
         # Traverse the exit
         try:
             exit_obj.at_traverse(npc, destination)
+            
+            # Update last move timestamp
+            import time
+            npc.ndb.last_pathfind_move = time.time()
+            
             if channel:
                 channel.msg(f"PATH_SUCCESS: {npc.name} traversed '{exit_obj.key}' to '{destination.key}'")
         except Exception as e:

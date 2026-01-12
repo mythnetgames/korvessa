@@ -49,7 +49,7 @@ from commands.voice import CmdVoice
 from commands.petition import CmdPetition, CmdErasePetition, CmdStaffPetition
 from commands.pnote import CmdPnotes, CmdPnote, CmdPread, CmdPnoteDelete, CmdPlist
 from commands.notes import CmdAddNote, CmdNotes, CmdPagedNotes, CmdReadNote, CmdViewAllNotes, CmdReadStaffNote, CmdNextNote
-from commands.npc_admin import CmdCreateNPC, CmdNPCPuppet, CmdNPCUnpuppet, CmdNPCReaction, CmdNPCConfig, CmdNPCStat, CmdNPCSkill, CmdNPCChrome, CmdNPCNakeds, CmdNPCGender, CmdForceWander
+from commands.npc_admin import CmdCreateNPC, CmdNPCPuppet, CmdNPCUnpuppet, CmdNPCReaction, CmdNPCConfig, CmdNPCStat, CmdNPCSkill, CmdNPCChrome, CmdNPCNakeds, CmdNPCGender, CmdForceWander, CmdForcePath
 from commands.look import CmdLook
 from commands.shop import CmdBuy
 from commands.window import CmdAttachWindow, CmdRemoveWindow, CmdWindowCoord, CmdDebugWindows
@@ -289,6 +289,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdNPCNakeds())
         self.add(CmdNPCGender())
         self.add(CmdForceWander())
+        self.add(CmdForcePath())
         # Add createzone command
         from commands.createzone import CmdCreateZone
         self.add(CmdCreateZone())

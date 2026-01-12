@@ -1133,3 +1133,200 @@ class CmdForceWander(Command):
             if getattr(room, "zone", None) == zone:
                 rooms.append(room)
         return rooms
+
+
+class CmdForcePath(Command):
+    """
+    Force NPCs to pathfind to a destination for testing.
+    
+    Usage:
+      forcepath <npc>            - Force NPC to pick new destination and start pathfinding
+      forcepath <npc>=<x>,<y>    - Force NPC to pathfind to specific coordinates
+      forcepath <npc> clear      - Clear NPC's current destination
+      forcepath <npc> status     - Show NPC's pathfinding status
+    
+    Examples:
+      forcepath voidling
+      forcepath street vendor=5,3
+      forcepath gang member clear
+      forcepath voidling status
+    """
+    key = "forcepath"
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        """Force NPC pathfinding."""
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: forcepath <npc> [=<x>,<y>] [clear] [status]")
+            return
+        
+        # Parse arguments
+        if "=" in self.args:
+            npc_name, coords = self.args.split("=", 1)
+            npc_name = npc_name.strip()
+            coords = coords.strip()
+            self._set_destination(caller, npc_name, coords)
+        elif self.args.strip().endswith(" clear"):
+            npc_name = self.args.replace(" clear", "").strip()
+            self._clear_destination(caller, npc_name)
+        elif self.args.strip().endswith(" status"):
+            npc_name = self.args.replace(" status", "").strip()
+            self._show_pathfind_status(caller, npc_name)
+        else:
+            # Force NPC to pick new destination and take a step
+            self._force_pathfind(caller, self.args.strip())
+    
+    def _force_pathfind(self, caller, npc_name):
+        """Force NPC to pick a new destination and pathfind."""
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"|rNPC '{npc_name}' not found.|n")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"|r{npc.key} is not an NPC.|n")
+            return
+        
+        if not getattr(npc.db, "npc_can_wander", False):
+            caller.msg(f"|r{npc.key} does not have wandering enabled.|n")
+            return
+        
+        zone = getattr(npc.db, "npc_zone", None)
+        if not zone:
+            caller.msg(f"|r{npc.key} has no wandering zone set.|n")
+            return
+        
+        # Get the wandering script
+        script = None
+        for s in npc.scripts.all():
+            if s.key == "npc_wandering":
+                script = s
+                break
+        
+        if not script:
+            caller.msg(f"|r{npc.key} has no wandering script active.|n")
+            return
+        
+        # Force it to pick a new destination
+        script._pick_new_destination(npc, zone)
+        
+        # Show what was picked
+        dest_x = getattr(npc.ndb, 'wander_dest_x', None)
+        dest_y = getattr(npc.ndb, 'wander_dest_y', None)
+        
+        if dest_x is not None and dest_y is not None:
+            caller.msg(f"|gForced {npc.key} to pick new destination: ({dest_x}, {dest_y})|n")
+            
+            # Take one pathfinding step
+            script._pathfind_step(npc, zone)
+        else:
+            caller.msg(f"|rFailed to pick destination for {npc.key}.|n")
+    
+    def _set_destination(self, caller, npc_name, coords):
+        """Set a specific destination for an NPC."""
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"|rNPC '{npc_name}' not found.|n")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"|r{npc.key} is not an NPC.|n")
+            return
+        
+        # Parse coordinates
+        try:
+            parts = coords.split(",")
+            if len(parts) != 2:
+                raise ValueError
+            x = int(parts[0].strip())
+            y = int(parts[1].strip())
+        except ValueError:
+            caller.msg("|rInvalid coordinates. Use format: x,y (e.g., 5,3)|n")
+            return
+        
+        # Set destination
+        npc.ndb.wander_dest_x = x
+        npc.ndb.wander_dest_y = y
+        
+        caller.msg(f"|gSet {npc.key}'s destination to ({x}, {y})|n")
+        
+        # Get zone and script
+        zone = getattr(npc.db, "npc_zone", None)
+        if not zone:
+            caller.msg(f"|yWarning: {npc.key} has no zone set, pathfinding may not work.|n")
+            return
+        
+        # Try to pathfind
+        script = None
+        for s in npc.scripts.all():
+            if s.key == "npc_wandering":
+                script = s
+                break
+        
+        if script:
+            script._pathfind_step(npc, zone)
+    
+    def _clear_destination(self, caller, npc_name):
+        """Clear NPC's pathfinding destination."""
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"|rNPC '{npc_name}' not found.|n")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"|r{npc.key} is not an NPC.|n")
+            return
+        
+        # Clear destination
+        if hasattr(npc.ndb, 'wander_dest_x'):
+            delattr(npc.ndb, 'wander_dest_x')
+        if hasattr(npc.ndb, 'wander_dest_y'):
+            delattr(npc.ndb, 'wander_dest_y')
+        
+        caller.msg(f"|gCleared {npc.key}'s pathfinding destination.|n")
+    
+    def _show_pathfind_status(self, caller, npc_name):
+        """Show NPC's pathfinding status."""
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"|rNPC '{npc_name}' not found.|n")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"|r{npc.key} is not an NPC.|n")
+            return
+        
+        # Get current position
+        current_x = getattr(npc.location.db, 'x', None) if npc.location else None
+        current_y = getattr(npc.location.db, 'y', None) if npc.location else None
+        
+        # Get destination
+        dest_x = getattr(npc.ndb, 'wander_dest_x', None)
+        dest_y = getattr(npc.ndb, 'wander_dest_y', None)
+        
+        # Get last move time
+        last_move = getattr(npc.ndb, 'last_pathfind_move', None)
+        
+        # Build status message
+        caller.msg(f"|c=== Pathfinding Status for {npc.key} ===|n")
+        caller.msg(f"Current Position: ({current_x}, {current_y})" if current_x is not None else "Current Position: Unknown")
+        caller.msg(f"Destination: ({dest_x}, {dest_y})" if dest_x is not None else "Destination: None")
+        
+        if current_x is not None and dest_x is not None:
+            dist = abs(dest_x - current_x) + abs(dest_y - current_y)
+            caller.msg(f"Distance: {dist} rooms")
+        
+        caller.msg(f"Last Move: {last_move if last_move else 'Never'}")
+        caller.msg(f"Wandering: {'Enabled' if getattr(npc.db, 'npc_can_wander', False) else 'Disabled'}")
+        caller.msg(f"Zone: {getattr(npc.db, 'npc_zone', 'None')}")
