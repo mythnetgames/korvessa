@@ -273,7 +273,16 @@ class NPCWanderingScript(DefaultScript):
                 channel.msg(f"PATH_ATTEMPT: {npc.name} calling move_to({destination.key if destination else 'None'})")
             
             try:
-                result = npc.move_to(destination, quiet=False)
+                # Try move_to with move_hooks=False to bypass pre_move checks
+                result = npc.move_to(destination, quiet=False, move_hooks=False)
+            except TypeError:
+                # move_hooks parameter not supported, try without it
+                try:
+                    result = npc.move_to(destination, quiet=False)
+                except Exception as move_err:
+                    if channel:
+                        channel.msg(f"PATH_MOVE_ERROR: {npc.name} - move_to raised exception: {move_err}")
+                    result = False
             except Exception as move_err:
                 if channel:
                     channel.msg(f"PATH_MOVE_ERROR: {npc.name} - move_to raised exception: {move_err}")
