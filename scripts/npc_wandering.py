@@ -167,29 +167,43 @@ class NPCWanderingScript(DefaultScript):
         # Get or set destination
         dest_x = getattr(npc.ndb, 'wander_dest_x', None)
         dest_y = getattr(npc.ndb, 'wander_dest_y', None)
+        dest_z = getattr(npc.ndb, 'wander_dest_z', None)
         
         # Check if we need a new destination
         current_x = getattr(current_room.db, 'x', None)
         current_y = getattr(current_room.db, 'y', None)
+        current_z = getattr(current_room.db, 'z', None)
         
         need_new_dest = False
         if dest_x is None or dest_y is None:
             need_new_dest = True
         elif current_x == dest_x and current_y == dest_y:
-            # Reached destination
-            if channel:
-                channel.msg(f"PATH_ARRIVED: {npc.name} reached destination ({dest_x},{dest_y})")
-            need_new_dest = True
+            # Check z coordinate if it was specified
+            if dest_z is not None:
+                if current_z != dest_z:
+                    # Haven't reached z yet
+                    pass
+                else:
+                    # Reached full 3D destination
+                    if channel:
+                        channel.msg(f"PATH_ARRIVED: {npc.name} reached destination ({dest_x},{dest_y},{dest_z})")
+                    need_new_dest = True
+            else:
+                # No z specified, 2D destination reached
+                if channel:
+                    channel.msg(f"PATH_ARRIVED: {npc.name} reached destination ({dest_x},{dest_y})")
+                need_new_dest = True
         
         if need_new_dest:
             self._pick_new_destination(npc, zone)
             dest_x = getattr(npc.ndb, 'wander_dest_x', None)
             dest_y = getattr(npc.ndb, 'wander_dest_y', None)
+            dest_z = getattr(npc.ndb, 'wander_dest_z', None)
             if dest_x is None or dest_y is None:
                 return  # Couldn't find a destination
         
         # Find best exit towards destination
-        best_exit = self._find_best_exit(npc, zone, dest_x, dest_y)
+        best_exit = self._find_best_exit(npc, zone, dest_x, dest_y, dest_z)
         
         if not best_exit:
             # Can't reach destination from here, pick a new one
@@ -265,7 +279,7 @@ class NPCWanderingScript(DefaultScript):
         if channel:
             channel.msg(f"PATH_NEW_DEST: {npc.name} - New destination: '{dest_room.key}' ({dest_x},{dest_y})")
     
-    def _find_best_exit(self, npc, zone, dest_x, dest_y):
+    def _find_best_exit(self, npc, zone, dest_x, dest_y, dest_z=None):
         """
         Find the best exit to move closer to the destination.
         
@@ -274,6 +288,7 @@ class NPCWanderingScript(DefaultScript):
             zone: The zone identifier string
             dest_x: Destination X coordinate
             dest_y: Destination Y coordinate
+            dest_z: Destination Z coordinate (optional)
             
         Returns:
             Tuple of (exit_obj, destination_room) or None if no valid exit
@@ -284,12 +299,15 @@ class NPCWanderingScript(DefaultScript):
         
         current_x = getattr(current_room.db, 'x', None)
         current_y = getattr(current_room.db, 'y', None)
+        current_z = getattr(current_room.db, 'z', None)
         
         if current_x is None or current_y is None:
             return None
         
         # Calculate current distance to destination
         current_dist = abs(dest_x - current_x) + abs(dest_y - current_y)
+        if dest_z is not None and current_z is not None:
+            current_dist += abs(dest_z - current_z)
         
         # Find all valid exits that get us closer
         valid_exits = []
@@ -314,12 +332,15 @@ class NPCWanderingScript(DefaultScript):
             # Get destination room coordinates
             room_x = getattr(dest_room.db, 'x', None)
             room_y = getattr(dest_room.db, 'y', None)
+            room_z = getattr(dest_room.db, 'z', None)
             
             if room_x is None or room_y is None:
                 continue
             
             # Calculate distance from that room to final destination
             new_dist = abs(dest_x - room_x) + abs(dest_y - room_y)
+            if dest_z is not None and room_z is not None:
+                new_dist += abs(dest_z - room_z)
             
             # Only consider exits that get us closer (or maintain distance with some randomness)
             if new_dist < current_dist:
