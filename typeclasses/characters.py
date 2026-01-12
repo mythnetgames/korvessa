@@ -277,7 +277,7 @@ class Character(ObjectParent, DefaultCharacter):
     def at_post_move(self, source_location, **kwargs):
         """
         Called after the character moves to a new location.
-        Forces @mapon and shows map+room description.
+        Shows map+room description (if mapper enabled) or plain description (if disabled).
         Also triggers window observation messages for any windows observing this room.
         Clears @temp_place when moving to a new room.
         """
@@ -285,14 +285,23 @@ class Character(ObjectParent, DefaultCharacter):
         if hasattr(self.ndb, 'temp_place'):
             delattr(self.ndb, 'temp_place')
         
+        # Check if mapper is enabled (account.db is the persistent source of truth)
+        mapper_enabled = False
         if self.account and hasattr(self.account, 'db'):
-            self.account.db.mapper_enabled = True
-        self.ndb.mapper_enabled = True
-        from commands.mapper import CmdMap
-        cmd = CmdMap()
-        cmd.caller = self
-        cmd.args = ""
-        cmd.func()
+            mapper_enabled = getattr(self.account.db, 'mapper_enabled', False)
+        
+        if mapper_enabled:
+            # Show map view
+            from commands.mapper import CmdMap
+            cmd = CmdMap()
+            cmd.caller = self
+            cmd.args = ""
+            cmd.func()
+        else:
+            # Show plain room description
+            self.ndb.show_room_desc = True
+            self.msg(self.location.return_appearance(self, force_display=True))
+            self.ndb.show_room_desc = False
 
         # Notify windows that observe entry/exit in this room
         self._notify_window_observers('enter', source_location)
