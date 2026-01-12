@@ -60,29 +60,42 @@ class NPCWanderingScript(DefaultScript):
         if not zone:
             return
         
-        # Log tick to wanderers channel
+        # Check blocking conditions FIRST
+        is_puppeted = bool(getattr(obj.db, "puppeted_by", None))
+        is_in_combat = bool(hasattr(obj.ndb, "combat_handler"))
+        
+        # Log tick to wanderers channel with accurate status
         channel = get_or_create_channel("wanderers")
+        
+        # If blocked by puppeting or combat, report it and return
+        if is_puppeted or is_in_combat:
+            location = obj.location.key if obj.location else "unknown"
+            puppeted = "PUPPETED" if is_puppeted else "free"
+            in_combat = "COMBAT" if is_in_combat else "safe"
+            blocked_by = "PUPPETED" if is_puppeted else "COMBAT"
+            if channel:
+                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - {puppeted}, {in_combat} - BLOCKED BY {blocked_by}")
+            return
+        
+        # Now do the roll
         if channel:
             # Show NPC status
             location = obj.location.key if obj.location else "unknown"
-            puppeted = "PUPPETED" if getattr(obj.db, "puppeted_by", None) else "free"
-            in_combat = "COMBAT" if hasattr(obj.ndb, "combat_handler") else "safe"
+            puppeted = "PUPPETED" if is_puppeted else "free"
+            in_combat = "COMBAT" if is_in_combat else "safe"
             roll = randint(1, 10)
             will_move = "YES" if roll <= 3 else "NO"
             channel.msg(f"TICK: {obj.name} in {location} ({zone}) - {puppeted}, {in_combat} - ROLL({roll}) -> {will_move}")
-        
-        # Don't wander if NPC is puppeted by an admin
-        if getattr(obj.db, "puppeted_by", None):
-            return
-        
-        # Don't wander if NPC is in combat
-        if hasattr(obj.ndb, "combat_handler"):
-            return
-        
-        # Random chance to wander (30% chance each interval)
-        if randint(1, 10) <= 3:
-            # Attempt to move to a random room in the zone
-            self._wander_to_zone_room(obj, zone)
+            
+            # Random chance to wander (30% chance each interval)
+            if roll <= 3:
+                # Attempt to move to a random room in the zone
+                self._wander_to_zone_room(obj, zone)
+        else:
+            # No channel, still do the roll and movement
+            roll = randint(1, 10)
+            if roll <= 3:
+                self._wander_to_zone_room(obj, zone)
     
     def _wander_to_zone_room(self, npc, zone):
         """
@@ -92,22 +105,37 @@ class NPCWanderingScript(DefaultScript):
             npc: The NPC character object
             zone: The zone identifier string
         """
+        channel = get_or_create_channel("wanderers")
+        
         # Get all rooms in the zone
         zone_rooms = self._get_zone_rooms(zone)
         
         if not zone_rooms:
             # No rooms in zone, can't wander
+            if channel:
+                channel.msg(f"WANDER_FAIL: {npc.name} - No rooms found in zone '{zone}'")
             return
+        
+        if channel:
+            channel.msg(f"WANDER_ATTEMPT: {npc.name} - Found {len(zone_rooms)} rooms in zone '{zone}'")
         
         # Filter out the NPC's current room
         available_rooms = [r for r in zone_rooms if r != npc.location]
         
         if not available_rooms:
             # No other rooms to go to
+            if channel:
+                channel.msg(f"WANDER_FAIL: {npc.name} - No available destinations (only {len(zone_rooms)} room(s))")
             return
+        
+        if channel:
+            channel.msg(f"WANDER_ATTEMPT: {npc.name} - {len(available_rooms)} available rooms, picking destination...")
         
         # Pick a random destination
         destination = choice(available_rooms)
+        
+        if channel:
+            channel.msg(f"WANDER_ATTEMPT: {npc.name} - Moving from '{npc.location.key}' to '{destination.key}'")
         
         # Move the NPC
         self._move_npc_safely(npc, destination, zone)
@@ -124,21 +152,26 @@ class NPCWanderingScript(DefaultScript):
         """
         from typeclasses.rooms import Room
         
+        channel = get_or_create_channel("wanderers")
+        
         try:
             # Query all rooms and filter by zone
             rooms = []
+            total_checked = 0
             for room in ObjectDB.objects.filter(db_typeclass_path__icontains="rooms.Room"):
-                if getattr(room, "zone", None) == zone:
+                total_checked += 1
+                room_zone = getattr(room, "zone", None)
+                if room_zone == zone:
                     rooms.append(room)
+            
+            if channel:
+                channel.msg(f"ZONE_LOOKUP: Checking zone '{zone}' - Checked {total_checked} rooms, found {len(rooms)} in zone")
+            
             return rooms
         except Exception as e:
-            # Fallback: try using the room's get_zone_rooms method if available
-            try:
-                room = npc.location
-                if hasattr(room, "get_zone_rooms"):
-                    return room.get_zone_rooms()
-            except:
-                pass
+            if channel:
+                channel.msg(f"ZONE_LOOKUP_ERROR: {zone} - Exception: {e}")
+            # Fallback: return empty list on error
             return []
     
     def _move_npc_safely(self, npc, destination, zone):
@@ -150,14 +183,20 @@ class NPCWanderingScript(DefaultScript):
             destination: The destination room
             zone: The zone constraint (for verification)
         """
+        channel = get_or_create_channel("wanderers")
+        
         # Verify destination is in the correct zone
         dest_zone = getattr(destination, "zone", None)
         if dest_zone != zone:
             # Zone mismatch - don't move
+            if channel:
+                channel.msg(f"WANDER_FAIL: {npc.name} - Zone mismatch (dest={dest_zone}, expected={zone})")
             return
         
         # Verify NPC can move
         if not npc.location:
+            if channel:
+                channel.msg(f"WANDER_FAIL: {npc.name} - No location")
             return
         
         # Store current location for messaging
@@ -183,6 +222,8 @@ class NPCWanderingScript(DefaultScript):
         try:
             # Move the NPC
             npc.location = destination
+            if channel:
+                channel.msg(f"WANDER_SUCCESS: {npc.name} moved from {old_location.name} to {destination.name}")
             
             # Prepare messages
             leave_msg = f"{npc.name} leaves for the {direction}." if direction else f"{npc.name} leaves."
@@ -196,10 +237,11 @@ class NPCWanderingScript(DefaultScript):
                 destination.msg_contents(arrive_msg)
 
             # Echo to wanderers channel
-            channel = get_or_create_channel("wanderers")
             if channel:
                 channel.msg(f"{npc.name}: {leave_msg} -> {arrive_msg}")
         except Exception as e:
+            if channel:
+                channel.msg(f"WANDER_ERROR: {npc.name} - Move failed: {e}")
             # Movement failed, try to restore original location
             try:
                 npc.location = old_location
