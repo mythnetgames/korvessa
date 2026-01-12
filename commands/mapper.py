@@ -201,14 +201,14 @@ class CmdMap(Command):
             grid.append("".join(row))
 
         import textwrap
-        # Map grid: 5 rooms × 2 chars = 10 chars per line
-        # Total left column: 10 (grid) + 5 (padding) = 15 chars
-        map_grid_width = 10  # Always exactly 10 characters
-        padding_width = 5    # Always 5 spaces
-        left_column_width = map_grid_width + padding_width  # 15 total
+        # Map grid: 5 rooms x 2 chars = 10 visual chars per line
+        # Total left column: 10 (grid) + 15 (padding) = 25 chars
+        map_grid_width = 10  # Always exactly 10 visual characters
+        padding_width = 15   # 15 spaces padding
+        left_column_width = map_grid_width + padding_width  # 25 total
         
-        # Description column width (80 - 15 = 65)
-        column_width = 65
+        # Description column width (80 - 25 = 55)
+        column_width = 55
         
         if appearance:
             lines = appearance.split('\n')
@@ -237,50 +237,49 @@ class CmdMap(Command):
 
         map_grid_height = 5
         
-        # Build map grid - always 5 rows, always 10 characters per line
+        # Build map grid - always 5 rows, always 10 VISUAL characters per line
         base_map_lines = []
-        for i, map_row in enumerate(grid):
-            # Ensure each row is exactly 10 characters wide
-            # Each map_row is 5 rooms × 2 chars = 10 chars already
+        for map_row in grid:
             base_map_lines.append(map_row)
         
         # Fill empty rows with spaces if grid has fewer than 5 rows
         while len(base_map_lines) < map_grid_height:
             base_map_lines.append("          ")  # 10 spaces for empty row
         
-        # Coordinate line - always at row 5 (right after the 5-row map grid)
+        # Coordinate string (displayed on its own line, not paired with description)
         coord_str = f"x={x}, y={y}, z={z}"
         
-        # Helper to calculate visual width (excluding color codes)
+        # Helper to calculate visual width (excluding ALL Evennia color codes)
         def visual_len(s):
-            # Remove Evennia color codes like |c, |n, |r, |#RRGGBB, etc.
-            stripped = re.sub(r'\|[a-zA-Z#0-9\[\]_]+', '', s)
+            # Remove all Evennia color codes:
+            # |x, |X (single letter colors)
+            # |[x, |[X (background colors)  
+            # |#RRGGBB (hex colors)
+            # |[#RRGGBB (hex background)
+            # |n, |h, |u, |s (reset/formatting)
+            stripped = re.sub(r'\|(?:\[)?(?:#[0-9a-fA-F]{6}|[a-zA-Z0-9_])', '', s)
             return len(stripped)
         
-        def pad_left_column(s, grid_width, pad_width):
-            # Pad the left column to exactly grid_width + pad_width
-            # s is the grid content (should be grid_width)
+        def pad_to_visual_width(s, target_width):
+            # Pad string so visual width equals target_width
             vis_len = visual_len(s)
-            grid_padding = max(0, grid_width - vis_len)
-            padding = grid_padding + pad_width
+            padding = max(0, target_width - vis_len)
             return s + " " * padding
         
-        # Build output with fixed 15-character left column
+        # Build output - descriptions always start at column 25
         output = []
         
-        # Rows 0-4: map grid paired with description
+        # Rows 0-4: map grid (padded to 25 visual chars) + description
         for i in range(map_grid_height):
-            left = pad_left_column(base_map_lines[i], map_grid_width, padding_width)
+            left = pad_to_visual_width(base_map_lines[i], left_column_width)
             right = desc_lines[i] if i < len(desc_lines) else ""
             output.append(f"{left}{right}")
         
-        # Row 5: coordinate line paired with description continuation (if any)
-        coord_left = pad_left_column(coord_str, map_grid_width, padding_width)
-        coord_right = desc_lines[map_grid_height] if map_grid_height < len(desc_lines) else ""
-        output.append(f"{coord_left}{coord_right}")
+        # Row 5: coordinates alone (no description next to it - coords vary in length)
+        output.append(coord_str)
         
-        # Any remaining description lines (row 6+) have blank left column
-        for i in range(map_grid_height + 1, len(desc_lines)):
+        # Remaining description lines (row 6+) indented to column 25
+        for i in range(map_grid_height, len(desc_lines)):
             left = " " * left_column_width
             right = desc_lines[i]
             output.append(f"{left}{right}")
