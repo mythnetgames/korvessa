@@ -44,7 +44,7 @@ class CmdDesignFurniture(Command):
         caller = self.caller
         
         # Start the furniture design menu
-        EvMenu(caller, "world.builder_menus", startnode="furniture_start")
+        EvMenu(caller, "commands.builder_menus", startnode="furniture_start")
 
 
 class CmdDesignNPC(Command):
@@ -69,7 +69,7 @@ class CmdDesignNPC(Command):
         caller = self.caller
         
         # Start the NPC design menu
-        EvMenu(caller, "world.builder_menus", startnode="npc_start")
+        EvMenu(caller, "commands.builder_menus", startnode="npc_start")
 
 
 class CmdDesignWeapon(Command):
@@ -94,7 +94,7 @@ class CmdDesignWeapon(Command):
         caller = self.caller
         
         # Start the weapon design menu
-        EvMenu(caller, "world.builder_menus", startnode="weapon_start")
+        EvMenu(caller, "commands.builder_menus", startnode="weapon_start")
 
 
 class CmdDesignClothing(Command):
@@ -119,7 +119,7 @@ class CmdDesignClothing(Command):
         caller = self.caller
         
         # Start the clothing design menu
-        EvMenu(caller, "world.builder_menus", startnode="clothing_start")
+        EvMenu(caller, "commands.builder_menus", startnode="clothing_start")
 
 
 class CmdListDesigns(Command):
