@@ -205,9 +205,8 @@ class CmdMap(Command):
         map_cell_width = 2
         map_width = map_cells * map_cell_width
         indent = " " * (map_width + 2)
-        # Always use the same indent for all description lines for perfect alignment
-        dynamic_indent = indent
-        column_width = 80
+        # Column width for description text (not including the map column)
+        column_width = 68  # 80 - 12 (map width + spacing)
         if appearance:
             lines = appearance.split('\n')
             exit_line = None
@@ -223,15 +222,15 @@ class CmdMap(Command):
                     other_lines.append(line)
             wrapped_lines = []
             for line in other_lines:
-                # Use dynamic indent for all lines
-                wrapped = textwrap.fill(line, width=column_width, initial_indent=dynamic_indent, subsequent_indent=dynamic_indent)
+                # Wrap WITHOUT indent - we add spacing during output construction
+                wrapped = textwrap.fill(line.strip(), width=column_width)
                 wrapped_lines.extend(wrapped.split('\n'))
             desc_lines = wrapped_lines
             if exit_line:
-                wrapped = textwrap.fill(exit_line, width=column_width, initial_indent=dynamic_indent, subsequent_indent=dynamic_indent)
+                wrapped = textwrap.fill(exit_line.strip(), width=column_width)
                 desc_lines.extend(wrapped.split('\n'))
         else:
-            desc_lines = [indent]
+            desc_lines = []
 
         map_width = 2 * 5 + 2
         map_grid_height = 5
@@ -242,17 +241,30 @@ class CmdMap(Command):
         # Coordinate line - always at row 5 (right after the 5-row map grid)
         coord_str = f"x={x}, y={y}, z={z}"
         
+        # Helper to calculate visual width (excluding color codes)
+        import re
+        def visual_len(s):
+            # Remove Evennia color codes like |c, |n, |r, |#RRGGBB, etc.
+            stripped = re.sub(r'\|[a-zA-Z#0-9\[\]_]+', '', s)
+            return len(stripped)
+        
+        def pad_to_width(s, width):
+            # Pad string to visual width
+            vis_len = visual_len(s)
+            padding = max(0, width - vis_len)
+            return s + " " * padding
+        
         # Build output with coords at FIXED position (row 5)
         output = []
         
         # Rows 0-4: map grid paired with description
         for i in range(map_grid_height):
-            left = base_map_lines[i].ljust(map_width)
+            left = pad_to_width(base_map_lines[i], map_width)
             right = desc_lines[i] if i < len(desc_lines) else ""
             output.append(f"{left}{right}")
         
         # Row 5: coordinate line paired with description continuation (if any)
-        coord_left = coord_str.ljust(map_width)
+        coord_left = pad_to_width(coord_str, map_width)
         coord_right = desc_lines[map_grid_height] if map_grid_height < len(desc_lines) else ""
         output.append(f"{coord_left}{coord_right}")
         
