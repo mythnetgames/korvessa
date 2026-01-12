@@ -443,6 +443,29 @@ def npc_desc(caller, raw_string, **kwargs):
 
 def npc_properties(caller, raw_string, **kwargs):
     """Configure NPC properties."""
+    # Input mode - process user's choice
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip().lower()
+        
+        if choice == "1":
+            return npc_faction(caller, "", **kwargs)
+        elif choice == "2":
+            return npc_wandering(caller, "", **kwargs)
+        elif choice == "3":
+            return npc_toggle_shopkeeper(caller, "", **kwargs)
+        elif choice == "4":
+            return npc_stats_menu(caller, "", **kwargs)
+        elif choice == "5":
+            return npc_skills_menu(caller, "", **kwargs)
+        elif choice in ["s", "save"]:
+            return npc_save(caller, "", **kwargs)
+        elif choice in ["q", "quit", "cancel"]:
+            return npc_cancel(caller, "", **kwargs)
+        else:
+            caller.msg("|rInvalid choice. Please enter 1-5, s, or q.|n")
+            return None  # Re-display menu
+    
+    # Display mode - show menu
     text = BuilderMenuMixin.format_header("NPC DESIGNER - PROPERTIES")
     text += f"\nNPC: {caller.ndb._npc_data['name']}\n\n"
     text += "|y1|n - Faction: " + caller.ndb._npc_data["faction"] + "\n"
@@ -453,15 +476,9 @@ def npc_properties(caller, raw_string, **kwargs):
     text += "|ys|n - Finish and Save\n"
     text += "|yq|n - Cancel\n"
     
-    options = [
-        {"key": "1", "exec": npc_faction},
-        {"key": "2", "exec": npc_wandering},
-        {"key": "3", "exec": lambda c, rs: npc_toggle_shopkeeper(c, rs, **kwargs)},
-        {"key": "4", "exec": npc_stats_menu},
-        {"key": "5", "exec": npc_skills_menu},
-        {"key": "s", "exec": npc_save},
-        {"key": "q", "exec": npc_cancel},
-    ]
+    options = (
+        {"key": "_default", "goto": "npc_properties"},
+    )
     
     return text, options
 
@@ -490,15 +507,28 @@ def npc_set_faction(caller, raw_string, faction, **kwargs):
 
 
 def npc_wandering(caller, raw_string, **kwargs):
-    """Set NPC wandering zone."""
+    """Set NPC wandering zone using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string is not None:  # Allow empty string for "no wandering"
+        zone = raw_string.strip()
+        
+        # Store zone (empty string means static/no wandering)
+        caller.ndb._npc_data["wandering_zone"] = zone
+        if zone:
+            caller.msg(f"|gWandering zone set to: {zone}|n")
+        else:
+            caller.msg("|gNPC set to static (no wandering)|n")
+        return npc_properties(caller, "", **kwargs)  # Return to properties menu
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("NPC DESIGNER - WANDERING ZONE")
     text += "\nEnter zone ID for NPC to wander in, or press Enter for static (no wandering):\n"
     
-    def handle_zone(c, rs):
-        c.ndb._npc_data["wandering_zone"] = rs.strip()
-        return npc_properties(c, "", **kwargs)
+    options = (
+        {"key": "_default", "goto": "npc_wandering"},
+    )
     
-    return text, [{"key": "_default", "exec": handle_zone}]
+    return text, options
 
 
 def npc_toggle_shopkeeper(caller, raw_string, **kwargs):
@@ -509,13 +539,32 @@ def npc_toggle_shopkeeper(caller, raw_string, **kwargs):
 
 def npc_stats_menu(caller, raw_string, **kwargs):
     """Display stats menu for NPC configuration."""
+    # Input mode - process user's choice
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip().lower()
+        
+        if choice == "q":
+            return npc_properties(caller, "", **kwargs)
+        
+        # Check if it's a stat number (1-8)
+        try:
+            stat_num = int(choice)
+            if 1 <= stat_num <= 8:
+                stat_names = ["body", "ref", "dex", "tech", "smrt", "will", "edge", "emp"]
+                stat_name = stat_names[stat_num - 1]
+                return npc_edit_stat(caller, "", stat_name, **kwargs)
+        except ValueError:
+            pass
+        
+        caller.msg("|rInvalid choice. Enter 1-8 or q.|n")
+        return None  # Re-display menu
+    
+    # Display mode - show menu
     text = BuilderMenuMixin.format_header("NPC DESIGNER - CONFIGURE STATS")
     text += f"\nNPC: {caller.ndb._npc_data['name']}\n\n"
     text += "Stats scale from 1-10 (1 = weak, 10 = exceptional)\n\n"
     
     stats = caller.ndb._npc_data["stats"]
-    options = [{"key": "q", "exec": npc_properties}]
-    
     stat_names = ["body", "ref", "dex", "tech", "smrt", "will", "edge", "emp"]
     stat_display = {
         "body": "Body (Physical toughness)",
@@ -531,45 +580,75 @@ def npc_stats_menu(caller, raw_string, **kwargs):
     for idx, stat in enumerate(stat_names, 1):
         value = stats[stat]
         text += f"|y{idx}|n - {stat_display[stat]:30} [Current: {value}]\n"
-        options.append({"key": str(idx), "exec": lambda c, rs, s=stat: npc_edit_stat(c, rs, s, **kwargs)})
     
     text += "|yq|n - Back to Properties\n"
+    
+    options = (
+        {"key": "_default", "goto": "npc_stats_menu"},
+    )
+    
     return text, options
 
 
 def npc_edit_stat(caller, raw_string, stat_name, **kwargs):
-    """Edit a specific stat."""
+    """Edit a specific stat using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        try:
+            value = int(raw_string.strip())
+            if 1 <= value <= 10:
+                caller.ndb._npc_data["stats"][stat_name] = value
+                caller.msg(f"|gStat {stat_name} set to {value}.|n")
+                return npc_stats_menu(caller, "", **kwargs)
+            else:
+                caller.msg("|rValue must be between 1 and 10.|n")
+                return None  # Re-display
+        except (ValueError, TypeError):
+            caller.msg("|rPlease enter a valid number.|n")
+            return None  # Re-display
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("NPC DESIGNER - EDIT STAT")
     text += f"\nStat: {stat_name.upper()}\n"
     text += f"Current value: {caller.ndb._npc_data['stats'][stat_name]}\n\n"
     text += "Enter new value (1-10):\n"
     
-    def save_stat(c, rs):
-        try:
-            value = int(rs.strip())
-            if 1 <= value <= 10:
-                c.ndb._npc_data["stats"][stat_name] = value
-                c.msg(f"|gStat {stat_name} set to {value}.|n")
-                return npc_stats_menu(c, "", **kwargs)
-            else:
-                c.msg("|rValue must be between 1 and 10.|n")
-                return npc_edit_stat(c, "", stat_name, **kwargs)
-        except (ValueError, TypeError):
-            c.msg("|rPlease enter a valid number.|n")
-            return npc_edit_stat(c, "", stat_name, **kwargs)
+    options = (
+        {"key": "_default", "goto": "npc_edit_stat"},
+    )
     
-    return text, [{"key": "_default", "exec": save_stat}]
+    return text, options
 
 
 def npc_skills_menu(caller, raw_string, **kwargs):
     """Display skills menu for NPC configuration."""
+    # Input mode - process user's choice
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip().lower()
+        
+        if choice == "q":
+            return npc_properties(caller, "", **kwargs)
+        
+        # Check if it's a skill number (1-10)
+        try:
+            skill_num = int(choice)
+            if 1 <= skill_num <= 10:
+                skill_names = ["brawling", "blades", "blunt", "ranged", "grapple", 
+                               "dodge", "stealth", "intimidate", "persuasion", "perception"]
+                skill_name = skill_names[skill_num - 1]
+                return npc_edit_skill(caller, "", skill_name, **kwargs)
+        except ValueError:
+            pass
+        
+        caller.msg("|rInvalid choice. Enter 1-10 or q.|n")
+        return None  # Re-display menu
+    
+    # Display mode - show menu
     text = BuilderMenuMixin.format_header("NPC DESIGNER - CONFIGURE SKILLS")
     text += f"\nNPC: {caller.ndb._npc_data['name']}\n\n"
     text += "Skills scale from 0-100 (0 = untrained, 100 = master)\n\n"
     
     skills = caller.ndb._npc_data["skills"]
-    options = [{"key": "q", "exec": npc_properties}]
-    
     skill_names = ["brawling", "blades", "blunt", "ranged", "grapple", 
                    "dodge", "stealth", "intimidate", "persuasion", "perception"]
     skill_display = {
@@ -588,34 +667,44 @@ def npc_skills_menu(caller, raw_string, **kwargs):
     for idx, skill in enumerate(skill_names, 1):
         value = skills[skill]
         text += f"|y{idx}|n - {skill_display[skill]:30} [Current: {value}]\n"
-        options.append({"key": str(idx), "exec": lambda c, rs, s=skill: npc_edit_skill(c, rs, s, **kwargs)})
     
     text += "|yq|n - Back to Properties\n"
+    
+    options = (
+        {"key": "_default", "goto": "npc_skills_menu"},
+    )
+    
     return text, options
 
 
 def npc_edit_skill(caller, raw_string, skill_name, **kwargs):
-    """Edit a specific skill."""
+    """Edit a specific skill using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        try:
+            value = int(raw_string.strip())
+            if 0 <= value <= 100:
+                caller.ndb._npc_data["skills"][skill_name] = value
+                caller.msg(f"|gSkill {skill_name} set to {value}.|n")
+                return npc_skills_menu(caller, "", **kwargs)
+            else:
+                caller.msg("|rValue must be between 0 and 100.|n")
+                return None  # Re-display
+        except (ValueError, TypeError):
+            caller.msg("|rPlease enter a valid number.|n")
+            return None  # Re-display
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("NPC DESIGNER - EDIT SKILL")
     text += f"\nSkill: {skill_name.upper()}\n"
     text += f"Current value: {caller.ndb._npc_data['skills'][skill_name]}\n\n"
     text += "Enter new value (0-100):\n"
     
-    def save_skill(c, rs):
-        try:
-            value = int(rs.strip())
-            if 0 <= value <= 100:
-                c.ndb._npc_data["skills"][skill_name] = value
-                c.msg(f"|gSkill {skill_name} set to {value}.|n")
-                return npc_skills_menu(c, "", **kwargs)
-            else:
-                c.msg("|rValue must be between 0 and 100.|n")
-                return npc_edit_skill(c, "", skill_name, **kwargs)
-        except (ValueError, TypeError):
-            c.msg("|rPlease enter a valid number.|n")
-            return npc_edit_skill(c, "", skill_name, **kwargs)
+    options = (
+        {"key": "_default", "goto": "npc_edit_skill"},
+    )
     
-    return text, [{"key": "_default", "exec": save_skill}]
+    return text, options
 
 
 def npc_save(caller, raw_string, **kwargs):
