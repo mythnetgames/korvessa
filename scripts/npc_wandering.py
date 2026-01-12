@@ -2,7 +2,8 @@
 NPC Wandering Script
 
 This script handles NPC wandering behavior within restricted zones.
-NPCs will randomly move between rooms in their assigned zone, never leaving the zone.
+NPCs will pick a destination in their zone and pathfind towards it,
+using real exits and respecting doors and zone boundaries.
 """
 
 from random import randint, choice
@@ -27,19 +28,48 @@ def get_or_create_channel(channel_name):
         return None
 
 
+def is_exit_passable(exit_obj, npc):
+    """
+    Check if an exit is passable (not blocked by a closed door).
+    
+    Args:
+        exit_obj: The exit to check
+        npc: The NPC trying to pass
+        
+    Returns:
+        bool: True if passable, False if blocked
+    """
+    if not exit_obj:
+        return False
+    
+    # Check for door blocking
+    direction = exit_obj.key.lower()
+    room = exit_obj.location
+    
+    try:
+        from commands.door import find_door
+        door = find_door(room, direction) if find_door else None
+        if door and not getattr(door.db, "is_open", True):
+            return False  # Door is closed
+    except ImportError:
+        pass  # No door system
+    
+    return True
+
+
 class NPCWanderingScript(DefaultScript):
     """
     Script that manages NPC wandering within a zone.
     
-    Assigned to individual NPCs via their db.npc_can_wander flag.
+    NPCs pick a destination coordinate and pathfind towards it.
+    They respect doors, zone boundaries, and only use real exits.
     """
     
     def at_script_creation(self):
         """Initialize the wandering script."""
         self.key = "npc_wandering"
         self.desc = "Handles NPC wandering behavior"
-        # Update interval in seconds - 10-30 seconds between movements
-        self.interval = 15  # Fixed interval
+        self.interval = 15  # Check every 15 seconds
         self.persistent = True
     
     def at_repeat(self):
@@ -47,7 +77,6 @@ class NPCWanderingScript(DefaultScript):
         obj = self.obj  # The NPC this script is attached to
         
         if not obj:
-            # If NPC is deleted, stop the script
             self.stop()
             return
         
@@ -70,19 +99,15 @@ class NPCWanderingScript(DefaultScript):
         is_in_combat = False
         if hasattr(obj.ndb, "combat_handler"):
             handler = obj.ndb.combat_handler
-            # Verify handler exists and is active
             if handler and hasattr(handler, 'is_active') and handler.is_active:
-                # Verify NPC is actually in the handler's combatants list
                 combatants = getattr(handler.db, 'combatants', [])
                 is_in_combat = any(entry.get('char') == obj for entry in combatants)
                 
-                # If handler reference is stale, clean it up
                 if not is_in_combat:
                     delattr(obj.ndb, "combat_handler")
                     if channel:
                         channel.msg(f"CLEANUP: Removed stale combat_handler reference from {obj.name}")
             else:
-                # Handler is dead/inactive, clean up the reference
                 delattr(obj.ndb, "combat_handler")
                 if channel:
                     channel.msg(f"CLEANUP: Removed dead combat_handler reference from {obj.name}")
@@ -90,37 +115,26 @@ class NPCWanderingScript(DefaultScript):
         # If blocked by puppeting or combat, report it and return
         if is_puppeted or is_in_combat:
             location = obj.location.key if obj.location else "unknown"
-            puppeted = "PUPPETED" if is_puppeted else "free"
-            in_combat = "COMBAT" if is_in_combat else "safe"
             blocked_by = "PUPPETED" if is_puppeted else "COMBAT"
             if channel:
-                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - {puppeted}, {in_combat} - BLOCKED BY {blocked_by}")
+                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - BLOCKED BY {blocked_by}")
             return
         
-        # Now do the roll
-        if channel:
-            # Show NPC status
-            location = obj.location.key if obj.location else "unknown"
-            puppeted = "PUPPETED" if is_puppeted else "free"
-            in_combat = "COMBAT" if is_in_combat else "safe"
-            roll = randint(1, 10)
-            will_move = "YES" if roll <= 3 else "NO"
-            channel.msg(f"TICK: {obj.name} in {location} ({zone}) - {puppeted}, {in_combat} - ROLL({roll}) -> {will_move}")
-            
-            # Random chance to wander (30% chance each interval)
-            if roll <= 3:
-                # Attempt to move to a random room in the zone
-                self._wander_to_zone_room(obj, zone)
+        # Roll to move (1 in 50 chance = 2%)
+        roll = randint(1, 50)
+        location = obj.location.key if obj.location else "unknown"
+        
+        if roll == 1:
+            if channel:
+                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - ROLL({roll}/50) -> MOVE")
+            self._pathfind_step(obj, zone)
         else:
-            # No channel, still do the roll and movement
-            roll = randint(1, 10)
-            if roll <= 3:
-                self._wander_to_zone_room(obj, zone)
+            if channel:
+                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - ROLL({roll}/50) -> WAIT")
     
-    def _wander_to_zone_room(self, npc, zone):
+    def _pathfind_step(self, npc, zone):
         """
-        Move NPC to a random adjacent room within its zone via real exits.
-        Uses actual exit connections instead of teleporting.
+        Take one step towards the NPC's destination, or pick a new destination.
         
         Args:
             npc: The NPC character object
@@ -128,54 +142,180 @@ class NPCWanderingScript(DefaultScript):
         """
         channel = get_or_create_channel("wanderers")
         
-        # Get current room
         current_room = npc.location
         if not current_room:
             if channel:
-                channel.msg(f"WANDER_FAIL: {npc.name} - No current location")
+                channel.msg(f"PATH_FAIL: {npc.name} - No current location")
             return
         
-        # Find all exits from current room that lead to rooms in the same zone
-        adjacent_zone_rooms = []
+        # Get or set destination
+        dest_x = getattr(npc.ndb, 'wander_dest_x', None)
+        dest_y = getattr(npc.ndb, 'wander_dest_y', None)
         
-        # Check all exits from current location
-        if hasattr(current_room, 'exits'):
-            for exit_obj in current_room.exits:
-                if not exit_obj or not hasattr(exit_obj, 'destination'):
-                    continue
-                    
-                dest_room = exit_obj.destination
-                if not dest_room:
-                    continue
-                
-                # Check if destination is in the same zone
-                dest_zone = getattr(dest_room, 'zone', None)
-                if dest_zone == zone:
-                    adjacent_zone_rooms.append((exit_obj, dest_room))
+        # Check if we need a new destination
+        current_x = getattr(current_room.db, 'x', None)
+        current_y = getattr(current_room.db, 'y', None)
         
-        if not adjacent_zone_rooms:
+        need_new_dest = False
+        if dest_x is None or dest_y is None:
+            need_new_dest = True
+        elif current_x == dest_x and current_y == dest_y:
+            # Reached destination
             if channel:
-                channel.msg(f"WANDER_FAIL: {npc.name} - No exits to rooms in zone '{zone}'")
+                channel.msg(f"PATH_ARRIVED: {npc.name} reached destination ({dest_x},{dest_y})")
+            need_new_dest = True
+        
+        if need_new_dest:
+            self._pick_new_destination(npc, zone)
+            dest_x = getattr(npc.ndb, 'wander_dest_x', None)
+            dest_y = getattr(npc.ndb, 'wander_dest_y', None)
+            if dest_x is None or dest_y is None:
+                return  # Couldn't find a destination
+        
+        # Find best exit towards destination
+        best_exit = self._find_best_exit(npc, zone, dest_x, dest_y)
+        
+        if not best_exit:
+            # Can't reach destination from here, pick a new one
+            if channel:
+                channel.msg(f"PATH_BLOCKED: {npc.name} - No valid exits towards ({dest_x},{dest_y}), picking new destination")
+            self._pick_new_destination(npc, zone)
             return
         
-        if channel:
-            channel.msg(f"WANDER_ATTEMPT: {npc.name} - Found {len(adjacent_zone_rooms)} adjacent rooms in zone '{zone}'")
-        
-        # Pick a random exit and traverse it
-        exit_obj, destination = choice(adjacent_zone_rooms)
+        exit_obj, destination = best_exit
         
         if channel:
-            channel.msg(f"WANDER_ATTEMPT: {npc.name} - Traversing exit '{exit_obj.key}' from '{current_room.key}' to '{destination.key}'")
+            channel.msg(f"PATH_STEP: {npc.name} - Taking '{exit_obj.key}' towards ({dest_x},{dest_y})")
         
-        # Use the exit traversal to properly move through the game world
+        # Traverse the exit
         try:
-            # Call at_traverse to properly move the NPC through the exit
             exit_obj.at_traverse(npc, destination)
             if channel:
-                channel.msg(f"WANDER_SUCCESS: {npc.name} traversed '{exit_obj.key}' and arrived at '{destination.key}'")
+                channel.msg(f"PATH_SUCCESS: {npc.name} traversed '{exit_obj.key}' to '{destination.key}'")
         except Exception as e:
             if channel:
-                channel.msg(f"WANDER_ERROR: {npc.name} - Failed to traverse '{exit_obj.key}': {e}")
+                channel.msg(f"PATH_ERROR: {npc.name} - Failed to traverse '{exit_obj.key}': {e}")
+    
+    def _pick_new_destination(self, npc, zone):
+        """
+        Pick a new random destination coordinate within the zone.
+        
+        Args:
+            npc: The NPC character object
+            zone: The zone identifier string
+        """
+        channel = get_or_create_channel("wanderers")
+        
+        # Get all rooms in zone
+        zone_rooms = self._get_zone_rooms(zone)
+        
+        if not zone_rooms:
+            if channel:
+                channel.msg(f"PATH_FAIL: {npc.name} - No rooms in zone '{zone}'")
+            return
+        
+        # Filter to rooms with valid coordinates
+        rooms_with_coords = []
+        for room in zone_rooms:
+            x = getattr(room.db, 'x', None)
+            y = getattr(room.db, 'y', None)
+            if x is not None and y is not None:
+                rooms_with_coords.append((room, x, y))
+        
+        if not rooms_with_coords:
+            if channel:
+                channel.msg(f"PATH_FAIL: {npc.name} - No rooms with coordinates in zone '{zone}'")
+            return
+        
+        # Pick a random room as destination (not current room if possible)
+        current_room = npc.location
+        other_rooms = [(r, x, y) for r, x, y in rooms_with_coords if r != current_room]
+        
+        if other_rooms:
+            dest_room, dest_x, dest_y = choice(other_rooms)
+        else:
+            # Only one room in zone
+            dest_room, dest_x, dest_y = rooms_with_coords[0]
+        
+        # Store destination
+        npc.ndb.wander_dest_x = dest_x
+        npc.ndb.wander_dest_y = dest_y
+        
+        if channel:
+            channel.msg(f"PATH_NEW_DEST: {npc.name} - New destination: '{dest_room.key}' ({dest_x},{dest_y})")
+    
+    def _find_best_exit(self, npc, zone, dest_x, dest_y):
+        """
+        Find the best exit to move closer to the destination.
+        
+        Args:
+            npc: The NPC character object
+            zone: The zone identifier string
+            dest_x: Destination X coordinate
+            dest_y: Destination Y coordinate
+            
+        Returns:
+            Tuple of (exit_obj, destination_room) or None if no valid exit
+        """
+        current_room = npc.location
+        if not current_room or not hasattr(current_room, 'exits'):
+            return None
+        
+        current_x = getattr(current_room.db, 'x', None)
+        current_y = getattr(current_room.db, 'y', None)
+        
+        if current_x is None or current_y is None:
+            return None
+        
+        # Calculate current distance to destination
+        current_dist = abs(dest_x - current_x) + abs(dest_y - current_y)
+        
+        # Find all valid exits that get us closer
+        valid_exits = []
+        
+        for exit_obj in current_room.exits:
+            if not exit_obj or not hasattr(exit_obj, 'destination'):
+                continue
+            
+            dest_room = exit_obj.destination
+            if not dest_room:
+                continue
+            
+            # Check zone
+            room_zone = getattr(dest_room, 'zone', None)
+            if room_zone != zone:
+                continue
+            
+            # Check if exit is passable (not blocked by door)
+            if not is_exit_passable(exit_obj, npc):
+                continue
+            
+            # Get destination room coordinates
+            room_x = getattr(dest_room.db, 'x', None)
+            room_y = getattr(dest_room.db, 'y', None)
+            
+            if room_x is None or room_y is None:
+                continue
+            
+            # Calculate distance from that room to final destination
+            new_dist = abs(dest_x - room_x) + abs(dest_y - room_y)
+            
+            # Only consider exits that get us closer (or maintain distance with some randomness)
+            if new_dist < current_dist:
+                valid_exits.append((exit_obj, dest_room, new_dist))
+            elif new_dist == current_dist:
+                # Allow lateral movement with lower priority
+                valid_exits.append((exit_obj, dest_room, new_dist + 0.5))
+        
+        if not valid_exits:
+            return None
+        
+        # Sort by distance and pick the best (or random among equally good)
+        valid_exits.sort(key=lambda x: x[2])
+        best_dist = valid_exits[0][2]
+        best_exits = [(e, r) for e, r, d in valid_exits if d == best_dist]
+        
+        return choice(best_exits)
     
     def _get_zone_rooms(self, zone):
         """
