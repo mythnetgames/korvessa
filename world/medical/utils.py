@@ -80,13 +80,64 @@ def _get_vital_locations(character):
     return vital_locations
 
 
+def _get_location_organ_health_ratio(character, location):
+    """
+    Calculate the average health ratio of organs in a location.
+    Lower ratio = more damaged organs = better target for skilled attackers.
+    
+    Args:
+        character: Target character with medical state
+        location (str): Body location to analyze
+        
+    Returns:
+        float: Average health ratio (0.0 = all dead, 1.0 = all pristine)
+    """
+    from .constants import ORGANS
+    
+    organs = get_organ_by_body_location(location)
+    if not organs:
+        return 1.0  # No organs = pristine
+    
+    total_health_ratio = 0.0
+    valid_organs = 0
+    
+    # Load medical state to get current organ health
+    if hasattr(character, 'medical_state') and character.medical_state:
+        medical_state = character.medical_state
+        for organ_name in organs:
+            organ_data = ORGANS.get(organ_name, {})
+            max_hp = organ_data.get('max_hp', 10)
+            
+            # Get current organ health from medical state
+            if hasattr(medical_state, 'organs') and organ_name in medical_state.organs:
+                current_hp = medical_state.organs[organ_name].get('current_hp', max_hp)
+            else:
+                current_hp = max_hp
+            
+            health_ratio = current_hp / max_hp if max_hp > 0 else 1.0
+            total_health_ratio += health_ratio
+            valid_organs += 1
+    else:
+        # No medical state loaded, assume all pristine
+        return 1.0
+    
+    if valid_organs == 0:
+        return 1.0
+    
+    return total_health_ratio / valid_organs
+
+
 def select_hit_location(character, success_margin=0, attacker=None):
     """
-    Dynamically select a hit location based on character's anatomy and organ hit weights.
-    If attacker is provided, uses TECH to bias selection toward less armored areas.
-    Otherwise, uses success margin to bias toward vital areas for skilled attacks.
+    Dynamically select a hit location with equal baseline percentiles per location.
+    All body locations have equal base chance to be hit, but vital areas get bonus weight
+    based on attacker skill (BODY+REF) and success margin.
     
-    Vital areas are determined dynamically based on organ criticality, not hardcoded.
+    Weapon skill determines ability to target already-damaged (lower-health) organs.
+    Higher weapon skill = better targeting of critical/vital organs with low HP.
+    
+    This prevents cheese deaths by ensuring no single body part is exploited, while
+    rewarding skilled attackers with better targeting of already-weakened vital organs.
     
     Args:
         character: Character object with longdesc anatomy structure
@@ -107,12 +158,21 @@ def select_hit_location(character, success_margin=0, attacker=None):
     if not available_locations:
         return "chest"
     
-    # Calculate total hit weights for each body location
-    location_weights = {}
+    # BALANCED PERCENTILE SYSTEM: All locations start with equal baseline weight
+    # This ensures 30 locations get ~3% chance each (100% / 30 locations)
+    baseline_weight = 100
+    location_weights = {location: baseline_weight for location in available_locations}
     
-    # Calculate targeting parameters based on attacker's abilities
+    # Determine vital areas based on organ criticality
+    vital_areas = _get_vital_locations(character)
+    
+    # Track weapon skill info for debug logging
+    weapon_skill_bonus = 0
+    weapon_skill_applied = False
+    
+    # Apply skill-based vital area targeting bonuses
     if attacker:
-        # Use new stats: body (toughness), ref (reflexes), tech (technical skill)
+        # Get attacker stats
         attacker_body = getattr(attacker.db, "body", 1) if hasattr(attacker, 'db') else 1
         attacker_body = attacker_body if isinstance(attacker_body, (int, float)) else 1
         attacker_ref = getattr(attacker.db, "ref", 1) if hasattr(attacker, 'db') else 1
@@ -120,125 +180,119 @@ def select_hit_location(character, success_margin=0, attacker=None):
         attacker_tech = getattr(attacker.db, "tech", 1) if hasattr(attacker, 'db') else 1
         attacker_tech = attacker_tech if isinstance(attacker_tech, (int, float)) else 1
         
+        # Get weapon skill - check for melee or firearms (common naming conventions)
+        weapon_skill = getattr(attacker.db, "melee", 1) if hasattr(attacker, 'db') else 1
+        if isinstance(weapon_skill, (int, float)):
+            weapon_skill = int(weapon_skill)
+        else:
+            weapon_skill = 1
+        
         # BODY + REF determines ability to target vital areas effectively
         vital_targeting_skill = int(attacker_body) + int(attacker_ref)
         
-        # Calculate vital area bias based on skill + success margin
+        # Calculate vital area bias based on physical combat skill
         if vital_targeting_skill <= 4:
-            base_vital_bias = 1.1   # Poor vital targeting ability
+            vital_bonus = 20   # +20% to vital areas (low skill)
         elif vital_targeting_skill <= 6:
-            base_vital_bias = 1.3   # Moderate vital targeting ability
+            vital_bonus = 40   # +40% to vital areas (moderate)
         elif vital_targeting_skill <= 8:
-            base_vital_bias = 1.6   # Good vital targeting ability
+            vital_bonus = 60   # +60% to vital areas (good)
         else:
-            base_vital_bias = 2.0   # Excellent vital targeting ability
+            vital_bonus = 80   # +80% to vital areas (excellent)
         
-        # Success margin enhances the base ability
+        # Success margin further enhances vital targeting capability
         if success_margin > 0:
-            margin_multiplier = 1 + (success_margin * 0.1)  # +10% per point of margin
-            vital_bias = base_vital_bias * margin_multiplier
-        else:
-            vital_bias = base_vital_bias
+            vital_bonus += success_margin * 5  # +5% per point of success margin
         
-        # TECH determines tactical target selection wisdom
-        # High tech = avoid heavily armored vitals in favor of unarmored vitals
+        # WEAPON SKILL: Higher weapon skill enables targeting lower-health organs (vital organs)
+        # Weapon skill makes damaged/critical organs more attractive targets
+        if weapon_skill >= 2:
+            # Calculate bonus based on weapon skill level
+            # Each level of weapon skill increases bonus to lower-health organ targeting
+            if weapon_skill == 2:
+                weapon_skill_bonus = 15  # +15% bonus to low-health organs
+            elif weapon_skill == 3:
+                weapon_skill_bonus = 30  # +30% bonus
+            elif weapon_skill == 4:
+                weapon_skill_bonus = 45  # +45% bonus
+            elif weapon_skill == 5:
+                weapon_skill_bonus = 60  # +60% bonus
+            else:  # 6+
+                weapon_skill_bonus = 80  # +80% bonus for mastery
+            
+            weapon_skill_applied = True
+        
+        # Apply armor-aware targeting if TECH is high
         tactical_wisdom = int(attacker_tech)
+        armor_consideration = tactical_wisdom >= 3
         
-        # Dynamically determine vital areas based on organ criticality
-        vital_areas = _get_vital_locations(character)
-        use_targeting_style = "tactical_vital"
-        
-    else:
-        # No attacker provided - use traditional success margin vital targeting
-        use_targeting_style = "traditional_vital"
-        # Dynamically determine vital areas based on organ criticality
-        vital_areas = _get_vital_locations(character)
-        
-        if success_margin <= 3:
-            vital_bias = 1.25  # +25% weight to vital areas
-        elif success_margin <= 8:
-            vital_bias = 1.5   # +50% weight to vital areas
-        elif success_margin <= 15:
-            vital_bias = 2.0   # +100% weight to vital areas
-        else:
-            vital_bias = 3.0   # +200% weight to vital areas
-    
-    for location in available_locations:
-        # Get all organs in this location and sum their hit weights
-        organs = get_organ_by_body_location(location)
-        total_weight = 0
-        
-        for organ_name in organs:
-            organ_data = ORGANS.get(organ_name, {})
-            weight_category = organ_data.get("hit_weight", "common")
-            weight_value = HIT_WEIGHTS.get(weight_category, HIT_WEIGHTS["common"])
-            total_weight += weight_value
-            
-        # Apply targeting bias based on combat style
-        if use_targeting_style == "tactical_vital":
-            # Tactical vital targeting: TECH informs smart vital area selection
-            is_vital = location in vital_areas
-            armor_coverage = _get_location_armor_coverage(character, location)
-            
-            if is_vital:
-                # This is a vital area - apply base vital bias
-                adjusted_vital_bias = vital_bias
+        # Apply vital bonus to vital areas, considering armor if tactical
+        for location in vital_areas:
+            if location in location_weights:
+                # Get armor coverage for this vital location
+                if armor_consideration:
+                    armor_coverage = _get_location_armor_coverage(character, location)
+                    if armor_coverage >= 4:
+                        # Heavily armored vital = slight penalty (still worth hitting)
+                        location_weights[location] += int(vital_bonus * 0.6)
+                    elif armor_coverage > 0:
+                        # Moderately armored vital = normal bonus
+                        location_weights[location] += vital_bonus
+                    else:
+                        # Unarmored vital = full bonus (best target)
+                        location_weights[location] += int(vital_bonus * 1.2)
+                else:
+                    # Low TECH = just hit the vitals regardless of armor
+                    location_weights[location] += vital_bonus
                 
-                # TECH modifies targeting based on armor coverage
-                if tactical_wisdom >= 5:
-                    # High tech: Heavily penalize armored vitals, boost unarmored vitals
-                    if armor_coverage == 0:
-                        # Unarmored vital = excellent target
-                        adjusted_vital_bias *= 1.5
-                    elif armor_coverage >= 4:
-                        # Heavily armored vital = poor target choice
-                        adjusted_vital_bias *= 0.6
-                elif tactical_wisdom >= 3:
-                    # Moderate tech: Some armor awareness
-                    if armor_coverage == 0:
-                        # Unarmored vital = good target
-                        adjusted_vital_bias *= 1.3
-                    elif armor_coverage >= 4:
-                        # Heavily armored vital = less ideal target
-                        adjusted_vital_bias *= 0.8
-                # Low tech: No armor consideration, just hit vitals
-                
-                total_weight = int(total_weight * adjusted_vital_bias)
-            # Non-vital areas keep base weight (no special targeting)
-            
-        else:  # traditional_vital
-            # Traditional vital area bias from success margin only
-            if location in vital_areas and success_margin > 0:
-                total_weight = int(total_weight * vital_bias)
-            
-        # Use a minimum weight to ensure all locations are possible targets
-        location_weights[location] = max(total_weight, 1)
-    
-    # Debug output for targeting analysis
-    if attacker:
+                # Weapon skill bonus: Target lower-health organs within vital areas
+                # Get the health ratio of organs in this location
+                if weapon_skill_applied:
+                    health_ratio = _get_location_organ_health_ratio(character, location)
+                    # Lower health ratio = better target for weapon skill
+                    # Invert the ratio so lower health = higher weight bonus
+                    damage_incentive = 1.0 - health_ratio  # 0 = pristine, 1.0 = dead
+                    weapon_skill_multiplier = weapon_skill_bonus * damage_incentive
+                    location_weights[location] += int(weapon_skill_multiplier)
+        
+        # Log targeting analysis
         try:
             from evennia.comms.models import ChannelDB
             splattercast = ChannelDB.objects.get_channel("Splattercast")
             
             # Show targeting abilities and top weighted locations
-            top_locations = sorted(location_weights.items(), key=lambda x: x[1], reverse=True)[:3]
+            top_locations = sorted(location_weights.items(), key=lambda x: x[1], reverse=True)[:5]
             location_info = ", ".join([f"{loc}:{weight}" for loc, weight in top_locations])
             
-            if use_targeting_style == "tactical_vital":
-                skill_info = f"VitalSkill:{vital_targeting_skill}, Wisdom:{tactical_wisdom}"
-                splattercast.msg(f"TARGETING: {attacker.key} ({skill_info}) → {location_info}")
-            else:
-                splattercast.msg(f"TARGETING: {attacker.key} using {use_targeting_style} → {location_info}")
+            skill_info = f"BODY+REF={vital_targeting_skill}, TECH={tactical_wisdom}, WEAPON={weapon_skill}, margin={success_margin}"
+            if weapon_skill_applied:
+                skill_info += f", ORGAN_HUNT_BONUS={weapon_skill_bonus}"
+            splattercast.msg(f"TARGETING: {attacker.key} ({skill_info}) → {location_info}")
         except (ImportError, AttributeError):
-            # Expected when channel doesn't exist or import fails
             pass
+    else:
+        # No attacker provided - use success margin to boost vital area targeting
+        vital_bonus = 0
+        if success_margin <= 3:
+            vital_bonus = 10   # +10% to vital areas
+        elif success_margin <= 8:
+            vital_bonus = 25   # +25% to vital areas
+        elif success_margin <= 15:
+            vital_bonus = 40   # +40% to vital areas
+        else:
+            vital_bonus = 60   # +60% to vital areas
+        
+        # Apply bonus to all vital areas
+        for location in vital_areas:
+            if location in location_weights:
+                location_weights[location] += vital_bonus
     
     # Perform weighted random selection
     total_weight = sum(location_weights.values())
     if total_weight == 0:
         return "chest"  # Fallback
         
-    # Generate random number and select location
+    # Generate random number and select location using percentiles
     rand_value = random.randint(1, total_weight)
     cumulative_weight = 0
     
