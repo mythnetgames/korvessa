@@ -11,7 +11,7 @@ Commands:
 
 from evennia import Command
 from evennia.utils.evmenu import EvMenu
-from world.builder_menus import (
+from commands.builder_menus import (
     furniture_start, npc_start, weapon_start, clothing_start
 )
 from world.builder_storage import (

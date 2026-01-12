@@ -2,6 +2,9 @@
 
 ## Overview
 
+NEVER USE EMOJI NEVER USE CURLY QUOTES OR APOSTROPHES NEVER USE EM DASHES!!!!
+
+
 This document serves as a comprehensive reference for AI agents working on the combat system in Evennia. It provides detailed technical information about the architecture, components, and interactions within the combat system.
 
 ## Table of Contents
@@ -24,7 +27,7 @@ This document serves as a comprehensive reference for AI agents working on the c
 
 ### High-Level Design
 
-The G.R.I.M. combat system follows a modular architecture organized into several key packages:
+
 
 ```
 world/combat/               # Core combat system
