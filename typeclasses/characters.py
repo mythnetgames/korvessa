@@ -290,6 +290,10 @@ class Character(ObjectParent, DefaultCharacter):
         if self.account and hasattr(self.account, 'db'):
             mapper_enabled = getattr(self.account.db, 'mapper_enabled', False)
         
+        # Sync ndb with persistent state
+        self.ndb.mapper_enabled = mapper_enabled
+        self.ndb.show_room_desc = not mapper_enabled
+        
         if mapper_enabled:
             # Show map view
             from commands.mapper import CmdMap
@@ -298,10 +302,9 @@ class Character(ObjectParent, DefaultCharacter):
             cmd.args = ""
             cmd.func()
         else:
-            # Show plain room description
-            self.ndb.show_room_desc = True
-            self.msg(self.location.return_appearance(self, force_display=True))
-            self.ndb.show_room_desc = False
+            # Show plain room description for screenreader mode
+            appearance = self.location.return_appearance(self, force_display=True)
+            self.msg(appearance)
 
         # Notify windows that observe entry/exit in this room
         self._notify_window_observers('enter', source_location)
@@ -318,6 +321,10 @@ class Character(ObjectParent, DefaultCharacter):
             if self.account and hasattr(self.account, 'db'):
                 mapper_enabled = getattr(self.account.db, 'mapper_enabled', False)
             
+            # Sync ndb with persistent state
+            self.ndb.mapper_enabled = mapper_enabled
+            self.ndb.show_room_desc = not mapper_enabled
+            
             if mapper_enabled:
                 # Show map view with room description on right side
                 from commands.mapper import CmdMap
@@ -328,9 +335,7 @@ class Character(ObjectParent, DefaultCharacter):
                 return
             else:
                 # Mapper disabled (screenreader mode) - show plain room description
-                self.ndb.show_room_desc = True
                 appearance = self.location.return_appearance(self, force_display=True)
-                self.ndb.show_room_desc = False
                 return appearance
         else:
             # Looking at an object/character - show their description
