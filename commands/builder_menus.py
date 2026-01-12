@@ -56,18 +56,18 @@ def furniture_start(caller, raw_string, **kwargs):
     text += "\nEnter the furniture name (e.g., 'Oak Table', 'Red Couch'):\n"
     
     options = [
-        {"key": "_default", "exec": furniture_name}
+        {"key": "_default", "exec": lambda c, rs: furniture_name_node(c, rs)}
     ]
     
     return text, options
 
 
-def furniture_name(caller, raw_string, **kwargs):
-    """Get furniture name."""
+def furniture_name_node(caller, raw_string, **kwargs):
+    """Get furniture name - node processor."""
     if not raw_string.strip():
         text = BuilderMenuMixin.format_header("ERROR")
         text += "\nName cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": furniture_name}]
+        return text, [{"key": "_default", "exec": lambda c, rs: furniture_name_node(c, rs)}]
     
     caller.ndb._furniture_data["name"] = raw_string.strip()
     
@@ -76,18 +76,18 @@ def furniture_name(caller, raw_string, **kwargs):
     text += "\nEnter the furniture description (what players see when they look):\n"
     
     options = [
-        {"key": "_default", "exec": furniture_desc}
+        {"key": "_default", "exec": lambda c, rs: furniture_desc_node(c, rs)}
     ]
     
     return text, options
 
 
-def furniture_desc(caller, raw_string, **kwargs):
-    """Get furniture description."""
+def furniture_desc_node(caller, raw_string, **kwargs):
+    """Get furniture description - node processor."""
     if not raw_string.strip():
         text = BuilderMenuMixin.format_header("ERROR")
         text += "\nDescription cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": furniture_desc}]
+        return text, [{"key": "_default", "exec": lambda c, rs: furniture_desc_node(c, rs)}]
     
     caller.ndb._furniture_data["desc"] = raw_string.strip()
     
@@ -297,18 +297,18 @@ def npc_start(caller, raw_string, **kwargs):
     text += "\nEnter the NPC name (e.g., 'Old Street Vendor', 'Gang Member'):\n"
     
     options = [
-        {"key": "_default", "exec": npc_name}
+        {"key": "_default", "exec": lambda c, rs: npc_name_node(c, rs)}
     ]
     
     return text, options
 
 
-def npc_name(caller, raw_string, **kwargs):
-    """Get NPC name."""
+def npc_name_node(caller, raw_string, **kwargs):
+    """Get NPC name - node processor."""
     if not raw_string.strip():
         text = BuilderMenuMixin.format_header("ERROR")
         text += "\nName cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": npc_name}]
+        return text, [{"key": "_default", "exec": lambda c, rs: npc_name_node(c, rs)}]
     
     caller.ndb._npc_data["name"] = raw_string.strip()
     
@@ -317,18 +317,18 @@ def npc_name(caller, raw_string, **kwargs):
     text += "\nEnter the NPC description:\n"
     
     options = [
-        {"key": "_default", "exec": npc_desc}
+        {"key": "_default", "exec": lambda c, rs: npc_desc_node(c, rs)}
     ]
     
     return text, options
 
 
-def npc_desc(caller, raw_string, **kwargs):
-    """Get NPC description."""
+def npc_desc_node(caller, raw_string, **kwargs):
+    """Get NPC description - node processor."""
     if not raw_string.strip():
         text = BuilderMenuMixin.format_header("ERROR")
         text += "\nDescription cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": npc_desc}]
+        return text, [{"key": "_default", "exec": lambda c, rs: npc_desc_node(c, rs)}]
     
     caller.ndb._npc_data["desc"] = raw_string.strip()
     return npc_properties(caller, "", **kwargs)
@@ -567,18 +567,18 @@ def weapon_start(caller, raw_string, **kwargs):
     text += "\nEnter the weapon name (e.g., 'Rusty Pistol', 'Combat Knife'):\n"
     
     options = [
-        {"key": "_default", "exec": weapon_name}
+        {"key": "_default", "exec": lambda c, rs: weapon_name_node(c, rs)}
     ]
     
     return text, options
 
 
-def weapon_name(caller, raw_string, **kwargs):
-    """Get weapon name."""
+def weapon_name_node(caller, raw_string, **kwargs):
+    """Get weapon name - node processor."""
     if not raw_string.strip():
         text = BuilderMenuMixin.format_header("ERROR")
         text += "\nName cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": weapon_name}]
+        return text, [{"key": "_default", "exec": lambda c, rs: weapon_name_node(c, rs)}]
     
     caller.ndb._weapon_data["name"] = raw_string.strip()
     
@@ -587,18 +587,18 @@ def weapon_name(caller, raw_string, **kwargs):
     text += "\nEnter the weapon description:\n"
     
     options = [
-        {"key": "_default", "exec": weapon_desc}
+        {"key": "_default", "exec": lambda c, rs: weapon_desc_node(c, rs)}
     ]
     
     return text, options
 
 
-def weapon_desc(caller, raw_string, **kwargs):
-    """Get weapon description."""
+def weapon_desc_node(caller, raw_string, **kwargs):
+    """Get weapon description - node processor."""
     if not raw_string.strip():
         text = BuilderMenuMixin.format_header("ERROR")
         text += "\nDescription cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": weapon_desc}]
+        return text, [{"key": "_default", "exec": lambda c, rs: weapon_desc_node(c, rs)}]
     
     caller.ndb._weapon_data["desc"] = raw_string.strip()
     return weapon_type_select(caller, "", **kwargs)
@@ -762,18 +762,18 @@ def clothing_start(caller, raw_string, **kwargs):
     text += "\nEnter the item name (e.g., 'Leather Jacket', 'Tactical Vest'):\n"
     
     options = [
-        {"key": "_default", "exec": clothing_name}
+        {"key": "_default", "exec": lambda c, rs: clothing_name_node(c, rs)}
     ]
     
     return text, options
 
 
-def clothing_name(caller, raw_string, **kwargs):
-    """Get clothing name."""
+def clothing_name_node(caller, raw_string, **kwargs):
+    """Get clothing name - node processor."""
     if not raw_string.strip():
         text = BuilderMenuMixin.format_header("ERROR")
         text += "\nName cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": clothing_name}]
+        return text, [{"key": "_default", "exec": lambda c, rs: clothing_name_node(c, rs)}]
     
     caller.ndb._clothing_data["name"] = raw_string.strip()
     
@@ -782,18 +782,18 @@ def clothing_name(caller, raw_string, **kwargs):
     text += "\nEnter the item description:\n"
     
     options = [
-        {"key": "_default", "exec": clothing_desc}
+        {"key": "_default", "exec": lambda c, rs: clothing_desc_node(c, rs)}
     ]
     
     return text, options
 
 
-def clothing_desc(caller, raw_string, **kwargs):
-    """Get clothing description."""
+def clothing_desc_node(caller, raw_string, **kwargs):
+    """Get clothing description - node processor."""
     if not raw_string.strip():
         text = BuilderMenuMixin.format_header("ERROR")
         text += "\nDescription cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": clothing_desc}]
+        return text, [{"key": "_default", "exec": lambda c, rs: clothing_desc_node(c, rs)}]
     
     caller.ndb._clothing_data["desc"] = raw_string.strip()
     return clothing_type_select(caller, "", **kwargs)
