@@ -1,0 +1,914 @@
+"""
+Builder Creation Menus - EvMenu-based interfaces for builders to create items
+
+Provides interactive menus for:
+- Creating furniture designs
+- Creating NPC templates
+- Creating weapon templates
+- Creating clothing/armor items
+- Managing factions
+"""
+
+from evennia.utils.evmenu import EvMenu
+from evennia import Command
+from world.builder_storage import (
+    add_furniture, add_npc, add_weapon, add_clothing_item,
+    add_faction, get_all_factions, get_builder_storage,
+    initialize_default_factions
+)
+
+
+class BuilderMenuMixin:
+    """Mixin providing common menu utilities."""
+    
+    @staticmethod
+    def format_header(title):
+        """Format a menu header."""
+        return f"|c{title:^78}|n\n" + "-" * 78
+
+
+class FurnitureMenu(EvMenu):
+    """Menu for creating furniture designs."""
+    
+    def options_formatter(self, optionlist):
+        """Suppress automatic option display."""
+        return ""
+
+
+def furniture_start(caller, raw_string, **kwargs):
+    """Start furniture creation menu."""
+    caller.ndb._furniture_data = {
+        "name": "",
+        "desc": "",
+        "movable": True,
+        "max_seats": 0,
+        "can_recline": False,
+        "can_lie_down": False,
+        "sit_msg_first": "",
+        "sit_msg_third": "",
+        "lie_msg_first": "",
+        "lie_msg_third": "",
+        "recline_msg_first": "",
+        "recline_msg_third": "",
+    }
+    
+    text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - STEP 1: NAME")
+    text += "\nEnter the furniture name (e.g., 'Oak Table', 'Red Couch'):\n"
+    
+    options = [
+        {"key": "_default", "exec": furniture_name}
+    ]
+    
+    return text, options
+
+
+def furniture_name(caller, raw_string, **kwargs):
+    """Get furniture name."""
+    if not raw_string.strip():
+        text = BuilderMenuMixin.format_header("ERROR")
+        text += "\nName cannot be empty. Try again:\n"
+        return text, [{"key": "_default", "exec": furniture_name}]
+    
+    caller.ndb._furniture_data["name"] = raw_string.strip()
+    
+    text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - STEP 2: DESCRIPTION")
+    text += f"\nFurniture: {caller.ndb._furniture_data['name']}\n"
+    text += "\nEnter the furniture description (what players see when they look):\n"
+    
+    options = [
+        {"key": "_default", "exec": furniture_desc}
+    ]
+    
+    return text, options
+
+
+def furniture_desc(caller, raw_string, **kwargs):
+    """Get furniture description."""
+    if not raw_string.strip():
+        text = BuilderMenuMixin.format_header("ERROR")
+        text += "\nDescription cannot be empty. Try again:\n"
+        return text, [{"key": "_default", "exec": furniture_desc}]
+    
+    caller.ndb._furniture_data["desc"] = raw_string.strip()
+    
+    text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - STEP 3: PROPERTIES")
+    text += f"\nFurniture: {caller.ndb._furniture_data['name']}\n\n"
+    text += "|y1|n - Movable: " + ("Yes" if caller.ndb._furniture_data["movable"] else "No") + "\n"
+    text += "|y2|n - Max Seats: " + str(caller.ndb._furniture_data["max_seats"]) + "\n"
+    text += "|y3|n - Can Recline: " + ("Yes" if caller.ndb._furniture_data["can_recline"] else "No") + "\n"
+    text += "|y4|n - Can Lie Down: " + ("Yes" if caller.ndb._furniture_data["can_lie_down"] else "No") + "\n"
+    text += "|y5|n - Continue to Messages\n"
+    text += "|yq|n - Cancel\n"
+    
+    options = [
+        {"key": "1", "exec": lambda c, rs: furniture_toggle_movable(c, rs)},
+        {"key": "2", "exec": lambda c, rs: furniture_seats(c, rs)},
+        {"key": "3", "exec": lambda c, rs: furniture_toggle_recline(c, rs)},
+        {"key": "4", "exec": lambda c, rs: furniture_toggle_lie_down(c, rs)},
+        {"key": "5", "exec": furniture_messages},
+        {"key": "q", "exec": furniture_cancel},
+    ]
+    
+    return text, options
+
+
+def furniture_toggle_movable(caller, raw_string, **kwargs):
+    """Toggle movable property."""
+    caller.ndb._furniture_data["movable"] = not caller.ndb._furniture_data["movable"]
+    return furniture_desc(caller, "", **kwargs)
+
+
+def furniture_seats(caller, raw_string, **kwargs):
+    """Set max seats."""
+    text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - MAX SEATS")
+    text += f"\nFurniture: {caller.ndb._furniture_data['name']}\n"
+    text += "\nHow many people can sit on this furniture? (0-10):\n"
+    
+    def handle_seats(c, rs):
+        try:
+            seats = int(rs.strip())
+            if seats < 0 or seats > 10:
+                raise ValueError()
+            c.ndb._furniture_data["max_seats"] = seats
+            return furniture_desc(c, "", **kwargs)
+        except:
+            text = BuilderMenuMixin.format_header("ERROR")
+            text += "\nEnter a number between 0 and 10:\n"
+            return text, [{"key": "_default", "exec": handle_seats}]
+    
+    return text, [{"key": "_default", "exec": handle_seats}]
+
+
+def furniture_toggle_recline(caller, raw_string, **kwargs):
+    """Toggle recline property."""
+    caller.ndb._furniture_data["can_recline"] = not caller.ndb._furniture_data["can_recline"]
+    return furniture_desc(caller, "", **kwargs)
+
+
+def furniture_toggle_lie_down(caller, raw_string, **kwargs):
+    """Toggle lie down property."""
+    caller.ndb._furniture_data["can_lie_down"] = not caller.ndb._furniture_data["can_lie_down"]
+    return furniture_desc(caller, "", **kwargs)
+
+
+def furniture_messages(caller, raw_string, **kwargs):
+    """Configure furniture messages."""
+    text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - MESSAGES")
+    text += f"\nFurniture: {caller.ndb._furniture_data['name']}\n\n"
+    text += "Configure messages for when players interact with this furniture.\n"
+    text += "These can use {target_name} placeholder for the furniture.\n\n"
+    
+    if caller.ndb._furniture_data["max_seats"] > 0:
+        text += "|y1|n - Sitting (1st person): " + (caller.ndb._furniture_data["sit_msg_first"][:30] + "..." if caller.ndb._furniture_data["sit_msg_first"] else "(not set)") + "\n"
+        text += "|y2|n - Sitting (3rd person): " + (caller.ndb._furniture_data["sit_msg_third"][:30] + "..." if caller.ndb._furniture_data["sit_msg_third"] else "(not set)") + "\n"
+    
+    if caller.ndb._furniture_data["can_lie_down"]:
+        text += "|y3|n - Lying Down (1st person): " + (caller.ndb._furniture_data["lie_msg_first"][:30] + "..." if caller.ndb._furniture_data["lie_msg_first"] else "(not set)") + "\n"
+        text += "|y4|n - Lying Down (3rd person): " + (caller.ndb._furniture_data["lie_msg_third"][:30] + "..." if caller.ndb._furniture_data["lie_msg_third"] else "(not set)") + "\n"
+    
+    if caller.ndb._furniture_data["can_recline"]:
+        text += "|y5|n - Reclining (1st person): " + (caller.ndb._furniture_data["recline_msg_first"][:30] + "..." if caller.ndb._furniture_data["recline_msg_first"] else "(not set)") + "\n"
+        text += "|y6|n - Reclining (3rd person): " + (caller.ndb._furniture_data["recline_msg_third"][:30] + "..." if caller.ndb._furniture_data["recline_msg_third"] else "(not set)") + "\n"
+    
+    text += "|ys|n - Finish and Save\n"
+    text += "|yq|n - Cancel\n"
+    
+    options = [
+        {"key": "q", "exec": furniture_cancel},
+        {"key": "s", "exec": furniture_save},
+    ]
+    
+    if caller.ndb._furniture_data["max_seats"] > 0:
+        options.append({"key": "1", "exec": lambda c, rs: furniture_msg_input(c, rs, "sit_msg_first")})
+        options.append({"key": "2", "exec": lambda c, rs: furniture_msg_input(c, rs, "sit_msg_third")})
+    
+    if caller.ndb._furniture_data["can_lie_down"]:
+        options.append({"key": "3", "exec": lambda c, rs: furniture_msg_input(c, rs, "lie_msg_first")})
+        options.append({"key": "4", "exec": lambda c, rs: furniture_msg_input(c, rs, "lie_msg_third")})
+    
+    if caller.ndb._furniture_data["can_recline"]:
+        options.append({"key": "5", "exec": lambda c, rs: furniture_msg_input(c, rs, "recline_msg_first")})
+        options.append({"key": "6", "exec": lambda c, rs: furniture_msg_input(c, rs, "recline_msg_third")})
+    
+    return text, options
+
+
+def furniture_msg_input(caller, raw_string, msg_type, **kwargs):
+    """Get custom furniture message."""
+    text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - CUSTOM MESSAGE")
+    text += f"\nFurniture: {caller.ndb._furniture_data['name']}\n"
+    text += f"Message Type: {msg_type.replace('_', ' ').title()}\n\n"
+    text += "Enter the message (use {name} for player name, {furniture} for furniture name):\n"
+    text += "Examples:\n"
+    text += "  1st person: 'You settle into the comfortable cushions of the {furniture}.'\n"
+    text += "  3rd person: '{name} sits down on the {furniture}.'\n\n"
+    
+    def handle_msg(c, rs):
+        if not rs.strip():
+            text = BuilderMenuMixin.format_header("ERROR")
+            text += "\nMessage cannot be empty. Try again:\n"
+            return text, [{"key": "_default", "exec": lambda c2, rs2: handle_msg(c2, rs2)}]
+        
+        c.ndb._furniture_data[msg_type] = rs.strip()
+        return furniture_messages(c, "", **kwargs)
+    
+    return text, [{"key": "_default", "exec": handle_msg}]
+
+
+def furniture_save(caller, raw_string, **kwargs):
+    """Save furniture design."""
+    data = caller.ndb._furniture_data
+    furniture = add_furniture(
+        name=data["name"],
+        desc=data["desc"],
+        movable=data["movable"],
+        max_seats=data["max_seats"],
+        can_recline=data["can_recline"],
+        can_lie_down=data["can_lie_down"],
+        sit_msg_first=data["sit_msg_first"],
+        sit_msg_third=data["sit_msg_third"],
+        lie_msg_first=data["lie_msg_first"],
+        lie_msg_third=data["lie_msg_third"],
+        recline_msg_first=data["recline_msg_first"],
+        recline_msg_third=data["recline_msg_third"],
+        created_by=caller.key
+    )
+    
+    text = BuilderMenuMixin.format_header("SUCCESS")
+    text += f"\nFurniture saved!\n"
+    text += f"Name: {furniture['name']}\n"
+    text += f"ID: {furniture['id']}\n\n"
+    text += "You can now spawn it using: |yspawnfurniture {furniture['id']}|n\n"
+    
+    # Clean up
+    if hasattr(caller.ndb, '_furniture_data'):
+        delattr(caller.ndb, '_furniture_data')
+    
+    return text, [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+
+
+def furniture_cancel(caller, raw_string, **kwargs):
+    """Cancel furniture creation."""
+    if hasattr(caller.ndb, '_furniture_data'):
+        delattr(caller.ndb, '_furniture_data')
+    
+    return "Cancelled.", [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+
+
+# ============================================================================
+# NPC MENU
+# ============================================================================
+
+def npc_start(caller, raw_string, **kwargs):
+    """Start NPC creation menu."""
+    initialize_default_factions()
+    
+    caller.ndb._npc_data = {
+        "name": "",
+        "desc": "",
+        "faction": "neutral",
+        "wandering_zone": "",
+        "is_shopkeeper": False,
+        "stats": {
+            "body": 1,
+            "ref": 1,
+            "dex": 1,
+            "tech": 1,
+            "smrt": 1,
+            "will": 1,
+            "edge": 1,
+            "emp": 1,
+        },
+        "skills": {
+            "brawling": 0,
+            "blades": 0,
+            "blunt": 0,
+            "ranged": 0,
+            "grapple": 0,
+            "dodge": 0,
+            "stealth": 0,
+            "intimidate": 0,
+            "persuasion": 0,
+            "perception": 0,
+        },
+    }
+    
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - STEP 1: NAME")
+    text += "\nEnter the NPC name (e.g., 'Old Street Vendor', 'Gang Member'):\n"
+    
+    options = [
+        {"key": "_default", "exec": npc_name}
+    ]
+    
+    return text, options
+
+
+def npc_name(caller, raw_string, **kwargs):
+    """Get NPC name."""
+    if not raw_string.strip():
+        text = BuilderMenuMixin.format_header("ERROR")
+        text += "\nName cannot be empty. Try again:\n"
+        return text, [{"key": "_default", "exec": npc_name}]
+    
+    caller.ndb._npc_data["name"] = raw_string.strip()
+    
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - STEP 2: DESCRIPTION")
+    text += f"\nNPC: {caller.ndb._npc_data['name']}\n"
+    text += "\nEnter the NPC description:\n"
+    
+    options = [
+        {"key": "_default", "exec": npc_desc}
+    ]
+    
+    return text, options
+
+
+def npc_desc(caller, raw_string, **kwargs):
+    """Get NPC description."""
+    if not raw_string.strip():
+        text = BuilderMenuMixin.format_header("ERROR")
+        text += "\nDescription cannot be empty. Try again:\n"
+        return text, [{"key": "_default", "exec": npc_desc}]
+    
+    caller.ndb._npc_data["desc"] = raw_string.strip()
+    return npc_properties(caller, "", **kwargs)
+
+
+def npc_properties(caller, raw_string, **kwargs):
+    """Configure NPC properties."""
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - PROPERTIES")
+    text += f"\nNPC: {caller.ndb._npc_data['name']}\n\n"
+    text += "|y1|n - Faction: " + caller.ndb._npc_data["faction"] + "\n"
+    text += "|y2|n - Wandering Zone: " + (caller.ndb._npc_data["wandering_zone"] or "(none - static)") + "\n"
+    text += "|y3|n - Shopkeeper: " + ("Yes" if caller.ndb._npc_data["is_shopkeeper"] else "No") + "\n"
+    text += "|y4|n - Configure Stats\n"
+    text += "|y5|n - Configure Skills\n"
+    text += "|ys|n - Finish and Save\n"
+    text += "|yq|n - Cancel\n"
+    
+    options = [
+        {"key": "1", "exec": npc_faction},
+        {"key": "2", "exec": npc_wandering},
+        {"key": "3", "exec": lambda c, rs: npc_toggle_shopkeeper(c, rs, **kwargs)},
+        {"key": "4", "exec": npc_stats_menu},
+        {"key": "5", "exec": npc_skills_menu},
+        {"key": "s", "exec": npc_save},
+        {"key": "q", "exec": npc_cancel},
+    ]
+    
+    return text, options
+
+
+def npc_faction(caller, raw_string, **kwargs):
+    """Choose NPC faction."""
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - SELECT FACTION")
+    text += "\nAvailable factions:\n\n"
+    
+    factions = get_all_factions()
+    options = [{"key": "q", "exec": npc_properties}]
+    
+    for idx, faction in enumerate(factions, 1):
+        text += f"|y{idx}|n - {faction['name']}: {faction['description']}\n"
+        options.append({"key": str(idx), "exec": lambda c, rs, f=faction: npc_set_faction(c, rs, f)})
+    
+    text += "|yq|n - Back\n"
+    
+    return text, options
+
+
+def npc_set_faction(caller, raw_string, faction, **kwargs):
+    """Set NPC faction."""
+    caller.ndb._npc_data["faction"] = faction["id"]
+    return npc_properties(caller, "", **kwargs)
+
+
+def npc_wandering(caller, raw_string, **kwargs):
+    """Set NPC wandering zone."""
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - WANDERING ZONE")
+    text += "\nEnter zone ID for NPC to wander in, or press Enter for static (no wandering):\n"
+    
+    def handle_zone(c, rs):
+        c.ndb._npc_data["wandering_zone"] = rs.strip()
+        return npc_properties(c, "", **kwargs)
+    
+    return text, [{"key": "_default", "exec": handle_zone}]
+
+
+def npc_toggle_shopkeeper(caller, raw_string, **kwargs):
+    """Toggle shopkeeper property."""
+    caller.ndb._npc_data["is_shopkeeper"] = not caller.ndb._npc_data["is_shopkeeper"]
+    return npc_properties(caller, "", **kwargs)
+
+
+def npc_stats_menu(caller, raw_string, **kwargs):
+    """Display stats menu for NPC configuration."""
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - CONFIGURE STATS")
+    text += f"\nNPC: {caller.ndb._npc_data['name']}\n\n"
+    text += "Stats scale from 1-10 (1 = weak, 10 = exceptional)\n\n"
+    
+    stats = caller.ndb._npc_data["stats"]
+    options = [{"key": "q", "exec": npc_properties}]
+    
+    stat_names = ["body", "ref", "dex", "tech", "smrt", "will", "edge", "emp"]
+    stat_display = {
+        "body": "Body (Physical toughness)",
+        "ref": "Ref (Reaction speed)",
+        "dex": "Dex (Manual dexterity)",
+        "tech": "Tech (Technical aptitude)",
+        "smrt": "Smrt (Intelligence)",
+        "will": "Will (Mental fortitude)",
+        "edge": "Edge (Luck/chance)",
+        "emp": "Emp (Empathy/social)",
+    }
+    
+    for idx, stat in enumerate(stat_names, 1):
+        value = stats[stat]
+        text += f"|y{idx}|n - {stat_display[stat]:30} [Current: {value}]\n"
+        options.append({"key": str(idx), "exec": lambda c, rs, s=stat: npc_edit_stat(c, rs, s, **kwargs)})
+    
+    text += "|yq|n - Back to Properties\n"
+    return text, options
+
+
+def npc_edit_stat(caller, raw_string, stat_name, **kwargs):
+    """Edit a specific stat."""
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - EDIT STAT")
+    text += f"\nStat: {stat_name.upper()}\n"
+    text += f"Current value: {caller.ndb._npc_data['stats'][stat_name]}\n\n"
+    text += "Enter new value (1-10):\n"
+    
+    def save_stat(c, rs):
+        try:
+            value = int(rs.strip())
+            if 1 <= value <= 10:
+                c.ndb._npc_data["stats"][stat_name] = value
+                c.msg(f"|gStat {stat_name} set to {value}.|n")
+                return npc_stats_menu(c, "", **kwargs)
+            else:
+                c.msg("|rValue must be between 1 and 10.|n")
+                return npc_edit_stat(c, "", stat_name, **kwargs)
+        except (ValueError, TypeError):
+            c.msg("|rPlease enter a valid number.|n")
+            return npc_edit_stat(c, "", stat_name, **kwargs)
+    
+    return text, [{"key": "_default", "exec": save_stat}]
+
+
+def npc_skills_menu(caller, raw_string, **kwargs):
+    """Display skills menu for NPC configuration."""
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - CONFIGURE SKILLS")
+    text += f"\nNPC: {caller.ndb._npc_data['name']}\n\n"
+    text += "Skills scale from 0-100 (0 = untrained, 100 = master)\n\n"
+    
+    skills = caller.ndb._npc_data["skills"]
+    options = [{"key": "q", "exec": npc_properties}]
+    
+    skill_names = ["brawling", "blades", "blunt", "ranged", "grapple", 
+                   "dodge", "stealth", "intimidate", "persuasion", "perception"]
+    skill_display = {
+        "brawling": "Brawling (Unarmed combat)",
+        "blades": "Blades (Edged weapons)",
+        "blunt": "Blunt (Heavy blunt weapons)",
+        "ranged": "Ranged (Guns/bows)",
+        "grapple": "Grapple (Wrestling/holds)",
+        "dodge": "Dodge (Evasion)",
+        "stealth": "Stealth (Sneaking/hiding)",
+        "intimidate": "Intimidate (Threaten/coerce)",
+        "persuasion": "Persuasion (Convince/charm)",
+        "perception": "Perception (Notice/awareness)",
+    }
+    
+    for idx, skill in enumerate(skill_names, 1):
+        value = skills[skill]
+        text += f"|y{idx}|n - {skill_display[skill]:30} [Current: {value}]\n"
+        options.append({"key": str(idx), "exec": lambda c, rs, s=skill: npc_edit_skill(c, rs, s, **kwargs)})
+    
+    text += "|yq|n - Back to Properties\n"
+    return text, options
+
+
+def npc_edit_skill(caller, raw_string, skill_name, **kwargs):
+    """Edit a specific skill."""
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - EDIT SKILL")
+    text += f"\nSkill: {skill_name.upper()}\n"
+    text += f"Current value: {caller.ndb._npc_data['skills'][skill_name]}\n\n"
+    text += "Enter new value (0-100):\n"
+    
+    def save_skill(c, rs):
+        try:
+            value = int(rs.strip())
+            if 0 <= value <= 100:
+                c.ndb._npc_data["skills"][skill_name] = value
+                c.msg(f"|gSkill {skill_name} set to {value}.|n")
+                return npc_skills_menu(c, "", **kwargs)
+            else:
+                c.msg("|rValue must be between 0 and 100.|n")
+                return npc_edit_skill(c, "", skill_name, **kwargs)
+        except (ValueError, TypeError):
+            c.msg("|rPlease enter a valid number.|n")
+            return npc_edit_skill(c, "", skill_name, **kwargs)
+    
+    return text, [{"key": "_default", "exec": save_skill}]
+
+
+def npc_save(caller, raw_string, **kwargs):
+    """Save NPC design."""
+    data = caller.ndb._npc_data
+    npc = add_npc(
+        name=data["name"],
+        desc=data["desc"],
+        faction=data["faction"],
+        wandering_zone=data["wandering_zone"],
+        is_shopkeeper=data["is_shopkeeper"],
+        stats=data["stats"],
+        skills=data["skills"],
+        created_by=caller.key
+    )
+    
+    text = BuilderMenuMixin.format_header("SUCCESS")
+    text += f"\nNPC saved!\n"
+    text += f"Name: {npc['name']}\n"
+    text += f"ID: {npc['id']}\n"
+    text += f"Faction: {npc['faction']}\n"
+    text += f"Stats: {npc['stats']}\n"
+    text += f"Skills: {npc['skills']}\n\n"
+    text += f"You can now spawn it using: |yspawnnpc {npc['id']}|n\n"
+    
+    if hasattr(caller.ndb, '_npc_data'):
+        delattr(caller.ndb, '_npc_data')
+    
+    return text, [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+
+
+def npc_cancel(caller, raw_string, **kwargs):
+    """Cancel NPC creation."""
+    if hasattr(caller.ndb, '_npc_data'):
+        delattr(caller.ndb, '_npc_data')
+    
+    return "Cancelled.", [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+
+
+# ============================================================================
+# WEAPON MENU
+# ============================================================================
+
+def weapon_start(caller, raw_string, **kwargs):
+    """Start weapon creation menu."""
+    caller.ndb._weapon_data = {
+        "name": "",
+        "desc": "",
+        "weapon_type": "melee",
+        "ammo_type": "",
+        "damage_bonus": 0,
+        "accuracy_bonus": 0,
+    }
+    
+    text = BuilderMenuMixin.format_header("WEAPON DESIGNER - STEP 1: NAME")
+    text += "\nEnter the weapon name (e.g., 'Rusty Pistol', 'Combat Knife'):\n"
+    
+    options = [
+        {"key": "_default", "exec": weapon_name}
+    ]
+    
+    return text, options
+
+
+def weapon_name(caller, raw_string, **kwargs):
+    """Get weapon name."""
+    if not raw_string.strip():
+        text = BuilderMenuMixin.format_header("ERROR")
+        text += "\nName cannot be empty. Try again:\n"
+        return text, [{"key": "_default", "exec": weapon_name}]
+    
+    caller.ndb._weapon_data["name"] = raw_string.strip()
+    
+    text = BuilderMenuMixin.format_header("WEAPON DESIGNER - STEP 2: DESCRIPTION")
+    text += f"\nWeapon: {caller.ndb._weapon_data['name']}\n"
+    text += "\nEnter the weapon description:\n"
+    
+    options = [
+        {"key": "_default", "exec": weapon_desc}
+    ]
+    
+    return text, options
+
+
+def weapon_desc(caller, raw_string, **kwargs):
+    """Get weapon description."""
+    if not raw_string.strip():
+        text = BuilderMenuMixin.format_header("ERROR")
+        text += "\nDescription cannot be empty. Try again:\n"
+        return text, [{"key": "_default", "exec": weapon_desc}]
+    
+    caller.ndb._weapon_data["desc"] = raw_string.strip()
+    return weapon_type_select(caller, "", **kwargs)
+
+
+def weapon_type_select(caller, raw_string, **kwargs):
+    """Select weapon type."""
+    text = BuilderMenuMixin.format_header("WEAPON DESIGNER - TYPE")
+    text += f"\nWeapon: {caller.ndb._weapon_data['name']}\n\n"
+    text += "|y1|n - Melee (knife, sword, club, etc.)\n"
+    text += "|y2|n - Ranged (gun, bow, etc.)\n"
+    
+    def handle_type(c, rs):
+        if rs.strip() == "1":
+            c.ndb._weapon_data["weapon_type"] = "melee"
+            return weapon_properties(c, "", **kwargs)
+        elif rs.strip() == "2":
+            c.ndb._weapon_data["weapon_type"] = "ranged"
+            return weapon_ammo_type(c, "", **kwargs)
+        else:
+            text = BuilderMenuMixin.format_header("ERROR")
+            text += "\nChoose 1 or 2:\n"
+            return text, [{"key": "_default", "exec": handle_type}]
+    
+    return text, [{"key": "_default", "exec": handle_type}]
+
+
+def weapon_ammo_type(caller, raw_string, **kwargs):
+    """Get ammo type for ranged weapons."""
+    text = BuilderMenuMixin.format_header("WEAPON DESIGNER - AMMO TYPE")
+    text += f"\nWeapon: {caller.ndb._weapon_data['name']}\n\n"
+    text += "Enter ammo type (e.g., '9mm', 'arrow', '12gauge'):\n"
+    
+    def handle_ammo(c, rs):
+        ammo = rs.strip()
+        if not ammo:
+            text = BuilderMenuMixin.format_header("ERROR")
+            text += "\nAmmo type cannot be empty:\n"
+            return text, [{"key": "_default", "exec": handle_ammo}]
+        
+        c.ndb._weapon_data["ammo_type"] = ammo
+        return weapon_properties(c, "", **kwargs)
+    
+    return text, [{"key": "_default", "exec": handle_ammo}]
+
+
+def weapon_properties(caller, raw_string, **kwargs):
+    """Configure weapon properties."""
+    text = BuilderMenuMixin.format_header("WEAPON DESIGNER - PROPERTIES")
+    text += f"\nWeapon: {caller.ndb._weapon_data['name']}\n"
+    text += f"Type: {caller.ndb._weapon_data['weapon_type'].capitalize()}\n"
+    if caller.ndb._weapon_data["weapon_type"] == "ranged":
+        text += f"Ammo: {caller.ndb._weapon_data['ammo_type']}\n\n"
+    else:
+        text += "\n"
+    
+    text += "|y1|n - Damage Bonus: " + str(caller.ndb._weapon_data["damage_bonus"]) + "\n"
+    text += "|y2|n - Accuracy Bonus: " + str(caller.ndb._weapon_data["accuracy_bonus"]) + "\n"
+    text += "|ys|n - Finish and Save\n"
+    text += "|yq|n - Cancel\n"
+    
+    options = [
+        {"key": "1", "exec": weapon_damage},
+        {"key": "2", "exec": weapon_accuracy},
+        {"key": "s", "exec": weapon_save},
+        {"key": "q", "exec": weapon_cancel},
+    ]
+    
+    return text, options
+
+
+def weapon_damage(caller, raw_string, **kwargs):
+    """Set damage bonus."""
+    text = BuilderMenuMixin.format_header("WEAPON DESIGNER - DAMAGE BONUS")
+    text += "\nEnter damage bonus (-5 to 5):\n"
+    
+    def handle_damage(c, rs):
+        try:
+            damage = int(rs.strip())
+            if damage < -5 or damage > 5:
+                raise ValueError()
+            c.ndb._weapon_data["damage_bonus"] = damage
+            return weapon_properties(c, "", **kwargs)
+        except:
+            text = BuilderMenuMixin.format_header("ERROR")
+            text += "\nEnter a number between -5 and 5:\n"
+            return text, [{"key": "_default", "exec": handle_damage}]
+    
+    return text, [{"key": "_default", "exec": handle_damage}]
+
+
+def weapon_accuracy(caller, raw_string, **kwargs):
+    """Set accuracy bonus."""
+    text = BuilderMenuMixin.format_header("WEAPON DESIGNER - ACCURACY BONUS")
+    text += "\nEnter accuracy bonus (-5 to 5):\n"
+    
+    def handle_accuracy(c, rs):
+        try:
+            accuracy = int(rs.strip())
+            if accuracy < -5 or accuracy > 5:
+                raise ValueError()
+            c.ndb._weapon_data["accuracy_bonus"] = accuracy
+            return weapon_properties(c, "", **kwargs)
+        except:
+            text = BuilderMenuMixin.format_header("ERROR")
+            text += "\nEnter a number between -5 and 5:\n"
+            return text, [{"key": "_default", "exec": handle_accuracy}]
+    
+    return text, [{"key": "_default", "exec": handle_accuracy}]
+
+
+def weapon_save(caller, raw_string, **kwargs):
+    """Save weapon design."""
+    data = caller.ndb._weapon_data
+    weapon = add_weapon(
+        name=data["name"],
+        desc=data["desc"],
+        weapon_type=data["weapon_type"],
+        ammo_type=data["ammo_type"],
+        damage_bonus=data["damage_bonus"],
+        accuracy_bonus=data["accuracy_bonus"],
+        created_by=caller.key
+    )
+    
+    text = BuilderMenuMixin.format_header("SUCCESS")
+    text += f"\nWeapon saved!\n"
+    text += f"Name: {weapon['name']}\n"
+    text += f"ID: {weapon['id']}\n\n"
+    text += f"You can now spawn it using: |yspawnweapon {weapon['id']}|n\n"
+    
+    if hasattr(caller.ndb, '_weapon_data'):
+        delattr(caller.ndb, '_weapon_data')
+    
+    return text, [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+
+
+def weapon_cancel(caller, raw_string, **kwargs):
+    """Cancel weapon creation."""
+    if hasattr(caller.ndb, '_weapon_data'):
+        delattr(caller.ndb, '_weapon_data')
+    
+    return "Cancelled.", [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+
+
+# ============================================================================
+# CLOTHING/ARMOR MENU
+# ============================================================================
+
+def clothing_start(caller, raw_string, **kwargs):
+    """Start clothing/armor creation menu."""
+    caller.ndb._clothing_data = {
+        "name": "",
+        "desc": "",
+        "item_type": "clothing",
+        "armor_value": 0,
+        "armor_type": "",
+        "rarity": "common",
+    }
+    
+    text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - STEP 1: NAME")
+    text += "\nEnter the item name (e.g., 'Leather Jacket', 'Tactical Vest'):\n"
+    
+    options = [
+        {"key": "_default", "exec": clothing_name}
+    ]
+    
+    return text, options
+
+
+def clothing_name(caller, raw_string, **kwargs):
+    """Get clothing name."""
+    if not raw_string.strip():
+        text = BuilderMenuMixin.format_header("ERROR")
+        text += "\nName cannot be empty. Try again:\n"
+        return text, [{"key": "_default", "exec": clothing_name}]
+    
+    caller.ndb._clothing_data["name"] = raw_string.strip()
+    
+    text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - STEP 2: DESCRIPTION")
+    text += f"\nItem: {caller.ndb._clothing_data['name']}\n"
+    text += "\nEnter the item description:\n"
+    
+    options = [
+        {"key": "_default", "exec": clothing_desc}
+    ]
+    
+    return text, options
+
+
+def clothing_desc(caller, raw_string, **kwargs):
+    """Get clothing description."""
+    if not raw_string.strip():
+        text = BuilderMenuMixin.format_header("ERROR")
+        text += "\nDescription cannot be empty. Try again:\n"
+        return text, [{"key": "_default", "exec": clothing_desc}]
+    
+    caller.ndb._clothing_data["desc"] = raw_string.strip()
+    return clothing_type_select(caller, "", **kwargs)
+
+
+def clothing_type_select(caller, raw_string, **kwargs):
+    """Select clothing or armor."""
+    text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - TYPE")
+    text += f"\nItem: {caller.ndb._clothing_data['name']}\n\n"
+    text += "|y1|n - Clothing (no armor value)\n"
+    text += "|y2|n - Armor (provides protection)\n"
+    
+    def handle_type(c, rs):
+        if rs.strip() == "1":
+            c.ndb._clothing_data["item_type"] = "clothing"
+            return clothing_rarity(c, "", **kwargs)
+        elif rs.strip() == "2":
+            c.ndb._clothing_data["item_type"] = "armor"
+            return armor_type_select(c, "", **kwargs)
+        else:
+            text = BuilderMenuMixin.format_header("ERROR")
+            text += "\nChoose 1 or 2:\n"
+            return text, [{"key": "_default", "exec": handle_type}]
+    
+    return text, [{"key": "_default", "exec": handle_type}]
+
+
+def armor_type_select(caller, raw_string, **kwargs):
+    """Select armor type."""
+    text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - ARMOR TYPE")
+    text += f"\nItem: {caller.ndb._clothing_data['name']}\n\n"
+    text += "|y1|n - Light (leather, cloth armor)\n"
+    text += "|y2|n - Medium (kevlar, composite)\n"
+    text += "|y3|n - Heavy (ballistic plates, combat gear)\n"
+    
+    def handle_armor_type(c, rs):
+        if rs.strip() == "1":
+            c.ndb._clothing_data["armor_type"] = "light"
+            return armor_value(c, "", **kwargs)
+        elif rs.strip() == "2":
+            c.ndb._clothing_data["armor_type"] = "medium"
+            return armor_value(c, "", **kwargs)
+        elif rs.strip() == "3":
+            c.ndb._clothing_data["armor_type"] = "heavy"
+            return armor_value(c, "", **kwargs)
+        else:
+            text = BuilderMenuMixin.format_header("ERROR")
+            text += "\nChoose 1, 2, or 3:\n"
+            return text, [{"key": "_default", "exec": handle_armor_type}]
+    
+    return text, [{"key": "_default", "exec": handle_armor_type}]
+
+
+def armor_value(caller, raw_string, **kwargs):
+    """Set armor value."""
+    text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - ARMOR VALUE")
+    text += "\nEnter armor value (1-10):\n"
+    
+    def handle_value(c, rs):
+        try:
+            value = int(rs.strip())
+            if value < 1 or value > 10:
+                raise ValueError()
+            c.ndb._clothing_data["armor_value"] = value
+            return clothing_rarity(c, "", **kwargs)
+        except:
+            text = BuilderMenuMixin.format_header("ERROR")
+            text += "\nEnter a number between 1 and 10:\n"
+            return text, [{"key": "_default", "exec": handle_value}]
+    
+    return text, [{"key": "_default", "exec": handle_value}]
+
+
+def clothing_rarity(caller, raw_string, **kwargs):
+    """Select clothing rarity."""
+    text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - RARITY")
+    text += f"\nItem: {caller.ndb._clothing_data['name']}\n\n"
+    text += "|y1|n - Common\n"
+    text += "|y2|n - Uncommon\n"
+    text += "|y3|n - Rare\n"
+    text += "|y4|n - Epic\n"
+    
+    def handle_rarity(c, rs):
+        rarities = {"1": "common", "2": "uncommon", "3": "rare", "4": "epic"}
+        if rs.strip() not in rarities:
+            text = BuilderMenuMixin.format_header("ERROR")
+            text += "\nChoose 1, 2, 3, or 4:\n"
+            return text, [{"key": "_default", "exec": handle_rarity}]
+        
+        c.ndb._clothing_data["rarity"] = rarities[rs.strip()]
+        return clothing_save(c, "", **kwargs)
+    
+    return text, [{"key": "_default", "exec": handle_rarity}]
+
+
+def clothing_save(caller, raw_string, **kwargs):
+    """Save clothing/armor design."""
+    data = caller.ndb._clothing_data
+    item = add_clothing_item(
+        name=data["name"],
+        desc=data["desc"],
+        item_type=data["item_type"],
+        armor_value=data["armor_value"],
+        armor_type=data["armor_type"],
+        rarity=data["rarity"],
+        created_by=caller.key
+    )
+    
+    text = BuilderMenuMixin.format_header("SUCCESS")
+    text += f"\nItem saved!\n"
+    text += f"Name: {item['name']}\n"
+    text += f"ID: {item['id']}\n\n"
+    text += f"You can now spawn it using: |yspawnclothing {item['id']}|n\n"
+    
+    if hasattr(caller.ndb, '_clothing_data'):
+        delattr(caller.ndb, '_clothing_data')
+    
+    return text, [{"key": "_default", "exec": lambda c, rs: ("", [])}]

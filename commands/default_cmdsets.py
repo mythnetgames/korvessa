@@ -381,6 +381,26 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdArmorDesignMenu())      # Builder+: Armor/Clothes designer (armordesign, clothesdesign)
         self.add(CmdSpawnNPCDesign())       # Builder+: spawn NPC from design (spawnnpc)
         self.add(CmdSpawnClothingDesign())  # Builder+: spawn clothing/armor from design
+        # Add new builder item creation system
+        from commands.builder_designs import (
+            CmdDesignFurniture, CmdDesignNPC, CmdDesignWeapon, CmdDesignClothing,
+            CmdListDesigns, CmdManageFactions
+        )
+        self.add(CmdDesignFurniture())    # Builder+: furniture design menu
+        self.add(CmdDesignNPC())          # Builder+: NPC design menu
+        self.add(CmdDesignWeapon())       # Builder+: weapon design menu
+        self.add(CmdDesignClothing())     # Builder+: clothing/armor design menu
+        self.add(CmdListDesigns())        # Builder+: list all designs
+        self.add(CmdManageFactions())     # Builder+: manage factions
+        # Add new builder spawn commands
+        from commands.builder_spawners import (
+            CmdSpawnFurniture, CmdSpawnNPC, CmdSpawnWeapon, CmdSpawnClothing, CmdSpawnArmor
+        )
+        self.add(CmdSpawnFurniture())     # Builder+: spawn furniture
+        self.add(CmdSpawnNPC())           # Builder+: spawn NPCs
+        self.add(CmdSpawnWeapon())        # Builder+: spawn weapons
+        self.add(CmdSpawnClothing())      # Builder+: spawn clothing
+        self.add(CmdSpawnArmor())         # Builder+: spawn armor
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
