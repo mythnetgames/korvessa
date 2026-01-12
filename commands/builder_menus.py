@@ -52,42 +52,128 @@ def furniture_start(caller, raw_string, **kwargs):
         "recline_msg_third": "",
     }
     
+    return furniture_name(caller, "", **kwargs)
+
+
+def furniture_name(caller, raw_string, **kwargs):
+    """Get furniture name using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        name = raw_string.strip()
+        
+        # Validate
+        if len(name) < 2:
+            caller.msg("|rName must be at least 2 characters.|n")
+            return None  # Re-display this node
+        
+        if len(name) > 50:
+            caller.msg("|rName must be 50 characters or less.|n")
+            return None  # Re-display this node
+        
+        # Store and advance
+        caller.ndb._furniture_data["name"] = name
+        return furniture_desc(caller, "", **kwargs)  # Call next node
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - STEP 1: NAME")
     text += "\nEnter the furniture name (e.g., 'Oak Table', 'Red Couch'):\n"
     
-    options = [
-        {"key": "_default", "exec": lambda c, rs: furniture_name_node(c, rs)}
-    ]
+    options = (
+        {"key": "_default", "goto": "furniture_name"},
+    )
+    return text, options
     
     return text, options
 
 
-def furniture_name_node(caller, raw_string, **kwargs):
-    """Get furniture name - node processor."""
-    if not raw_string.strip():
-        text = BuilderMenuMixin.format_header("ERROR")
-        text += "\nName cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": lambda c, rs: furniture_name_node(c, rs)}]
+def furniture_desc(caller, raw_string, **kwargs):
+    """Get furniture description using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        desc = raw_string.strip()
+        
+        # Validate
+        if len(desc) < 5:
+            caller.msg("|rDescription must be at least 5 characters.|n")
+            return None  # Re-display this node
+        
+        if len(desc) > 500:
+            caller.msg("|rDescription must be 500 characters or less.|n")
+            return None  # Re-display this node
+        
+        # Store and advance
+        caller.ndb._furniture_data["desc"] = desc
+        # Continue to properties menu
+        text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - STEP 3: PROPERTIES")
+        text += f"\nFurniture: {caller.ndb._furniture_data['name']}\n\n"
+        text += "|y1|n - Movable: " + ("Yes" if caller.ndb._furniture_data["movable"] else "No") + "\n"
+        text += "|y2|n - Max Seats: " + str(caller.ndb._furniture_data["max_seats"]) + "\n"
+        text += "|y3|n - Can Recline: " + ("Yes" if caller.ndb._furniture_data["can_recline"] else "No") + "\n"
+        text += "|y4|n - Can Lie Down: " + ("Yes" if caller.ndb._furniture_data["can_lie_down"] else "No") + "\n"
+        text += "|y5|n - Continue to Messages\n"
+        text += "|ys|n - Save\n"
+        text += "|yq|n - Cancel\n"
+        
+        def furniture_properties_handler(caller, raw_string, **kwargs):
+            choice = raw_string.strip().lower()
+            if choice == "1":
+                caller.ndb._furniture_data["movable"] = not caller.ndb._furniture_data["movable"]
+                return furniture_desc(caller, "", **kwargs)  # Return to show updated properties
+            elif choice == "2":
+                caller.msg("Enter number of seats (0-10):")
+                def set_seats(caller, raw_string, **kwargs):
+                    try:
+                        seats = int(raw_string.strip())
+                        if 0 <= seats <= 10:
+                            caller.ndb._furniture_data["max_seats"] = seats
+                            return furniture_desc(caller, "", **kwargs)
+                        else:
+                            caller.msg("|rSeats must be 0-10.|n")
+                            return None
+                    except ValueError:
+                        caller.msg("|rPlease enter a number.|n")
+                        return None
+                return "Enter seats:", [{"key": "_default", "goto": set_seats}]
+            elif choice in ["s", "save"]:
+                # Save furniture
+                from world.builder_storage import add_furniture
+                data = caller.ndb._furniture_data
+                furniture = add_furniture(
+                    name=data["name"],
+                    desc=data["desc"],
+                    movable=data["movable"],
+                    max_seats=data["max_seats"],
+                    can_recline=data["can_recline"],
+                    can_lie_down=data["can_lie_down"],
+                    created_by=caller.key
+                )
+                text = BuilderMenuMixin.format_header("SUCCESS")
+                text += f"\nFurniture saved!\nName: {furniture['name']}\nID: {furniture['id']}\n"
+                if hasattr(caller.ndb, '_furniture_data'):
+                    delattr(caller.ndb, '_furniture_data')
+                return text, []
+            elif choice in ["q", "quit", "cancel"]:
+                if hasattr(caller.ndb, '_furniture_data'):
+                    delattr(caller.ndb, '_furniture_data')
+                return "Cancelled.", []
+            else:
+                caller.msg("|rInvalid choice.|n")
+                return None
+        
+        options = (
+            {"key": "_default", "goto": furniture_properties_handler},
+        )
+        return text, options
     
-    caller.ndb._furniture_data["name"] = raw_string.strip()
-    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - STEP 2: DESCRIPTION")
     text += f"\nFurniture: {caller.ndb._furniture_data['name']}\n"
     text += "\nEnter the furniture description (what players see when they look):\n"
     
-    options = [
-        {"key": "_default", "exec": lambda c, rs: furniture_desc_node(c, rs)}
-    ]
-    
+    options = (
+        {"key": "_default", "goto": "furniture_desc"},
+    )
     return text, options
-
-
-def furniture_desc_node(caller, raw_string, **kwargs):
-    """Get furniture description - node processor."""
-    if not raw_string.strip():
-        text = BuilderMenuMixin.format_header("ERROR")
-        text += "\nDescription cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": lambda c, rs: furniture_desc_node(c, rs)}]
     
     caller.ndb._furniture_data["desc"] = raw_string.strip()
     
@@ -293,45 +379,66 @@ def npc_start(caller, raw_string, **kwargs):
         },
     }
     
+    return npc_name(caller, "", **kwargs)
+
+
+def npc_name(caller, raw_string, **kwargs):
+    """Get NPC name using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        name = raw_string.strip()
+        
+        # Validate
+        if len(name) < 2:
+            caller.msg("|rName must be at least 2 characters.|n")
+            return None  # Re-display this node
+        
+        if len(name) > 50:
+            caller.msg("|rName must be 50 characters or less.|n")
+            return None  # Re-display this node
+        
+        # Store and advance
+        caller.ndb._npc_data["name"] = name
+        return npc_desc(caller, "", **kwargs)  # Call next node
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("NPC DESIGNER - STEP 1: NAME")
     text += "\nEnter the NPC name (e.g., 'Old Street Vendor', 'Gang Member'):\n"
     
-    options = [
-        {"key": "_default", "exec": lambda c, rs: npc_name_node(c, rs)}
-    ]
-    
+    options = (
+        {"key": "_default", "goto": "npc_name"},
+    )
     return text, options
 
 
-def npc_name_node(caller, raw_string, **kwargs):
-    """Get NPC name - node processor."""
-    if not raw_string.strip():
-        text = BuilderMenuMixin.format_header("ERROR")
-        text += "\nName cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": lambda c, rs: npc_name_node(c, rs)}]
+def npc_desc(caller, raw_string, **kwargs):
+    """Get NPC description using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        desc = raw_string.strip()
+        
+        # Validate
+        if len(desc) < 5:
+            caller.msg("|rDescription must be at least 5 characters.|n")
+            return None  # Re-display this node
+        
+        if len(desc) > 500:
+            caller.msg("|rDescription must be 500 characters or less.|n")
+            return None  # Re-display this node
+        
+        # Store and advance
+        caller.ndb._npc_data["desc"] = desc
+        return npc_properties(caller, "", **kwargs)  # Call next node
     
-    caller.ndb._npc_data["name"] = raw_string.strip()
-    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("NPC DESIGNER - STEP 2: DESCRIPTION")
     text += f"\nNPC: {caller.ndb._npc_data['name']}\n"
     text += "\nEnter the NPC description:\n"
     
-    options = [
-        {"key": "_default", "exec": lambda c, rs: npc_desc_node(c, rs)}
-    ]
-    
+    options = (
+        {"key": "_default", "goto": "npc_desc"},
+    )
     return text, options
-
-
-def npc_desc_node(caller, raw_string, **kwargs):
-    """Get NPC description - node processor."""
-    if not raw_string.strip():
-        text = BuilderMenuMixin.format_header("ERROR")
-        text += "\nDescription cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": lambda c, rs: npc_desc_node(c, rs)}]
-    
-    caller.ndb._npc_data["desc"] = raw_string.strip()
-    return npc_properties(caller, "", **kwargs)
 
 
 def npc_properties(caller, raw_string, **kwargs):
@@ -563,42 +670,68 @@ def weapon_start(caller, raw_string, **kwargs):
         "accuracy_bonus": 0,
     }
     
+    return weapon_name(caller, "", **kwargs)
+
+
+def weapon_name(caller, raw_string, **kwargs):
+    """Get weapon name using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        name = raw_string.strip()
+        
+        # Validate
+        if len(name) < 2:
+            caller.msg("|rName must be at least 2 characters.|n")
+            return None  # Re-display this node
+        
+        if len(name) > 50:
+            caller.msg("|rName must be 50 characters or less.|n")
+            return None  # Re-display this node
+        
+        # Store and advance
+        caller.ndb._weapon_data["name"] = name
+        return weapon_desc(caller, "", **kwargs)  # Call next node
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - STEP 1: NAME")
     text += "\nEnter the weapon name (e.g., 'Rusty Pistol', 'Combat Knife'):\n"
     
-    options = [
-        {"key": "_default", "exec": lambda c, rs: weapon_name_node(c, rs)}
-    ]
+    options = (
+        {"key": "_default", "goto": "weapon_name"},
+    )
+    return text, options
     
     return text, options
 
 
-def weapon_name_node(caller, raw_string, **kwargs):
-    """Get weapon name - node processor."""
-    if not raw_string.strip():
-        text = BuilderMenuMixin.format_header("ERROR")
-        text += "\nName cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": lambda c, rs: weapon_name_node(c, rs)}]
+def weapon_desc(caller, raw_string, **kwargs):
+    """Get weapon description using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        desc = raw_string.strip()
+        
+        # Validate
+        if len(desc) < 5:
+            caller.msg("|rDescription must be at least 5 characters.|n")
+            return None  # Re-display this node
+        
+        if len(desc) > 500:
+            caller.msg("|rDescription must be 500 characters or less.|n")
+            return None  # Re-display this node
+        
+        # Store and advance
+        caller.ndb._weapon_data["desc"] = desc
+        return weapon_type_select(caller, "", **kwargs)  # Call next node
     
-    caller.ndb._weapon_data["name"] = raw_string.strip()
-    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - STEP 2: DESCRIPTION")
     text += f"\nWeapon: {caller.ndb._weapon_data['name']}\n"
     text += "\nEnter the weapon description:\n"
     
-    options = [
-        {"key": "_default", "exec": lambda c, rs: weapon_desc_node(c, rs)}
-    ]
-    
+    options = (
+        {"key": "_default", "goto": "weapon_desc"},
+    )
     return text, options
-
-
-def weapon_desc_node(caller, raw_string, **kwargs):
-    """Get weapon description - node processor."""
-    if not raw_string.strip():
-        text = BuilderMenuMixin.format_header("ERROR")
-        text += "\nDescription cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": lambda c, rs: weapon_desc_node(c, rs)}]
     
     caller.ndb._weapon_data["desc"] = raw_string.strip()
     return weapon_type_select(caller, "", **kwargs)
@@ -758,42 +891,68 @@ def clothing_start(caller, raw_string, **kwargs):
         "rarity": "common",
     }
     
+    return clothing_name(caller, "", **kwargs)
+
+
+def clothing_name(caller, raw_string, **kwargs):
+    """Get clothing name using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        name = raw_string.strip()
+        
+        # Validate
+        if len(name) < 2:
+            caller.msg("|rName must be at least 2 characters.|n")
+            return None  # Re-display this node
+        
+        if len(name) > 50:
+            caller.msg("|rName must be 50 characters or less.|n")
+            return None  # Re-display this node
+        
+        # Store and advance
+        caller.ndb._clothing_data["name"] = name
+        return clothing_desc(caller, "", **kwargs)  # Call next node
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - STEP 1: NAME")
     text += "\nEnter the item name (e.g., 'Leather Jacket', 'Tactical Vest'):\n"
     
-    options = [
-        {"key": "_default", "exec": lambda c, rs: clothing_name_node(c, rs)}
-    ]
+    options = (
+        {"key": "_default", "goto": "clothing_name"},
+    )
+    return text, options
     
     return text, options
 
 
-def clothing_name_node(caller, raw_string, **kwargs):
-    """Get clothing name - node processor."""
-    if not raw_string.strip():
-        text = BuilderMenuMixin.format_header("ERROR")
-        text += "\nName cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": lambda c, rs: clothing_name_node(c, rs)}]
+def clothing_desc(caller, raw_string, **kwargs):
+    """Get clothing description using proper EvMenu pattern."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        desc = raw_string.strip()
+        
+        # Validate
+        if len(desc) < 5:
+            caller.msg("|rDescription must be at least 5 characters.|n")
+            return None  # Re-display this node
+        
+        if len(desc) > 500:
+            caller.msg("|rDescription must be 500 characters or less.|n")
+            return None  # Re-display this node
+        
+        # Store and advance
+        caller.ndb._clothing_data["desc"] = desc
+        return clothing_type_select(caller, "", **kwargs)  # Call next node
     
-    caller.ndb._clothing_data["name"] = raw_string.strip()
-    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - STEP 2: DESCRIPTION")
     text += f"\nItem: {caller.ndb._clothing_data['name']}\n"
     text += "\nEnter the item description:\n"
     
-    options = [
-        {"key": "_default", "exec": lambda c, rs: clothing_desc_node(c, rs)}
-    ]
-    
+    options = (
+        {"key": "_default", "goto": "clothing_desc"},
+    )
     return text, options
-
-
-def clothing_desc_node(caller, raw_string, **kwargs):
-    """Get clothing description - node processor."""
-    if not raw_string.strip():
-        text = BuilderMenuMixin.format_header("ERROR")
-        text += "\nDescription cannot be empty. Try again:\n"
-        return text, [{"key": "_default", "exec": lambda c, rs: clothing_desc_node(c, rs)}]
     
     caller.ndb._clothing_data["desc"] = raw_string.strip()
     return clothing_type_select(caller, "", **kwargs)
