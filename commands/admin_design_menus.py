@@ -14,8 +14,9 @@ class CmdSpawnNPCDesign(Command):
     help_category = "Building"
 
     def func(self):
-        # Check for in-progress design
-        current_design = getattr(self.caller.ndb, '_npc_design', None)
+        caller = self.caller
+        # Gather available designs
+        current_design = getattr(caller.ndb, '_npc_design', None)
         storage = get_admin_design_storage()
         npcs = storage.db.npcs or []
         choices = []
@@ -27,43 +28,44 @@ class CmdSpawnNPCDesign(Command):
             msg.append(f"{idx}. {npc.get('name', '(unnamed)')}")
             choices.append(npc)
         if not choices:
-            self.caller.msg("|rNo NPC designs found. Use npcdesign to create one.|n")
+            caller.msg("|rNo NPC designs found. Use npcdesign to create one.|n")
             return
         msg.append("Type the number of the NPC to spawn, or 'q' to cancel. To spawn multiple, use '2 3' for design 2, 3 copies.")
-        self.caller.msg("\n".join(msg))
-        self.caller.ndb._spawnnpc_choices = choices
-        # Robust: Only set get_input if not in EvMenu
-        if hasattr(self.caller.ndb, 'evmenu') and self.caller.ndb.evmenu:
-            self.caller.msg("|rCannot use interactive spawnnpc inside a menu. Please exit the menu and run spawnnpc as a standalone command.|n")
-            return
+        caller.msg("\n".join(msg))
+        caller.ndb._spawnnpc_choices = choices
+        # Always set get_input handler for robust input
         def _input_cb(caller, raw_string):
-            self._do_spawn(caller, raw_string)
-        self.caller.ndb.get_input = _input_cb
+            self._handle_input(caller, raw_string)
+        caller.ndb.get_input = _input_cb
 
-    def _do_spawn(self, caller, raw_string):
-        # Remove the input handler after use
+    def _handle_input(self, caller, raw_string):
+        # Remove handler immediately to avoid recursion
         if hasattr(caller.ndb, 'get_input'):
             del caller.ndb.get_input
         if not hasattr(caller.ndb, '_spawnnpc_choices'):
             caller.msg("|rNo spawn session found.|n")
             return
-        if raw_string.strip().lower() in ('q', 'quit', 'exit'):
+        text = raw_string.strip()
+        if text.lower() in ('q', 'quit', 'exit'):
             caller.msg("Aborted.")
             self._cleanup(caller)
             return
-        parts = raw_string.strip().split()
+        parts = text.split()
         if not parts:
             caller.msg("|rPlease enter a valid number or 'q' to cancel.|n")
+            self.func()  # Re-prompt
             return
         try:
             idx = int(parts[0])
             count = int(parts[1]) if len(parts) > 1 else 1
         except Exception:
             caller.msg("|rPlease enter a valid number or 'q' to cancel.|n")
+            self.func()  # Re-prompt
             return
         npcs = caller.ndb._spawnnpc_choices
         if idx < 0 or idx >= len(npcs) or count < 1 or count > 20:
             caller.msg("|rInvalid selection or count (max 20).|n")
+            self.func()  # Re-prompt
             return
         npcdata = npcs[idx]
         base_name = npcdata.get("name", "NPC")
