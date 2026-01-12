@@ -805,7 +805,7 @@ def weapon_name(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._weapon_data["name"] = name
-        return weapon_desc(caller, "", **kwargs)  # Call next node
+        return {"goto": "weapon_desc"}
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - STEP 1: NAME")
@@ -814,8 +814,6 @@ def weapon_name(caller, raw_string, **kwargs):
     options = (
         {"key": "_default", "goto": "weapon_name"},
     )
-    return text, options
-    
     return text, options
 
 
@@ -836,7 +834,7 @@ def weapon_desc(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._weapon_data["desc"] = desc
-        return weapon_type_select(caller, "", **kwargs)  # Call next node
+        return {"goto": "weapon_type_select"}
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - STEP 2: DESCRIPTION")
@@ -847,50 +845,56 @@ def weapon_desc(caller, raw_string, **kwargs):
         {"key": "_default", "goto": "weapon_desc"},
     )
     return text, options
-    
-    caller.ndb._weapon_data["desc"] = raw_string.strip()
-    return weapon_type_select(caller, "", **kwargs)
 
 
 def weapon_type_select(caller, raw_string, **kwargs):
     """Select weapon type."""
+    # Input mode - process user's choice
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip()
+        if choice == "1":
+            caller.ndb._weapon_data["weapon_type"] = "melee"
+            return {"goto": "weapon_properties"}
+        elif choice == "2":
+            caller.ndb._weapon_data["weapon_type"] = "ranged"
+            return {"goto": "weapon_ammo_type"}
+        else:
+            caller.msg("|rChoose 1 or 2:|n")
+            return None  # Re-display this node
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - TYPE")
     text += f"\nWeapon: {caller.ndb._weapon_data['name']}\n\n"
     text += "|y1|n - Melee (knife, sword, club, etc.)\n"
     text += "|y2|n - Ranged (gun, bow, etc.)\n"
     
-    def handle_type(c, rs):
-        if rs.strip() == "1":
-            c.ndb._weapon_data["weapon_type"] = "melee"
-            return weapon_properties(c, "", **kwargs)
-        elif rs.strip() == "2":
-            c.ndb._weapon_data["weapon_type"] = "ranged"
-            return weapon_ammo_type(c, "", **kwargs)
-        else:
-            text = BuilderMenuMixin.format_header("ERROR")
-            text += "\nChoose 1 or 2:\n"
-            return text, [{"key": "_default", "exec": handle_type}]
-    
-    return text, [{"key": "_default", "exec": handle_type}]
+    options = (
+        {"key": "_default", "goto": "weapon_type_select"},
+    )
+    return text, options
 
 
 def weapon_ammo_type(caller, raw_string, **kwargs):
     """Get ammo type for ranged weapons."""
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        ammo = raw_string.strip()
+        if not ammo:
+            caller.msg("|rAmmo type cannot be empty.|n")
+            return None  # Re-display this node
+        
+        caller.ndb._weapon_data["ammo_type"] = ammo
+        return {"goto": "weapon_properties"}
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - AMMO TYPE")
     text += f"\nWeapon: {caller.ndb._weapon_data['name']}\n\n"
     text += "Enter ammo type (e.g., '9mm', 'arrow', '12gauge'):\n"
     
-    def handle_ammo(c, rs):
-        ammo = rs.strip()
-        if not ammo:
-            text = BuilderMenuMixin.format_header("ERROR")
-            text += "\nAmmo type cannot be empty:\n"
-            return text, [{"key": "_default", "exec": handle_ammo}]
-        
-        c.ndb._weapon_data["ammo_type"] = ammo
-        return weapon_properties(c, "", **kwargs)
-    
-    return text, [{"key": "_default", "exec": handle_ammo}]
+    options = (
+        {"key": "_default", "goto": "weapon_ammo_type"},
+    )
+    return text, options
 
 
 def weapon_properties(caller, raw_string, **kwargs):
@@ -920,42 +924,50 @@ def weapon_properties(caller, raw_string, **kwargs):
 
 def weapon_damage(caller, raw_string, **kwargs):
     """Set damage bonus."""
+    # Input mode - process user's input
+    if raw_string and raw_string.strip():
+        try:
+            damage = int(raw_string.strip())
+            if damage < -5 or damage > 5:
+                raise ValueError()
+            caller.ndb._weapon_data["damage_bonus"] = damage
+            return {"goto": "weapon_properties"}
+        except:
+            caller.msg("|rEnter a number between -5 and 5.|n")
+            return None  # Re-display this node
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - DAMAGE BONUS")
     text += "\nEnter damage bonus (-5 to 5):\n"
     
-    def handle_damage(c, rs):
-        try:
-            damage = int(rs.strip())
-            if damage < -5 or damage > 5:
-                raise ValueError()
-            c.ndb._weapon_data["damage_bonus"] = damage
-            return weapon_properties(c, "", **kwargs)
-        except:
-            text = BuilderMenuMixin.format_header("ERROR")
-            text += "\nEnter a number between -5 and 5:\n"
-            return text, [{"key": "_default", "exec": handle_damage}]
-    
-    return text, [{"key": "_default", "exec": handle_damage}]
+    options = (
+        {"key": "_default", "goto": "weapon_damage"},
+    )
+    return text, options
 
 
 def weapon_accuracy(caller, raw_string, **kwargs):
     """Set accuracy bonus."""
+    # Input mode - process user's input
+    if raw_string and raw_string.strip():
+        try:
+            accuracy = int(raw_string.strip())
+            if accuracy < -5 or accuracy > 5:
+                raise ValueError()
+            caller.ndb._weapon_data["accuracy_bonus"] = accuracy
+            return {"goto": "weapon_properties"}
+        except:
+            caller.msg("|rEnter a number between -5 and 5.|n")
+            return None  # Re-display this node
+    
+    # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - ACCURACY BONUS")
     text += "\nEnter accuracy bonus (-5 to 5):\n"
     
-    def handle_accuracy(c, rs):
-        try:
-            accuracy = int(rs.strip())
-            if accuracy < -5 or accuracy > 5:
-                raise ValueError()
-            c.ndb._weapon_data["accuracy_bonus"] = accuracy
-            return weapon_properties(c, "", **kwargs)
-        except:
-            text = BuilderMenuMixin.format_header("ERROR")
-            text += "\nEnter a number between -5 and 5:\n"
-            return text, [{"key": "_default", "exec": handle_accuracy}]
-    
-    return text, [{"key": "_default", "exec": handle_accuracy}]
+    options = (
+        {"key": "_default", "goto": "weapon_accuracy"},
+    )
+    return text, options
 
 
 def weapon_save(caller, raw_string, **kwargs):
