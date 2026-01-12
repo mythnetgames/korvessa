@@ -38,15 +38,19 @@ as argument.
 #     """
 #     session.msg(oob=("echo", args, kwargs))
 #
-#
-# def default(session, cmdname, *args, **kwargs):
-#     """
-#     Handles commands without a matching inputhandler func.
-#
-#     Args:
-#         session (Session): The active Session.
-#         cmdname (str): The (unmatched) command name
-#         args, kwargs (any): Arguments to function.
-#
-#     """
-#     pass
+
+def default(session, cmdname, *args, **kwargs):
+    """
+    Handles commands without a matching inputhandler func.
+    Checks for ndb.get_input on the player/character and calls it if present.
+    """
+    player = session.get_puppet_or_player()
+    if hasattr(player, 'ndb') and hasattr(player.ndb, 'get_input') and player.ndb.get_input:
+        # Call the input handler and consume the input
+        handler = player.ndb.get_input
+        # Remove handler before calling to avoid recursion if handler fails
+        del player.ndb.get_input
+        handler(player, cmdname)
+        return
+    # Fallback: normal command parsing
+    session.execute_cmd(cmdname, *args, **kwargs)
