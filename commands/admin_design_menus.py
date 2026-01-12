@@ -13,8 +13,6 @@ class CmdSpawnNPCDesign(Command):
     locks = "cmd:perm(Builder)"
     help_category = "Building"
 
-
-
     def func(self):
         # Check for in-progress design
         current_design = getattr(self.caller.ndb, '_npc_design', None)
@@ -34,7 +32,10 @@ class CmdSpawnNPCDesign(Command):
         msg.append("Type the number of the NPC to spawn, or 'q' to cancel. To spawn multiple, use '2 3' for design 2, 3 copies.")
         self.caller.msg("\n".join(msg))
         self.caller.ndb._spawnnpc_choices = choices
-        # Use Evennia's get_input to capture the next input and call the handler
+        # Robust: Only set get_input if not in EvMenu
+        if hasattr(self.caller.ndb, 'evmenu') and self.caller.ndb.evmenu:
+            self.caller.msg("|rCannot use interactive spawnnpc inside a menu. Please exit the menu and run spawnnpc as a standalone command.|n")
+            return
         def _input_cb(caller, raw_string):
             self._do_spawn(caller, raw_string)
         self.caller.ndb.get_input = _input_cb
