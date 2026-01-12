@@ -52,7 +52,7 @@ def furniture_start(caller, raw_string, **kwargs):
         "recline_msg_third": "",
     }
     
-    return {"goto": "furniture_name"}
+    return "furniture_name"
 
 
 def furniture_name(caller, raw_string, **kwargs):
@@ -72,7 +72,7 @@ def furniture_name(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._furniture_data["name"] = name
-        return {"goto": "furniture_desc"}
+        return "furniture_desc"
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - STEP 1: NAME")
@@ -101,7 +101,7 @@ def furniture_desc(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._furniture_data["desc"] = desc
-        return {"goto": "furniture_properties"}
+        return "furniture_properties"
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - STEP 2: DESCRIPTION")
@@ -124,7 +124,7 @@ def furniture_properties(caller, raw_string, **kwargs):
             caller.ndb._furniture_data["movable"] = not caller.ndb._furniture_data["movable"]
             return None  # Re-display with updated value
         elif choice == "2":
-            return {"goto": "furniture_seats"}
+            return "furniture_seats"
         elif choice == "3":
             caller.ndb._furniture_data["can_recline"] = not caller.ndb._furniture_data["can_recline"]
             return None  # Re-display with updated value
@@ -132,11 +132,11 @@ def furniture_properties(caller, raw_string, **kwargs):
             caller.ndb._furniture_data["can_lie_down"] = not caller.ndb._furniture_data["can_lie_down"]
             return None  # Re-display with updated value
         elif choice == "5":
-            return {"goto": "furniture_messages"}
+            return "furniture_messages"
         elif choice in ["s", "save"]:
-            return {"goto": "furniture_save"}
+            return "furniture_save"
         elif choice in ["q", "quit", "cancel"]:
-            return {"goto": "furniture_cancel"}
+            return "furniture_cancel"
         else:
             caller.msg("|rInvalid choice.|n")
             return None
@@ -166,7 +166,7 @@ def furniture_seats(caller, raw_string, **kwargs):
             seats = int(raw_string.strip())
             if 0 <= seats <= 10:
                 caller.ndb._furniture_data["max_seats"] = seats
-                return {"goto": "furniture_properties"}
+                return "furniture_properties"
             else:
                 caller.msg("|rSeats must be between 0 and 10.|n")
                 return None  # Re-display
@@ -192,27 +192,27 @@ def furniture_messages(caller, raw_string, **kwargs):
         choice = raw_string.strip().lower()
         
         if choice == "q":
-            return {"goto": "furniture_cancel"}
+            return "furniture_cancel"
         elif choice == "s":
-            return {"goto": "furniture_save"}
+            return "furniture_save"
         elif choice == "1" and caller.ndb._furniture_data["max_seats"] > 0:
             caller.ndb._editing_msg_type = "sit_msg_first"
-            return {"goto": "furniture_msg_input"}
+            return "furniture_msg_input"
         elif choice == "2" and caller.ndb._furniture_data["max_seats"] > 0:
             caller.ndb._editing_msg_type = "sit_msg_third"
-            return {"goto": "furniture_msg_input"}
+            return "furniture_msg_input"
         elif choice == "3" and caller.ndb._furniture_data["can_lie_down"]:
             caller.ndb._editing_msg_type = "lie_msg_first"
-            return {"goto": "furniture_msg_input"}
+            return "furniture_msg_input"
         elif choice == "4" and caller.ndb._furniture_data["can_lie_down"]:
             caller.ndb._editing_msg_type = "lie_msg_third"
-            return {"goto": "furniture_msg_input"}
+            return "furniture_msg_input"
         elif choice == "5" and caller.ndb._furniture_data["can_recline"]:
             caller.ndb._editing_msg_type = "recline_msg_first"
-            return {"goto": "furniture_msg_input"}
+            return "furniture_msg_input"
         elif choice == "6" and caller.ndb._furniture_data["can_recline"]:
             caller.ndb._editing_msg_type = "recline_msg_third"
-            return {"goto": "furniture_msg_input"}
+            return "furniture_msg_input"
         else:
             caller.msg("|rInvalid choice.|n")
             return None
@@ -248,14 +248,14 @@ def furniture_msg_input(caller, raw_string, **kwargs):
     """Get custom furniture message using proper EvMenu pattern."""
     msg_type = getattr(caller.ndb, '_editing_msg_type', None)
     if not msg_type:
-        return {"goto": "furniture_messages"}
+        return "furniture_messages"
     
     # Input mode - process user's text
     if raw_string and raw_string.strip():
         caller.ndb._furniture_data[msg_type] = raw_string.strip()
         if hasattr(caller.ndb, '_editing_msg_type'):
             delattr(caller.ndb, '_editing_msg_type')
-        return {"goto": "furniture_messages"}
+        return "furniture_messages"
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - CUSTOM MESSAGE")
@@ -350,7 +350,7 @@ def npc_start(caller, raw_string, **kwargs):
         },
     }
     
-    return {"goto": "npc_name"}
+    return "npc_name"
 
 
 def npc_name(caller, raw_string, **kwargs):
@@ -370,7 +370,7 @@ def npc_name(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._npc_data["name"] = name
-        return {"goto": "npc_desc"}
+        return "npc_desc"
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("NPC DESIGNER - STEP 1: NAME")
@@ -399,7 +399,7 @@ def npc_desc(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._npc_data["desc"] = desc
-        return {"goto": "npc_properties"}
+        return "npc_properties"
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("NPC DESIGNER - STEP 2: DESCRIPTION")
@@ -419,20 +419,20 @@ def npc_properties(caller, raw_string, **kwargs):
         choice = raw_string.strip().lower()
         
         if choice == "1":
-            return {"goto": "npc_faction"}
+            return "npc_faction"
         elif choice == "2":
-            return {"goto": "npc_wandering"}
+            return "npc_wandering"
         elif choice == "3":
             caller.ndb._npc_data["is_shopkeeper"] = not caller.ndb._npc_data["is_shopkeeper"]
             return None  # Re-display with updated value
         elif choice == "4":
-            return {"goto": "npc_stats_menu"}
+            return "npc_stats_menu"
         elif choice == "5":
-            return {"goto": "npc_skills_menu"}
+            return "npc_skills_menu"
         elif choice in ["s", "save"]:
-            return {"goto": "npc_save"}
+            return "npc_save"
         elif choice in ["q", "quit", "cancel"]:
-            return {"goto": "npc_cancel"}
+            return "npc_cancel"
         else:
             caller.msg("|rInvalid choice. Please enter 1-5, s, or q.|n")
             return None  # Re-display menu
@@ -464,13 +464,13 @@ def npc_faction(caller, raw_string, **kwargs):
         choice = raw_string.strip().lower()
         
         if choice == "q":
-            return {"goto": "npc_properties"}
+            return "npc_properties"
         
         try:
             idx = int(choice)
             if 1 <= idx <= len(factions):
                 caller.ndb._npc_data["faction"] = factions[idx - 1]["id"]
-                return {"goto": "npc_properties"}
+                return "npc_properties"
         except ValueError:
             pass
         
@@ -520,7 +520,7 @@ def npc_wandering(caller, raw_string, **kwargs):
         caller.msg(f"|gWandering zone set to: {zone}|n")
     else:
         caller.msg("|gNPC set to static (no wandering)|n")
-    return {"goto": "npc_properties"}
+    return "npc_properties"
 
 
 def npc_stats_menu(caller, raw_string, **kwargs):
@@ -530,7 +530,7 @@ def npc_stats_menu(caller, raw_string, **kwargs):
         choice = raw_string.strip().lower()
         
         if choice == "q":
-            return {"goto": "npc_properties"}
+            return "npc_properties"
         
         # Check if it's a stat number (1-8)
         try:
@@ -540,7 +540,7 @@ def npc_stats_menu(caller, raw_string, **kwargs):
                 stat_name = stat_names[stat_num - 1]
                 # Store the selected stat in ndb so edit function can access it
                 caller.ndb._editing_stat = stat_name
-                return {"goto": "npc_edit_stat"}
+                return "npc_edit_stat"
         except ValueError:
             pass
         
@@ -583,7 +583,7 @@ def npc_edit_stat(caller, raw_string, **kwargs):
     # Get stat name from ndb (was stored by npc_stats_menu)
     stat_name = getattr(caller.ndb, '_editing_stat', None)
     if not stat_name:
-        return {"goto": "npc_stats_menu"}
+        return "npc_stats_menu"
     
     # Input mode - process user's text
     if raw_string and raw_string.strip():
@@ -594,7 +594,7 @@ def npc_edit_stat(caller, raw_string, **kwargs):
                 caller.msg(f"|gStat {stat_name} set to {value}.|n")
                 if hasattr(caller.ndb, '_editing_stat'):
                     delattr(caller.ndb, '_editing_stat')
-                return {"goto": "npc_stats_menu"}
+                return "npc_stats_menu"
             else:
                 caller.msg("|rValue must be between 1 and 10.|n")
                 return None  # Re-display
@@ -622,7 +622,7 @@ def npc_skills_menu(caller, raw_string, **kwargs):
         choice = raw_string.strip().lower()
         
         if choice == "q":
-            return {"goto": "npc_properties"}
+            return "npc_properties"
         
         # Check if it's a skill number (1-10)
         try:
@@ -633,7 +633,7 @@ def npc_skills_menu(caller, raw_string, **kwargs):
                 skill_name = skill_names[skill_num - 1]
                 # Store the selected skill in ndb so edit function can access it
                 caller.ndb._editing_skill = skill_name
-                return {"goto": "npc_edit_skill"}
+                return "npc_edit_skill"
         except ValueError:
             pass
         
@@ -679,7 +679,7 @@ def npc_edit_skill(caller, raw_string, **kwargs):
     # Get skill name from ndb (was stored by npc_skills_menu)
     skill_name = getattr(caller.ndb, '_editing_skill', None)
     if not skill_name:
-        return {"goto": "npc_skills_menu"}
+        return "npc_skills_menu"
     
     # Input mode - process user's text
     if raw_string and raw_string.strip():
@@ -690,7 +690,7 @@ def npc_edit_skill(caller, raw_string, **kwargs):
                 caller.msg(f"|gSkill {skill_name} set to {value}.|n")
                 if hasattr(caller.ndb, '_editing_skill'):
                     delattr(caller.ndb, '_editing_skill')
-                return {"goto": "npc_skills_menu"}
+                return "npc_skills_menu"
             else:
                 caller.msg("|rValue must be between 0 and 100.|n")
                 return None  # Re-display
@@ -763,7 +763,7 @@ def weapon_start(caller, raw_string, **kwargs):
         "accuracy_bonus": 0,
     }
     
-    return {"goto": "weapon_name"}
+    return "weapon_name"
 
 
 def weapon_name(caller, raw_string, **kwargs):
@@ -783,7 +783,7 @@ def weapon_name(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._weapon_data["name"] = name
-        return {"goto": "weapon_desc"}
+        return "weapon_desc"
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - STEP 1: NAME")
@@ -812,7 +812,7 @@ def weapon_desc(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._weapon_data["desc"] = desc
-        return {"goto": "weapon_type_select"}
+        return "weapon_type_select"
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - STEP 2: DESCRIPTION")
@@ -832,10 +832,10 @@ def weapon_type_select(caller, raw_string, **kwargs):
         choice = raw_string.strip()
         if choice == "1":
             caller.ndb._weapon_data["weapon_type"] = "melee"
-            return {"goto": "weapon_properties"}
+            return "weapon_properties"
         elif choice == "2":
             caller.ndb._weapon_data["weapon_type"] = "ranged"
-            return {"goto": "weapon_ammo_type"}
+            return "weapon_ammo_type"
         else:
             caller.msg("|rChoose 1 or 2:|n")
             return None  # Re-display this node
@@ -862,7 +862,7 @@ def weapon_ammo_type(caller, raw_string, **kwargs):
             return None  # Re-display this node
         
         caller.ndb._weapon_data["ammo_type"] = ammo
-        return {"goto": "weapon_properties"}
+        return "weapon_properties"
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - AMMO TYPE")
@@ -882,13 +882,13 @@ def weapon_properties(caller, raw_string, **kwargs):
         choice = raw_string.strip().lower()
         
         if choice == "1":
-            return {"goto": "weapon_damage"}
+            return "weapon_damage"
         elif choice == "2":
-            return {"goto": "weapon_accuracy"}
+            return "weapon_accuracy"
         elif choice == "s":
-            return {"goto": "weapon_save"}
+            return "weapon_save"
         elif choice == "q":
-            return {"goto": "weapon_cancel"}
+            return "weapon_cancel"
         else:
             caller.msg("|rInvalid choice. Enter 1, 2, s, or q.|n")
             return None
@@ -922,7 +922,7 @@ def weapon_damage(caller, raw_string, **kwargs):
             if damage < -5 or damage > 5:
                 raise ValueError()
             caller.ndb._weapon_data["damage_bonus"] = damage
-            return {"goto": "weapon_properties"}
+            return "weapon_properties"
         except:
             caller.msg("|rEnter a number between -5 and 5.|n")
             return None  # Re-display this node
@@ -946,7 +946,7 @@ def weapon_accuracy(caller, raw_string, **kwargs):
             if accuracy < -5 or accuracy > 5:
                 raise ValueError()
             caller.ndb._weapon_data["accuracy_bonus"] = accuracy
-            return {"goto": "weapon_properties"}
+            return "weapon_properties"
         except:
             caller.msg("|rEnter a number between -5 and 5.|n")
             return None  # Re-display this node
@@ -1009,7 +1009,7 @@ def clothing_start(caller, raw_string, **kwargs):
         "rarity": "common",
     }
     
-    return {"goto": "clothing_name"}
+    return "clothing_name"
 
 
 def clothing_name(caller, raw_string, **kwargs):
@@ -1029,7 +1029,7 @@ def clothing_name(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._clothing_data["name"] = name
-        return {"goto": "clothing_desc"}
+        return "clothing_desc"
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - STEP 1: NAME")
@@ -1058,7 +1058,7 @@ def clothing_desc(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._clothing_data["desc"] = desc
-        return {"goto": "clothing_type_select"}
+        return "clothing_type_select"
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - STEP 2: DESCRIPTION")
@@ -1078,10 +1078,10 @@ def clothing_type_select(caller, raw_string, **kwargs):
         choice = raw_string.strip()
         if choice == "1":
             caller.ndb._clothing_data["item_type"] = "clothing"
-            return {"goto": "clothing_rarity"}
+            return "clothing_rarity"
         elif choice == "2":
             caller.ndb._clothing_data["item_type"] = "armor"
-            return {"goto": "armor_type_select"}
+            return "armor_type_select"
         else:
             caller.msg("|rChoose 1 or 2:|n")
             return None
@@ -1105,13 +1105,13 @@ def armor_type_select(caller, raw_string, **kwargs):
         choice = raw_string.strip()
         if choice == "1":
             caller.ndb._clothing_data["armor_type"] = "light"
-            return {"goto": "armor_value"}
+            return "armor_value"
         elif choice == "2":
             caller.ndb._clothing_data["armor_type"] = "medium"
-            return {"goto": "armor_value"}
+            return "armor_value"
         elif choice == "3":
             caller.ndb._clothing_data["armor_type"] = "heavy"
-            return {"goto": "armor_value"}
+            return "armor_value"
         else:
             caller.msg("|rChoose 1, 2, or 3:|n")
             return None
@@ -1137,7 +1137,7 @@ def armor_value(caller, raw_string, **kwargs):
             value = int(raw_string.strip())
             if 1 <= value <= 10:
                 caller.ndb._clothing_data["armor_value"] = value
-                return {"goto": "clothing_rarity"}
+                return "clothing_rarity"
             else:
                 caller.msg("|rEnter a number between 1 and 10.|n")
                 return None
@@ -1163,7 +1163,7 @@ def clothing_rarity(caller, raw_string, **kwargs):
         choice = raw_string.strip()
         if choice in rarities:
             caller.ndb._clothing_data["rarity"] = rarities[choice]
-            return {"goto": "clothing_save"}
+            return "clothing_save"
         else:
             caller.msg("|rChoose 1, 2, 3, or 4:|n")
             return None
@@ -1205,3 +1205,4 @@ def clothing_save(caller, raw_string, **kwargs):
         delattr(caller.ndb, '_clothing_data')
     
     return text, [{"key": "_default", "exec": lambda c, rs: ("", [])}]
+

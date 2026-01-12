@@ -1334,6 +1334,24 @@ class Character(ObjectParent, DefaultCharacter):
             self.ndb = {}
         self.ndb.death_processed = True
         
+        # IMMEDIATELY remove from combat to prevent continued attacks on dead character
+        # This must happen before any delays to stop the combat round from processing more attacks
+        if hasattr(self.ndb, NDB_COMBAT_HANDLER) and getattr(self.ndb, NDB_COMBAT_HANDLER) is not None:
+            handler = getattr(self.ndb, NDB_COMBAT_HANDLER)
+            try:
+                splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+                splattercast.msg(f"AT_DEATH: Immediately removing {self.key} from combat handler {handler.key} to prevent further attacks")
+            except:
+                pass
+            try:
+                handler.remove_combatant(self)
+            except Exception as e:
+                try:
+                    splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+                    splattercast.msg(f"AT_DEATH_REMOVAL_ERROR: Failed to remove {self.key} from combat: {e}")
+                except:
+                    pass
+        
         # Note: death_count is NOT incremented here - it will be incremented in the 
         # death_progression.py script at the definitive point of permanent death
         # (right before the character is moved to limbo). This ensures it only
