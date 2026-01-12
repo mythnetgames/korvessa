@@ -238,26 +238,46 @@ class NPCWanderingScript(DefaultScript):
             # Store original location before moving
             original_location = npc.location
             
-            # Debug: Check for common blocking conditions
-            if channel:
-                movement_locked = getattr(npc.ndb, '_movement_locked', False)
-                combat_handler = getattr(npc.ndb, 'combat_handler', None)
-                channel.msg(f"PATH_DEBUG: {npc.name} - movement_locked={movement_locked}, combat_handler={combat_handler}, dest={destination.key if destination else 'None'}")
+            try:
+                # Debug: Check for common blocking conditions
+                if channel:
+                    try:
+                        movement_locked = getattr(npc.ndb, '_movement_locked', False)
+                        combat_handler = getattr(npc.ndb, 'combat_handler', None)
+                        channel.msg(f"PATH_DEBUG: {npc.name} - movement_locked={movement_locked}, combat_handler={combat_handler}, dest={destination.key if destination else 'None'}")
+                    except Exception as debug_err:
+                        channel.msg(f"PATH_DEBUG_ERROR: {debug_err}")
+            except Exception as e:
+                pass  # Debug code failed, continue
             
             # Clear any stale blocking state before moving
-            if hasattr(npc.ndb, '_movement_locked'):
-                delattr(npc.ndb, '_movement_locked')
-            if hasattr(npc.ndb, 'combat_handler'):
-                handler = npc.ndb.combat_handler
-                # Only clear if handler is dead or NPC isn't actually in combat
-                if not handler or not getattr(handler, 'is_active', False):
-                    delattr(npc.ndb, 'combat_handler')
-                    if channel:
-                        channel.msg(f"PATH_CLEANUP: {npc.name} - Cleared dead combat_handler")
+            try:
+                if hasattr(npc.ndb, '_movement_locked'):
+                    delattr(npc.ndb, '_movement_locked')
+            except:
+                pass
+                
+            try:
+                if hasattr(npc.ndb, 'combat_handler'):
+                    handler = npc.ndb.combat_handler
+                    # Only clear if handler is dead or NPC isn't actually in combat
+                    if not handler or not getattr(handler, 'is_active', False):
+                        delattr(npc.ndb, 'combat_handler')
+                        if channel:
+                            channel.msg(f"PATH_CLEANUP: {npc.name} - Cleared dead combat_handler")
+            except:
+                pass
             
-            # Use move_to directly - this bypasses exit restrictions meant for players
-            # We've already validated the exit is passable (no doors, no edges, no sky rooms)
-            result = npc.move_to(destination, quiet=False)
+            # Try calling move_to and catch any exceptions
+            if channel:
+                channel.msg(f"PATH_ATTEMPT: {npc.name} calling move_to({destination.key if destination else 'None'})")
+            
+            try:
+                result = npc.move_to(destination, quiet=False)
+            except Exception as move_err:
+                if channel:
+                    channel.msg(f"PATH_MOVE_ERROR: {npc.name} - move_to raised exception: {move_err}")
+                result = False
             
             # Check if movement actually occurred
             if result and npc.location and npc.location != original_location:
