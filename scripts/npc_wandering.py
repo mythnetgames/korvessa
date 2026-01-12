@@ -156,14 +156,25 @@ class NPCWanderingScript(DefaultScript):
             # Move the NPC
             npc.location = destination
             
+            # Prepare messages
+            leave_msg = f"{npc.name} leaves to the {direction}." if direction else f"{npc.name} leaves."
+            arrive_msg = f"{npc.name} arrives from the {direction}." if direction else f"{npc.name} arrives."
+
             # Send departure message to old location
             if old_location and hasattr(old_location, "msg_contents"):
-                msg = f"{npc.name} leaves to the {direction}." if direction else f"{npc.name} leaves."
-                old_location.msg_contents(msg)
+                old_location.msg_contents(leave_msg)
             # Send arrival message to new location
             if destination and hasattr(destination, "msg_contents"):
-                msg = f"{npc.name} arrives from the {direction}." if direction else f"{npc.name} arrives."
-                destination.msg_contents(msg)
+                destination.msg_contents(arrive_msg)
+
+            # Echo to wanderers channel
+            try:
+                from evennia.comms.models import ChannelDB
+                channel = ChannelDB.objects.get_channel("wanderers")
+                if channel:
+                    channel.msg(f"{npc.name}: {leave_msg} -> {arrive_msg}")
+            except Exception:
+                pass
         except Exception as e:
             # Movement failed, try to restore original location
             try:
