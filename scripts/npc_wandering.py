@@ -279,6 +279,9 @@ class NPCWanderingScript(DefaultScript):
                     channel.msg(f"PATH_MOVE_ERROR: {npc.name} - move_to raised exception: {move_err}")
                 result = False
             
+            if channel:
+                channel.msg(f"PATH_RESULT: {npc.name} - move_to returned {result}, location before={original_location.key}, location after={npc.location.key if npc.location else 'None'}")
+            
             # Check if movement actually occurred
             if result and npc.location and npc.location != original_location:
                 # Update last move timestamp only on successful move
