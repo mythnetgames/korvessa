@@ -234,26 +234,33 @@ class CmdMap(Command):
             desc_lines = [indent]
 
         map_width = 2 * 5 + 2
-        # Build output: left column is map, right column is desc
-        base_map_lines = grid + ["  " * 5] * (max(len(grid), 5) - len(grid))
+        map_grid_height = 5
         
-        # Create coordinate line
+        # Build map grid (always exactly 5 rows)
+        base_map_lines = grid + ["  " * 5] * (map_grid_height - len(grid))
+        
+        # Coordinate line - always at row 5 (right after the 5-row map grid)
         coord_str = f"x={x}, y={y}, z={z}"
-        coord_line = f"{coord_str}".ljust(map_width)
         
-        # Ensure description always aligns with the top of the map grid
-        # regardless of coordinate display
-        max_desc_lines = max(len(base_map_lines), len(desc_lines))
-        
-        # Build final output with consistent description alignment
+        # Build output with coords at FIXED position (row 5)
         output = []
-        for i in range(max_desc_lines):
-            left = base_map_lines[i] if i < len(base_map_lines) else " " * map_width
-            right = desc_lines[i] if i < len(desc_lines) else ""
-            output.append(f"{left.ljust(map_width)}{right}")
         
-        # Add coordinate line at the bottom, with no corresponding right column
-        output.append(coord_line)
+        # Rows 0-4: map grid paired with description
+        for i in range(map_grid_height):
+            left = base_map_lines[i].ljust(map_width)
+            right = desc_lines[i] if i < len(desc_lines) else ""
+            output.append(f"{left}{right}")
+        
+        # Row 5: coordinate line paired with description continuation (if any)
+        coord_left = coord_str.ljust(map_width)
+        coord_right = desc_lines[map_grid_height] if map_grid_height < len(desc_lines) else ""
+        output.append(f"{coord_left}{coord_right}")
+        
+        # Any remaining description lines (row 6+) have blank left column
+        for i in range(map_grid_height + 1, len(desc_lines)):
+            left = " " * map_width
+            right = desc_lines[i]
+            output.append(f"{left}{right}")
         
         self.caller.msg("\n".join(output), parse=True)
 
