@@ -508,25 +508,33 @@ def npc_set_faction(caller, raw_string, faction, **kwargs):
 
 def npc_wandering(caller, raw_string, **kwargs):
     """Set NPC wandering zone using proper EvMenu pattern."""
-    # Input mode - process user's text (allow empty string for static)
-    if raw_string is not None:
-        zone = raw_string.strip()
+    # Check if we're first entering this node (display mode) vs processing input
+    if not getattr(caller.ndb, '_wandering_input_mode', False):
+        # First entry - set flag and display prompt
+        caller.ndb._wandering_input_mode = True
         
-        # Store zone (empty string means static/no wandering)
-        caller.ndb._npc_data["wandering_zone"] = zone
-        if zone:
-            caller.msg(f"|gWandering zone set to: {zone}|n")
-        else:
-            caller.msg("|gNPC set to static (no wandering)|n")
-        return npc_properties(caller, "", **kwargs)  # Return to properties menu
+        text = BuilderMenuMixin.format_header("NPC DESIGNER - WANDERING ZONE")
+        text += "\nEnter zone ID for NPC to wander in, or press Enter for static (no wandering):\n"
+        
+        options = (
+            {"key": "_default", "goto": "npc_wandering"},
+        )
+        
+        return text, options
     
-    # Display mode - show prompt
-    text = BuilderMenuMixin.format_header("NPC DESIGNER - WANDERING ZONE")
-    text += "\nEnter zone ID for NPC to wander in, or press Enter for static (no wandering):\n"
+    # Input mode - user has entered something (or pressed Enter for static)
+    if hasattr(caller.ndb, '_wandering_input_mode'):
+        delattr(caller.ndb, '_wandering_input_mode')
     
-    options = (
-        {"key": "_default", "goto": "npc_wandering"},
-    )
+    zone = raw_string.strip() if raw_string else ""
+    
+    # Store zone (empty string means static/no wandering)
+    caller.ndb._npc_data["wandering_zone"] = zone
+    if zone:
+        caller.msg(f"|gWandering zone set to: {zone}|n")
+    else:
+        caller.msg("|gNPC set to static (no wandering)|n")
+    return npc_properties(caller, "", **kwargs)  # Return to properties menu
     
     return text, options
 
