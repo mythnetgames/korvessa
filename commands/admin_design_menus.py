@@ -2,6 +2,7 @@
 # SPAWN NPC FROM SAVED DESIGN COMMAND
 from evennia import create_object
 from evennia import Command
+import copy
 
 class CmdSpawnNPCDesign(Command):
     """
@@ -113,7 +114,7 @@ def node_npc_load_apply(caller, raw_string, idx, **kwargs):
     if idx < 0 or idx >= len(npcs):
         caller.msg("|rInvalid selection.|n")
         return "node_npc_load"
-    caller.ndb._npc_design = dict(npcs[idx])
+    caller.ndb._npc_design = copy.deepcopy(npcs[idx])
     caller.msg(f"|gLoaded NPC design: {npcs[idx].get('name', '(unnamed)')}|n")
     return "node_npc_main"
 def node_npc_set_cloneable(caller, raw_string, **kwargs):
@@ -148,7 +149,7 @@ def node_npc_set_cloneable_handler(caller, raw_string, **kwargs):
 # NPC SAVE NODE (re-added/fixed)
 def node_npc_save(caller, raw_string, **kwargs):
     storage = get_admin_design_storage()
-    npc_data = dict(_npc_data(caller))
+    npc_data = copy.deepcopy(_npc_data(caller))
     if not npc_data.get("name"):
         caller.msg("|rYou must set a name before saving!|n")
         return "node_npc_main"
@@ -463,7 +464,7 @@ def node_furniture_review(caller, raw_string, **kwargs):
 
 def node_furniture_save(caller, raw_string, **kwargs):
     storage = get_admin_design_storage()
-    furniture_data = dict(caller.ndb._furniture_design)
+    furniture_data = copy.deepcopy(caller.ndb._furniture_design)
     storage.db.furniture.append(furniture_data)
     caller.msg(f"|gFurniture '{furniture_data.get('name')}' saved!|n")
     return node_furniture_main(caller, raw_string, **kwargs)
@@ -516,7 +517,7 @@ def node_weapon_review(caller, raw_string, **kwargs):
 
 def node_weapon_save(caller, raw_string, **kwargs):
     storage = get_admin_design_storage()
-    weapon_data = dict(caller.ndb._weapon_design)
+    weapon_data = copy.deepcopy(caller.ndb._weapon_design)
     storage.db.weapons.append(weapon_data)
     caller.msg(f"|gWeapon '{weapon_data.get('name')}' saved!|n")
     return node_weapon_main(caller, raw_string, **kwargs)
@@ -631,7 +632,7 @@ def node_clothes_review(caller, raw_string, **kwargs):
 
 def node_clothes_save(caller, raw_string, **kwargs):
     storage = get_admin_design_storage()
-    clothes_data = dict(caller.ndb._clothes_design)
+    clothes_data = copy.deepcopy(caller.ndb._clothes_design)
     storage.db.clothes.append(clothes_data)
     caller.msg(f"|gClothes/Armor '{clothes_data.get('name')}' saved!|n")
     return node_clothes_main(caller, raw_string, **kwargs)
