@@ -257,6 +257,7 @@ class CmdMap(Command):
             # |#RRGGBB (hex colors)
             # |[#RRGGBB (hex background)
             # |n, |h, |u, |s (reset/formatting)
+            import re
             stripped = re.sub(r'\|(?:\[)?(?:#[0-9a-fA-F]{6}|[a-zA-Z0-9_])', '', s)
             return len(stripped)
         
