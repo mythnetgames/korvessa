@@ -234,18 +234,27 @@ class CmdMap(Command):
             desc_lines = [indent]
 
         map_width = 2 * 5 + 2
-        max_lines = max(len(grid), len(desc_lines))
         # Build output: left column is map, right column is desc
-        map_lines = grid + ["  " * 5] * (max(len(grid), 5) - len(grid))
-        # Insert coordinate line ONLY in left column, not as a paired line
+        base_map_lines = grid + ["  " * 5] * (max(len(grid), 5) - len(grid))
+        
+        # Create coordinate line
         coord_str = f"x={x}, y={y}, z={z}"
-        map_lines.append(f"{coord_str}".ljust(map_width))
-        # Right column: desc_lines, no blank line for coordinates
+        coord_line = f"{coord_str}".ljust(map_width)
+        
+        # Ensure description always aligns with the top of the map grid
+        # regardless of coordinate display
+        max_desc_lines = max(len(base_map_lines), len(desc_lines))
+        
+        # Build final output with consistent description alignment
         output = []
-        for i in range(max(len(map_lines), len(desc_lines))):
-            left = map_lines[i] if i < len(map_lines) else " " * map_width
+        for i in range(max_desc_lines):
+            left = base_map_lines[i] if i < len(base_map_lines) else " " * map_width
             right = desc_lines[i] if i < len(desc_lines) else ""
             output.append(f"{left.ljust(map_width)}{right}")
+        
+        # Add coordinate line at the bottom, with no corresponding right column
+        output.append(coord_line)
+        
         self.caller.msg("\n".join(output), parse=True)
 
 class CmdHelpMapping(Command):
