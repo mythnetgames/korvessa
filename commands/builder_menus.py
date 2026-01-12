@@ -64,15 +64,15 @@ def furniture_name(caller, raw_string, **kwargs):
         # Validate
         if len(name) < 2:
             caller.msg("|rName must be at least 2 characters.|n")
-            return None  # Re-display this node
+            return furniture_name(caller, "", **kwargs)  # Re-display this node
         
         if len(name) > 50:
             caller.msg("|rName must be 50 characters or less.|n")
-            return None  # Re-display this node
+            return furniture_name(caller, "", **kwargs)  # Re-display this node
         
         # Store and advance
         caller.ndb._furniture_data["name"] = name
-        return "furniture_desc"
+        return furniture_desc(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - STEP 1: NAME")
@@ -93,15 +93,15 @@ def furniture_desc(caller, raw_string, **kwargs):
         # Validate
         if len(desc) < 5:
             caller.msg("|rDescription must be at least 5 characters.|n")
-            return None  # Re-display this node
+            return furniture_desc(caller, "", **kwargs)  # Re-display this node
         
         if len(desc) > 500:
             caller.msg("|rDescription must be 500 characters or less.|n")
-            return None  # Re-display this node
+            return furniture_desc(caller, "", **kwargs)  # Re-display this node
         
         # Store and advance
         caller.ndb._furniture_data["desc"] = desc
-        return "furniture_properties"
+        return furniture_properties(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - STEP 2: DESCRIPTION")
@@ -166,13 +166,13 @@ def furniture_seats(caller, raw_string, **kwargs):
             seats = int(raw_string.strip())
             if 0 <= seats <= 10:
                 caller.ndb._furniture_data["max_seats"] = seats
-                return "furniture_properties"
+                return furniture_properties(caller, "", **kwargs)
             else:
                 caller.msg("|rSeats must be between 0 and 10.|n")
-                return None  # Re-display
+                return furniture_seats(caller, "", **kwargs)  # Re-display
         except ValueError:
             caller.msg("|rPlease enter a valid number.|n")
-            return None  # Re-display
+            return furniture_seats(caller, "", **kwargs)  # Re-display
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("FURNITURE DESIGNER - MAX SEATS")
@@ -362,15 +362,15 @@ def npc_name(caller, raw_string, **kwargs):
         # Validate
         if len(name) < 2:
             caller.msg("|rName must be at least 2 characters.|n")
-            return None  # Re-display this node
+            return npc_name(caller, "", **kwargs)  # Re-display this node
         
         if len(name) > 50:
             caller.msg("|rName must be 50 characters or less.|n")
-            return None  # Re-display this node
+            return npc_name(caller, "", **kwargs)  # Re-display this node
         
         # Store and advance
         caller.ndb._npc_data["name"] = name
-        return "npc_desc"
+        return npc_desc(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("NPC DESIGNER - STEP 1: NAME")
@@ -391,15 +391,15 @@ def npc_desc(caller, raw_string, **kwargs):
         # Validate
         if len(desc) < 5:
             caller.msg("|rDescription must be at least 5 characters.|n")
-            return None  # Re-display this node
+            return npc_desc(caller, "", **kwargs)  # Re-display this node
         
         if len(desc) > 500:
             caller.msg("|rDescription must be 500 characters or less.|n")
-            return None  # Re-display this node
+            return npc_desc(caller, "", **kwargs)  # Re-display this node
         
         # Store and advance
         caller.ndb._npc_data["desc"] = desc
-        return "npc_properties"
+        return npc_properties(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("NPC DESIGNER - STEP 2: DESCRIPTION")
@@ -775,15 +775,15 @@ def weapon_name(caller, raw_string, **kwargs):
         # Validate
         if len(name) < 2:
             caller.msg("|rName must be at least 2 characters.|n")
-            return None  # Re-display this node
+            return weapon_name(caller, "", **kwargs)  # Re-display this node
         
         if len(name) > 50:
             caller.msg("|rName must be 50 characters or less.|n")
-            return None  # Re-display this node
+            return weapon_name(caller, "", **kwargs)  # Re-display this node
         
         # Store and advance
         caller.ndb._weapon_data["name"] = name
-        return "weapon_desc"
+        return weapon_desc(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - STEP 1: NAME")
@@ -804,15 +804,15 @@ def weapon_desc(caller, raw_string, **kwargs):
         # Validate
         if len(desc) < 5:
             caller.msg("|rDescription must be at least 5 characters.|n")
-            return None  # Re-display this node
+            return weapon_desc(caller, "", **kwargs)  # Re-display this node
         
         if len(desc) > 500:
             caller.msg("|rDescription must be 500 characters or less.|n")
-            return None  # Re-display this node
+            return weapon_desc(caller, "", **kwargs)  # Re-display this node
         
         # Store and advance
         caller.ndb._weapon_data["desc"] = desc
-        return "weapon_type_select"
+        return weapon_type_select(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - STEP 2: DESCRIPTION")
@@ -832,13 +832,13 @@ def weapon_type_select(caller, raw_string, **kwargs):
         choice = raw_string.strip()
         if choice == "1":
             caller.ndb._weapon_data["weapon_type"] = "melee"
-            return "weapon_properties"
+            return weapon_properties(caller, "", **kwargs)
         elif choice == "2":
             caller.ndb._weapon_data["weapon_type"] = "ranged"
-            return "weapon_ammo_type"
+            return weapon_ammo_type(caller, "", **kwargs)
         else:
             caller.msg("|rChoose 1 or 2:|n")
-            return None  # Re-display this node
+            return weapon_type_select(caller, "", **kwargs)  # Re-display this node
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - TYPE")
@@ -859,10 +859,10 @@ def weapon_ammo_type(caller, raw_string, **kwargs):
         ammo = raw_string.strip()
         if not ammo:
             caller.msg("|rAmmo type cannot be empty.|n")
-            return None  # Re-display this node
+            return weapon_ammo_type(caller, "", **kwargs)  # Re-display this node
         
         caller.ndb._weapon_data["ammo_type"] = ammo
-        return "weapon_properties"
+        return weapon_properties(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - AMMO TYPE")
@@ -922,10 +922,10 @@ def weapon_damage(caller, raw_string, **kwargs):
             if damage < -5 or damage > 5:
                 raise ValueError()
             caller.ndb._weapon_data["damage_bonus"] = damage
-            return "weapon_properties"
+            return weapon_properties(caller, "", **kwargs)
         except:
             caller.msg("|rEnter a number between -5 and 5.|n")
-            return None  # Re-display this node
+            return weapon_damage(caller, "", **kwargs)  # Re-display this node
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - DAMAGE BONUS")
@@ -946,10 +946,10 @@ def weapon_accuracy(caller, raw_string, **kwargs):
             if accuracy < -5 or accuracy > 5:
                 raise ValueError()
             caller.ndb._weapon_data["accuracy_bonus"] = accuracy
-            return "weapon_properties"
+            return weapon_properties(caller, "", **kwargs)
         except:
             caller.msg("|rEnter a number between -5 and 5.|n")
-            return None  # Re-display this node
+            return weapon_accuracy(caller, "", **kwargs)  # Re-display this node
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - ACCURACY BONUS")
@@ -1021,15 +1021,15 @@ def clothing_name(caller, raw_string, **kwargs):
         # Validate
         if len(name) < 2:
             caller.msg("|rName must be at least 2 characters.|n")
-            return None  # Re-display this node
+            return clothing_name(caller, "", **kwargs)  # Re-display this node
         
         if len(name) > 50:
             caller.msg("|rName must be 50 characters or less.|n")
-            return None  # Re-display this node
+            return clothing_name(caller, "", **kwargs)  # Re-display this node
         
         # Store and advance
         caller.ndb._clothing_data["name"] = name
-        return "clothing_desc"
+        return clothing_desc(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - STEP 1: NAME")
@@ -1050,15 +1050,15 @@ def clothing_desc(caller, raw_string, **kwargs):
         # Validate
         if len(desc) < 5:
             caller.msg("|rDescription must be at least 5 characters.|n")
-            return None  # Re-display this node
+            return clothing_desc(caller, "", **kwargs)  # Re-display this node
         
         if len(desc) > 500:
             caller.msg("|rDescription must be 500 characters or less.|n")
-            return None  # Re-display this node
+            return clothing_desc(caller, "", **kwargs)  # Re-display this node
         
         # Store and advance
         caller.ndb._clothing_data["desc"] = desc
-        return "clothing_type_select"
+        return clothing_type_select(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - STEP 2: DESCRIPTION")
@@ -1078,13 +1078,13 @@ def clothing_type_select(caller, raw_string, **kwargs):
         choice = raw_string.strip()
         if choice == "1":
             caller.ndb._clothing_data["item_type"] = "clothing"
-            return "clothing_rarity"
+            return clothing_rarity(caller, "", **kwargs)
         elif choice == "2":
             caller.ndb._clothing_data["item_type"] = "armor"
-            return "armor_type_select"
+            return armor_type_select(caller, "", **kwargs)
         else:
             caller.msg("|rChoose 1 or 2:|n")
-            return None
+            return clothing_type_select(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - TYPE")
@@ -1105,16 +1105,16 @@ def armor_type_select(caller, raw_string, **kwargs):
         choice = raw_string.strip()
         if choice == "1":
             caller.ndb._clothing_data["armor_type"] = "light"
-            return "armor_value"
+            return armor_value(caller, "", **kwargs)
         elif choice == "2":
             caller.ndb._clothing_data["armor_type"] = "medium"
-            return "armor_value"
+            return armor_value(caller, "", **kwargs)
         elif choice == "3":
             caller.ndb._clothing_data["armor_type"] = "heavy"
-            return "armor_value"
+            return armor_value(caller, "", **kwargs)
         else:
             caller.msg("|rChoose 1, 2, or 3:|n")
-            return None
+            return armor_type_select(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - ARMOR TYPE")
@@ -1137,13 +1137,13 @@ def armor_value(caller, raw_string, **kwargs):
             value = int(raw_string.strip())
             if 1 <= value <= 10:
                 caller.ndb._clothing_data["armor_value"] = value
-                return "clothing_rarity"
+                return clothing_rarity(caller, "", **kwargs)
             else:
                 caller.msg("|rEnter a number between 1 and 10.|n")
-                return None
+                return armor_value(caller, "", **kwargs)
         except ValueError:
             caller.msg("|rPlease enter a valid number.|n")
-            return None
+            return armor_value(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - ARMOR VALUE")
@@ -1166,7 +1166,7 @@ def clothing_rarity(caller, raw_string, **kwargs):
             return "clothing_save"
         else:
             caller.msg("|rChoose 1, 2, 3, or 4:|n")
-            return None
+            return clothing_rarity(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("CLOTHING/ARMOR DESIGNER - RARITY")
