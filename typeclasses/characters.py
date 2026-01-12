@@ -284,14 +284,27 @@ class Character(ObjectParent, DefaultCharacter):
         """
         # Send custom movement messages to maintain consistency
         if source_location and self.location != source_location:
-            # Determine direction traveled
-            direction = self._get_direction_from_rooms(source_location, self.location)
+            # Try to find the actual exit that was used
+            direction = None
+            exit_used = None
+            
+            # Check exits from source location to find which one leads to current location
+            if hasattr(source_location, 'exits'):
+                for exit_obj in source_location.exits:
+                    if exit_obj and hasattr(exit_obj, 'destination') and exit_obj.destination == self.location:
+                        exit_used = exit_obj
+                        direction = exit_obj.key.lower()
+                        break
+            
+            # Fall back to coordinate-based direction if no exit found
+            if not direction:
+                direction = self._get_direction_from_rooms(source_location, self.location)
             
             # Send departure message to old location
             leave_msg = f"{self.name} leaves for the {direction}." if direction else f"{self.name} leaves."
             source_location.msg_contents(leave_msg, exclude=[self])
             
-            # For arrival, show opposite direction (e.g., if went NORTH, arrived from SOUTH)
+            # For arrival, show opposite direction (e.g., if went OUT, arrived from IN)
             opposite_direction = self._get_opposite_direction(direction) if direction else None
             arrive_msg = f"{self.name} arrives from the {opposite_direction}." if opposite_direction else f"{self.name} arrives."
             self.location.msg_contents(arrive_msg, exclude=[self])
