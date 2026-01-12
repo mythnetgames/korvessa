@@ -284,15 +284,16 @@ class Character(ObjectParent, DefaultCharacter):
         """
         # Send custom movement messages to maintain consistency
         if source_location and self.location != source_location:
-            # Determine direction
+            # Determine direction traveled
             direction = self._get_direction_from_rooms(source_location, self.location)
             
             # Send departure message to old location
             leave_msg = f"{self.name} leaves for the {direction}." if direction else f"{self.name} leaves."
             source_location.msg_contents(leave_msg, exclude=[self])
             
-            # Send arrival message to new location
-            arrive_msg = f"{self.name} arrives from the {direction}." if direction else f"{self.name} arrives."
+            # For arrival, show opposite direction (e.g., if went NORTH, arrived from SOUTH)
+            opposite_direction = self._get_opposite_direction(direction) if direction else None
+            arrive_msg = f"{self.name} arrives from the {opposite_direction}." if opposite_direction else f"{self.name} arrives."
             self.location.msg_contents(arrive_msg, exclude=[self])
         
         # Clear temp_place when changing rooms
@@ -393,6 +394,32 @@ class Character(ObjectParent, DefaultCharacter):
                 # Skip if window doesn't have required attributes
                 pass
 
+    def _get_opposite_direction(self, direction):
+        """
+        Get the opposite direction for a given direction.
+        
+        Args:
+            direction: A direction string (north, south, east, west, up, down, in, out, etc)
+            
+        Returns:
+            The opposite direction string, or None if direction not recognized
+        """
+        opposites = {
+            "north": "south",
+            "south": "north",
+            "east": "west",
+            "west": "east",
+            "northeast": "southwest",
+            "northwest": "southeast",
+            "southeast": "northwest",
+            "southwest": "northeast",
+            "up": "down",
+            "down": "up",
+            "in": "out",
+            "out": "in"
+        }
+        return opposites.get(direction.lower()) if direction else None
+
     def _get_direction_from_rooms(self, from_room, to_room):
         """
         Determine the direction from one room to another.
@@ -438,14 +465,16 @@ class Character(ObjectParent, DefaultCharacter):
 
     def move_to(self, destination, quiet=False, emit_to_obj=None, use_destination=True, **kwargs):
         """
-        Override move_to to handle follower movement.
+        Override move_to to handle follower movement and suppress default Evennia messages.
+        We handle our own custom directional messages in at_post_move() instead.
         When a character moves, their followers move with them.
         """
-        # Store the original location for follow system
+        # Store the original location for follow system and custom messages
         original_location = self.location
         
-        # Call the parent move_to method with all kwargs
-        result = super().move_to(destination, quiet=quiet, emit_to_obj=emit_to_obj, use_destination=use_destination, **kwargs)
+        # Always use quiet=True to suppress Evennia's default "arrives to Zone X from Y" messages
+        # We generate our own custom directional messages in at_post_move() instead
+        result = super().move_to(destination, quiet=True, emit_to_obj=emit_to_obj, use_destination=use_destination, **kwargs)
         
         # Handle followers after successful move
         if result and original_location and self.location != original_location:

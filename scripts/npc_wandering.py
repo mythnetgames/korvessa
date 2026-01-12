@@ -240,14 +240,31 @@ class NPCWanderingScript(DefaultScript):
                     direction = 'south'
         
         try:
-            # Move the NPC
+            # Move the NPC using location assignment (bypasses hooks for efficiency)
             npc.location = destination
             if channel:
                 channel.msg(f"WANDER_SUCCESS: {npc.name} moved from {old_location.name} to {destination.name}")
             
-            # Prepare messages
+            # Prepare messages with opposite direction for arrivals
             leave_msg = f"{npc.name} leaves for the {direction}." if direction else f"{npc.name} leaves."
-            arrive_msg = f"{npc.name} arrives from the {direction}." if direction else f"{npc.name} arrives."
+            
+            # Use opposite direction for arrival message (e.g., leaves NORTH, arrives from SOUTH)
+            opposite_direction_map = {
+                'north': 'south',
+                'south': 'north',
+                'east': 'west',
+                'west': 'east',
+                'northeast': 'southwest',
+                'northwest': 'southeast',
+                'southeast': 'northwest',
+                'southwest': 'northeast',
+                'up': 'down',
+                'down': 'up',
+                'in': 'out',
+                'out': 'in'
+            }
+            opposite_direction = opposite_direction_map.get(direction) if direction else None
+            arrive_msg = f"{npc.name} arrives from the {opposite_direction}." if opposite_direction else f"{npc.name} arrives."
 
             # Send departure message to old location
             if old_location and hasattr(old_location, "msg_contents"):
