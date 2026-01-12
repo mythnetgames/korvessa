@@ -508,8 +508,8 @@ def npc_set_faction(caller, raw_string, faction, **kwargs):
 
 def npc_wandering(caller, raw_string, **kwargs):
     """Set NPC wandering zone using proper EvMenu pattern."""
-    # Input mode - process user's text
-    if raw_string is not None:  # Allow empty string for "no wandering"
+    # Input mode - process user's text (allow empty string for static)
+    if raw_string is not None:
         zone = raw_string.strip()
         
         # Store zone (empty string means static/no wandering)
@@ -552,7 +552,9 @@ def npc_stats_menu(caller, raw_string, **kwargs):
             if 1 <= stat_num <= 8:
                 stat_names = ["body", "ref", "dex", "tech", "smrt", "will", "edge", "emp"]
                 stat_name = stat_names[stat_num - 1]
-                return npc_edit_stat(caller, "", stat_name, **kwargs)
+                # Store the selected stat in ndb so edit function can access it
+                caller.ndb._editing_stat = stat_name
+                return npc_edit_stat(caller, "", **kwargs)
         except ValueError:
             pass
         
@@ -590,8 +592,13 @@ def npc_stats_menu(caller, raw_string, **kwargs):
     return text, options
 
 
-def npc_edit_stat(caller, raw_string, stat_name, **kwargs):
+def npc_edit_stat(caller, raw_string, **kwargs):
     """Edit a specific stat using proper EvMenu pattern."""
+    # Get stat name from ndb (was stored by npc_stats_menu)
+    stat_name = getattr(caller.ndb, '_editing_stat', None)
+    if not stat_name:
+        return npc_stats_menu(caller, "", **kwargs)
+    
     # Input mode - process user's text
     if raw_string and raw_string.strip():
         try:
@@ -599,6 +606,8 @@ def npc_edit_stat(caller, raw_string, stat_name, **kwargs):
             if 1 <= value <= 10:
                 caller.ndb._npc_data["stats"][stat_name] = value
                 caller.msg(f"|gStat {stat_name} set to {value}.|n")
+                if hasattr(caller.ndb, '_editing_stat'):
+                    delattr(caller.ndb, '_editing_stat')
                 return npc_stats_menu(caller, "", **kwargs)
             else:
                 caller.msg("|rValue must be between 1 and 10.|n")
@@ -636,7 +645,9 @@ def npc_skills_menu(caller, raw_string, **kwargs):
                 skill_names = ["brawling", "blades", "blunt", "ranged", "grapple", 
                                "dodge", "stealth", "intimidate", "persuasion", "perception"]
                 skill_name = skill_names[skill_num - 1]
-                return npc_edit_skill(caller, "", skill_name, **kwargs)
+                # Store the selected skill in ndb so edit function can access it
+                caller.ndb._editing_skill = skill_name
+                return npc_edit_skill(caller, "", **kwargs)
         except ValueError:
             pass
         
@@ -677,8 +688,13 @@ def npc_skills_menu(caller, raw_string, **kwargs):
     return text, options
 
 
-def npc_edit_skill(caller, raw_string, skill_name, **kwargs):
+def npc_edit_skill(caller, raw_string, **kwargs):
     """Edit a specific skill using proper EvMenu pattern."""
+    # Get skill name from ndb (was stored by npc_skills_menu)
+    skill_name = getattr(caller.ndb, '_editing_skill', None)
+    if not skill_name:
+        return npc_skills_menu(caller, "", **kwargs)
+    
     # Input mode - process user's text
     if raw_string and raw_string.strip():
         try:
@@ -686,6 +702,8 @@ def npc_edit_skill(caller, raw_string, skill_name, **kwargs):
             if 0 <= value <= 100:
                 caller.ndb._npc_data["skills"][skill_name] = value
                 caller.msg(f"|gSkill {skill_name} set to {value}.|n")
+                if hasattr(caller.ndb, '_editing_skill'):
+                    delattr(caller.ndb, '_editing_skill')
                 return npc_skills_menu(caller, "", **kwargs)
             else:
                 caller.msg("|rValue must be between 0 and 100.|n")
