@@ -938,11 +938,15 @@ class CmdForceWander(Command):
                 destination = choice(available)
                 old_loc = obj.location
                 try:
+                    # Calculate direction
+                    direction = self._get_direction(old_loc, destination)
                     obj.location = destination
+                    leave_msg = f"{obj.name} leaves for the {direction}." if direction else f"{obj.name} leaves."
+                    arrive_msg = f"{obj.name} arrives from the {direction}." if direction else f"{obj.name} arrives."
                     if old_loc and hasattr(old_loc, "msg_contents"):
-                        old_loc.msg_contents(f"|r{obj.name} wanders away.|n")
+                        old_loc.msg_contents(leave_msg)
                     if hasattr(destination, "msg_contents"):
-                        destination.msg_contents(f"|r{obj.name} wanders in.|n")
+                        destination.msg_contents(arrive_msg)
                     moved_count += 1
                 except:
                     obj.location = old_loc
@@ -991,11 +995,15 @@ class CmdForceWander(Command):
         destination = choice(available)
         old_loc = npc.location
         try:
+            # Calculate direction
+            direction = self._get_direction(old_loc, destination)
             npc.location = destination
+            leave_msg = f"{npc.name} leaves for the {direction}." if direction else f"{npc.name} leaves."
+            arrive_msg = f"{npc.name} arrives from the {direction}." if direction else f"{npc.name} arrives."
             if old_loc and hasattr(old_loc, "msg_contents"):
-                old_loc.msg_contents(f"|r{npc.name} wanders away.|n")
+                old_loc.msg_contents(leave_msg)
             if hasattr(destination, "msg_contents"):
-                destination.msg_contents(f"|r{npc.name} wanders in.|n")
+                destination.msg_contents(arrive_msg)
             caller.msg(f"|gMoved {npc.key} from {old_loc.key} to {destination.key}.|n")
         except Exception as e:
             npc.location = old_loc
@@ -1092,6 +1100,29 @@ class CmdForceWander(Command):
                     script.stop()
         
         caller.msg(f"|gDisabled wandering for {npc.key}.|n")
+    
+    def _get_direction(self, from_room, to_room):
+        """Calculate direction between two rooms based on coordinates."""
+        if not from_room or not to_room:
+            return None
+        
+        dx = getattr(to_room.db, 'x', None)
+        dy = getattr(to_room.db, 'y', None)
+        fx = getattr(from_room.db, 'x', None)
+        fy = getattr(from_room.db, 'y', None)
+        
+        if dx is None or dy is None or fx is None or fy is None:
+            return None
+        
+        if dx > fx:
+            return 'east'
+        elif dx < fx:
+            return 'west'
+        elif dy > fy:
+            return 'north'
+        elif dy < fy:
+            return 'south'
+        return None
     
     def _get_zone_rooms(self, zone):
         """Get all rooms in a zone."""

@@ -280,7 +280,21 @@ class Character(ObjectParent, DefaultCharacter):
         Shows map+room description (if mapper enabled) or plain description (if disabled).
         Also triggers window observation messages for any windows observing this room.
         Clears @temp_place when moving to a new room.
+        Sends consistent movement messages for other players to see.
         """
+        # Send custom movement messages to maintain consistency
+        if source_location and self.location != source_location:
+            # Determine direction
+            direction = self._get_direction_from_rooms(source_location, self.location)
+            
+            # Send departure message to old location
+            leave_msg = f"{self.name} leaves for the {direction}." if direction else f"{self.name} leaves."
+            source_location.msg_contents(leave_msg, exclude=[self])
+            
+            # Send arrival message to new location
+            arrive_msg = f"{self.name} arrives from the {direction}." if direction else f"{self.name} arrives."
+            self.location.msg_contents(arrive_msg, exclude=[self])
+        
         # Clear temp_place when changing rooms
         if hasattr(self.ndb, 'temp_place'):
             delattr(self.ndb, 'temp_place')

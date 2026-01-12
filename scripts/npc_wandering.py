@@ -10,6 +10,23 @@ from evennia.scripts.scripts import DefaultScript
 from evennia.objects.models import ObjectDB
 
 
+def get_or_create_channel(channel_name):
+    """Get or create a channel by name."""
+    try:
+        from evennia.comms.models import ChannelDB
+        channel = ChannelDB.objects.get_channel(channel_name)
+        if not channel:
+            # Channel doesn't exist, try to create it
+            channel = ChannelDB.objects.channel_create(
+                key=channel_name,
+                description=f"Channel for {channel_name} messages",
+                locks="listen:all();send:all();edit:false()"
+            )
+        return channel
+    except Exception as e:
+        return None
+
+
 class NPCWanderingScript(DefaultScript):
     """
     Script that manages NPC wandering within a zone.
@@ -42,6 +59,17 @@ class NPCWanderingScript(DefaultScript):
         zone = getattr(obj.db, "npc_zone", None)
         if not zone:
             return
+        
+        # Log tick to wanderers channel
+        channel = get_or_create_channel("wanderers")
+        if channel:
+            # Show NPC status
+            location = obj.location.key if obj.location else "unknown"
+            puppeted = "PUPPETED" if getattr(obj.db, "puppeted_by", None) else "free"
+            in_combat = "COMBAT" if hasattr(obj.ndb, "combat_handler") else "safe"
+            roll = randint(1, 10)
+            will_move = "YES" if roll <= 3 else "NO"
+            channel.msg(f"TICK: {obj.name} in {location} ({zone}) - {puppeted}, {in_combat} - ROLL({roll}) -> {will_move}")
         
         # Don't wander if NPC is puppeted by an admin
         if getattr(obj.db, "puppeted_by", None):
@@ -157,7 +185,7 @@ class NPCWanderingScript(DefaultScript):
             npc.location = destination
             
             # Prepare messages
-            leave_msg = f"{npc.name} leaves to the {direction}." if direction else f"{npc.name} leaves."
+            leave_msg = f"{npc.name} leaves for the {direction}." if direction else f"{npc.name} leaves."
             arrive_msg = f"{npc.name} arrives from the {direction}." if direction else f"{npc.name} arrives."
 
             # Send departure message to old location
@@ -168,13 +196,9 @@ class NPCWanderingScript(DefaultScript):
                 destination.msg_contents(arrive_msg)
 
             # Echo to wanderers channel
-            try:
-                from evennia.comms.models import ChannelDB
-                channel = ChannelDB.objects.get_channel("wanderers")
-                if channel:
-                    channel.msg(f"{npc.name}: {leave_msg} -> {arrive_msg}")
-            except Exception:
-                pass
+            channel = get_or_create_channel("wanderers")
+            if channel:
+                channel.msg(f"{npc.name}: {leave_msg} -> {arrive_msg}")
         except Exception as e:
             # Movement failed, try to restore original location
             try:
