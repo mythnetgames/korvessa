@@ -906,7 +906,7 @@ def weapon_properties(caller, raw_string, **kwargs):
     else:
         text += "\n"
     
-    text += "|y1|n - Damage Bonus: " + str(caller.ndb._weapon_data["damage_bonus"]) + "\n"
+    text += "|y1|n - Base Damage: " + str(caller.ndb._weapon_data["damage_bonus"]) + "\n"
     text += "|y2|n - Accuracy Bonus: " + str(caller.ndb._weapon_data["accuracy_bonus"]) + "\n"
     text += "|ys|n - Finish and Save\n"
     text += "|yq|n - Cancel\n"
@@ -918,22 +918,22 @@ def weapon_properties(caller, raw_string, **kwargs):
 
 
 def weapon_damage(caller, raw_string, **kwargs):
-    """Set damage bonus."""
+    """Set base damage."""
     # Input mode - process user's input
     if raw_string and raw_string.strip():
         try:
             damage = int(raw_string.strip())
-            if damage < -5 or damage > 5:
+            if damage < 1 or damage > 30:
                 raise ValueError()
             caller.ndb._weapon_data["damage_bonus"] = damage
             return weapon_properties(caller, "", **kwargs)
         except:
-            caller.msg("|rEnter a number between -5 and 5.|n")
+            caller.msg("|rEnter a number between 1 and 30.|n")
             return weapon_damage(caller, "", **kwargs)  # Re-display this node
     
     # Display mode - show prompt
-    text = BuilderMenuMixin.format_header("WEAPON DESIGNER - DAMAGE BONUS")
-    text += "\nEnter damage bonus (-5 to 5):\n"
+    text = BuilderMenuMixin.format_header("WEAPON DESIGNER - BASE DAMAGE")
+    text += "\nEnter base damage (1-30):\n"
     
     options = (
         {"key": "_default", "goto": "weapon_damage"},

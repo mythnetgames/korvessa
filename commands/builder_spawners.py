@@ -358,7 +358,7 @@ class CmdSpawnWeapon(Command):
             
             # Create weapon object
             weapon = create_object(
-                "typeclasses.objects.Object",
+                "typeclasses.items.Item",
                 key=weapon_data['name'],
                 location=caller.location
             )
