@@ -303,6 +303,11 @@ class CmdSpawnWeapon(Command):
         # Get search keyword
         keyword = self.args.strip() if self.args else ""
         
+        # Check if user is selecting from a previous list
+        if hasattr(caller.ndb, '_spawn_weapon_choices') and keyword.isdigit():
+            self._handle_spawn(caller, keyword)
+            return
+        
         # Search weapons
         if keyword:
             weapon_list = search_weapons(keyword)
@@ -318,7 +323,12 @@ class CmdSpawnWeapon(Command):
         msg += "-" * 60 + "\n"
         
         for idx, weapon in enumerate(weapon_list, 1):
-            msg += f"{idx}. |y{weapon['name']}|n (ID: {weapon['id']})\n"
+            # Strip designweapon prefix if present
+            display_name = weapon['name']
+            if display_name.startswith('designweapon '):
+                display_name = display_name[len('designweapon '):]
+            
+            msg += f"{idx}. |y{display_name}|n (ID: {weapon['id']})\n"
             if weapon['weapon_type'] == 'ranged':
                 msg += f"   Type: Ranged ({weapon['ammo_type']}), "
             else:
@@ -333,12 +343,7 @@ class CmdSpawnWeapon(Command):
         caller.ndb._spawn_weapon_choices = weapon_list
         caller.ndb._spawn_weapon_mode = True
         
-        # If they provided just a number, try to spawn immediately
-        if keyword and keyword.isdigit():
-            self._handle_spawn(caller, keyword)
-        else:
-            caller.msg(msg)
-            caller.ndb._waiting_for_spawn = True
+        caller.msg(msg)
     
     def _handle_spawn(self, caller, choice_str):
         """Handle weapon spawning."""

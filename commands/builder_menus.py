@@ -776,14 +776,18 @@ def weapon_name(caller, raw_string, **kwargs):
     if raw_string and raw_string.strip():
         name = raw_string.strip()
         
+        # Strip "designweapon" prefix if user accidentally included it
+        if name.startswith("designweapon "):
+            name = name[len("designweapon "):]
+        
         # Validate
         if len(name) < 2:
             caller.msg("|rName must be at least 2 characters.|n")
-            return weapon_name(caller, "", **kwargs)  # Re-display this node
+            return None  # Re-display this node
         
         if len(name) > 50:
             caller.msg("|rName must be 50 characters or less.|n")
-            return weapon_name(caller, "", **kwargs)  # Re-display this node
+            return None  # Re-display this node
         
         # Store and advance
         caller.ndb._weapon_data["name"] = name
