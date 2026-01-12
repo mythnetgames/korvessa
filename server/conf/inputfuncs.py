@@ -43,13 +43,29 @@ def default(session, cmdname, *args, **kwargs):
     """
     Handles commands without a matching inputhandler func.
     Checks for ndb.get_input on the player/character and calls it if present.
+    Adds debug logging to confirm handler is called.
     """
     player = session.get_puppet_or_player()
+    # Debug: log inputfuncs default call
+    try:
+        from evennia.comms.models import ChannelDB
+        debugchan = ChannelDB.objects.get_channel("Splattercast")
+        debugchan.msg(f"[inputfuncs.py] default() called: cmdname={cmdname}, player={player}")
+    except Exception:
+        pass
     if hasattr(player, 'ndb') and hasattr(player.ndb, 'get_input') and player.ndb.get_input:
-        # Call the input handler and consume the input
         handler = player.ndb.get_input
-        # Remove handler before calling to avoid recursion if handler fails
-        del player.ndb.get_input
+        try:
+            del player.ndb.get_input
+        except Exception:
+            pass
+        # Debug: log handler call
+        try:
+            from evennia.comms.models import ChannelDB
+            debugchan = ChannelDB.objects.get_channel("Splattercast")
+            debugchan.msg(f"[inputfuncs.py] get_input handler found, calling handler for {player} with input: {cmdname}")
+        except Exception:
+            pass
         handler(player, cmdname)
         return
     # Fallback: normal command parsing
