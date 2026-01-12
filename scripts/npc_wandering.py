@@ -62,10 +62,30 @@ class NPCWanderingScript(DefaultScript):
         
         # Check blocking conditions FIRST
         is_puppeted = bool(getattr(obj.db, "puppeted_by", None))
-        is_in_combat = bool(hasattr(obj.ndb, "combat_handler"))
         
-        # Log tick to wanderers channel with accurate status
+        # Get channel early for cleanup logging
         channel = get_or_create_channel("wanderers")
+        
+        # Check combat status - verify handler is actually active and NPC is in it
+        is_in_combat = False
+        if hasattr(obj.ndb, "combat_handler"):
+            handler = obj.ndb.combat_handler
+            # Verify handler exists and is active
+            if handler and hasattr(handler, 'is_active') and handler.is_active:
+                # Verify NPC is actually in the handler's combatants list
+                combatants = getattr(handler.db, 'combatants', [])
+                is_in_combat = any(entry.get('char') == obj for entry in combatants)
+                
+                # If handler reference is stale, clean it up
+                if not is_in_combat:
+                    delattr(obj.ndb, "combat_handler")
+                    if channel:
+                        channel.msg(f"CLEANUP: Removed stale combat_handler reference from {obj.name}")
+            else:
+                # Handler is dead/inactive, clean up the reference
+                delattr(obj.ndb, "combat_handler")
+                if channel:
+                    channel.msg(f"CLEANUP: Removed dead combat_handler reference from {obj.name}")
         
         # If blocked by puppeting or combat, report it and return
         if is_puppeted or is_in_combat:

@@ -159,6 +159,7 @@ class CombatHandler(DefaultScript):
         setattr(self.db, "round", 0)
         setattr(self.db, DB_MANAGED_ROOMS, [self.obj])  # Initially manages only its host room
         setattr(self.db, DB_COMBAT_RUNNING, False)
+        setattr(self.db, "last_action_time", None)  # Track last hostile action for idle timeout
         
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         managed_rooms = getattr(self.db, DB_MANAGED_ROOMS, [])
@@ -437,6 +438,8 @@ class CombatHandler(DefaultScript):
         Main combat loop, processes each combatant's turn in initiative order.
         Handles attacks, misses, deaths, and round progression across managed rooms.
         """
+        import time
+        
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         if not getattr(self.db, DB_COMBAT_RUNNING, False):
             splattercast.msg(f"AT_REPEAT: Handler {self.key} on {self.obj.key} combat logic is not running ({DB_COMBAT_RUNNING}=False). Returning.")
@@ -447,6 +450,15 @@ class CombatHandler(DefaultScript):
              setattr(self.db, DB_COMBAT_RUNNING, False)
              return
 
+        # Check for idle combat (no action in last 60 seconds)
+        last_action_time = getattr(self.db, "last_action_time", None)
+        if last_action_time is not None:
+            time_since_action = time.time() - last_action_time
+            if time_since_action > 60:
+                splattercast.msg(f"AT_REPEAT: Handler {self.key} - Combat idle for {time_since_action:.1f}s (>60s). Ending combat.")
+                self.stop_combat_logic()
+                return
+        
         # Convert SaverList to regular list to avoid corruption during modifications
         combatants_list = []
         db_combatants = get_combatants_safe(self)
@@ -1216,7 +1228,12 @@ class CombatHandler(DefaultScript):
             attacker_entry: The attacker's combat entry
             combatants_list: List of all combat entries
         """
+        import time
+        
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        
+        # Update last action time (combat is no longer idle)
+        self.db.last_action_time = time.time()
         
         # Validate attacker's wielded weapons are still in inventory
         self._validate_and_clean_weapons(attacker)
