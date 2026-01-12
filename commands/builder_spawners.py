@@ -253,6 +253,14 @@ class CmdSpawnNPC(Command):
                 for skill_name, skill_value in npc_data['skills'].items():
                     setattr(npc.db, skill_name, skill_value)
             
+            # Enable wandering if zone is set
+            if npc_data['wandering_zone']:
+                npc.db.npc_can_wander = True
+                npc.db.npc_zone = npc_data['wandering_zone']
+                # Trigger wandering initialization
+                if hasattr(npc, "at_init"):
+                    npc.at_init()
+            
             caller.msg(f"|gSpawned: |y{npc.name}|g (ID: {npc.id})|n")
             caller.location.msg_contents(f"|g{caller.name} spawns {npc.name}.|n", exclude=[caller])
             

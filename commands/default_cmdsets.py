@@ -401,6 +401,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdSpawnWeapon())        # Builder+: spawn weapons
         self.add(CmdSpawnClothing())      # Builder+: spawn clothing
         self.add(CmdSpawnArmor())         # Builder+: spawn armor
+        # Add NPC wandering management command (admin+)
+        from commands.cmd_npc_wander import CmdNPCWander
+        self.add(CmdNPCWander())          # Admin+: manage NPC wandering in zones
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """

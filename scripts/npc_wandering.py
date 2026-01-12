@@ -1,0 +1,261 @@
+"""
+NPC Wandering Script
+
+This script handles NPC wandering behavior within restricted zones.
+NPCs will randomly move between rooms in their assigned zone, never leaving the zone.
+"""
+
+from random import randint, choice
+from evennia.scripts.scripts import DefaultScript
+from evennia.objects.models import ObjectDB
+
+
+class NPCWanderingScript(DefaultScript):
+    """
+    Script that manages NPC wandering within a zone.
+    
+    Assigned to individual NPCs via their db.npc_can_wander flag.
+    """
+    
+    def at_script_creation(self):
+        """Initialize the wandering script."""
+        self.key = "npc_wandering"
+        self.desc = "Handles NPC wandering behavior"
+        # Update interval in seconds - 10-30 seconds between movements
+        self.interval = randint(10, 30)
+        self.persistent = True
+    
+    def at_repeat(self):
+        """Called at each interval - handles the wandering logic."""
+        obj = self.obj  # The NPC this script is attached to
+        
+        if not obj:
+            # If NPC is deleted, stop the script
+            self.stop()
+            return
+        
+        # Check if NPC can wander
+        if not getattr(obj.db, "npc_can_wander", False):
+            return
+        
+        # Get the zone the NPC should wander in
+        zone = getattr(obj.db, "npc_zone", None)
+        if not zone:
+            return
+        
+        # Don't wander if NPC is puppeted by an admin
+        if getattr(obj.db, "puppeted_by", None):
+            return
+        
+        # Don't wander if NPC is in combat
+        if hasattr(obj.ndb, "combat_handler"):
+            return
+        
+        # Attempt to move to a random room in the zone
+        self._wander_to_zone_room(obj, zone)
+    
+    def _wander_to_zone_room(self, npc, zone):
+        """
+        Move NPC to a random room within its zone.
+        
+        Args:
+            npc: The NPC character object
+            zone: The zone identifier string
+        """
+        # Get all rooms in the zone
+        zone_rooms = self._get_zone_rooms(zone)
+        
+        if not zone_rooms:
+            # No rooms in zone, can't wander
+            return
+        
+        # Filter out the NPC's current room
+        available_rooms = [r for r in zone_rooms if r != npc.location]
+        
+        if not available_rooms:
+            # No other rooms to go to
+            return
+        
+        # Pick a random destination
+        destination = choice(available_rooms)
+        
+        # Move the NPC
+        self._move_npc_safely(npc, destination, zone)
+    
+    def _get_zone_rooms(self, zone):
+        """
+        Get all rooms that belong to a specific zone.
+        
+        Args:
+            zone (str): The zone identifier
+            
+        Returns:
+            list: List of room objects in that zone
+        """
+        from typeclasses.rooms import Room
+        
+        try:
+            # Query all rooms and filter by zone
+            rooms = []
+            for room in ObjectDB.objects.filter(db_typeclass_path__icontains="rooms.Room"):
+                if getattr(room, "zone", None) == zone:
+                    rooms.append(room)
+            return rooms
+        except Exception as e:
+            # Fallback: try using the room's get_zone_rooms method if available
+            try:
+                room = npc.location
+                if hasattr(room, "get_zone_rooms"):
+                    return room.get_zone_rooms()
+            except:
+                pass
+            return []
+    
+    def _move_npc_safely(self, npc, destination, zone):
+        """
+        Safely move NPC to destination, verifying zone constraints.
+        
+        Args:
+            npc: The NPC to move
+            destination: The destination room
+            zone: The zone constraint (for verification)
+        """
+        # Verify destination is in the correct zone
+        dest_zone = getattr(destination, "zone", None)
+        if dest_zone != zone:
+            # Zone mismatch - don't move
+            return
+        
+        # Verify NPC can move
+        if not npc.location:
+            return
+        
+        # Store current location for messaging
+        old_location = npc.location
+        
+        try:
+            # Move the NPC
+            npc.location = destination
+            
+            # Optional: Send departure message to old location
+            if old_location and hasattr(old_location, "msg_contents"):
+                old_location.msg_contents(f"|r{npc.name} wanders away.|n")
+            
+            # Optional: Send arrival message to new location
+            if destination and hasattr(destination, "msg_contents"):
+                destination.msg_contents(f"|r{npc.name} wanders in.|n")
+        
+        except Exception as e:
+            # Movement failed, try to restore original location
+            try:
+                npc.location = old_location
+            except:
+                pass
+
+
+class NPCZoneWandererManager(DefaultScript):
+    """
+    Global script that manages zone-based wandering for all NPCs.
+    
+    This is an alternative to attaching a script to each NPC.
+    It periodically checks for NPCs that should wander and moves them.
+    """
+    
+    def at_script_creation(self):
+        """Initialize the zone wanderer manager."""
+        self.key = "npc_zone_wanderer_manager"
+        self.desc = "Manages all NPC zone wandering"
+        self.interval = 15  # Check every 15 seconds
+        self.persistent = True
+    
+    def at_repeat(self):
+        """Called at each interval - manages all NPC wandering."""
+        try:
+            # Get all NPCs that should wander
+            npcs_to_manage = self._get_wandering_npcs()
+            
+            for npc in npcs_to_manage:
+                # Don't move if puppeted
+                if getattr(npc.db, "puppeted_by", None):
+                    continue
+                
+                # Don't move if in combat
+                if hasattr(npc.ndb, "combat_handler"):
+                    continue
+                
+                # Get zone
+                zone = getattr(npc.db, "npc_zone", None)
+                if not zone:
+                    continue
+                
+                # Random chance to wander (don't move every interval)
+                if randint(1, 10) <= 3:  # 30% chance each interval
+                    self._attempt_wander(npc, zone)
+        
+        except Exception as e:
+            # Log error but don't crash
+            pass
+    
+    def _get_wandering_npcs(self):
+        """Get all NPCs that have wandering enabled."""
+        try:
+            npcs = []
+            # Query for objects that have wandering enabled
+            for obj in ObjectDB.objects.all():
+                if (hasattr(obj, "db") and 
+                    getattr(obj.db, "is_npc", False) and 
+                    getattr(obj.db, "npc_can_wander", False)):
+                    npcs.append(obj)
+            return npcs
+        except:
+            return []
+    
+    def _attempt_wander(self, npc, zone):
+        """Attempt to move an NPC within its zone."""
+        try:
+            zone_rooms = self._get_zone_rooms(zone)
+            
+            if not zone_rooms:
+                return
+            
+            # Don't move if only one room in zone
+            if len(zone_rooms) <= 1:
+                return
+            
+            # Get available destination rooms (not current location)
+            available = [r for r in zone_rooms if r != npc.location]
+            if not available:
+                return
+            
+            # Choose random destination
+            destination = choice(available)
+            
+            # Verify zone match and move
+            if getattr(destination, "zone", None) == zone:
+                old_loc = npc.location
+                try:
+                    npc.location = destination
+                    
+                    # Send messages
+                    if old_loc and hasattr(old_loc, "msg_contents"):
+                        old_loc.msg_contents(f"|r{npc.name} wanders away.|n")
+                    if hasattr(destination, "msg_contents"):
+                        destination.msg_contents(f"|r{npc.name} wanders in.|n")
+                except:
+                    # Restore location on failure
+                    npc.location = old_loc
+        
+        except Exception as e:
+            # Silently fail
+            pass
+    
+    def _get_zone_rooms(self, zone):
+        """Get all rooms in a zone."""
+        try:
+            rooms = []
+            for room in ObjectDB.objects.all():
+                if getattr(room, "zone", None) == zone:
+                    rooms.append(room)
+            return rooms
+        except:
+            return []

@@ -76,7 +76,38 @@ class NPC(Character):
     def at_init(self):
         """Called when NPC is loaded."""
         super().at_init()
-        # Could start wandering script here if enabled
+        # Start wandering script if enabled and NPC has a zone
+        if self.db.npc_can_wander and self.db.npc_zone:
+            self._enable_wandering()
+    
+    def _enable_wandering(self):
+        """Enable wandering behavior for this NPC."""
+        # Check if script already exists
+        existing_script = None
+        for script in self.scripts.all():
+            if script.key == "npc_wandering":
+                existing_script = script
+                break
+        
+        if existing_script:
+            # Script already running
+            return
+        
+        # Import and create the wandering script
+        try:
+            from scripts.npc_wandering import NPCWanderingScript
+            script = self.scripts.add(NPCWanderingScript)
+            if script:
+                script.start()
+        except Exception as e:
+            # If script loading fails, just skip it
+            pass
+    
+    def _disable_wandering(self):
+        """Disable wandering behavior for this NPC."""
+        for script in self.scripts.all():
+            if script.key == "npc_wandering":
+                script.stop()
     
     def puppet_admin(self, admin_account):
         """Allow an admin to puppet this NPC."""
