@@ -30,7 +30,7 @@ def get_or_create_channel(channel_name):
 
 def is_exit_passable(exit_obj, npc):
     """
-    Check if an exit is passable (not blocked by a closed door).
+    Check if an exit is passable (not blocked by a closed door, edge, gap, or sky room).
     
     Args:
         exit_obj: The exit to check
@@ -40,6 +40,20 @@ def is_exit_passable(exit_obj, npc):
         bool: True if passable, False if blocked
     """
     if not exit_obj:
+        return False
+    
+    # Check for edge/gap exits - NPCs cannot use these
+    if getattr(exit_obj.db, "is_edge", False) or getattr(exit_obj.db, "is_gap", False):
+        return False
+    
+    # Check for sky rooms - NPCs cannot enter or exit sky rooms normally
+    if hasattr(exit_obj, 'destination') and exit_obj.destination:
+        target_is_sky = getattr(exit_obj.destination.db, "is_sky_room", False)
+        if target_is_sky:
+            return False
+    
+    current_is_sky = getattr(npc.location.db, "is_sky_room", False) if npc.location else False
+    if current_is_sky:
         return False
     
     # Check for door blocking
@@ -224,12 +238,13 @@ class NPCWanderingScript(DefaultScript):
             
             exit_obj.at_traverse(npc, destination)
             
-            # Update last move timestamp
-            import time
-            npc.ndb.last_pathfind_move = time.time()
-            
-            # Handle followers after successful move
+            # Check if movement actually occurred
             if npc.location and npc.location != original_location:
+                # Update last move timestamp only on successful move
+                import time
+                npc.ndb.last_pathfind_move = time.time()
+                
+                # Handle followers after successful move
                 try:
                     from scripts.follow_system import handle_character_move
                     handle_character_move(npc, npc.location, original_location)
@@ -237,9 +252,14 @@ class NPCWanderingScript(DefaultScript):
                     # Log follow failure but don't break NPC movement
                     if channel:
                         channel.msg(f"PATH_FOLLOW_ERROR: {npc.name} - Failed to move followers: {follow_err}")
-            
-            if channel:
-                channel.msg(f"PATH_SUCCESS: {npc.name} traversed '{exit_obj.key}' to '{destination.key}'")
+                
+                if channel:
+                    channel.msg(f"PATH_SUCCESS: {npc.name} traversed '{exit_obj.key}' to '{npc.location.key}'")
+            else:
+                # Movement was blocked by something (door, combat, etc.)
+                if channel:
+                    channel.msg(f"PATH_BLOCKED: {npc.name} - at_traverse did not move NPC (blocked by door/combat/etc), picking new destination")
+                self._pick_new_destination(npc, zone)
         except Exception as e:
             if channel:
                 channel.msg(f"PATH_ERROR: {npc.name} - Failed to traverse '{exit_obj.key}': {e}")
