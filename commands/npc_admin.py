@@ -1140,14 +1140,16 @@ class CmdForcePath(Command):
     Force NPCs to pathfind to a destination for testing.
     
     Usage:
-      forcepath <npc>            - Force NPC to pick new destination and start pathfinding
-      forcepath <npc>=<x>,<y>    - Force NPC to pathfind to specific coordinates
-      forcepath <npc> clear      - Clear NPC's current destination
-      forcepath <npc> status     - Show NPC's pathfinding status
+      forcepath <npc>              - Force NPC to pick new destination and start pathfinding
+      forcepath <npc>=<x>,<y>      - Force NPC to pathfind to specific coordinates
+      forcepath <npc>=<x>,<y>,<z>  - Force NPC to pathfind to specific coordinates with height
+      forcepath <npc> clear        - Clear NPC's current destination
+      forcepath <npc> status       - Show NPC's pathfinding status
     
     Examples:
       forcepath voidling
       forcepath street vendor=5,3
+      forcepath voidling=5,3,2
       forcepath gang member clear
       forcepath voidling status
     """
@@ -1219,9 +1221,13 @@ class CmdForcePath(Command):
         # Show what was picked
         dest_x = getattr(npc.ndb, 'wander_dest_x', None)
         dest_y = getattr(npc.ndb, 'wander_dest_y', None)
+        dest_z = getattr(npc.ndb, 'wander_dest_z', None)
         
         if dest_x is not None and dest_y is not None:
-            caller.msg(f"|gForced {npc.key} to pick new destination: ({dest_x}, {dest_y})|n")
+            if dest_z is not None:
+                caller.msg(f"|gForced {npc.key} to pick new destination: ({dest_x}, {dest_y}, {dest_z})|n")
+            else:
+                caller.msg(f"|gForced {npc.key} to pick new destination: ({dest_x}, {dest_y})|n")
             
             # Take one pathfinding step (bypass rate limiting for forcepath)
             import time
@@ -1281,19 +1287,34 @@ class CmdForcePath(Command):
         # Parse coordinates
         try:
             parts = coords.split(",")
-            if len(parts) != 2:
+            if len(parts) == 2:
+                x = int(parts[0].strip())
+                y = int(parts[1].strip())
+                z = None  # No z specified
+            elif len(parts) == 3:
+                x = int(parts[0].strip())
+                y = int(parts[1].strip())
+                z = int(parts[2].strip())
+            else:
                 raise ValueError
-            x = int(parts[0].strip())
-            y = int(parts[1].strip())
         except ValueError:
-            caller.msg("|rInvalid coordinates. Use format: x,y (e.g., 5,3)|n")
+            caller.msg("|rInvalid coordinates. Use format: x,y or x,y,z (e.g., 5,3 or 5,3,2)|n")
             return
         
         # Set destination
         npc.ndb.wander_dest_x = x
         npc.ndb.wander_dest_y = y
+        if z is not None:
+            npc.ndb.wander_dest_z = z
+        else:
+            # Clear z if not specified
+            if hasattr(npc.ndb, 'wander_dest_z'):
+                delattr(npc.ndb, 'wander_dest_z')
         
-        caller.msg(f"|gSet {npc.key}'s destination to ({x}, {y})|n")
+        if z is not None:
+            caller.msg(f"|gSet {npc.key}'s destination to ({x}, {y}, {z})|n")
+        else:
+            caller.msg(f"|gSet {npc.key}'s destination to ({x}, {y})|n")
         
         # Get zone and script
         zone = getattr(npc.db, "npc_zone", None)
@@ -1329,6 +1350,8 @@ class CmdForcePath(Command):
             delattr(npc.ndb, 'wander_dest_x')
         if hasattr(npc.ndb, 'wander_dest_y'):
             delattr(npc.ndb, 'wander_dest_y')
+        if hasattr(npc.ndb, 'wander_dest_z'):
+            delattr(npc.ndb, 'wander_dest_z')
         
         caller.msg(f"|gCleared {npc.key}'s pathfinding destination.|n")
     
@@ -1348,21 +1371,39 @@ class CmdForcePath(Command):
         # Get current position
         current_x = getattr(npc.location.db, 'x', None) if npc.location else None
         current_y = getattr(npc.location.db, 'y', None) if npc.location else None
+        current_z = getattr(npc.location.db, 'z', None) if npc.location else None
         
         # Get destination
         dest_x = getattr(npc.ndb, 'wander_dest_x', None)
         dest_y = getattr(npc.ndb, 'wander_dest_y', None)
+        dest_z = getattr(npc.ndb, 'wander_dest_z', None)
         
         # Get last move time
         last_move = getattr(npc.ndb, 'last_pathfind_move', None)
         
         # Build status message
         caller.msg(f"|c=== Pathfinding Status for {npc.key} ===|n")
-        caller.msg(f"Current Position: ({current_x}, {current_y})" if current_x is not None else "Current Position: Unknown")
-        caller.msg(f"Destination: ({dest_x}, {dest_y})" if dest_x is not None else "Destination: None")
+        
+        if current_x is not None and current_y is not None:
+            if current_z is not None:
+                caller.msg(f"Current Position: ({current_x}, {current_y}, {current_z})")
+            else:
+                caller.msg(f"Current Position: ({current_x}, {current_y})")
+        else:
+            caller.msg("Current Position: Unknown")
+        
+        if dest_x is not None and dest_y is not None:
+            if dest_z is not None:
+                caller.msg(f"Destination: ({dest_x}, {dest_y}, {dest_z})")
+            else:
+                caller.msg(f"Destination: ({dest_x}, {dest_y})")
+        else:
+            caller.msg("Destination: None")
         
         if current_x is not None and dest_x is not None:
             dist = abs(dest_x - current_x) + abs(dest_y - current_y)
+            if current_z is not None and dest_z is not None:
+                dist += abs(dest_z - current_z)
             caller.msg(f"Distance: {dist} rooms")
         
         caller.msg(f"Last Move: {last_move if last_move else 'Never'}")
