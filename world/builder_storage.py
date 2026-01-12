@@ -263,7 +263,7 @@ def delete_npc(npc_id):
 # ============================================================================
 
 def add_weapon(name, desc, weapon_type="melee", ammo_type="", damage_bonus=0,
-               accuracy_bonus=0, created_by=""):
+               accuracy_bonus=0, skill="brawling", created_by=""):
     """
     Add a new weapon template to storage.
     
@@ -274,6 +274,7 @@ def add_weapon(name, desc, weapon_type="melee", ammo_type="", damage_bonus=0,
         ammo_type: Type of ammo required (empty for melee, e.g., "9mm", "arrow")
         damage_bonus: Bonus damage
         accuracy_bonus: Bonus to accuracy rolls
+        skill: Combat skill used with this weapon (blades, pistols, rifles, melee, brawling, martial_arts, dodge, athletics)
         created_by: Character who created this
     
     Returns:
@@ -293,6 +294,7 @@ def add_weapon(name, desc, weapon_type="melee", ammo_type="", damage_bonus=0,
         "ammo_type": ammo_type,
         "damage_bonus": damage_bonus,
         "accuracy_bonus": accuracy_bonus,
+        "skill": skill,
         "created_by": created_by,
     }
     

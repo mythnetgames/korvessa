@@ -765,6 +765,7 @@ def weapon_start(caller, raw_string, **kwargs):
         "ammo_type": "",
         "damage_bonus": 0,
         "accuracy_bonus": 0,
+        "skill": "brawling",
     }
     
     return weapon_name(caller, "", **kwargs)
@@ -840,7 +841,7 @@ def weapon_type_select(caller, raw_string, **kwargs):
         choice = raw_string.strip()
         if choice == "1":
             caller.ndb._weapon_data["weapon_type"] = "melee"
-            return weapon_properties(caller, "", **kwargs)
+            return weapon_skill_select(caller, "", **kwargs)
         elif choice == "2":
             caller.ndb._weapon_data["weapon_type"] = "ranged"
             return weapon_ammo_type(caller, "", **kwargs)
@@ -870,7 +871,7 @@ def weapon_ammo_type(caller, raw_string, **kwargs):
             return weapon_ammo_type(caller, "", **kwargs)  # Re-display this node
         
         caller.ndb._weapon_data["ammo_type"] = ammo
-        return weapon_properties(caller, "", **kwargs)
+        return weapon_skill_select(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - AMMO TYPE")
@@ -879,6 +880,45 @@ def weapon_ammo_type(caller, raw_string, **kwargs):
     
     options = (
         {"key": "_default", "goto": "weapon_ammo_type"},
+    )
+    return text, options
+
+def weapon_skill_select(caller, raw_string, **kwargs):
+    """Select which skill uses this weapon."""
+    # Input mode - process user's choice
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip().lower()
+        
+        skills = {
+            "1": "blades",
+            "2": "pistols",
+            "3": "rifles",
+            "4": "melee",
+            "5": "brawling",
+            "6": "martial_arts",
+        }
+        
+        if choice in skills:
+            caller.ndb._weapon_data["skill"] = skills[choice]
+            return weapon_properties(caller, "", **kwargs)
+        else:
+            caller.msg("|rChoose 1-6:|n")
+            return weapon_skill_select(caller, "", **kwargs)  # Re-display this node
+    
+    # Display mode - show prompt
+    text = BuilderMenuMixin.format_header("WEAPON DESIGNER - SKILL")
+    text += f"\nWeapon: {caller.ndb._weapon_data['name']}\n"
+    text += f"Type: {caller.ndb._weapon_data['weapon_type'].capitalize()}\n\n"
+    text += "Select the skill used with this weapon:\n\n"
+    text += "|y1|n - Blades (knives, swords, edged weapons)\n"
+    text += "|y2|n - Pistols (handguns, revolvers)\n"
+    text += "|y3|n - Rifles (rifles, assault rifles)\n"
+    text += "|y4|n - Melee (clubs, hammers, blunt force)\n"
+    text += "|y5|n - Brawling (fists, unarmed combat)\n"
+    text += "|y6|n - Martial Arts (specialized hand-to-hand)\n"
+    
+    options = (
+        {"key": "_default", "goto": "weapon_skill_select"},
     )
     return text, options
 
@@ -905,6 +945,7 @@ def weapon_properties(caller, raw_string, **kwargs):
     text = BuilderMenuMixin.format_header("WEAPON DESIGNER - PROPERTIES")
     text += f"\nWeapon: {caller.ndb._weapon_data['name']}\n"
     text += f"Type: {caller.ndb._weapon_data['weapon_type'].capitalize()}\n"
+    text += f"Skill: {caller.ndb._weapon_data['skill'].replace('_', ' ').title()}\n"
     if caller.ndb._weapon_data["weapon_type"] == "ranged":
         text += f"Ammo: {caller.ndb._weapon_data['ammo_type']}\n\n"
     else:
@@ -979,13 +1020,15 @@ def weapon_save(caller, raw_string, **kwargs):
         ammo_type=data["ammo_type"],
         damage_bonus=data["damage_bonus"],
         accuracy_bonus=data["accuracy_bonus"],
+        skill=data["skill"],
         created_by=caller.key
     )
     
     text = BuilderMenuMixin.format_header("SUCCESS")
     text += f"\nWeapon saved!\n"
     text += f"Name: {weapon['name']}\n"
-    text += f"ID: {weapon['id']}\n\n"
+    text += f"ID: {weapon['id']}\n"
+    text += f"Skill: {weapon['skill'].replace('_', ' ').title()}\n\n"
     text += f"You can now spawn it using: |yspawnweapon {weapon['id']}|n\n"
     
     if hasattr(caller.ndb, '_weapon_data'):

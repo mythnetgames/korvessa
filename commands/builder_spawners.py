@@ -334,7 +334,8 @@ class CmdSpawnWeapon(Command):
             else:
                 msg += f"   Type: Melee, "
             msg += f"Damage: {weapon['damage_bonus']:+d}, "
-            msg += f"Accuracy: {weapon['accuracy_bonus']:+d}\n"
+            msg += f"Accuracy: {weapon['accuracy_bonus']:+d}, "
+            msg += f"Skill: {weapon.get('skill', 'brawling').replace('_', ' ').title()}\n"
         
         msg += "-" * 60 + "\n"
         msg += "Type: |yspawnweapon <number>|n to spawn, or refine search\n"
@@ -375,6 +376,7 @@ class CmdSpawnWeapon(Command):
             weapon.db.ammo_type = weapon_data['ammo_type']
             weapon.db.damage_bonus = weapon_data['damage_bonus']
             weapon.db.accuracy_bonus = weapon_data['accuracy_bonus']
+            weapon.db.skill = weapon_data.get('skill', 'brawling')
             weapon.db.is_weapon = True
             
             caller.msg(f"|gSpawned: |y{weapon.name}|g (ID: {weapon.id})|n")
