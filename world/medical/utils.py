@@ -148,18 +148,37 @@ def select_hit_location(character, success_margin=0, attacker=None):
         str: Selected body location (e.g., "chest", "head", "left_arm")
     """
     import random
+    from .constants import ORGANS
     
-    # Get all available body locations from character's nakeds
-    if not hasattr(character, 'nakeds') or not character.nakeds:
-        # Fallback to chest if no nakeds defined
-        return "chest"
+    # DEFAULT BODY LOCATIONS - used when character has no nakeds attribute
+    # These are derived from where organs are located in the medical system
+    DEFAULT_BODY_LOCATIONS = [
+        "head", "chest", "abdomen", "back",
+        "left_arm", "right_arm", "left_hand", "right_hand",
+        "left_thigh", "right_thigh", "left_shin", "right_shin",
+        "left_foot", "right_foot"
+    ]
     
-    available_locations = list(character.nakeds.keys())
+    # Get all available body locations - prefer nakeds, fallback to default
+    if hasattr(character, 'nakeds') and character.nakeds:
+        available_locations = list(character.nakeds.keys())
+    else:
+        # Use default body locations derived from organ containers
+        available_locations = DEFAULT_BODY_LOCATIONS.copy()
+        
+        # Debug log when using fallback
+        try:
+            from evennia.comms.models import ChannelDB
+            splattercast = ChannelDB.objects.get_channel("Splattercast")
+            splattercast.msg(f"HIT_LOCATION_FALLBACK: {character.key} has no nakeds, using {len(available_locations)} default locations")
+        except:
+            pass
+    
     if not available_locations:
-        return "chest"
+        return "chest"  # Ultimate fallback
     
     # BALANCED PERCENTILE SYSTEM: All locations start with equal baseline weight
-    # This ensures 30 locations get ~3% chance each (100% / 30 locations)
+    # This ensures all body parts get roughly equal chance to be hit
     baseline_weight = 100
     location_weights = {location: baseline_weight for location in available_locations}
     
@@ -296,13 +315,26 @@ def select_hit_location(character, success_margin=0, attacker=None):
     rand_value = random.randint(1, total_weight)
     cumulative_weight = 0
     
+    selected_location = None
     for location, weight in location_weights.items():
         cumulative_weight += weight
         if rand_value <= cumulative_weight:
-            return location
-            
-    # Fallback (should never reach here, but safety first)
-    return available_locations[0]
+            selected_location = location
+            break
+    
+    # Use fallback if somehow nothing selected
+    if not selected_location:
+        selected_location = available_locations[0]
+    
+    # Debug log the final selection
+    try:
+        from evennia.comms.models import ChannelDB
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+        splattercast.msg(f"HIT_LOCATION_SELECTED: {selected_location} (roll {rand_value}/{total_weight}, {len(available_locations)} locations)")
+    except:
+        pass
+    
+    return selected_location
 
 
 def _get_location_armor_coverage(character, location):
