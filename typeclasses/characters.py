@@ -443,11 +443,21 @@ class Character(ObjectParent, DefaultCharacter):
         if None in (from_x, from_y, to_x, to_y):
             return None
 
-        # Calculate direction
+        # Calculate direction, including diagonals
         dx = to_x - from_x
         dy = to_y - from_y
 
-        if dy > 0:
+        # Handle diagonals first (both dx and dy are non-zero)
+        if dx > 0 and dy > 0:
+            return "northeast"
+        elif dx < 0 and dy > 0:
+            return "northwest"
+        elif dx > 0 and dy < 0:
+            return "southeast"
+        elif dx < 0 and dy < 0:
+            return "southwest"
+        # Handle cardinal directions
+        elif dy > 0:
             return "north"
         elif dy < 0:
             return "south"

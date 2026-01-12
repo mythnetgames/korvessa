@@ -119,7 +119,8 @@ class NPCWanderingScript(DefaultScript):
     
     def _wander_to_zone_room(self, npc, zone):
         """
-        Move NPC to a random room within its zone.
+        Move NPC to a random adjacent room within its zone via real exits.
+        Uses actual exit connections instead of teleporting.
         
         Args:
             npc: The NPC character object
@@ -127,38 +128,54 @@ class NPCWanderingScript(DefaultScript):
         """
         channel = get_or_create_channel("wanderers")
         
-        # Get all rooms in the zone
-        zone_rooms = self._get_zone_rooms(zone)
-        
-        if not zone_rooms:
-            # No rooms in zone, can't wander
+        # Get current room
+        current_room = npc.location
+        if not current_room:
             if channel:
-                channel.msg(f"WANDER_FAIL: {npc.name} - No rooms found in zone '{zone}'")
+                channel.msg(f"WANDER_FAIL: {npc.name} - No current location")
+            return
+        
+        # Find all exits from current room that lead to rooms in the same zone
+        adjacent_zone_rooms = []
+        
+        # Check all exits from current location
+        if hasattr(current_room, 'exits'):
+            for exit_obj in current_room.exits:
+                if not exit_obj or not hasattr(exit_obj, 'destination'):
+                    continue
+                    
+                dest_room = exit_obj.destination
+                if not dest_room:
+                    continue
+                
+                # Check if destination is in the same zone
+                dest_zone = getattr(dest_room, 'zone', None)
+                if dest_zone == zone:
+                    adjacent_zone_rooms.append((exit_obj, dest_room))
+        
+        if not adjacent_zone_rooms:
+            if channel:
+                channel.msg(f"WANDER_FAIL: {npc.name} - No exits to rooms in zone '{zone}'")
             return
         
         if channel:
-            channel.msg(f"WANDER_ATTEMPT: {npc.name} - Found {len(zone_rooms)} rooms in zone '{zone}'")
+            channel.msg(f"WANDER_ATTEMPT: {npc.name} - Found {len(adjacent_zone_rooms)} adjacent rooms in zone '{zone}'")
         
-        # Filter out the NPC's current room
-        available_rooms = [r for r in zone_rooms if r != npc.location]
+        # Pick a random exit and traverse it
+        exit_obj, destination = choice(adjacent_zone_rooms)
         
-        if not available_rooms:
-            # No other rooms to go to
+        if channel:
+            channel.msg(f"WANDER_ATTEMPT: {npc.name} - Traversing exit '{exit_obj.key}' from '{current_room.key}' to '{destination.key}'")
+        
+        # Use the exit traversal to properly move through the game world
+        try:
+            # Call at_traverse to properly move the NPC through the exit
+            exit_obj.at_traverse(npc, destination)
             if channel:
-                channel.msg(f"WANDER_FAIL: {npc.name} - No available destinations (only {len(zone_rooms)} room(s))")
-            return
-        
-        if channel:
-            channel.msg(f"WANDER_ATTEMPT: {npc.name} - {len(available_rooms)} available rooms, picking destination...")
-        
-        # Pick a random destination
-        destination = choice(available_rooms)
-        
-        if channel:
-            channel.msg(f"WANDER_ATTEMPT: {npc.name} - Moving from '{npc.location.key}' to '{destination.key}'")
-        
-        # Move the NPC
-        self._move_npc_safely(npc, destination, zone)
+                channel.msg(f"WANDER_SUCCESS: {npc.name} traversed '{exit_obj.key}' and arrived at '{destination.key}'")
+        except Exception as e:
+            if channel:
+                channel.msg(f"WANDER_ERROR: {npc.name} - Failed to traverse '{exit_obj.key}': {e}")
     
     def _get_zone_rooms(self, zone):
         """
@@ -193,97 +210,6 @@ class NPCWanderingScript(DefaultScript):
                 channel.msg(f"ZONE_LOOKUP_ERROR: {zone} - Exception: {e}")
             # Fallback: return empty list on error
             return []
-    
-    def _move_npc_safely(self, npc, destination, zone):
-        """
-        Safely move NPC to destination, verifying zone constraints.
-        
-        Args:
-            npc: The NPC to move
-            destination: The destination room
-            zone: The zone constraint (for verification)
-        """
-        channel = get_or_create_channel("wanderers")
-        
-        # Verify destination is in the correct zone
-        dest_zone = getattr(destination, "zone", None)
-        if dest_zone != zone:
-            # Zone mismatch - don't move
-            if channel:
-                channel.msg(f"WANDER_FAIL: {npc.name} - Zone mismatch (dest={dest_zone}, expected={zone})")
-            return
-        
-        # Verify NPC can move
-        if not npc.location:
-            if channel:
-                channel.msg(f"WANDER_FAIL: {npc.name} - No location")
-            return
-        
-        # Store current location for messaging
-        old_location = npc.location
-        
-        # Determine direction (simple coordinate diff)
-        direction = None
-        if hasattr(old_location, 'db') and hasattr(destination, 'db'):
-            dx = getattr(destination.db, 'x', None)
-            dy = getattr(destination.db, 'y', None)
-            ox = getattr(old_location.db, 'x', None)
-            oy = getattr(old_location.db, 'y', None)
-            if dx is not None and dy is not None and ox is not None and oy is not None:
-                if dx > ox:
-                    direction = 'east'
-                elif dx < ox:
-                    direction = 'west'
-                elif dy > oy:
-                    direction = 'north'
-                elif dy < oy:
-                    direction = 'south'
-        
-        try:
-            # Move the NPC using location assignment (bypasses hooks for efficiency)
-            npc.location = destination
-            if channel:
-                channel.msg(f"WANDER_SUCCESS: {npc.name} moved from {old_location.name} to {destination.name}")
-            
-            # Prepare messages with opposite direction for arrivals
-            leave_msg = f"{npc.name} leaves for the {direction}." if direction else f"{npc.name} leaves."
-            
-            # Use opposite direction for arrival message (e.g., leaves NORTH, arrives from SOUTH)
-            opposite_direction_map = {
-                'north': 'south',
-                'south': 'north',
-                'east': 'west',
-                'west': 'east',
-                'northeast': 'southwest',
-                'northwest': 'southeast',
-                'southeast': 'northwest',
-                'southwest': 'northeast',
-                'up': 'down',
-                'down': 'up',
-                'in': 'out',
-                'out': 'in'
-            }
-            opposite_direction = opposite_direction_map.get(direction) if direction else None
-            arrive_msg = f"{npc.name} arrives from the {opposite_direction}." if opposite_direction else f"{npc.name} arrives."
-
-            # Send departure message to old location
-            if old_location and hasattr(old_location, "msg_contents"):
-                old_location.msg_contents(leave_msg)
-            # Send arrival message to new location
-            if destination and hasattr(destination, "msg_contents"):
-                destination.msg_contents(arrive_msg)
-
-            # Echo to wanderers channel
-            if channel:
-                channel.msg(f"{npc.name}: {leave_msg} -> {arrive_msg}")
-        except Exception as e:
-            if channel:
-                channel.msg(f"WANDER_ERROR: {npc.name} - Move failed: {e}")
-            # Movement failed, try to restore original location
-            try:
-                npc.location = old_location
-            except:
-                pass
 
 
 class NPCZoneWandererManager(DefaultScript):
