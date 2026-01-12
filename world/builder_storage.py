@@ -309,6 +309,19 @@ def get_weapon_by_id(weapon_id):
     return None
 
 
+def update_weapon_name(weapon_id, new_name):
+    """Update weapon name by ID."""
+    storage = get_builder_storage()
+    for weapon in storage.db.weapons:
+        if weapon["id"] == weapon_id:
+            # Strip designweapon prefix if present
+            if new_name.startswith('designweapon '):
+                new_name = new_name[len('designweapon '):]
+            weapon["name"] = new_name
+            return True
+    return False
+
+
 def search_weapons(keyword):
     """Search weapons by name, type, or ID (case-insensitive)."""
     storage = get_builder_storage()

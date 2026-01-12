@@ -599,3 +599,34 @@ class CmdSpawnArmor(Command):
         for attr in ('_spawn_armor_choices', '_spawn_armor_mode', '_waiting_for_spawn'):
             if hasattr(caller.ndb, attr):
                 delattr(caller.ndb, attr)
+
+
+class CmdFixWeaponNames(Command):
+    """
+    Fix weapon names by stripping 'designweapon' prefix from all weapons.
+    
+    Usage:
+        fixweaponnames
+    
+    This removes the 'designweapon' prefix from all stored weapon templates.
+    """
+    key = "fixweaponnames"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    
+    def func(self):
+        from world.builder_storage import get_builder_storage, update_weapon_name
+        
+        caller = self.caller
+        storage = get_builder_storage()
+        fixed_count = 0
+        
+        for weapon in storage.db.weapons:
+            if weapon['name'].startswith('designweapon '):
+                old_name = weapon['name']
+                new_name = old_name[len('designweapon '):]
+                update_weapon_name(weapon['id'], new_name)
+                caller.msg(f"|g{weapon['id']}: '{old_name}' -> '{new_name}'|n")
+                fixed_count += 1
+        
+        caller.msg(f"|g{fixed_count} weapon names fixed.|n")
