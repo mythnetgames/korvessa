@@ -1159,8 +1159,9 @@ class CmdForcePath(Command):
         """Force NPC pathfinding."""
         caller = self.caller
         
-        if not self.args:
-            caller.msg("Usage: forcepath <npc> [=<x>,<y>] [clear] [status]")
+        # If no args, force all NPCs to pathfind
+        if not self.args or self.args.strip() == "":
+            self._force_all_pathfind(caller)
             return
         
         # Parse arguments
@@ -1222,10 +1223,47 @@ class CmdForcePath(Command):
         if dest_x is not None and dest_y is not None:
             caller.msg(f"|gForced {npc.key} to pick new destination: ({dest_x}, {dest_y})|n")
             
-            # Take one pathfinding step
+            # Take one pathfinding step (bypass rate limiting for forcepath)
+            import time
+            npc.ndb.last_pathfind_move = time.time() - 2  # Set it to 2 seconds ago to bypass rate limit
             script._pathfind_step(npc, zone)
         else:
             caller.msg(f"|rFailed to pick destination for {npc.key}.|n")
+    
+    def _force_all_pathfind(self, caller):
+        """Force all wandering NPCs to pathfind."""
+        from evennia.objects.models import ObjectDB
+        import time
+        
+        count = 0
+        for obj in ObjectDB.objects.all():
+            if (hasattr(obj, "db") and 
+                getattr(obj.db, "is_npc", False) and 
+                getattr(obj.db, "npc_can_wander", False)):
+                
+                zone = getattr(obj.db, "npc_zone", None)
+                if not zone:
+                    continue
+                
+                # Get the wandering script
+                script = None
+                for s in obj.scripts.all():
+                    if s.key == "npc_wandering":
+                        script = s
+                        break
+                
+                if not script:
+                    continue
+                
+                # Force new destination
+                script._pick_new_destination(obj, zone)
+                
+                # Take pathfinding step (bypass rate limiting)
+                obj.ndb.last_pathfind_move = time.time() - 2
+                script._pathfind_step(obj, zone)
+                count += 1
+        
+        caller.msg(f"|gForced pathfinding for {count} NPC(s).|n")
     
     def _set_destination(self, caller, npc_name, coords):
         """Set a specific destination for an NPC."""

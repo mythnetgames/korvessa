@@ -151,7 +151,10 @@ class NPCWanderingScript(DefaultScript):
             return
         
         # Rate limiting: Require at least 1 second between moves
-        last_move_time = getattr(npc.ndb, 'last_pathfind_move', 0)
+        last_move_time = getattr(npc.ndb, 'last_pathfind_move', None)
+        if last_move_time is None:
+            last_move_time = 0
+        
         current_time = time.time()
         time_since_last = current_time - last_move_time
         
