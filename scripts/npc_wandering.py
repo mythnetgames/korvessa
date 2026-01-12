@@ -231,15 +231,19 @@ class NPCWanderingScript(DefaultScript):
         if channel:
             channel.msg(f"PATH_STEP: {npc.name} - Taking '{exit_obj.key}' towards ({dest_x},{dest_y})")
         
-        # Traverse the exit
+        # Move the NPC directly using move_to instead of at_traverse
+        # at_traverse has many player-centric checks (aiming, combat restrictions, etc.)
+        # that don't apply to NPC wandering
         try:
             # Store original location before moving
             original_location = npc.location
             
-            exit_obj.at_traverse(npc, destination)
+            # Use move_to directly - this bypasses exit restrictions meant for players
+            # We've already validated the exit is passable (no doors, no edges, no sky rooms)
+            result = npc.move_to(destination, quiet=False)
             
             # Check if movement actually occurred
-            if npc.location and npc.location != original_location:
+            if result and npc.location and npc.location != original_location:
                 # Update last move timestamp only on successful move
                 import time
                 npc.ndb.last_pathfind_move = time.time()
@@ -254,15 +258,15 @@ class NPCWanderingScript(DefaultScript):
                         channel.msg(f"PATH_FOLLOW_ERROR: {npc.name} - Failed to move followers: {follow_err}")
                 
                 if channel:
-                    channel.msg(f"PATH_SUCCESS: {npc.name} traversed '{exit_obj.key}' to '{npc.location.key}'")
+                    channel.msg(f"PATH_SUCCESS: {npc.name} moved via '{exit_obj.key}' to '{npc.location.key}'")
             else:
-                # Movement was blocked by something (door, combat, etc.)
+                # Movement failed for some reason
                 if channel:
-                    channel.msg(f"PATH_BLOCKED: {npc.name} - at_traverse did not move NPC (blocked by door/combat/etc), picking new destination")
+                    channel.msg(f"PATH_BLOCKED: {npc.name} - move_to returned {result}, picking new destination")
                 self._pick_new_destination(npc, zone)
         except Exception as e:
             if channel:
-                channel.msg(f"PATH_ERROR: {npc.name} - Failed to traverse '{exit_obj.key}': {e}")
+                channel.msg(f"PATH_ERROR: {npc.name} - Failed to move: {e}")
     
     def _pick_new_destination(self, npc, zone):
         """
