@@ -285,19 +285,30 @@ class Exit(DefaultExit):
                 setattr(traversing_object.ndb, "combat_handler", None)
                 super().at_traverse(traversing_object, target_location)
                 return
+            
+            # Extra cleanup for NPCs: if handler isn't active or NPC isn't in combatants, clear it
+            is_npc = getattr(traversing_object.db, "is_npc", False)
+            if is_npc:
+                handler_active = getattr(handler, "is_active", False)
+                if not handler_active:
+                    # Handler is dead but reference still exists
+                    splattercast.msg(f"TRAVERSAL: NPC {traversing_object.key} has inactive combat_handler reference. Clearing and allowing move.")
+                    setattr(traversing_object.ndb, "combat_handler", None)
+                    super().at_traverse(traversing_object, target_location)
+                    return
                 
             char_entry_in_handler = next((e for e in combatants_list if e["char"] == traversing_object), None)
 
             if not char_entry_in_handler:
                 # This case should ideally not be reached if ndb.combat_handler is properly managed.
                 splattercast.msg(f"ERROR: {traversing_object.key} has ndb.combat_handler but no entry in handler {handler.key}. Allowing move as non-combatant.")
+                setattr(traversing_object.ndb, "combat_handler", None)
                 super().at_traverse(traversing_object, target_location)
                 return
 
             # Check drag conditions
             grappled_victim_obj = handler.get_grappling_obj(char_entry_in_handler)
             is_yielding = char_entry_in_handler.get("is_yielding")
-            
             is_targeted_by_others_not_victim = False
             if combatants_list:
                 for entry in combatants_list:
