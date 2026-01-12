@@ -347,15 +347,15 @@ class CmdSpawnWeapon(Command):
     
     def _handle_spawn(self, caller, choice_str):
         """Handle weapon spawning."""
-        if not hasattr(caller.ndb, '_spawn_weapon_choices'):
-            caller.msg("|rNo weapon session found.|n")
+        if not hasattr(caller.ndb, '_spawn_weapon_choices') or caller.ndb._spawn_weapon_choices is None:
+            caller.msg("|rNo weapon session found. Run |yspawnweapon|n first to list weapons.|n")
             return
         
         try:
             idx = int(choice_str.strip()) - 1
             choices = caller.ndb._spawn_weapon_choices
             
-            if idx < 0 or idx >= len(choices):
+            if not choices or idx < 0 or idx >= len(choices):
                 caller.msg("|rInvalid selection.|n")
                 return
             
