@@ -22,7 +22,7 @@ class NPCWanderingScript(DefaultScript):
         self.key = "npc_wandering"
         self.desc = "Handles NPC wandering behavior"
         # Update interval in seconds - 10-30 seconds between movements
-        self.interval = randint(10, 30)
+        self.interval = 15  # Fixed interval
         self.persistent = True
     
     def at_repeat(self):
@@ -51,8 +51,10 @@ class NPCWanderingScript(DefaultScript):
         if hasattr(obj.ndb, "combat_handler"):
             return
         
-        # Attempt to move to a random room in the zone
-        self._wander_to_zone_room(obj, zone)
+        # Random chance to wander (30% chance each interval)
+        if randint(1, 10) <= 3:
+            # Attempt to move to a random room in the zone
+            self._wander_to_zone_room(obj, zone)
     
     def _wander_to_zone_room(self, npc, zone):
         """

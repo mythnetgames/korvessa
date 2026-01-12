@@ -853,3 +853,252 @@ class CmdNPCGender(Command):
         # Set gender
         npc.db.gender = gender
         caller.msg(f"|gSet {npc.key}'s gender to {gender}.|n")
+
+
+class CmdForceWander(Command):
+    """
+    Force NPCs to wander immediately for testing.
+    
+    Usage:
+      forcewander                - Force all wandering NPCs to move
+      forcewander <npc>          - Force specific NPC to wander
+      forcewander status         - Show wandering status of all NPCs
+      forcewander enable <npc>   - Enable wandering for an NPC
+      forcewander disable <npc>  - Disable wandering for an NPC
+    
+    Examples:
+      forcewander
+      forcewander street vendor
+      forcewander status
+      forcewander enable gang member
+    """
+    key = "forcewander"
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        """Force NPCs to wander."""
+        caller = self.caller
+        
+        if not self.args:
+            # Force all wandering NPCs to move
+            self._force_all_wander(caller)
+            return
+        
+        args = self.args.strip().lower()
+        
+        if args == "status":
+            self._show_status(caller)
+            return
+        
+        if args.startswith("enable "):
+            npc_name = self.args[7:].strip()
+            self._enable_wandering(caller, npc_name)
+            return
+        
+        if args.startswith("disable "):
+            npc_name = self.args[8:].strip()
+            self._disable_wandering(caller, npc_name)
+            return
+        
+        # Force specific NPC to wander
+        self._force_npc_wander(caller, self.args.strip())
+    
+    def _force_all_wander(self, caller):
+        """Force all wandering NPCs to move."""
+        from evennia.objects.models import ObjectDB
+        from random import choice
+        
+        moved_count = 0
+        failed_count = 0
+        
+        # Find all wandering NPCs
+        for obj in ObjectDB.objects.all():
+            if (hasattr(obj, "db") and 
+                getattr(obj.db, "is_npc", False) and 
+                getattr(obj.db, "npc_can_wander", False)):
+                
+                zone = getattr(obj.db, "npc_zone", None)
+                if not zone:
+                    continue
+                
+                # Get zone rooms
+                zone_rooms = self._get_zone_rooms(zone)
+                if len(zone_rooms) <= 1:
+                    failed_count += 1
+                    continue
+                
+                # Get available destinations
+                available = [r for r in zone_rooms if r != obj.location]
+                if not available:
+                    failed_count += 1
+                    continue
+                
+                # Move NPC
+                destination = choice(available)
+                old_loc = obj.location
+                try:
+                    obj.location = destination
+                    if old_loc and hasattr(old_loc, "msg_contents"):
+                        old_loc.msg_contents(f"|r{obj.name} wanders away.|n")
+                    if hasattr(destination, "msg_contents"):
+                        destination.msg_contents(f"|r{obj.name} wanders in.|n")
+                    moved_count += 1
+                except:
+                    obj.location = old_loc
+                    failed_count += 1
+        
+        caller.msg(f"|gForced wandering: {moved_count} NPCs moved, {failed_count} failed/skipped.|n")
+    
+    def _force_npc_wander(self, caller, npc_name):
+        """Force a specific NPC to wander."""
+        from random import choice
+        
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"|rNPC '{npc_name}' not found.|n")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"|r{npc.key} is not an NPC.|n")
+            return
+        
+        if not getattr(npc.db, "npc_can_wander", False):
+            caller.msg(f"|r{npc.key} does not have wandering enabled.|n")
+            caller.msg(f"|yUse: forcewander enable {npc.key}|n")
+            return
+        
+        zone = getattr(npc.db, "npc_zone", None)
+        if not zone:
+            caller.msg(f"|r{npc.key} has no wandering zone set.|n")
+            return
+        
+        # Get zone rooms
+        zone_rooms = self._get_zone_rooms(zone)
+        if len(zone_rooms) <= 1:
+            caller.msg(f"|rZone '{zone}' has only {len(zone_rooms)} room(s). Need at least 2 for wandering.|n")
+            return
+        
+        # Get available destinations
+        available = [r for r in zone_rooms if r != npc.location]
+        if not available:
+            caller.msg(f"|rNo available destination rooms for {npc.key}.|n")
+            return
+        
+        # Move NPC
+        destination = choice(available)
+        old_loc = npc.location
+        try:
+            npc.location = destination
+            if old_loc and hasattr(old_loc, "msg_contents"):
+                old_loc.msg_contents(f"|r{npc.name} wanders away.|n")
+            if hasattr(destination, "msg_contents"):
+                destination.msg_contents(f"|r{npc.name} wanders in.|n")
+            caller.msg(f"|gMoved {npc.key} from {old_loc.key} to {destination.key}.|n")
+        except Exception as e:
+            npc.location = old_loc
+            caller.msg(f"|rFailed to move {npc.key}: {e}|n")
+    
+    def _show_status(self, caller):
+        """Show wandering status of all NPCs."""
+        from evennia.objects.models import ObjectDB
+        
+        npcs = []
+        for obj in ObjectDB.objects.all():
+            if hasattr(obj, "db") and getattr(obj.db, "is_npc", False):
+                npcs.append(obj)
+        
+        if not npcs:
+            caller.msg("|yNo NPCs found.|n")
+            return
+        
+        caller.msg("|c=== NPC Wandering Status ===|n")
+        for npc in npcs:
+            can_wander = getattr(npc.db, "npc_can_wander", False)
+            zone = getattr(npc.db, "npc_zone", None) or "none"
+            location = npc.location.key if npc.location else "nowhere"
+            
+            # Check if wandering script is running
+            script_running = False
+            for script in npc.scripts.all():
+                if script.key == "npc_wandering":
+                    script_running = True
+                    break
+            
+            status_color = "|g" if can_wander and script_running else "|r"
+            status = "ACTIVE" if can_wander and script_running else "INACTIVE"
+            
+            caller.msg(f"{status_color}{npc.key}|n - {status}")
+            caller.msg(f"  Zone: {zone}, Location: {location}, Can Wander: {can_wander}, Script: {script_running}")
+    
+    def _enable_wandering(self, caller, npc_name):
+        """Enable wandering for an NPC."""
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"|rNPC '{npc_name}' not found.|n")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"|r{npc.key} is not an NPC.|n")
+            return
+        
+        zone = getattr(npc.db, "npc_zone", None)
+        if not zone:
+            caller.msg(f"|r{npc.key} has no wandering zone set. Use @npc-zone first.|n")
+            return
+        
+        # Enable wandering
+        npc.db.npc_can_wander = True
+        
+        # Start wandering script
+        if hasattr(npc, "_enable_wandering"):
+            npc._enable_wandering()
+        else:
+            # Manually start script if method doesn't exist
+            from scripts.npc_wandering import NPCWanderingScript
+            script = npc.scripts.add(NPCWanderingScript)
+            if script:
+                script.start()
+        
+        caller.msg(f"|gEnabled wandering for {npc.key} in zone '{zone}'.|n")
+    
+    def _disable_wandering(self, caller, npc_name):
+        """Disable wandering for an NPC."""
+        # Find NPC
+        targets = search_object(npc_name)
+        if not targets:
+            caller.msg(f"|rNPC '{npc_name}' not found.|n")
+            return
+        
+        npc = targets[0]
+        if not getattr(npc.db, 'is_npc', False):
+            caller.msg(f"|r{npc.key} is not an NPC.|n")
+            return
+        
+        # Disable wandering
+        npc.db.npc_can_wander = False
+        
+        # Stop wandering script
+        if hasattr(npc, "_disable_wandering"):
+            npc._disable_wandering()
+        else:
+            # Manually stop script
+            for script in npc.scripts.all():
+                if script.key == "npc_wandering":
+                    script.stop()
+        
+        caller.msg(f"|gDisabled wandering for {npc.key}.|n")
+    
+    def _get_zone_rooms(self, zone):
+        """Get all rooms in a zone."""
+        from evennia.objects.models import ObjectDB
+        
+        rooms = []
+        for room in ObjectDB.objects.all():
+            if getattr(room, "zone", None) == zone:
+                rooms.append(room)
+        return rooms
