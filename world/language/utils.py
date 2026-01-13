@@ -374,6 +374,15 @@ def set_language_proficiency(character, language_code, proficiency):
         language_code (str): Language code
         proficiency (float): Proficiency percentage
     """
+    from evennia.comms.models import ChannelDB
+    try:
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+    except:
+        splattercast = None
+    
+    if splattercast:
+        splattercast.msg(f"SET_PROF CALLED: {character.key} {language_code} = {proficiency}")
+    
     proficiency = max(0.0, min(100.0, proficiency))
     
     # Use Evennia's attributes API directly for persistence
@@ -392,8 +401,16 @@ def set_language_proficiency(character, language_code, proficiency):
     # Add the new value
     clean_dict[language_code] = proficiency
     
+    if splattercast:
+        splattercast.msg(f"SET_PROF saving: {clean_dict}")
+    
     # Use attributes.add to force persistence
     character.attributes.add("language_proficiency", clean_dict)
+    
+    # Verify it saved
+    if splattercast:
+        verify = character.attributes.get("language_proficiency")
+        splattercast.msg(f"SET_PROF verify: {verify}")
 
 
 def increase_language_proficiency(character, language_code, amount):
