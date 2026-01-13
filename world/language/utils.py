@@ -326,21 +326,27 @@ def get_language_proficiency(character, language_code):
     Returns:
         float: Proficiency percentage (0-100)
     """
-    # Get proficiency dict directly without calling initialize
+    # Force fresh read from database
     proficiency_dict = character.db.language_proficiency
     
     # Handle None or invalid proficiency dict
     if proficiency_dict is None or not isinstance(proficiency_dict, dict):
         proficiency_dict = {}
         character.db.language_proficiency = proficiency_dict
+        return proficiency_dict.get(language_code, 0.0)
     
-    # Known languages default to 100%
+    # Try to get from dict
+    value = proficiency_dict.get(language_code)
+    if value is not None:
+        return float(value)
+    
+    # If not in dict, check if it's a known language (should be 100%)
     known = character.db.known_languages
     if known and language_code in known:
-        return proficiency_dict.get(language_code, 100.0)
+        return 100.0
     
-    # Unknown languages tracked separately
-    return proficiency_dict.get(language_code, 0.0)
+    # Unknown languages default to 0.0
+    return 0.0
 
 
 def set_language_proficiency(character, language_code, proficiency):
