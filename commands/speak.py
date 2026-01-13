@@ -79,7 +79,9 @@ class CmdSpeak(Command):
         # Get languages being learned (any proficiency >= 0 but not in known set)
         learning_langs = []
         proficiency_dict = getattr(caller.db, 'language_proficiency', {}) or {}
-        for lang_code, prof in proficiency_dict.items():
+        for raw_lang_code, prof in proficiency_dict.items():
+            # Clean up key in case it has quotes from Evennia serialization
+            lang_code = raw_lang_code.strip("'\"") if isinstance(raw_lang_code, str) else raw_lang_code
             if lang_code not in known and lang_code in LANGUAGES:
                 learning_langs.append(lang_code)
         learning_langs = sorted(learning_langs)
