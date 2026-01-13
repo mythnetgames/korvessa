@@ -632,3 +632,50 @@ class CmdSpawnPod(Command):
             f"|wA TerraGroup Cloning Division pod materializes in the room.|n",
             exclude=[self.caller]
         )
+
+
+class CmdResetPod(Command):
+    """
+    Reset a stuck TerraGroup Cloning Division pod.
+    
+    Usage:
+        @resetpod <pod>
+    
+    Admin command to reset a pod that is stuck in 'in use' state.
+    Ejects any occupant and resets the pod to available state.
+    """
+    
+    key = "@resetpod"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    
+    def func(self):
+        if not self.args:
+            self.caller.msg("|rUsage: @resetpod <pod>|n")
+            return
+        
+        pod = self.caller.search(self.args.strip())
+        if not pod:
+            return
+        
+        if not isinstance(pod, CloningPod):
+            self.caller.msg("|r{} is not a TerraGroup Cloning Division pod.|n".format(pod.key))
+            return
+        
+        # Get occupant before reset
+        occupant = pod.db.occupant
+        
+        # Force eject if occupied
+        if occupant:
+            pod.force_eject(occupant)
+            self.caller.msg(f"|y{occupant.key} has been ejected from the pod.|n")
+        
+        # Reset pod
+        pod._reset_pod()
+        self.caller.msg(f"|gReset {pod.key} to available state.|n")
+        
+        if pod.location:
+            pod.location.msg_contents(
+                f"|yThe {pod.key} resets to standby mode.|n",
+                exclude=[occupant] if occupant else []
+            )

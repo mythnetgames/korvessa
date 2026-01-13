@@ -332,9 +332,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdRemove())
         self.add(CmdFreeHands())
         # Add clone/backup commands
-        from typeclasses.cloning_pod import CmdCloneStatus, CmdSpawnPod, CmdSitInPod, CmdLeavePod
+        from typeclasses.cloning_pod import CmdCloneStatus, CmdSpawnPod, CmdSitInPod, CmdLeavePod, CmdResetPod
         self.add(CmdCloneStatus())
         self.add(CmdSpawnPod())
+        self.add(CmdResetPod())
         self.add(CmdSitInPod())
         self.add(CmdLeavePod())
         # Add IP (Investment Points) commands
