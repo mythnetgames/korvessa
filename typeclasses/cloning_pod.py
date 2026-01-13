@@ -1,5 +1,5 @@
 """
-"""\nTerraGroup Cloning Division Pod - Consciousness Backup System
+TerraGroup Cloning Division Pod - Consciousness Backup System
 
 Players can sit in the TerraGroup Cloning Division pod to backup their current state:
 - Stats (body, ref, dex, tech, smrt, will, edge, emp)
