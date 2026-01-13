@@ -377,7 +377,7 @@ ORGANS = {
 
     # STRUCTURAL ORGANS FOR MOVEMENT
     "pelvis": {
-        "container": "abdomen", "max_hp": 25, "hit_weight": "uncommon",
+        "container": "groin", "max_hp": 25, "hit_weight": "uncommon",
         "capacity": "moving", "contribution": "total", "vital": True
     }
 }
