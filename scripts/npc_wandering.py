@@ -134,13 +134,31 @@ class NPCWanderingScript(DefaultScript):
                 channel.msg(f"TICK: {obj.name} in {location} ({zone}) - BLOCKED BY {blocked_by}")
             return
         
-        # Try to take a pathfinding step
-        # The rate limiting (1 second minimum between moves) is handled inside _pathfind_step
-        # so we can call this every tick
+        # Check if we have a destination
+        dest_x = getattr(obj.ndb, 'wander_dest_x', None)
+        dest_y = getattr(obj.ndb, 'wander_dest_y', None)
+        
+        # 1/50 chance to pick a new destination (or if we don't have one)
+        roll = randint(1, 50)
         location = obj.location.key if obj.location else "unknown"
-        if channel:
-            channel.msg(f"TICK: {obj.name} in {location} ({zone}) - Attempting pathfind step")
-        self._pathfind_step(obj, zone)
+        
+        if roll == 1 or dest_x is None or dest_y is None:
+            # Pick new destination
+            if channel:
+                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - ROLL({roll}/50) -> Pick new destination")
+            self._pick_new_destination(obj, zone)
+        
+        # Always try to move toward current destination (if we have one)
+        dest_x = getattr(obj.ndb, 'wander_dest_x', None)
+        dest_y = getattr(obj.ndb, 'wander_dest_y', None)
+        
+        if dest_x is not None and dest_y is not None:
+            if channel:
+                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - Moving toward ({dest_x},{dest_y})")
+            self._pathfind_step(obj, zone)
+        else:
+            if channel:
+                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - No destination, waiting for next roll")
     
     def _pathfind_step(self, npc, zone):
         """
@@ -151,6 +169,7 @@ class NPCWanderingScript(DefaultScript):
             zone: The zone identifier string
         """
         import time
+        from random import uniform
         
         channel = get_or_create_channel("wanderers")
         
@@ -172,18 +191,23 @@ class NPCWanderingScript(DefaultScript):
         if hasattr(npc.ndb, '_movement_locked'):
             delattr(npc.ndb, '_movement_locked')
         
-        # Rate limiting: Require at least 1 second between moves
+        # Rate limiting: Require 1-2 seconds between moves (variable)
         last_move_time = getattr(npc.ndb, 'last_pathfind_move', None)
         if last_move_time is None:
             last_move_time = 0
         
+        # Get variable rate limit (1-2 seconds)
+        min_interval = getattr(npc.ndb, 'move_interval_min', 1.0)
+        max_interval = getattr(npc.ndb, 'move_interval_max', 2.0)
+        rate_limit = uniform(min_interval, max_interval)
+        
         current_time = time.time()
         time_since_last = current_time - last_move_time
         
-        if time_since_last < 1.0:
+        if time_since_last < rate_limit:
             # Too soon since last move, skip this step
             if channel:
-                channel.msg(f"PATH_RATE_LIMIT: {npc.name} - Only {time_since_last:.1f}s since last move (min 1.0s)")
+                channel.msg(f"PATH_RATE_LIMIT: {npc.name} - Only {time_since_last:.1f}s since last move (need {rate_limit:.1f}s)")
             return
         
         # Get or set destination
