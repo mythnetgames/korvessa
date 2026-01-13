@@ -25,7 +25,7 @@ DUMMY_SKILLS = [
     "grappling", "snooping", "stealing", "hiding", "sneaking", "disguise",
     "tailoring", "tinkering", "manufacturing", "cooking", "forensics",
     "decking", "electronics", "mercantile", "streetwise", "paint_draw_sculpt",
-    "instrument", "athletics"
+    "instrument"
 ]
 
 
