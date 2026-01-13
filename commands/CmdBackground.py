@@ -20,8 +20,8 @@ class CmdBackground(Command):
         background edit <text>      - Edit your background (only before approval)
         background status           - Check approval status
     
-    Submitting a background grants you a one-time bonus of 50 IP!
-    Once your background is approved by staff, it cannot be edited.
+    Once your background is approved by staff, you receive 50 IP bonus!
+    Approved backgrounds cannot be edited.
     Staff may provide feedback via pnotes if revisions are needed.
     """
     
@@ -105,7 +105,7 @@ class CmdBackground(Command):
             "|c=== Background System ===|n\n"
             "|wUsage:|n\n"
             "|wbackground|n - View your current background\n"
-            "|wbackground submit <text>|n - Submit a new background (50 IP bonus)\n"
+            "|wbackground submit <text>|n - Submit a new background\n"
             "|wbackground edit <text>|n - Edit your background (before approval only)\n"
             "|wbackground status|n - Check approval status\n\n"
             "|ySubmitting a background grants a one-time bonus of 50 IP!|n\n"
@@ -136,7 +136,7 @@ class CmdBackground(Command):
         
         if not background:
             caller.msg("|yYou haven't submitted a background yet.|n")
-            caller.msg("|cType |wbackground submit <text>|c to create one and earn 50 IP!|n")
+            caller.msg("|cType |wbackground submit <text>|c to create one and earn 50 IP upon approval!|n")
             return
         
         status_str = "|gApproved|n" if approved else "|yPending Approval|n"
@@ -190,26 +190,16 @@ class CmdBackground(Command):
         caller.db.background = text
         caller.db.background_approved = False
         
-        # Award IP bonus (one-time, on first submission)
-        if not getattr(caller.db, 'background_ip_awarded', False):
-            current_ip = getattr(caller.db, 'ip', 0)
-            caller.db.ip = current_ip + 50
-            caller.db.background_ip_awarded = True
-            
-            caller.msg("|g=== Background Submitted! ===|n")
-            caller.msg(f"|gYou've been awarded |y50 IP|g for submitting your background!|n")
-            caller.msg(f"|wNew IP Total:|n |y{caller.db.ip}|n")
-        else:
-            caller.msg("|g=== Background Submitted! ===|n")
-        
+        caller.msg("|g=== Background Submitted! ===|n")
         caller.msg("|yYour background is now pending staff approval.|n")
+        caller.msg("|yYou will receive 50 IP once your background is approved!|n")
         caller.msg("|yYou can view it with: |wbackground|n")
         caller.msg("|yYou can edit it with: |wbackground edit <text>|n")
         
-        # Notify staff via Splattercast
+        # Notify staff via zotnet
         try:
-            splattercast = ChannelDB.objects.get_channel("Splattercast")
-            splattercast.msg(f"BACKGROUND_SUBMIT: {caller.key} (#{caller.id}) submitted a background for review")
+            zotnet = ChannelDB.objects.get_channel("zotnet")
+            zotnet.msg(f"BACKGROUND_SUBMIT: {caller.key} (#{caller.id}) submitted a background for review")
         except:
             pass
     
@@ -242,8 +232,8 @@ class CmdBackground(Command):
         
         # Notify staff
         try:
-            splattercast = ChannelDB.objects.get_channel("Splattercast")
-            splattercast.msg(f"BACKGROUND_EDIT: {caller.key} (#{caller.id}) updated their background")
+            zotnet = ChannelDB.objects.get_channel("zotnet")
+            zotnet.msg(f"BACKGROUND_EDIT: {caller.key} (#{caller.id}) updated their background")
         except:
             pass
     
@@ -284,18 +274,30 @@ class CmdBackground(Command):
         # Approve background
         target.db.background_approved = True
         
+        # Award IP bonus (one-time, on approval)
+        if not getattr(target.db, 'background_ip_awarded', False):
+            current_ip = getattr(target.db, 'ip', 0)
+            target.db.ip = current_ip + 50
+            target.db.background_ip_awarded = True
+            ip_awarded_msg = f"|gThey have been awarded |y50 IP|g for background approval!|n"
+        else:
+            ip_awarded_msg = "|yIP award already recorded for this background.|n"
+        
         caller.msg(f"|g=== Approved Background for {target.key} ===|n")
+        caller.msg(ip_awarded_msg)
         
         # Notify player if online
         if target.has_account:
             target.msg("|g=== Your Background Has Been Approved! ===|n")
             target.msg("|gYour character background has been reviewed and approved by staff.|n")
+            if getattr(target.db, 'background_ip_awarded', False):
+                target.msg(f"|gYou have been awarded |y50 IP|g! Your new total: |y{target.db.ip}|g IP|n")
             target.msg("|gIt is now locked and cannot be edited.|n")
         
-        # Log to Splattercast
+        # Log to zotnet
         try:
-            splattercast = ChannelDB.objects.get_channel("Splattercast")
-            splattercast.msg(f"BACKGROUND_APPROVE: {caller.key} approved background for {target.key} (#{target.id})")
+            zotnet = ChannelDB.objects.get_channel("zotnet")
+            zotnet.msg(f"BACKGROUND_APPROVE: {caller.key} approved background for {target.key} (#{target.id})")
         except:
             pass
     
@@ -350,10 +352,10 @@ class CmdBackground(Command):
             target.msg("|yCheck your pnotes for detailed feedback: |wlook pnotes|n")
             target.msg("|yOnce revised, update it with: |wbackground edit <text>|n")
         
-        # Log to Splattercast
+        # Log to zotnet
         try:
-            splattercast = ChannelDB.objects.get_channel("Splattercast")
-            splattercast.msg(f"BACKGROUND_REJECT: {caller.key} sent feedback to {target.key} (#{target.id})")
+            zotnet = ChannelDB.objects.get_channel("zotnet")
+            zotnet.msg(f"BACKGROUND_REJECT: {caller.key} sent feedback to {target.key} (#{target.id})")
         except:
             pass
     
