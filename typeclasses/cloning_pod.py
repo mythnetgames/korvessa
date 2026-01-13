@@ -332,11 +332,10 @@ class CloningPod(Object):
             # Future: character.db.money -= cost
             pass
         
-        # Format the current in-game time for display
+        # Get current in-game time for display
         import time as real_time
-        current_game_time = backup['timestamp']
-        time_struct = real_time.gmtime(current_game_time)
-        formatted_time = real_time.strftime('%Y-%m-%d %H:%M:%S', time_struct)
+        current_game_time = gametime.gametime(absolute=True)
+        formatted_time = real_time.strftime('%Y-%m-%d %H:%M:%S', current_game_time)
         
         # Final messages
         character.msg(f"\n|g{'=' * 60}|n")
