@@ -185,7 +185,13 @@ class CmdIP(Command):
             caller.msg("       ip <character>  (to view current IP)")
             return
         
-        args = self.args.strip().split()
+        # Parse arguments, handling quoted names with spaces/apostrophes
+        import shlex
+        try:
+            args = shlex.split(self.args.strip())
+        except ValueError:
+            # Fallback to simple split if shlex fails
+            args = self.args.strip().split()
         
         if len(args) < 1:
             caller.msg("You must specify a character.")
