@@ -16,7 +16,7 @@ Pricing:
 """
 
 from typeclasses.objects import Object
-from evennia.utils import delay
+from evennia.utils import delay, gametime
 from evennia import Command, CmdSet
 from evennia.comms.models import ChannelDB
 import time
@@ -98,7 +98,7 @@ def create_clone_backup(character):
         dict: The backup data created
     """
     backup = {
-        'timestamp': time.time(),
+        'timestamp': gametime.gametime(),
         
         # Stats (8-stat system)
         'body': getattr(character, 'body', 1),
@@ -566,7 +566,7 @@ class CmdCloneStatus(Command):
         time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(backup_time))
         
         # Calculate age
-        age_seconds = time.time() - backup_time
+        age_seconds = gametime.gametime() - backup_time
         if age_seconds < 3600:
             age_str = f"{int(age_seconds / 60)} minutes ago"
         elif age_seconds < 86400:
