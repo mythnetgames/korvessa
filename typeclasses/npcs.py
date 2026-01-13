@@ -68,10 +68,20 @@ class NPC(Character):
         # Call parent to ensure normal behavior
         return super().at_object_receive(moved_object, source)
     
-    def at_pre_move(self, destination):
-        """Called before the object moves. For items being given TO this NPC, allow it."""
-        # Allow items to be moved into this NPC's inventory
-        return super().at_pre_move(destination)
+    def at_pre_move(self, destination, **kwargs):
+        """
+        Called before the NPC moves. 
+        NPCs should not be blocked by movement locks or cloning procedures.
+        """
+        # Clear any movement locks that shouldn't apply to NPCs
+        if hasattr(self.ndb, '_movement_locked'):
+            delattr(self.ndb, '_movement_locked')
+        
+        # Notify windows that observe this current room about the NPC leaving
+        if self.location:
+            self._notify_window_observers('leave', None)
+        
+        return True
     
     def at_init(self):
         """Called when NPC is loaded."""
