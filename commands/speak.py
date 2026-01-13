@@ -76,18 +76,26 @@ class CmdSpeak(Command):
         # Check if Builder or higher
         is_builder = caller.locks.check_lockstring(caller, "perm(Builder)")
         
+        # Get languages being learned (any proficiency > 0 but not in known set)
+        learning_langs = []
+        proficiency_dict = getattr(caller.db, 'language_proficiency', {}) or {}
+        for lang_code, prof in proficiency_dict.items():
+            if lang_code not in known and prof > 0 and lang_code in LANGUAGES:
+                learning_langs.append(lang_code)
+        learning_langs = sorted(learning_langs)
+        
         if is_builder:
             # Builders see all languages
             display_langs = sorted(ALL_LANGUAGES)
             text = "|cAll Languages (Builder View):|n\n"
         else:
-            # Regular players see only known languages
+            # Regular players see known languages + languages being learned
             display_langs = known
             text = "|cLanguages You Know:|n\n"
         
         text += "-" * 60 + "\n"
         
-        if not display_langs:
+        if not display_langs and not learning_langs:
             text += "You don't know any languages yet.\n"
             caller.msg(text)
             return
@@ -107,6 +115,21 @@ class CmdSpeak(Command):
             unknown_marker = "" if is_known else " |r(unknown)|n"
             
             text += f"{lang_name:30} {bar} {proficiency:6.2f}%{is_primary}{unknown_marker}\n"
+        
+        # Show languages being learned (for non-builders)
+        if learning_langs and not is_builder:
+            text += "-" * 60 + "\n"
+            text += "|yLanguages You Are Learning:|n\n"
+            for lang_code in learning_langs:
+                lang_name = LANGUAGES[lang_code]['name']
+                proficiency = get_language_proficiency(caller, lang_code)
+                
+                # Proficiency bar
+                bar_length = 20
+                filled = int(proficiency / 5)  # 5% per character
+                bar = "|y" + "=" * filled + "|n" + "-" * (bar_length - filled)
+                
+                text += f"{lang_name:30} {bar} {proficiency:6.2f}%\n"
         
         text += "-" * 60 + "\n"
         
