@@ -294,7 +294,9 @@ def initialize_language_proficiency(character):
     Args:
         character: The character object
     """
-    if not hasattr(character.db, 'language_proficiency'):
+    proficiency = getattr(character.db, 'language_proficiency', None)
+    
+    if proficiency is None or not isinstance(proficiency, dict):
         proficiency = {}
         
         # Initialize known languages with 100% proficiency
