@@ -407,6 +407,9 @@ def set_language_proficiency(character, language_code, proficiency):
     # Save to db directly - this forces Evennia to mark it dirty and save to DB
     character.db.language_proficiency = clean_dict
     
+    # Force save to database
+    character.save()
+    
     # Verify it saved
     if splattercast:
         verify = character.db.language_proficiency
