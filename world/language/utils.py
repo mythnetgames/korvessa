@@ -327,12 +327,22 @@ def get_language_proficiency(character, language_code):
         proficiency_dict = {}
         character.db.language_proficiency = proficiency_dict
     
+    # Debug: Check what's in dict
+    from evennia.comms.models import ChannelDB
+    try:
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+        if splattercast and language_code == 'arabic':
+            splattercast.msg(f"GET_PROF_DEBUG: {character.key} checking {language_code}, dict_contents={proficiency_dict}, looking for key={language_code}, value_in_dict={proficiency_dict.get(language_code, 'NOT_FOUND')}")
+    except:
+        pass
+    
     # Known languages at 100%
     if language_code in get_character_languages(character)['known']:
         return proficiency_dict.get(language_code, 100.0)
     
     # Unknown languages tracked separately
-    return proficiency_dict.get(language_code, 0.0)
+    result = proficiency_dict.get(language_code, 0.0)
+    return result
 
 
 def set_language_proficiency(character, language_code, proficiency):
@@ -346,7 +356,11 @@ def set_language_proficiency(character, language_code, proficiency):
     """
     initialize_language_proficiency(character)
     proficiency = max(0.0, min(100.0, proficiency))
-    character.db.language_proficiency[language_code] = proficiency
+    
+    # Get the dict, modify it, and reassign it to force Evennia to recognize the change
+    prof_dict = character.db.language_proficiency
+    prof_dict[language_code] = proficiency
+    character.db.language_proficiency = prof_dict  # Reassign to trigger Evennia save
 
 
 def increase_language_proficiency(character, language_code, amount):
