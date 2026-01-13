@@ -361,6 +361,16 @@ def increase_language_proficiency(character, language_code, amount):
     current = get_language_proficiency(character, language_code)
     new_proficiency = min(100.0, current + amount)
     set_language_proficiency(character, language_code, new_proficiency)
+    
+    # Debug
+    from evennia.comms.models import ChannelDB
+    try:
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+        if splattercast:
+            actual = character.db.language_proficiency.get(language_code, 'NOT_SET')
+            splattercast.msg(f"INCREASE_PROF: {character.key} {language_code}: current={current}, amount={amount}, new={new_proficiency}, actual_in_db={actual}")
+    except:
+        pass
 
 
 def get_language_learning_speed(character):
@@ -734,16 +744,13 @@ def apply_language_garbling_to_observers(speaker, message, language_code):
         if obj == speaker:
             continue
         
-        # Skip if not a character-like object (must have db and msg)
-        if not hasattr(obj, 'db') or not hasattr(obj, 'msg'):
-            continue
-        
-        # Skip if it's an Exit object
+        # Only process Character objects (check for character typeclass)
         try:
-            if 'exit' in obj.typeclass_path.lower():
+            typeclass = obj.typeclass_path.lower()
+            if 'character' not in typeclass:
                 continue
         except (AttributeError, TypeError):
-            pass
+            continue
         
         # Get observer's proficiency in this language
         proficiency = get_language_proficiency(obj, language_code)
