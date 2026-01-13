@@ -45,13 +45,17 @@ def initialize_character_languages(character, primary_language=None, additional_
     
     character.db.known_languages = known_languages
     
-    # Initialize proficiency tracking
-    if not hasattr(character.db, 'language_proficiency'):
+    # Initialize proficiency tracking - don't reset if already exists
+    existing_prof = character.db.language_proficiency
+    if existing_prof is None or not isinstance(existing_prof, dict):
         character.db.language_proficiency = {}
     
-    # Set proficiency for all known languages to 100%
+    # Set proficiency for all known languages to 100% only if not already set
+    prof_dict = character.db.language_proficiency
     for lang in known_languages:
-        character.db.language_proficiency[lang] = 100.0
+        if lang not in prof_dict:
+            prof_dict[lang] = 100.0
+    character.db.language_proficiency = prof_dict
 
 
 def get_character_languages(character):
@@ -322,26 +326,21 @@ def get_language_proficiency(character, language_code):
     Returns:
         float: Proficiency percentage (0-100)
     """
-    initialize_language_proficiency(character)
-    
-    # Use direct access instead of getattr for Evennia db attributes
-    try:
-        proficiency_dict = character.db.language_proficiency
-    except AttributeError:
-        proficiency_dict = None
+    # Get proficiency dict directly without calling initialize
+    proficiency_dict = character.db.language_proficiency
     
     # Handle None or invalid proficiency dict
     if proficiency_dict is None or not isinstance(proficiency_dict, dict):
         proficiency_dict = {}
         character.db.language_proficiency = proficiency_dict
     
-    # Known languages at 100%
-    if language_code in get_character_languages(character)['known']:
+    # Known languages default to 100%
+    known = character.db.known_languages
+    if known and language_code in known:
         return proficiency_dict.get(language_code, 100.0)
     
     # Unknown languages tracked separately
-    result = proficiency_dict.get(language_code, 0.0)
-    return result
+    return proficiency_dict.get(language_code, 0.0)
 
 
 def set_language_proficiency(character, language_code, proficiency):
