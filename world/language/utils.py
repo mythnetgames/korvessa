@@ -84,12 +84,12 @@ def get_character_languages(character):
         known = set(known)
         character.db.known_languages = known
     
-    # Ensure primary is valid
-    if primary is None or primary not in known:
+    # Ensure primary is valid (but don't reset it if it's valid)
+    if primary is None or primary not in LANGUAGES:
         primary = DEFAULT_LANGUAGE
         character.db.primary_language = primary
     
-    # Ensure primary is in known
+    # Ensure primary is in known languages (add it if missing)
     if primary not in known:
         known.add(primary)
         character.db.known_languages = known
@@ -377,8 +377,8 @@ def get_language_learning_speed(character):
         float: Learning speed multiplier (minimum 1.0)
     """
     try:
-        # Try both 'smarts' and 'smrt' as the stat might be named either way
-        smarts = getattr(character.db, 'smarts', None) or getattr(character.db, 'smrt', 1)
+        # Stats are accessed directly on character, not character.db
+        smarts = getattr(character, 'smrt', 1)
         if not isinstance(smarts, (int, float)) or smarts is None:
             smarts = 1
         multiplier = 1.0 + (max(0, smarts - 1) * 0.15)
@@ -481,8 +481,8 @@ def get_daily_ip_cap_for_language(character, language_code):
         int: Daily IP cap
     """
     try:
-        # Try both 'smarts' and 'smrt' as the stat might be named either way
-        smarts = getattr(character.db, 'smarts', None) or getattr(character.db, 'smrt', 1)
+        # Stats are accessed directly on character, not character.db
+        smarts = getattr(character, 'smrt', 1)
         if not isinstance(smarts, (int, float)) or smarts is None:
             smarts = 1
         cap = 50 + (max(0, smarts - 1) * 5)
