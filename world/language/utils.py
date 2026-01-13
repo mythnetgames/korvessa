@@ -358,10 +358,22 @@ def set_language_proficiency(character, language_code, proficiency):
         language_code (str): Language code
         proficiency (float): Proficiency percentage
     """
+    from evennia.comms.models import ChannelDB
+    try:
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+    except:
+        splattercast = None
+    
+    if splattercast:
+        splattercast.msg(f"SET_PROF CALLED: {character.key} {language_code}={proficiency}")
+    
     proficiency = max(0.0, min(100.0, proficiency))
     
     # Always create a fresh copy from the db, modify it, and save it back
     existing = character.db.language_proficiency
+    if splattercast:
+        splattercast.msg(f"SET_PROF existing: {existing}")
+    
     if existing is None or not isinstance(existing, dict):
         new_dict = {language_code: proficiency}
     else:
@@ -370,6 +382,10 @@ def set_language_proficiency(character, language_code, proficiency):
     
     # Save the new dict back - this forces Evennia to track the change
     character.db.language_proficiency = new_dict
+    
+    if splattercast:
+        verify = character.db.language_proficiency
+        splattercast.msg(f"SET_PROF after save: {verify}")
 
 
 def increase_language_proficiency(character, language_code, amount):
@@ -381,6 +397,14 @@ def increase_language_proficiency(character, language_code, amount):
         language_code (str): Language code
         amount (float): Amount to increase (capped at 100)
     """
+    from evennia.comms.models import ChannelDB
+    try:
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+        if splattercast:
+            splattercast.msg(f"INCREASE_PROF CALLED: {character.key} {language_code} +{amount}")
+    except:
+        pass
+    
     current = get_language_proficiency(character, language_code)
     new_proficiency = min(100.0, current + amount)
     set_language_proficiency(character, language_code, new_proficiency)
