@@ -339,16 +339,36 @@ def npc_start(caller, raw_string, **kwargs):
             "edge": 1,
         },
         "skills": {
-            "brawling": 0,
+            "chemical": 0,
+            "modern_medicine": 0,
+            "holistic_medicine": 0,
+            "farming": 0,
+            "science": 0,
+            "surgery": 0,
             "blades": 0,
-            "blunt": 0,
-            "ranged": 0,
-            "grapple": 0,
             "dodge": 0,
-            "stealth": 0,
-            "intimidate": 0,
-            "persuasion": 0,
-            "perception": 0,
+            "rifles": 0,
+            "pistols": 0,
+            "melee": 0,
+            "brawling": 0,
+            "martial_arts": 0,
+            "grappling": 0,
+            "athletics": 0,
+            "snooping": 0,
+            "stealing": 0,
+            "hiding": 0,
+            "tailoring": 0,
+            "disguise": 0,
+            "tinkering": 0,
+            "manufacturing": 0,
+            "cooking": 0,
+            "electronics": 0,
+            "decking": 0,
+            "aeronautics": 0,
+            "mercantile": 0,
+            "forgery": 0,
+            "paint_draw_sculpt": 0,
+            "instrument": 0,
         },
     }
     
@@ -675,12 +695,18 @@ def npc_skills_menu(caller, raw_string, **kwargs):
         if choice == "b":
             return npc_properties(caller, "", **kwargs)
         
-        # Check if it's a skill number (1-10)
+        # Check if it's a skill number (1-30)
         try:
             skill_num = int(choice)
-            if 1 <= skill_num <= 10:
-                skill_names = ["brawling", "blades", "blunt", "ranged", "grapple", 
-                               "dodge", "stealth", "intimidate", "persuasion", "perception"]
+            if 1 <= skill_num <= 30:
+                skill_names = [
+                    "chemical", "modern_medicine", "holistic_medicine", "farming", "science",
+                    "surgery", "blades", "dodge", "rifles", "pistols",
+                    "melee", "brawling", "martial_arts", "grappling", "athletics",
+                    "snooping", "stealing", "hiding", "tailoring", "disguise",
+                    "tinkering", "manufacturing", "cooking", "electronics", "decking",
+                    "aeronautics", "mercantile", "forgery", "paint_draw_sculpt", "instrument"
+                ]
                 skill_name = skill_names[skill_num - 1]
                 # Store the selected skill in ndb so edit function can access it
                 caller.ndb._editing_skill = skill_name
@@ -688,7 +714,7 @@ def npc_skills_menu(caller, raw_string, **kwargs):
         except ValueError:
             pass
         
-        caller.msg("|rInvalid choice. Enter 1-10 or b.|n")
+        caller.msg("|rInvalid choice. Enter 1-30 or b.|n")
         return npc_skills_menu(caller, "", **kwargs)  # Re-display menu
     
     # Display mode - show menu
@@ -697,26 +723,52 @@ def npc_skills_menu(caller, raw_string, **kwargs):
     text += "Skills scale from 0-100 (0 = untrained, 100 = master)\n\n"
     
     skills = caller.ndb._npc_data["skills"]
-    skill_names = ["brawling", "blades", "blunt", "ranged", "grapple", 
-                   "dodge", "stealth", "intimidate", "persuasion", "perception"]
+    skill_names = [
+        "chemical", "modern_medicine", "holistic_medicine", "farming", "science",
+        "surgery", "blades", "dodge", "rifles", "pistols",
+        "melee", "brawling", "martial_arts", "grappling", "athletics",
+        "snooping", "stealing", "hiding", "tailoring", "disguise",
+        "tinkering", "manufacturing", "cooking", "electronics", "decking",
+        "aeronautics", "mercantile", "forgery", "paint_draw_sculpt", "instrument"
+    ]
     skill_display = {
-        "brawling": "Brawling (Unarmed combat)",
-        "blades": "Blades (Edged weapons)",
-        "blunt": "Blunt (Heavy blunt weapons)",
-        "ranged": "Ranged (Guns/bows)",
-        "grapple": "Grapple (Wrestling/holds)",
-        "dodge": "Dodge (Evasion)",
-        "stealth": "Stealth (Sneaking/hiding)",
-        "intimidate": "Intimidate (Threaten/coerce)",
-        "persuasion": "Persuasion (Convince/charm)",
-        "perception": "Perception (Notice/awareness)",
+        "chemical": "Chemical",
+        "modern_medicine": "Modern Medicine",
+        "holistic_medicine": "Holistic Medicine",
+        "farming": "Farming",
+        "science": "Science",
+        "surgery": "Surgery",
+        "blades": "Blades",
+        "dodge": "Dodge",
+        "rifles": "Rifles",
+        "pistols": "Pistols",
+        "melee": "Melee",
+        "brawling": "Brawling",
+        "martial_arts": "Martial Arts",
+        "grappling": "Grappling",
+        "athletics": "Athletics",
+        "snooping": "Snooping",
+        "stealing": "Stealing",
+        "hiding": "Hiding",
+        "tailoring": "Tailoring",
+        "disguise": "Disguise",
+        "tinkering": "Tinkering",
+        "manufacturing": "Manufacturing",
+        "cooking": "Cooking",
+        "electronics": "Electronics",
+        "decking": "Decking",
+        "aeronautics": "Aeronautics",
+        "mercantile": "Mercantile",
+        "forgery": "Forgery",
+        "paint_draw_sculpt": "Paint/Draw/Sculpt",
+        "instrument": "Instrument",
     }
     
     for idx, skill in enumerate(skill_names, 1):
-        value = skills[skill]
-        text += f"|y{idx}|n - {skill_display[skill]:30} [Current: {value}]\n"
+        value = skills.get(skill, 0)
+        text += f"|y{idx:2}|n - {skill_display[skill]:20} [Current: {value}]\n"
     
-    text += "|yb|n - Back to Properties\n"
+    text += "\n|yb|n - Back to Properties\n"
     
     options = (
         {"key": "_default", "goto": "npc_skills_menu"},
