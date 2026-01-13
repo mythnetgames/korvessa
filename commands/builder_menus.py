@@ -468,18 +468,18 @@ def npc_faction(caller, raw_string, **kwargs):
     if raw_string and raw_string.strip():
         choice = raw_string.strip().lower()
         
-        if choice == "q":
-            return npc_properties(caller, "", **kwargs)
+        if choice == "b":
+            return "npc_properties"
         
         try:
             idx = int(choice)
             if 1 <= idx <= len(factions):
                 caller.ndb._npc_data["faction"] = factions[idx - 1]["id"]
-                return npc_properties(caller, "", **kwargs)
+                return "npc_properties"
         except ValueError:
             pass
         
-        caller.msg("|rInvalid choice. Enter a number or q.|n")
+        caller.msg("|rInvalid choice. Enter a number or b.|n")
         return npc_faction(caller, "", **kwargs)
     
     # Display mode - show menu
@@ -489,7 +489,7 @@ def npc_faction(caller, raw_string, **kwargs):
     for idx, faction in enumerate(factions, 1):
         text += f"|y{idx}|n - {faction['name']}: {faction['description']}\n"
     
-    text += "|yq|n - Back\n"
+    text += "|yb|n - Back\n"
     
     options = (
         {"key": "_default", "goto": "npc_faction"},
@@ -672,8 +672,8 @@ def npc_skills_menu(caller, raw_string, **kwargs):
     if raw_string and raw_string.strip():
         choice = raw_string.strip().lower()
         
-        if choice == "q":
-            return npc_properties(caller, "", **kwargs)
+        if choice == "b":
+            return "npc_properties"
         
         # Check if it's a skill number (1-10)
         try:
@@ -688,7 +688,7 @@ def npc_skills_menu(caller, raw_string, **kwargs):
         except ValueError:
             pass
         
-        caller.msg("|rInvalid choice. Enter 1-10 or q.|n")
+        caller.msg("|rInvalid choice. Enter 1-10 or b.|n")
         return npc_skills_menu(caller, "", **kwargs)  # Re-display menu
     
     # Display mode - show menu
@@ -716,7 +716,7 @@ def npc_skills_menu(caller, raw_string, **kwargs):
         value = skills[skill]
         text += f"|y{idx}|n - {skill_display[skill]:30} [Current: {value}]\n"
     
-    text += "|yq|n - Back to Properties\n"
+    text += "|yb|n - Back to Properties\n"
     
     options = (
         {"key": "_default", "goto": "npc_skills_menu"},
