@@ -926,22 +926,22 @@ Let's assign your character's stats.
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
 
-Distribute |w35 points|n among the following stats:
-    |wBody|n (1-10):        {stats['body']}
-    |wReflexes|n (1-10):    {stats['reflexes']}
-    |wDexterity|n (1-10):   {stats['dexterity']}
-    |wTechnique|n (1-10):   {stats['technique']}
-    |wSmarts|n (1-10):      {stats['smarts']}
-    |wWillpower|n (1-10):   {stats['willpower']}
-    |wEdge|n (1-10):        {stats['edge']}
+|wAll stats start at 5. Distribute |y12 points|w among them (max 12).|n
+    |wBody|n (1-12):        {stats['body']}
+    |wReflexes|n (1-12):    {stats['reflexes']}
+    |wDexterity|n (1-12):   {stats['dexterity']}
+    |wTechnique|n (1-12):   {stats['technique']}
+    |wSmarts|n (1-12):      {stats['smarts']}
+    |wWillpower|n (1-12):   {stats['willpower']}
+    |wEdge|n (1-12):        {stats['edge']}
     |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
 
-|wTotal assigned:|n {total}/35  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|wDistribution points used:|n {distribution_used}/12  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
 
 Commands:
     |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
-    |wreset|n           - Reset all stats to 1
-    |wdone|n            - Finalize character (when total = 35)
+    |wreset|n           - Reset all stats to 5
+    |wdone|n            - Finalize character (when 12 points distributed)
 
 |w>|n """
     options = (
