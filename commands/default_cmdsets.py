@@ -407,6 +407,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add NPC wandering management command (admin+)
         from commands.cmd_npc_wander import CmdNPCWander
         self.add(CmdNPCWander())          # Admin+: manage NPC wandering in zones
+        # Add corpse cleanup command (builder+)
+        from commands.corpsecleanup import CmdCorpseCleanup
+        self.add(CmdCorpseCleanup())      # Builder+: clean up dead NPCs
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
