@@ -401,9 +401,9 @@ def apply_passive_language_learning(character, heard_language_code):
     if heard_language_code not in LANGUAGES:
         return
     
-    # Only passive learning for languages not fully known
-    known = get_character_languages(character)['known']
-    if heard_language_code in known:
+    # Only passive learning for languages not already at 100%
+    current_proficiency = get_language_proficiency(character, heard_language_code)
+    if current_proficiency >= 100.0:
         return
     
     # Check daily passive learning cap (max 5 events = 0.2 proficiency per day)

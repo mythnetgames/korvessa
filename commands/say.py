@@ -36,7 +36,15 @@ class CmdSay(DefaultCmdSay):
             caller.msg("Say what?")
             return
         
-        speech = self.args
+        speech = self.args.strip()
+        
+        # Capitalize first letter
+        if speech:
+            speech = speech[0].upper() + speech[1:] if len(speech) > 1 else speech.upper()
+        
+        # Add period if no ending punctuation
+        if speech and speech[-1] not in '.!?':
+            speech = speech + '.'
         
         # Get speaker's primary language
         primary_language = get_primary_language(caller)
