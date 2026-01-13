@@ -682,7 +682,8 @@ def _create_restored_clone(account, old_character, session, backup_data):
             old_character.db.archived = True
             old_character.db.archived_at = time.time()
             old_character.db.death_archive_name = old_name
-            _log(f"CLONE_CREATE: Archived old character as '{old_character.key}'")
+            old_character.save()  # Force save to database
+            _log(f"CLONE_CREATE: Archived old character as '{old_character.key}' (dbref: {old_character.dbref})")
         
         # Create new character with same name
         char, errors = account.create_character(
