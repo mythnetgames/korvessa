@@ -1104,7 +1104,7 @@ def first_char_select_language(caller, raw_string, **kwargs):
     secondary_languages = caller.ndb.charcreate_data.get('secondary_languages', [])
     
     # Determine if player can choose a second language
-    can_choose_second = smarts > SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE
+    can_choose_second = smarts >= SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE
     
     text = f"""
 |wChoose Your Primary Language|n

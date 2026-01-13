@@ -106,7 +106,7 @@ LANGUAGES = {
 
 DEFAULT_LANGUAGE = 'cantonese'
 MAX_LANGUAGES = 10
-SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE = 7  # Characters with Smarts > 7 get a second language choice
+SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE = 7  # Characters with Smarts >= 7 get a second language choice
 
 # Common languages available to all builders
 COMMON_LANGUAGES = [code for code, info in LANGUAGES.items() if info.get('common', False)]
