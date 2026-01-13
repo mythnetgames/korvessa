@@ -336,7 +336,9 @@ def get_language_proficiency(character, language_code):
     proficiency_dict = character.attributes.get("language_proficiency", default={})
     
     if splattercast:
-        splattercast.msg(f"GET_PROF: {character.key} lang_code={repr(language_code)} dict={proficiency_dict}")
+        keys = list(proficiency_dict.keys())
+        key_reprs = [repr(k) for k in keys]
+        splattercast.msg(f"GET_PROF: dict keys={key_reprs} looking for {repr(language_code)}")
     
     if not isinstance(proficiency_dict, dict):
         proficiency_dict = {}
