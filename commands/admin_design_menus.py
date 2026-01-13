@@ -191,6 +191,7 @@ def _npc_data(caller):
         caller.ndb._npc_design = {
             "name": "",
             "desc": "",
+            "lookplace": "",
             "prototype_key": "",
             "wandering": False,
             "cloneable": False,
@@ -209,6 +210,7 @@ def node_npc_main(caller, raw_string, **kwargs):
         f"|wName:|n {data.get('name', '(unnamed)')}\n"
         f"|wPrototype Key:|n {data.get('prototype_key', '(none)')}\n"
         f"|wDescription:|n {data.get('desc', '(none)')}\n"
+        f"|wLook Place:|n {data.get('lookplace', '(none)')}\n"
         f"|wWandering:|n {'|g[ON]|n' if data.get('wandering') else '|r[OFF]|n'}\n"
         f"|wCloneable:|n {'|g[YES]|n' if data.get('cloneable') else '|r[NO]|n'}\n"
         f"|wStats:|n {statstr}\n"
@@ -219,6 +221,7 @@ def node_npc_main(caller, raw_string, **kwargs):
         {"desc": "Set Name", "goto": "node_npc_set_name"},
         {"desc": "Set Prototype Key", "goto": "node_npc_set_prototype"},
         {"desc": "Set Description", "goto": "node_npc_set_desc"},
+        {"desc": "Set Look Place", "goto": "node_npc_set_lookplace"},
         {"desc": "Toggle Wandering", "goto": "node_npc_toggle_wandering"},
         {"desc": "Set Cloneable", "goto": "node_npc_set_cloneable"},
         {"desc": "Edit Stats", "goto": "node_npc_edit_stats"},
@@ -365,6 +368,30 @@ def node_npc_set_desc_handler(caller, raw_string, **kwargs):
         return "node_npc_set_desc"
     _npc_data(caller)["desc"] = desc
     caller.msg(f"|gNPC description set.|n")
+    return "node_npc_main"
+
+def node_npc_set_lookplace(caller, raw_string, **kwargs):
+    text = (
+        "|c=== Set NPC Look Place ===|n\n\n"
+        "Enter how this NPC appears when others look around the room.\n"
+        "Example: 'standing behind the counter' or 'lounging by the fire'\n\n"
+        "|wType your look place and press Enter, or type 'back' to return.|n"
+    )
+    options = ( {"key": "_default", "goto": "node_npc_set_lookplace_handler"}, )
+    return text, options
+
+def node_npc_set_lookplace_handler(caller, raw_string, **kwargs):
+    lookplace = (raw_string or '').strip()
+    if lookplace.lower() == 'back':
+        return "node_npc_main"
+    if len(lookplace) < 2:
+        caller.msg("|rLook place must be at least 2 characters.|n")
+        return "node_npc_set_lookplace"
+    if len(lookplace) > 200:
+        caller.msg("|rLook place must be 200 characters or less.|n")
+        return "node_npc_set_lookplace"
+    _npc_data(caller)["lookplace"] = lookplace
+    caller.msg(f"|gNPC look place set to: {lookplace}|n")
     return "node_npc_main"
 
 def node_npc_toggle_wandering(caller, raw_string, **kwargs):
