@@ -150,11 +150,9 @@ SESSION_DISCONNECT_TIMEOUT = 5  # 5 seconds to detect disconnect
 TIME_FACTOR = 1.0  # Real-time speed (x1)
 
 # Game time epoch in seconds since Unix epoch
-# Calculated so that current game time = January 12, 1970 (matching current time of day)
-# target: 1970-01-12 23:30:44 = 1,035,044 seconds
-# uptime: 48 days, 6h, 44m = 4,171,944 seconds
-# epoch = 1,035,044 - 4,171,944 = -3,136,900
-TIME_GAME_EPOCH = -3136900
+# Adjusted to match January 12, 1970 at current time
+# Adding 6 hours (21,600 seconds) to previous calculation
+TIME_GAME_EPOCH = -3115300
 
 
 ######################################################################
