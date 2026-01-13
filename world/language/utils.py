@@ -436,6 +436,7 @@ def apply_passive_language_learning(character, heard_language_code):
     """
     Apply passive learning when hearing a language.
     
+    Requires Smarts 4 or higher to passively learn languages.
     Hearing a language you don't know increases proficiency by 0.04 per event.
     Daily cap: 5 events = 0.2 proficiency per day.
     
@@ -444,6 +445,13 @@ def apply_passive_language_learning(character, heard_language_code):
         heard_language_code (str): Language code heard
     """
     if heard_language_code not in LANGUAGES:
+        return
+    
+    # Must have Smarts 4 or higher to passively learn languages
+    smarts = getattr(character, 'smrt', 1)
+    if not isinstance(smarts, (int, float)) or smarts is None:
+        smarts = 1
+    if smarts < 4:
         return
     
     # Only passive learning for languages not already at 100%
