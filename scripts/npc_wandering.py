@@ -226,8 +226,8 @@ class NPCWanderingScript(DefaultScript):
         need_new_dest = False
         if dest_x is None or dest_y is None:
             if channel:
-                channel.msg(f"PATH_NO_DEST: {npc.name} - No destination set, picking new one")
-            need_new_dest = True
+                channel.msg(f"PATH_NO_DEST: {npc.name} - No destination set, waiting for roll to pick one")
+            return
         elif current_x == dest_x and current_y == dest_y:
             # Check z coordinate if it was specified
             if dest_z is not None:
@@ -239,20 +239,20 @@ class NPCWanderingScript(DefaultScript):
                     # Reached full 3D destination
                     if channel:
                         channel.msg(f"PATH_ARRIVED: {npc.name} reached destination ({dest_x},{dest_y},{dest_z})")
-                    need_new_dest = True
+                    # Clear destination and stop moving - wait for next roll to pick new one
+                    npc.ndb.wander_dest_x = None
+                    npc.ndb.wander_dest_y = None
+                    npc.ndb.wander_dest_z = None
+                    return
             else:
                 # No z specified, 2D destination reached
                 if channel:
                     channel.msg(f"PATH_ARRIVED: {npc.name} reached destination ({dest_x},{dest_y})")
-                need_new_dest = True
-        
-        if need_new_dest:
-            self._pick_new_destination(npc, zone)
-            dest_x = getattr(npc.ndb, 'wander_dest_x', None)
-            dest_y = getattr(npc.ndb, 'wander_dest_y', None)
-            dest_z = getattr(npc.ndb, 'wander_dest_z', None)
-            if dest_x is None or dest_y is None:
-                return  # Couldn't find a destination
+                # Clear destination and stop moving - wait for next roll to pick new one
+                npc.ndb.wander_dest_x = None
+                npc.ndb.wander_dest_y = None
+                npc.ndb.wander_dest_z = None
+                return
         
         # Find best exit towards destination
         best_exit = self._find_best_exit(npc, zone, dest_x, dest_y, dest_z)
