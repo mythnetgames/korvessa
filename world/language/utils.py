@@ -336,13 +336,16 @@ def get_language_proficiency(character, language_code):
     proficiency_dict = character.attributes.get("language_proficiency", default={})
     
     if splattercast:
-        splattercast.msg(f"GET_PROF: {character.key} {language_code} dict={proficiency_dict} id={id(proficiency_dict)}")
+        splattercast.msg(f"GET_PROF: {character.key} lang_code={repr(language_code)} dict={proficiency_dict}")
     
     if not isinstance(proficiency_dict, dict):
         proficiency_dict = {}
     
     # Check if value exists in dict first
     value = proficiency_dict.get(language_code)
+    if splattercast:
+        splattercast.msg(f"GET_PROF: dict.get({repr(language_code)}) = {repr(value)}")
+    
     if value is not None:
         if splattercast:
             splattercast.msg(f"GET_PROF: returning {value} from dict")
