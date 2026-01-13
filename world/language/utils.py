@@ -326,43 +326,29 @@ def get_language_proficiency(character, language_code):
     Returns:
         float: Proficiency percentage (0-100)
     """
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-    except:
-        splattercast = None
-    
     # Use Evennia's attributes API directly
     proficiency_dict = character.attributes.get("language_proficiency", default={})
-    
-    if splattercast:
-        keys = list(proficiency_dict.keys())
-        key_reprs = [repr(k) for k in keys]
-        splattercast.msg(f"GET_PROF: dict keys={key_reprs} looking for {repr(language_code)}")
     
     if not isinstance(proficiency_dict, dict):
         proficiency_dict = {}
     
-    # Check if value exists in dict first
-    value = proficiency_dict.get(language_code)
-    if splattercast:
-        splattercast.msg(f"GET_PROF: dict.get({repr(language_code)}) = {repr(value)}")
+    # Rebuild dict with clean keys (Evennia serialization can add quotes)
+    clean_dict = {}
+    for key, value in proficiency_dict.items():
+        clean_key = key.strip("'\"") if isinstance(key, str) else key
+        clean_dict[clean_key] = value
     
+    # Check if value exists in dict first
+    value = clean_dict.get(language_code)
     if value is not None:
-        if splattercast:
-            splattercast.msg(f"GET_PROF: returning {value} from dict")
         return float(value)
     
     # If not in dict, check if it's a known language (should be 100%)
     known = character.attributes.get("known_languages", default=set())
     if known and language_code in known:
-        if splattercast:
-            splattercast.msg(f"GET_PROF: returning 100.0 (known language)")
         return 100.0
     
     # Unknown languages default to 0.0
-    if splattercast:
-        splattercast.msg(f"GET_PROF: returning 0.0 (unknown)")
     return 0.0
 
 
@@ -375,22 +361,10 @@ def set_language_proficiency(character, language_code, proficiency):
         language_code (str): Language code
         proficiency (float): Proficiency percentage
     """
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-    except:
-        splattercast = None
-    
     proficiency = max(0.0, min(100.0, proficiency))
     
     # Use Evennia's attributes API directly for persistence
     existing = character.attributes.get("language_proficiency", default={})
-    if splattercast:
-        splattercast.msg(f"SET_PROF existing: {existing}")
-        splattercast.msg(f"SET_PROF existing keys: {list(existing.keys())}")
-        if existing:
-            first_key = list(existing.keys())[0]
-            splattercast.msg(f"SET_PROF first key: {repr(first_key)} type={type(first_key)}")
     
     if not isinstance(existing, dict):
         existing = {}
@@ -405,15 +379,8 @@ def set_language_proficiency(character, language_code, proficiency):
     # Add the new value
     clean_dict[language_code] = proficiency
     
-    if splattercast:
-        splattercast.msg(f"SET_PROF new dict: {clean_dict}")
-    
     # Use attributes.add to force persistence
     character.attributes.add("language_proficiency", clean_dict)
-    
-    if splattercast:
-        verify = character.attributes.get("language_proficiency")
-        splattercast.msg(f"SET_PROF after add: {verify}")
 
 
 def increase_language_proficiency(character, language_code, amount):
@@ -425,14 +392,6 @@ def increase_language_proficiency(character, language_code, amount):
         language_code (str): Language code
         amount (float): Amount to increase (capped at 100)
     """
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-        if splattercast:
-            splattercast.msg(f"INCREASE_PROF CALLED: {character.key} {language_code} +{amount}")
-    except:
-        pass
-    
     current = get_language_proficiency(character, language_code)
     new_proficiency = min(100.0, current + amount)
     set_language_proficiency(character, language_code, new_proficiency)
@@ -473,25 +432,13 @@ def apply_passive_language_learning(character, heard_language_code):
         character: The character object
         heard_language_code (str): Language code heard
     """
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-    except:
-        splattercast = None
-    
     if heard_language_code not in LANGUAGES:
-        if splattercast:
-            splattercast.msg(f"PASSIVE: {character.key} {heard_language_code} not in LANGUAGES")
         return
     
     # Only passive learning for languages not already at 100%
     current_proficiency = get_language_proficiency(character, heard_language_code)
-    if splattercast:
-        splattercast.msg(f"PASSIVE: {character.key} checking {heard_language_code}, current={current_proficiency}")
     
     if current_proficiency >= 100.0:
-        if splattercast:
-            splattercast.msg(f"PASSIVE: {character.key} {heard_language_code} already at 100%")
         return
     
     # Check daily passive learning cap (max 5 events = 0.2 proficiency per day)
@@ -509,15 +456,10 @@ def apply_passive_language_learning(character, heard_language_code):
     
     # Track passive learning count
     count = character.ndb.daily_passive_learning.get(heard_language_code, 0)
-    if splattercast:
-        splattercast.msg(f"PASSIVE: {character.key} {heard_language_code} count={count}/5")
     
     if count < 5:  # Max 5 passive learning events per language per day
         increase_language_proficiency(character, heard_language_code, 0.04)
         character.ndb.daily_passive_learning[heard_language_code] = count + 1
-    else:
-        if splattercast:
-            splattercast.msg(f"PASSIVE: {character.key} {heard_language_code} CAPPED at 5")
 
 
 def calculate_ip_cost_for_proficiency(target_proficiency):
@@ -813,32 +755,18 @@ def apply_language_garbling_to_observers(speaker, message, language_code):
     if not location:
         return observer_messages
     
-    # Debug
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-    except:
-        splattercast = None
-    
     for obj in location.contents:
         # Skip the speaker
         if obj == speaker:
             continue
         
-        # Debug: show typeclass for each object
+        # Only process characters
         try:
             typeclass = obj.typeclass_path.lower()
-            if splattercast:
-                splattercast.msg(f"DEBUG: {obj.key} typeclass={typeclass}")
             if 'character' not in typeclass:
                 continue
-        except (AttributeError, TypeError) as e:
-            if splattercast:
-                splattercast.msg(f"DEBUG: {obj.key} no typeclass - {e}")
+        except (AttributeError, TypeError):
             continue
-        
-        if splattercast:
-            splattercast.msg(f"DEBUG: Processing {obj.key} for {language_code}")
         
         # Get observer's proficiency in this language
         proficiency = get_language_proficiency(obj, language_code)
@@ -853,11 +781,5 @@ def apply_language_garbling_to_observers(speaker, message, language_code):
         
         # Apply passive learning
         apply_passive_language_learning(obj, language_code)
-        
-        if splattercast:
-            new_prof = get_language_proficiency(obj, language_code)
-            splattercast.msg(f"DEBUG: After learning {obj.key} proficiency={new_prof}")
-    
-    return observer_messages
     
     return observer_messages
