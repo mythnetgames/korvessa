@@ -342,31 +342,30 @@ def npc_start(caller, raw_string, **kwargs):
             "chemical": 0,
             "modern_medicine": 0,
             "holistic_medicine": 0,
-            "farming": 0,
-            "science": 0,
             "surgery": 0,
-            "blades": 0,
+            "science": 0,
             "dodge": 0,
-            "rifles": 0,
+            "blades": 0,
             "pistols": 0,
+            "rifles": 0,
             "melee": 0,
             "brawling": 0,
             "martial_arts": 0,
             "grappling": 0,
-            "athletics": 0,
             "snooping": 0,
             "stealing": 0,
             "hiding": 0,
-            "tailoring": 0,
+            "sneaking": 0,
             "disguise": 0,
+            "tailoring": 0,
             "tinkering": 0,
             "manufacturing": 0,
             "cooking": 0,
-            "electronics": 0,
+            "forensics": 0,
             "decking": 0,
-            "aeronautics": 0,
+            "electronics": 0,
             "mercantile": 0,
-            "forgery": 0,
+            "streetwise": 0,
             "paint_draw_sculpt": 0,
             "instrument": 0,
         },
@@ -695,17 +694,17 @@ def npc_skills_menu(caller, raw_string, **kwargs):
         if choice == "b":
             return npc_properties(caller, "", **kwargs)
         
-        # Check if it's a skill number (1-30)
+        # Check if it's a skill number (1-29)
         try:
             skill_num = int(choice)
-            if 1 <= skill_num <= 30:
+            if 1 <= skill_num <= 29:
                 skill_names = [
-                    "chemical", "modern_medicine", "holistic_medicine", "farming", "science",
-                    "surgery", "blades", "dodge", "rifles", "pistols",
-                    "melee", "brawling", "martial_arts", "grappling", "athletics",
-                    "snooping", "stealing", "hiding", "tailoring", "disguise",
-                    "tinkering", "manufacturing", "cooking", "electronics", "decking",
-                    "aeronautics", "mercantile", "forgery", "paint_draw_sculpt", "instrument"
+                    "chemical", "modern_medicine", "holistic_medicine", "surgery", "science",
+                    "dodge", "blades", "pistols", "rifles", "melee",
+                    "brawling", "martial_arts", "grappling", "snooping", "stealing",
+                    "hiding", "sneaking", "disguise", "tailoring", "tinkering",
+                    "manufacturing", "cooking", "forensics", "decking", "electronics",
+                    "mercantile", "streetwise", "paint_draw_sculpt", "instrument"
                 ]
                 skill_name = skill_names[skill_num - 1]
                 # Store the selected skill in ndb so edit function can access it
@@ -714,7 +713,7 @@ def npc_skills_menu(caller, raw_string, **kwargs):
         except ValueError:
             pass
         
-        caller.msg("|rInvalid choice. Enter 1-30 or b.|n")
+        caller.msg("|rInvalid choice. Enter 1-29 or b.|n")
         return npc_skills_menu(caller, "", **kwargs)  # Re-display menu
     
     # Display mode - show menu
@@ -724,42 +723,41 @@ def npc_skills_menu(caller, raw_string, **kwargs):
     
     skills = caller.ndb._npc_data["skills"]
     skill_names = [
-        "chemical", "modern_medicine", "holistic_medicine", "farming", "science",
-        "surgery", "blades", "dodge", "rifles", "pistols",
-        "melee", "brawling", "martial_arts", "grappling", "athletics",
-        "snooping", "stealing", "hiding", "tailoring", "disguise",
-        "tinkering", "manufacturing", "cooking", "electronics", "decking",
-        "aeronautics", "mercantile", "forgery", "paint_draw_sculpt", "instrument"
+        "chemical", "modern_medicine", "holistic_medicine", "surgery", "science",
+        "dodge", "blades", "pistols", "rifles", "melee",
+        "brawling", "martial_arts", "grappling", "snooping", "stealing",
+        "hiding", "sneaking", "disguise", "tailoring", "tinkering",
+        "manufacturing", "cooking", "forensics", "decking", "electronics",
+        "mercantile", "streetwise", "paint_draw_sculpt", "instrument"
     ]
     skill_display = {
         "chemical": "Chemical",
         "modern_medicine": "Modern Medicine",
         "holistic_medicine": "Holistic Medicine",
-        "farming": "Farming",
-        "science": "Science",
         "surgery": "Surgery",
-        "blades": "Blades",
+        "science": "Science",
         "dodge": "Dodge",
-        "rifles": "Rifles",
+        "blades": "Blades",
         "pistols": "Pistols",
+        "rifles": "Rifles",
         "melee": "Melee",
         "brawling": "Brawling",
         "martial_arts": "Martial Arts",
         "grappling": "Grappling",
-        "athletics": "Athletics",
         "snooping": "Snooping",
         "stealing": "Stealing",
         "hiding": "Hiding",
-        "tailoring": "Tailoring",
+        "sneaking": "Sneaking",
         "disguise": "Disguise",
+        "tailoring": "Tailoring",
         "tinkering": "Tinkering",
         "manufacturing": "Manufacturing",
         "cooking": "Cooking",
-        "electronics": "Electronics",
+        "forensics": "Forensics",
         "decking": "Decking",
-        "aeronautics": "Aeronautics",
+        "electronics": "Electronics",
         "mercantile": "Mercantile",
-        "forgery": "Forgery",
+        "streetwise": "Streetwise",
         "paint_draw_sculpt": "Paint/Draw/Sculpt",
         "instrument": "Instrument",
     }
