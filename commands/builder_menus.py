@@ -578,7 +578,7 @@ def npc_stats_menu(caller, raw_string, **kwargs):
     if raw_string and raw_string.strip():
         choice = raw_string.strip().lower()
         
-        if choice == "q":
+        if choice == "b":
             return "npc_properties"  # Use goto-style return for proper EvMenu handling
         
         # Check if it's a stat number (1-7)
@@ -593,7 +593,7 @@ def npc_stats_menu(caller, raw_string, **kwargs):
         except ValueError:
             pass
         
-        caller.msg("|rInvalid choice. Enter 1-7 or q.|n")
+        caller.msg("|rInvalid choice. Enter 1-7 or b.|n")
         return npc_stats_menu(caller, "", **kwargs)  # Re-display menu
     
     # Display mode - show menu
@@ -620,12 +620,7 @@ def npc_stats_menu(caller, raw_string, **kwargs):
     emp_value = stats["edge"] + stats["will"]
     text += f"|y*|n - Empathy (EMP): |g[Calculated: {emp_value} (EDGE {stats['edge']} + WILL {stats['will']})]|n\n"
 
-    text += "\n|wStat Details:|n\n"
-    for stat in stat_names:
-        text += f"|c{stat_display[stat]}|n\n\n"
-    
-    text += "|cEmpathy (EMP): Your ability to relate to and care for others, and take others into consideration. Offsets cyberpsychosis. In this MOO, starting empathy is a combination of EDGE and WILLPOWER.|n\n"
-    text += "|yq|n - Back to Properties\n"
+    text += "|yb|n - Back to Properties\n"
     
     options = (
         {"key": "_default", "goto": "npc_stats_menu"},
