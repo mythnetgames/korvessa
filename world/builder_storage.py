@@ -271,6 +271,87 @@ def get_all_npcs():
     return storage.db.npcs or []
 
 
+def migrate_npc_skills():
+    """
+    Migrate old skill names to new skill system.
+    Maps old skills to new ones and normalizes the skill dictionary.
+    """
+    storage = get_builder_storage()
+    
+    # Mapping of old skill names to new ones
+    old_to_new = {
+        "brawling": "brawling",
+        "blades": "blades",
+        "blunt": None,  # Remove - not in new system
+        "ranged": None,  # Remove - split into pistols/rifles
+        "grapple": "grappling",
+        "dodge": "dodge",
+        "stealth": "sneaking",
+        "intimidate": None,  # Remove
+        "persuasion": None,  # Remove
+        "perception": None,  # Remove
+        "athletics": None,  # Remove
+        "farming": None,  # Remove
+        "aeronautics": None,  # Remove
+        "forgery": None,  # Remove
+    }
+    
+    # New skill defaults
+    new_skills = {
+        "chemical": 0,
+        "modern_medicine": 0,
+        "holistic_medicine": 0,
+        "surgery": 0,
+        "science": 0,
+        "dodge": 0,
+        "blades": 0,
+        "pistols": 0,
+        "rifles": 0,
+        "melee": 0,
+        "brawling": 0,
+        "martial_arts": 0,
+        "grappling": 0,
+        "snooping": 0,
+        "stealing": 0,
+        "hiding": 0,
+        "sneaking": 0,
+        "disguise": 0,
+        "tailoring": 0,
+        "tinkering": 0,
+        "manufacturing": 0,
+        "cooking": 0,
+        "forensics": 0,
+        "decking": 0,
+        "electronics": 0,
+        "mercantile": 0,
+        "streetwise": 0,
+        "paint_draw_sculpt": 0,
+        "instrument": 0,
+    }
+    
+    for npc in storage.db.npcs:
+        if "skills" not in npc:
+            npc["skills"] = new_skills.copy()
+            continue
+        
+        old_skills = npc["skills"]
+        new_npc_skills = new_skills.copy()
+        
+        # Migrate old skills to new ones
+        for old_name, old_value in old_skills.items():
+            if old_name in old_to_new:
+                new_name = old_to_new[old_name]
+                if new_name and old_value > 0:
+                    new_npc_skills[new_name] = old_value
+            elif old_name in new_npc_skills:
+                # Already a new-style skill, keep it
+                new_npc_skills[old_name] = old_value
+        
+        npc["skills"] = new_npc_skills
+    
+    storage.save()
+
+
 def delete_npc(npc_id):
     """Delete an NPC template by ID."""
     storage = get_builder_storage()

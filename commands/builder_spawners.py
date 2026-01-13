@@ -154,6 +154,10 @@ class CmdSpawnNPC(Command):
     def func(self):
         caller = self.caller
         
+        # Migrate old NPCs to new skill system on first load
+        from world.builder_storage import migrate_npc_skills
+        migrate_npc_skills()
+        
         # Get search keyword
         keyword = self.args.strip() if self.args else ""
         
