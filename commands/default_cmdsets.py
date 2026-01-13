@@ -410,6 +410,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add corpse cleanup command (builder+)
         from commands.corpsecleanup import CmdCorpseCleanup
         self.add(CmdCorpseCleanup())      # Builder+: clean up dead NPCs
+        # Add diagnostic loop detection command (admin+)
+        from commands.diagnose_loop import CmdDiagnoseLoop
+        self.add(CmdDiagnoseLoop())       # Admin+: diagnose infinite loops/runaway scripts
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
