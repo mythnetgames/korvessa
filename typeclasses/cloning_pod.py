@@ -401,7 +401,6 @@ class CmdSitInPod(Command):
     Sit in the TerraGroup Cloning Division pod to backup your consciousness.
     
     Usage:
-        sit in pod
         sit pod
         use pod
         enter pod
@@ -416,6 +415,11 @@ class CmdSitInPod(Command):
     
     def func(self):
         caller = self.caller
+        
+        # Check if this is a pod command
+        if not self.args or "pod" not in self.args.lower():
+            caller.msg("Did you mean 'sit pod', 'use pod', or 'enter pod'?")
+            return
         
         # Find the TerraGroup Cloning Division pod in the room
         pod = None
@@ -471,9 +475,9 @@ class CmdLeavePod(Command):
     Stand up / leave the TerraGroup Cloning Division pod.
     
     Usage:
-        stand
-        leave
-        exit
+        stand pod
+        leave pod
+        exit pod
     
     Note: You cannot leave during the cloning procedure.
     """
@@ -484,6 +488,11 @@ class CmdLeavePod(Command):
     
     def func(self):
         caller = self.caller
+        
+        # Only process if "pod" is mentioned
+        if self.args and "pod" not in self.args.lower():
+            # Let the default stand/leave command handle it
+            return
         
         # Check if in pod
         if not getattr(caller.ndb, '_in_terragroup_pod', False):
