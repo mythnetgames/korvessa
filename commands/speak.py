@@ -68,6 +68,15 @@ class CmdSpeak(Command):
     def show_languages(self, caller):
         """Display all known languages with proficiency."""
         from world.language.constants import ALL_LANGUAGES
+        from evennia.comms.models import ChannelDB
+        
+        try:
+            splattercast = ChannelDB.objects.get_channel("Splattercast")
+            splattercast.msg(f"SPEAK_CMD: caller={caller.key}#{caller.id}")
+            raw_prof = caller.db.language_proficiency
+            splattercast.msg(f"SPEAK_CMD: raw proficiency_dict={raw_prof}")
+        except:
+            pass
         
         languages = get_character_languages(caller)
         primary = languages['primary']
