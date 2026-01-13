@@ -732,18 +732,32 @@ def apply_language_garbling_to_observers(speaker, message, language_code):
     if not location:
         return observer_messages
     
+    # Debug
+    from evennia.comms.models import ChannelDB
+    try:
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+    except:
+        splattercast = None
+    
     for obj in location.contents:
         # Skip the speaker
         if obj == speaker:
             continue
         
-        # Only process Character objects (check for character typeclass)
+        # Debug: show typeclass for each object
         try:
             typeclass = obj.typeclass_path.lower()
+            if splattercast:
+                splattercast.msg(f"DEBUG: {obj.key} typeclass={typeclass}")
             if 'character' not in typeclass:
                 continue
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError) as e:
+            if splattercast:
+                splattercast.msg(f"DEBUG: {obj.key} no typeclass - {e}")
             continue
+        
+        if splattercast:
+            splattercast.msg(f"DEBUG: Processing {obj.key} for {language_code}")
         
         # Get observer's proficiency in this language
         proficiency = get_language_proficiency(obj, language_code)
@@ -758,5 +772,11 @@ def apply_language_garbling_to_observers(speaker, message, language_code):
         
         # Apply passive learning
         apply_passive_language_learning(obj, language_code)
+        
+        if splattercast:
+            new_prof = get_language_proficiency(obj, language_code)
+            splattercast.msg(f"DEBUG: After learning {obj.key} proficiency={new_prof}")
+    
+    return observer_messages
     
     return observer_messages
