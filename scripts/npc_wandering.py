@@ -134,17 +134,13 @@ class NPCWanderingScript(DefaultScript):
                 channel.msg(f"TICK: {obj.name} in {location} ({zone}) - BLOCKED BY {blocked_by}")
             return
         
-        # Roll to move (1 in 50 chance = 2%)
-        roll = randint(1, 50)
+        # Try to take a pathfinding step
+        # The rate limiting (1 second minimum between moves) is handled inside _pathfind_step
+        # so we can call this every tick
         location = obj.location.key if obj.location else "unknown"
-        
-        if roll == 1:
-            if channel:
-                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - ROLL({roll}/50) -> MOVE")
-            self._pathfind_step(obj, zone)
-        else:
-            if channel:
-                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - ROLL({roll}/50) -> WAIT")
+        if channel:
+            channel.msg(f"TICK: {obj.name} in {location} ({zone}) - Attempting pathfind step")
+        self._pathfind_step(obj, zone)
     
     def _pathfind_step(self, npc, zone):
         """
