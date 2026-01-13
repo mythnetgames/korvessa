@@ -326,8 +326,17 @@ def get_language_proficiency(character, language_code):
     Returns:
         float: Proficiency percentage (0-100)
     """
+    from evennia.comms.models import ChannelDB
+    try:
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+    except:
+        splattercast = None
+    
     # Use Evennia's attributes API directly
     proficiency_dict = character.attributes.get("language_proficiency", default={})
+    
+    if splattercast:
+        splattercast.msg(f"GET_PROF: {character.key} {language_code} dict={proficiency_dict} id={id(proficiency_dict)}")
     
     if not isinstance(proficiency_dict, dict):
         proficiency_dict = {}
@@ -335,14 +344,20 @@ def get_language_proficiency(character, language_code):
     # Check if value exists in dict first
     value = proficiency_dict.get(language_code)
     if value is not None:
+        if splattercast:
+            splattercast.msg(f"GET_PROF: returning {value} from dict")
         return float(value)
     
     # If not in dict, check if it's a known language (should be 100%)
     known = character.attributes.get("known_languages", default=set())
     if known and language_code in known:
+        if splattercast:
+            splattercast.msg(f"GET_PROF: returning 100.0 (known language)")
         return 100.0
     
     # Unknown languages default to 0.0
+    if splattercast:
+        splattercast.msg(f"GET_PROF: returning 0.0 (unknown)")
     return 0.0
 
 
