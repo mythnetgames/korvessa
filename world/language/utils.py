@@ -404,8 +404,8 @@ def set_language_proficiency(character, language_code, proficiency):
     if splattercast:
         splattercast.msg(f"SET_PROF saving: {clean_dict}")
     
-    # Use attributes.add to force persistence
-    character.attributes.add("language_proficiency", clean_dict)
+    # Use attributes.add with overwrite=True to force persistence
+    character.attributes.add("language_proficiency", clean_dict, overwrite=True)
     
     # Verify it saved
     if splattercast:
