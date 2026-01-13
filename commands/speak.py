@@ -106,7 +106,7 @@ class CmdSpeak(Command):
             # Mark unknown languages if builder
             unknown_marker = "" if is_known else " |r(unknown)|n"
             
-            text += f"{lang_name:30} {bar} {proficiency:6.1f}%{is_primary}{unknown_marker}\n"
+            text += f"{lang_name:30} {bar} {proficiency:6.2f}%{is_primary}{unknown_marker}\n"
         
         text += "-" * 60 + "\n"
         
