@@ -44,6 +44,14 @@ def initialize_character_languages(character, primary_language=None, additional_
                 known_languages.add(lang)
     
     character.db.known_languages = known_languages
+    
+    # Initialize proficiency tracking
+    if not hasattr(character.db, 'language_proficiency'):
+        character.db.language_proficiency = {}
+    
+    # Set proficiency for all known languages to 100%
+    for lang in known_languages:
+        character.db.language_proficiency[lang] = 100.0
 
 
 def get_character_languages(character):
@@ -64,7 +72,22 @@ def get_character_languages(character):
         initialize_character_languages(character)
     
     primary = getattr(character.db, DB_PRIMARY_LANGUAGE, DEFAULT_LANGUAGE)
-    known = getattr(character.db, DB_LANGUAGES, {DEFAULT_LANGUAGE})
+    known = getattr(character.db, DB_LANGUAGES, None)
+    
+    # Handle None or invalid known_languages
+    if known is None or not isinstance(known, (set, list)):
+        known = {DEFAULT_LANGUAGE}
+        character.db.known_languages = known
+    
+    # Convert to set if it's a list
+    if isinstance(known, list):
+        known = set(known)
+        character.db.known_languages = known
+    
+    # Ensure primary is valid
+    if primary is None or primary not in known:
+        primary = DEFAULT_LANGUAGE
+        character.db.primary_language = primary
     
     # Ensure primary is in known
     if primary not in known:

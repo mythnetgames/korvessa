@@ -67,21 +67,35 @@ class CmdSpeak(Command):
     
     def show_languages(self, caller):
         """Display all known languages with proficiency."""
+        from world.language.constants import ALL_LANGUAGES
+        
         languages = get_character_languages(caller)
         primary = languages['primary']
         known = sorted(list(languages['known']))
         
-        text = "|cLanguages You Know:|n\n"
+        # Check if Builder or higher
+        is_builder = caller.locks.check_lockstring(caller, "perm(Builder)")
+        
+        if is_builder:
+            # Builders see all languages
+            display_langs = sorted(ALL_LANGUAGES)
+            text = "|cAll Languages (Builder View):|n\n"
+        else:
+            # Regular players see only known languages
+            display_langs = known
+            text = "|cLanguages You Know:|n\n"
+        
         text += "-" * 60 + "\n"
         
-        if not known:
+        if not display_langs:
             text += "You don't know any languages yet.\n"
             caller.msg(text)
             return
         
-        for lang_code in known:
+        for lang_code in display_langs:
             lang_name = LANGUAGES[lang_code]['name']
             proficiency = get_language_proficiency(caller, lang_code)
+            is_known = lang_code in known
             is_primary = " |g(primary)|n" if lang_code == primary else ""
             
             # Proficiency bar
@@ -89,7 +103,10 @@ class CmdSpeak(Command):
             filled = int(proficiency / 5)  # 5% per character
             bar = "|g" + "=" * filled + "|n" + "-" * (bar_length - filled)
             
-            text += f"{lang_name:30} {bar} {proficiency:6.1f}%{is_primary}\n"
+            # Mark unknown languages if builder
+            unknown_marker = "" if is_known else " |r(unknown)|n"
+            
+            text += f"{lang_name:30} {bar} {proficiency:6.1f}%{is_primary}{unknown_marker}\n"
         
         text += "-" * 60 + "\n"
         
