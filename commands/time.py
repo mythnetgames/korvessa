@@ -30,7 +30,7 @@ class CmdTime(Command):
         caller = self.caller
         
         # Get current game time in seconds
-        game_time_seconds = gametime.get_gametime()
+        game_time_seconds = gametime.gametime()
         
         # Add random variation: -180 to +180 seconds (3 minutes range)
         variation = random.randint(-180, 180)
