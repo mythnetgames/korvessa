@@ -1,21 +1,23 @@
 """
-Custom time command that displays in-game time from a clock display.
+Custom in-character time command that displays time from a nearby clock display.
+The clock can vary by up to 3 minutes (random seconds and minutes).
 """
 
 from evennia import Command
 from evennia.utils import gametime
 import time as real_time
+import random
 
 
 class CmdTime(Command):
     """
-    Display the current in-game time from a nearby clock display.
+    Check the time on a nearby clock display.
     
     Usage:
         time
     
-    Shows you the current date and time in the game world,
-    as displayed on a nearby chronometer or digital clock.
+    Shows you the current date and time as displayed on a nearby
+    chronometer or digital clock. The clock may be slightly fast or slow.
     """
     
     key = "time"
@@ -24,23 +26,26 @@ class CmdTime(Command):
     help_category = "General"
     
     def func(self):
-        """Display the current game time."""
+        """Display the current game time from a nearby clock."""
         caller = self.caller
         
         # Get current game time in seconds
         game_time_seconds = gametime.get_gametime()
         
+        # Add random variation: -180 to +180 seconds (3 minutes range)
+        variation = random.randint(-180, 180)
+        display_time = game_time_seconds + variation
+        
         # Convert to time struct for formatting
-        # Since TIME_GAME_EPOCH = 0 (which is 1970-01-01), this will show 1970 dates
-        time_struct = real_time.gmtime(game_time_seconds)
+        time_struct = real_time.gmtime(display_time)
         
         # Format the display
         date_str = real_time.strftime("%A, %B %d, %Y", time_struct)
         time_str = real_time.strftime("%H:%M:%S", time_struct)
         
-        # Display in a styled format suggesting it's from a clock display
+        # Display as a nearby clock reading
         caller.msg(f"\n|w{'-' * 60}|n")
-        caller.msg(f"|bCHRONOMETER DISPLAY|n")
+        caller.msg(f"|bA nearby chronometer display reads:|n")
         caller.msg(f"|w{'-' * 60}|n")
         caller.msg(f"|yDate: |c{date_str}|n")
         caller.msg(f"|yTime: |c{time_str}|n")
