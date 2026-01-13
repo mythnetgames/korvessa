@@ -68,15 +68,6 @@ class CmdSpeak(Command):
     def show_languages(self, caller):
         """Display all known languages with proficiency."""
         from world.language.constants import ALL_LANGUAGES
-        from evennia.comms.models import ChannelDB
-        
-        try:
-            splattercast = ChannelDB.objects.get_channel("Splattercast")
-            splattercast.msg(f"SPEAK_CMD: caller={caller.key}#{caller.id}")
-            raw_prof = caller.db.language_proficiency
-            splattercast.msg(f"SPEAK_CMD: raw proficiency_dict={raw_prof}")
-        except:
-            pass
         
         languages = get_character_languages(caller)
         primary = languages['primary']
@@ -116,19 +107,15 @@ class CmdSpeak(Command):
             proficiency = float(get_language_proficiency(caller, lang_code))
             is_known = lang_code in known
             is_primary = " |g(primary)|n" if lang_code == primary else ""
+            
             # Proficiency bar
             bar_length = 20
             filled = int(proficiency / 5)  # 5% per character
             bar = "|g" + "=" * filled + "|n" + "-" * (bar_length - filled)
+            
             # Mark unknown languages if builder
             unknown_marker = "" if is_known else " |r(unknown)|n"
-            # Debug print for proficiency value
-            from evennia.comms.models import ChannelDB
-            try:
-                splattercast = ChannelDB.objects.get_channel("Splattercast")
-                splattercast.msg(f"SPEAK_DISPLAY: {caller.key} {lang_code} proficiency={proficiency}")
-            except:
-                pass
+            
             text += f"{lang_name:30} {bar} {proficiency:6.2f}%{is_primary}{unknown_marker}\n"
         
         # Show languages being learned (for non-builders)
@@ -138,17 +125,12 @@ class CmdSpeak(Command):
             for lang_code in learning_langs:
                 lang_name = LANGUAGES[lang_code]['name']
                 proficiency = float(get_language_proficiency(caller, lang_code))
+                
                 # Proficiency bar
                 bar_length = 20
                 filled = int(proficiency / 5)  # 5% per character
                 bar = "|y" + "=" * filled + "|n" + "-" * (bar_length - filled)
-                # Debug print for proficiency value
-                from evennia.comms.models import ChannelDB
-                try:
-                    splattercast = ChannelDB.objects.get_channel("Splattercast")
-                    splattercast.msg(f"SPEAK_LEARNING: {caller.key} {lang_code} proficiency={proficiency}")
-                except:
-                    pass
+                
                 text += f"{lang_name:30} {bar} {proficiency:6.2f}%\n"
         
         text += "-" * 60 + "\n"

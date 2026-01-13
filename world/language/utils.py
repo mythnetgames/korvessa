@@ -647,6 +647,8 @@ def garble_text_by_proficiency(text, proficiency):
     Garbled words are replaced with random character sequences of similar length.
     The process is randomized so patterns cannot be extracted algorithmically.
     
+    Grammar rules are applied: First letter capitalized, period added if no punctuation.
+    
     Args:
         text (str): The text to garble
         proficiency (float): Proficiency percentage (0-100)
@@ -663,41 +665,52 @@ def garble_text_by_proficiency(text, proficiency):
     
     if proficiency <= 0.1:
         # No understanding - garble everything
-        return _garble_all_text(text)
-    
-    # Split into words (preserve spacing and punctuation)
-    words = text.split()
-    garbled_words = []
-    
-    # Calculate garble probability (inverse of proficiency)
-    # At 80% proficiency, garble 20% of words
-    garble_chance = (100.0 - proficiency) / 100.0
-    
-    for word in words:
-        # Separate word from trailing punctuation
-        trailing_punct = ''
-        clean_word = word
+        result = _garble_all_text(text)
+    else:
+        # Split into words (preserve spacing and punctuation)
+        words = text.split()
+        garbled_words = []
         
-        while clean_word and not clean_word[-1].isalnum():
-            trailing_punct = clean_word[-1] + trailing_punct
-            clean_word = clean_word[:-1]
+        # Calculate garble probability (inverse of proficiency)
+        # At 80% proficiency, garble 20% of words
+        garble_chance = (100.0 - proficiency) / 100.0
         
-        # Randomly decide whether to garble this word
-        if random.random() < garble_chance and clean_word:
-            # Sometimes garble the whole word, sometimes just parts
-            if random.random() < 0.6:
-                # Garble entire word
-                garbled = _generate_random_word(len(clean_word))
-            else:
-                # Garble parts of word - leave some letters for recognition
-                garbled = _garble_word_partially(clean_word)
+        for word in words:
+            # Separate word from trailing punctuation
+            trailing_punct = ''
+            clean_word = word
             
-            garbled_words.append(garbled + trailing_punct)
-        else:
-            # Keep word as-is
-            garbled_words.append(word)
+            while clean_word and not clean_word[-1].isalnum():
+                trailing_punct = clean_word[-1] + trailing_punct
+                clean_word = clean_word[:-1]
+            
+            # Randomly decide whether to garble this word
+            if random.random() < garble_chance and clean_word:
+                # Sometimes garble the whole word, sometimes just parts
+                if random.random() < 0.6:
+                    # Garble entire word
+                    garbled = _generate_random_word(len(clean_word))
+                else:
+                    # Garble parts of word - leave some letters for recognition
+                    garbled = _garble_word_partially(clean_word)
+                
+                garbled_words.append(garbled + trailing_punct)
+            else:
+                # Keep word as-is
+                garbled_words.append(word)
+        
+        result = ' '.join(garbled_words)
     
-    return ' '.join(garbled_words)
+    # Apply grammar rules
+    # Capitalize first letter if it's lowercase
+    if result and result[0].islower():
+        result = result[0].upper() + result[1:]
+    
+    # Add period if no ending punctuation
+    if result and result[-1] not in '.!?':
+        result += '.'
+    
+    return result
 
 
 def _garble_all_text(text):
@@ -755,25 +768,19 @@ def _generate_random_word(length):
 def _random_character():
     """
     Generate a random character for garbling.
-    Uses mix of consonants, vowels, and symbols for natural-looking gibberish.
+    Uses mix of consonants and vowels for natural-looking gibberish.
     """
     import random
     
-    # Mix different character types for variety
+    # Mix consonants and vowels - no symbols
     choice = random.random()
     
-    if choice < 0.4:
+    if choice < 0.5:
         # Consonants
         chars = 'bcdfghjklmnpqrstvwxyz'
-    elif choice < 0.7:
+    else:
         # Vowels
         chars = 'aeiou'
-    elif choice < 0.85:
-        # Numbers
-        chars = '0123456789'
-    else:
-        # Symbol-like chars
-        chars = '&@#%$!?'
     
     return random.choice(chars)
 
