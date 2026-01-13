@@ -424,10 +424,16 @@ def apply_passive_language_learning(character, heard_language_code):
     if count < 5:  # Max 5 passive learning events per language per day
         increase_language_proficiency(character, heard_language_code, 0.04)
         character.ndb.daily_passive_learning[heard_language_code] = count + 1
-        # Notify the character they're picking up the language
-        lang_name = LANGUAGES[heard_language_code]['name']
-        new_prof = get_language_proficiency(character, heard_language_code)
-        character.msg(f"|x(You pick up a few words of {lang_name}... {new_prof:.2f}% proficiency)|n")
+        
+        # Debug output
+        from evennia.comms.models import ChannelDB
+        try:
+            splattercast = ChannelDB.objects.get_channel("Splattercast")
+            if splattercast:
+                new_prof = get_language_proficiency(character, heard_language_code)
+                splattercast.msg(f"PASSIVE_LEARN: {character.key} learned {heard_language_code} to {new_prof:.2f}% (count: {character.ndb.daily_passive_learning[heard_language_code]})")
+        except:
+            pass
 
 
 def calculate_ip_cost_for_proficiency(target_proficiency):
@@ -723,26 +729,20 @@ def apply_language_garbling_to_observers(speaker, message, language_code):
     if not location:
         return observer_messages
     
-    # Debug: Log all contents
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-        if splattercast:
-            splattercast.msg(f"LANG_DEBUG: Speaker={speaker.key}, Location={location.key}, Contents={[o.key for o in location.contents if hasattr(o, 'key')]}")
-    except:
-        pass
-    
     for obj in location.contents:
-        if not hasattr(obj, 'db'):
-            continue
+        # Skip the speaker
         if obj == speaker:
             continue
         
-        # Debug: Log each observer being processed
+        # Skip if not a character-like object (must have db and msg)
+        if not hasattr(obj, 'db') or not hasattr(obj, 'msg'):
+            continue
+        
+        # Skip if it's an Exit object
         try:
-            if splattercast:
-                splattercast.msg(f"LANG_DEBUG: Processing observer {obj.key} for language {language_code}")
-        except:
+            if 'exit' in obj.typeclass_path.lower():
+                continue
+        except (AttributeError, TypeError):
             pass
         
         # Get observer's proficiency in this language
@@ -756,7 +756,7 @@ def apply_language_garbling_to_observers(speaker, message, language_code):
         
         observer_messages[obj] = garbled
         
-        # Apply passive learning if they don't know the language
+        # Apply passive learning
         apply_passive_language_learning(obj, language_code)
     
     return observer_messages

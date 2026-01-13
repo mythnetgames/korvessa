@@ -80,3 +80,12 @@ class CmdSay(DefaultCmdSay):
                 else:
                     observer_msg = f'{caller.name} says, "*speaking {language_name}* {garbled_speech}"|n'
                 observer.msg(observer_msg)
+                
+                # Send passive learning notification after the speech
+                from world.language.utils import get_language_proficiency
+                from world.language.constants import LANGUAGES
+                proficiency = get_language_proficiency(observer, primary_language)
+                if proficiency < 100.0 and primary_language not in ['cantonese', 'english']:  # Don't notify for common starting languages
+                    lang_name = LANGUAGES[primary_language]['name']
+                    if proficiency > 0:
+                        observer.msg(f"|x(You pick up a few words of {lang_name}... {proficiency:.2f}% proficiency)|n")
