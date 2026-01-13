@@ -549,15 +549,16 @@ def _start_clone_restoration(account, old_character, session, backup_data):
 def _play_clone_awakening(account, old_character, session, backup_data):
     """Play the unnerving Matrix-style pod extraction sequence."""
     from datetime import datetime
-    from evennia.utils import delay
+    from evennia.utils import delay, gametime
     
     # Get the backup timestamp for the voice to read
     backup_timestamp = backup_data.get('timestamp', 0)
     backup_datetime = datetime.fromtimestamp(backup_timestamp)
     last_backup_str = backup_datetime.strftime("%B %d, %Y at %H:%M")
     
-    # Current time for the voice to announce
-    current_datetime = datetime.now()
+    # Current in-game time for the voice to announce
+    current_game_time = gametime.gametime(absolute=True)
+    current_datetime = datetime.fromtimestamp(current_game_time)
     current_time_str = current_datetime.strftime("%B %d, %Y. %H:%M hours")
     
     # Clear screen and start the unnerving sequence

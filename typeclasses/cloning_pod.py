@@ -98,7 +98,7 @@ def create_clone_backup(character):
         dict: The backup data created
     """
     backup = {
-        'timestamp': gametime.gametime(),
+        'timestamp': gametime.gametime(absolute=True),
         
         # Stats (8-stat system)
         'body': getattr(character, 'body', 1),
@@ -333,9 +333,9 @@ class CloningPod(Object):
             pass
         
         # Get current in-game time for display
-        import time as real_time
+        from datetime import datetime
         current_game_time = gametime.gametime(absolute=True)
-        formatted_time = real_time.strftime('%Y-%m-%d %H:%M:%S', current_game_time)
+        formatted_time = datetime.fromtimestamp(current_game_time).strftime('%Y-%m-%d %H:%M:%S')
         
         # Final messages
         character.msg(f"\n|g{'=' * 60}|n")
@@ -567,11 +567,12 @@ class CmdCloneStatus(Command):
             return
         
         # Format timestamp
+        from datetime import datetime
         backup_time = backup.get('timestamp', 0)
-        time_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(backup_time))
+        time_str = datetime.fromtimestamp(backup_time).strftime('%Y-%m-%d %H:%M:%S')
         
         # Calculate age
-        age_seconds = gametime.gametime() - backup_time
+        age_seconds = gametime.gametime(absolute=True) - backup_time
         if age_seconds < 3600:
             age_str = f"{int(age_seconds / 60)} minutes ago"
         elif age_seconds < 86400:
