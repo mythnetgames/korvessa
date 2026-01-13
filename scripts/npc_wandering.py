@@ -368,7 +368,8 @@ class NPCWanderingScript(DefaultScript):
     
     def _find_best_exit(self, npc, zone, dest_x, dest_y, dest_z=None):
         """
-        Find the best exit to move closer to the destination.
+        Find the best exit to move closer to the destination using A* pathfinding.
+        Uses a limited search depth to avoid lag.
         
         Args:
             npc: The NPC character object
@@ -380,6 +381,8 @@ class NPCWanderingScript(DefaultScript):
         Returns:
             Tuple of (exit_obj, destination_room) or None if no valid exit
         """
+        import heapq
+        
         current_room = npc.location
         if not current_room or not hasattr(current_room, 'exits'):
             return None
@@ -391,32 +394,31 @@ class NPCWanderingScript(DefaultScript):
         if current_x is None or current_y is None:
             return None
         
-        # Calculate current distance to destination
-        current_dist = abs(dest_x - current_x) + abs(dest_y - current_y)
-        if dest_z is not None and current_z is not None:
-            current_dist += abs(dest_z - current_z)
+        def manhattan_dist(x, y, z=None):
+            """Calculate Manhattan distance to destination"""
+            dist = abs(dest_x - x) + abs(dest_y - y)
+            if dest_z is not None and z is not None:
+                dist += abs(dest_z - z)
+            return dist
         
-        # Find all valid exits that get us closer
-        valid_exits = []
+        # First try simple greedy approach - check immediate exits
+        current_dist = manhattan_dist(current_x, current_y, current_z)
+        greedy_exits = []
         
         for exit_obj in current_room.exits:
             if not exit_obj or not hasattr(exit_obj, 'destination'):
                 continue
-            
             dest_room = exit_obj.destination
             if not dest_room:
                 continue
             
-            # Check zone
             room_zone = getattr(dest_room, 'zone', None)
             if room_zone != zone:
                 continue
             
-            # Check if exit is passable (not blocked by door)
             if not is_exit_passable(exit_obj, npc):
                 continue
             
-            # Get destination room coordinates
             room_x = getattr(dest_room.db, 'x', None)
             room_y = getattr(dest_room.db, 'y', None)
             room_z = getattr(dest_room.db, 'z', None)
@@ -424,27 +426,124 @@ class NPCWanderingScript(DefaultScript):
             if room_x is None or room_y is None:
                 continue
             
-            # Calculate distance from that room to final destination
-            new_dist = abs(dest_x - room_x) + abs(dest_y - room_y)
-            if dest_z is not None and room_z is not None:
-                new_dist += abs(dest_z - room_z)
-            
-            # Only consider exits that get us closer (or maintain distance with some randomness)
+            new_dist = manhattan_dist(room_x, room_y, room_z)
             if new_dist < current_dist:
-                valid_exits.append((exit_obj, dest_room, new_dist))
-            elif new_dist == current_dist:
-                # Allow lateral movement with lower priority
-                valid_exits.append((exit_obj, dest_room, new_dist + 0.5))
+                greedy_exits.append((exit_obj, dest_room, new_dist))
         
-        if not valid_exits:
-            return None
+        # If greedy approach works, use it (fast path)
+        if greedy_exits:
+            greedy_exits.sort(key=lambda x: x[2])
+            best_dist = greedy_exits[0][2]
+            best_exits = [(e, r) for e, r, d in greedy_exits if d == best_dist]
+            return choice(best_exits)
         
-        # Sort by distance and pick the best (or random among equally good)
-        valid_exits.sort(key=lambda x: x[2])
-        best_dist = valid_exits[0][2]
-        best_exits = [(e, r) for e, r, d in valid_exits if d == best_dist]
+        # Greedy failed - use limited A* search to find a path
+        # Limit search to avoid lag (max 20 rooms explored)
+        MAX_EXPLORED = 20
         
-        return choice(best_exits)
+        # Priority queue: (f_score, g_score, room, first_exit, first_room)
+        # f_score = g_score + heuristic (estimated total cost)
+        # g_score = actual cost to reach this room
+        # first_exit/first_room = the exit from current_room that started this path
+        
+        start_h = manhattan_dist(current_x, current_y, current_z)
+        open_set = []
+        explored = set()
+        explored.add(current_room.id)
+        
+        # Add all passable immediate exits to the open set
+        for exit_obj in current_room.exits:
+            if not exit_obj or not hasattr(exit_obj, 'destination'):
+                continue
+            dest_room = exit_obj.destination
+            if not dest_room:
+                continue
+            
+            room_zone = getattr(dest_room, 'zone', None)
+            if room_zone != zone:
+                continue
+            
+            if not is_exit_passable(exit_obj, npc):
+                continue
+            
+            room_x = getattr(dest_room.db, 'x', None)
+            room_y = getattr(dest_room.db, 'y', None)
+            room_z = getattr(dest_room.db, 'z', None)
+            
+            if room_x is None or room_y is None:
+                continue
+            
+            g_score = 1  # Cost to reach this room (1 step)
+            h_score = manhattan_dist(room_x, room_y, room_z)
+            f_score = g_score + h_score
+            
+            heapq.heappush(open_set, (f_score, g_score, dest_room, exit_obj, dest_room))
+        
+        # A* search with limited exploration
+        best_first_exit = None
+        best_first_room = None
+        best_total_dist = float('inf')
+        
+        while open_set and len(explored) < MAX_EXPLORED:
+            f_score, g_score, room, first_exit, first_room = heapq.heappop(open_set)
+            
+            if room.id in explored:
+                continue
+            explored.add(room.id)
+            
+            room_x = getattr(room.db, 'x', None)
+            room_y = getattr(room.db, 'y', None)
+            room_z = getattr(room.db, 'z', None)
+            
+            # Check if this path gets us closer to destination than our best so far
+            h_score = manhattan_dist(room_x, room_y, room_z)
+            
+            # If we found the destination
+            if room_x == dest_x and room_y == dest_y:
+                if dest_z is None or room_z == dest_z:
+                    return (first_exit, first_room)
+            
+            # Track the best first step we've found
+            if h_score < best_total_dist:
+                best_total_dist = h_score
+                best_first_exit = first_exit
+                best_first_room = first_room
+            
+            # Expand neighbors
+            if hasattr(room, 'exits'):
+                for exit_obj in room.exits:
+                    if not exit_obj or not hasattr(exit_obj, 'destination'):
+                        continue
+                    next_room = exit_obj.destination
+                    if not next_room or next_room.id in explored:
+                        continue
+                    
+                    next_zone = getattr(next_room, 'zone', None)
+                    if next_zone != zone:
+                        continue
+                    
+                    # For A* search, we don't check door passability for future rooms
+                    # (we only checked it for the first step)
+                    
+                    next_x = getattr(next_room.db, 'x', None)
+                    next_y = getattr(next_room.db, 'y', None)
+                    next_z = getattr(next_room.db, 'z', None)
+                    
+                    if next_x is None or next_y is None:
+                        continue
+                    
+                    new_g = g_score + 1
+                    new_h = manhattan_dist(next_x, next_y, next_z)
+                    new_f = new_g + new_h
+                    
+                    heapq.heappush(open_set, (new_f, new_g, next_room, first_exit, first_room))
+        
+        # Return the best first step we found (if any)
+        if best_first_exit and best_total_dist < start_h:
+            return (best_first_exit, best_first_room)
+        
+        # No path found that improves our position
+        return None
     
     def _get_zone_rooms(self, zone):
         """
