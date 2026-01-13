@@ -428,12 +428,25 @@ def apply_passive_language_learning(character, heard_language_code):
         character: The character object
         heard_language_code (str): Language code heard
     """
+    from evennia.comms.models import ChannelDB
+    try:
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+    except:
+        splattercast = None
+    
     if heard_language_code not in LANGUAGES:
+        if splattercast:
+            splattercast.msg(f"PASSIVE: {character.key} {heard_language_code} not in LANGUAGES")
         return
     
     # Only passive learning for languages not already at 100%
     current_proficiency = get_language_proficiency(character, heard_language_code)
+    if splattercast:
+        splattercast.msg(f"PASSIVE: {character.key} checking {heard_language_code}, current={current_proficiency}")
+    
     if current_proficiency >= 100.0:
+        if splattercast:
+            splattercast.msg(f"PASSIVE: {character.key} {heard_language_code} already at 100%")
         return
     
     # Check daily passive learning cap (max 5 events = 0.2 proficiency per day)
@@ -451,9 +464,15 @@ def apply_passive_language_learning(character, heard_language_code):
     
     # Track passive learning count
     count = character.ndb.daily_passive_learning.get(heard_language_code, 0)
+    if splattercast:
+        splattercast.msg(f"PASSIVE: {character.key} {heard_language_code} count={count}/5")
+    
     if count < 5:  # Max 5 passive learning events per language per day
         increase_language_proficiency(character, heard_language_code, 0.04)
         character.ndb.daily_passive_learning[heard_language_code] = count + 1
+    else:
+        if splattercast:
+            splattercast.msg(f"PASSIVE: {character.key} {heard_language_code} CAPPED at 5")
 
 
 def calculate_ip_cost_for_proficiency(target_proficiency):
