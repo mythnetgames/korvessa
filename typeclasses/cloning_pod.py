@@ -332,10 +332,16 @@ class CloningPod(Object):
             # Future: character.db.money -= cost
             pass
         
+        # Format the current in-game time for display
+        import time as real_time
+        current_game_time = backup['timestamp']
+        time_struct = real_time.gmtime(current_game_time)
+        formatted_time = real_time.strftime('%Y-%m-%d %H:%M:%S', time_struct)
+        
         # Final messages
         character.msg(f"\n|g{'=' * 60}|n")
         character.msg("|gPROCEDURE COMPLETE|n")
-        character.msg(f"|gBackup timestamp: {time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(backup['timestamp']))}|n")
+        character.msg(f"|gBackup timestamp: {formatted_time}|n")
         character.msg("|gIn the event of sleeve death, your consciousness will be restored.|n")
         character.msg(f"|g{'=' * 60}|n\n")
         
