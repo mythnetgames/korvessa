@@ -649,6 +649,8 @@ def respawn_finalize_template(caller, raw_string, **kwargs):
         char.msg(f"|wWelcome back, |c{char.key}|w.|n")
         char.msg(f"|wClone Generation:|n |w1|n")
         char.msg("")
+        char.msg("|y[SYSTEM]: Vires in Scientia. Scientia est fortis. Et oculus spectans deus nobis.|n")
+        char.msg("")
         char.msg("|yYou open your eyes in an unfamiliar body.|n")
         char.msg("|yThe memories feel... borrowed. But they're yours now.|n")
         char.msg("")
@@ -689,9 +691,6 @@ def respawn_flash_clone(caller, raw_string, **kwargs):
         # Send welcome message
         # Use AttributeProperty to access the correct categorized attribute
         death_count = char.death_count
-        char.msg("|r╔════════════════════════════════════════════════════════════════╗")
-        char.msg("|r║  FLASH CLONE PROTOCOL COMPLETE                                 ║")
-        char.msg("|r╚════════════════════════════════════════════════════════════════╝|n")
         char.msg("")
         char.msg(f"|wWelcome back, |c{char.key}|w.|n")
         char.msg(f"|wDeath Count:|n |w{death_count}|n")
@@ -748,7 +747,7 @@ def first_char_welcome(caller, raw_string, **kwargs):
 
 |wAfter years of isolation, the Walled City has reopened to outsiders.|n
 
-|wThe year is 198█.|n
+|wThe year is 197?.|n
 |wYou arrive at South Gate... but let's get some things cleared up first.|n
 
 Press |w<Enter>|n to begin character creation.
