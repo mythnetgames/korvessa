@@ -7,10 +7,10 @@ The NPC language system has been fully integrated into the NPC designer (designn
 SYSTEM COMPONENTS
 
 1. Language Constants (world/language/constants.py)
-   - 10 languages defined: English, Mandarin, Cantonese, Japanese, Korean, Vietnamese, Russian, Spanish, Arabic, Street Cant
+   - 10 languages defined: English, Mandarin, Cantonese, Japanese, Korean, Vietnamese, Russian, Arabic, Hindi, Tradeband
    - Each language has name, description, and native flag
    - DEFAULT_LANGUAGE = 'cantonese'
-   - MAX_LANGUAGES = 11
+   - MAX_LANGUAGES = 10
 
 2. Language Utilities (world/language/utils.py)
    - initialize_character_languages(character, primary_language, additional_languages)
@@ -118,16 +118,16 @@ Character NPC Database Attributes:
 LANGUAGE SUPPORT
 
 Supported Languages:
-1. english - Common street dialect
-2. mandarin - Classical Chinese dialect
-3. cantonese - Hong Kong dialect
-4. japanese - Corporate dialect
-5. korean - Industrial dialect
-6. vietnamese - Street dialect
-7. russian - Underworld dialect
-8. spanish - Hispanic dialect
-9. arabic - Middle Eastern dialect
-10. street_cant - Street slang/jargon
+1. arabic - A language from the Middle East
+2. cantonese - The primary language of Kowloon
+3. english - Corporate + technical lingua franca. Used by a lot of Corpcits
+4. hindi - Spoken by the Indian laborers, merchants, and cultural enclaves
+5. japanese - Spoken by the shadowy Yakuza of Kowloon
+6. korean - From the peninsula of Korea. Popular in contemporary pop music
+7. mandarin - The older language of the mainland. Used by state officials, corporate envoys, mainland migrants
+8. russian - The cold, wintery language of the USSR
+9. tradeband - A mixed language consisting of a Cantonese base + English tech verbs + Japanese and Korean slang
+10. vietnamese - Hailing from Vietnam, this language is spoken by many of the factory workers
 
 Each language displays with proper name in menus and messages.
 

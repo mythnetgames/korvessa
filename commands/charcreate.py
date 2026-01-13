@@ -714,6 +714,8 @@ def respawn_flash_clone(caller, raw_string, **kwargs):
         char.msg("")
         char.msg(f"|wPrevious cause of death:|n |r{old_char.db.death_cause or 'Unknown'}|n")
         char.msg("")
+        char.msg("|y[SYSTEM]: Vires in Scientia. Scientia est fortis. Et oculus spectans deus nobis.|n")
+        char.msg("")
         
         # Clean up
         _cleanup_charcreate_ndb(caller)
@@ -1098,7 +1100,7 @@ def first_char_select_language(caller, raw_string, **kwargs):
     
     stats = caller.ndb.charcreate_data.get('stats', {})
     smarts = stats.get('smarts', 1)
-    primary_language = caller.ndb.charcreate_data.get('primary_language', 'english')
+    primary_language = caller.ndb.charcreate_data.get('primary_language', 'cantonese')
     secondary_languages = caller.ndb.charcreate_data.get('secondary_languages', [])
     
     # Determine if player can choose a second language
@@ -1196,12 +1198,12 @@ Your character will speak this language by default.
 
 
 def first_char_select_second_language(caller, raw_string, **kwargs):
-    """Select secondary language if Smarts > 4."""
+    """Select secondary language if Smarts > 7."""
     from world.language.constants import LANGUAGES
     
     stats = caller.ndb.charcreate_data.get('stats', {})
     smarts = stats.get('smarts', 1)
-    primary_language = caller.ndb.charcreate_data.get('primary_language', 'english')
+    primary_language = caller.ndb.charcreate_data.get('primary_language', 'cantonese')
     secondary_languages = caller.ndb.charcreate_data.get('secondary_languages', [])
     
     text = f"""
@@ -1329,6 +1331,8 @@ def first_char_finalize(caller, raw_string, **kwargs):
         caller.puppet_object(caller.sessions.all()[0], char)
         char.msg("")
         char.msg(f"|wWelcome to Kowloon, |c{char.key}|w.|n")
+        char.msg("")
+        char.msg("|y[SYSTEM]: Vires in Scientia. Scientia est fortis. Et oculus spectans deus nobis.|n")
         char.msg("")
         char.msg("|wPro tip? Don't trust anyone.|n")
         char.msg("|wJust a little work north, and you're in the City.|n")

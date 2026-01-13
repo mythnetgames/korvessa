@@ -17,8 +17,8 @@ Secondary but Powerful Languages:
   or outsider status.
 
 Underground & Subcultural Layers:
-- Street Cant: Mixed spoken register with Cantonese base, English tech verbs, Mandarin
-  bureaucratic nouns, Japanese/Korean slang fragments. Where Kowloon flavor shines.
+- Tradeband: Mixed spoken register with Cantonese base, English tech verbs, Japanese
+  and Korean slang fragments. Where Kowloon flavor shines.
 - Japanese: Corporate influence, yakuza, media, design culture.
 - Korean: Entertainment, biotech, pop-tech crossover.
 
@@ -40,61 +40,61 @@ Builder+ Permission:
 LANGUAGES = {
     'cantonese': {
         'name': 'Cantonese',
-        'description': 'The primary oral language of Kowloon. Sharp, staccato, streetwise. Daily life language of markets, gangs, families. If people talk, they talk Cantonese.',
+        'description': 'The primary language of Kowloon.',
         'native': False,
         'common': True,  # Default language
     },
     'english': {
         'name': 'English',
-        'description': 'Corporate + technical lingua franca. Used by corporations, hackers, engineers, contracts, academia. Signals education, money, or outside power.',
+        'description': 'Corporate + technical lingua franca. Used by a lot of Corpcits.',
         'native': False,
         'common': True,
     },
     'mandarin': {
         'name': 'Mandarin Chinese',
-        'description': 'Political + mainland power language. Used by state officials, corporate envoys, mainland migrants. Using Mandarin can imply authority, surveillance, or outsider status.',
+        'description': 'The older language of the mainland. Used by state officials, corporate envoys, mainland migrants.',
         'native': False,
         'common': True,
     },
-    'street_cant': {
-        'name': 'Street Cant',
-        'description': 'Mixed spoken register: Cantonese base + English tech verbs + Mandarin bureaucratic nouns + Japanese/Korean slang. Code-speech and argot for hackers, runners, and triads. Where Kowloon flavor shines.',
+    'tradeband': {
+        'name': 'Tradeband',
+        'description': 'A mixed language consisting of a Cantonese base + English tech verbs + Japanese and Korean slang.',
         'native': False,
         'common': True,
     },
     'japanese': {
         'name': 'Japanese',
-        'description': 'Corporate influence, yakuza, media, design culture. Industrial and corpo dialect. Used by suits, corpos, and organized crime.',
+        'description': 'Spoken by the shadowy Yakuza of Kowloon.',
         'native': False,
         'common': False,
     },
     'korean': {
         'name': 'Korean',
-        'description': 'Entertainment, biotech, pop-tech crossover. Industrial dialect. Common among tech workers and mechanics.',
+        'description': 'From the peninsula of Korea. Popular in contemporary pop music.',
         'native': False,
         'common': False,
     },
     'vietnamese': {
         'name': 'Vietnamese',
-        'description': 'Migrant labor, refugees, dock workers. Street dialect of refugee and working communities.',
+        'description': 'Hailing from Vietnam, this language is spoken by many of the factory workers.',
         'native': False,
         'common': False,
     },
     'russian': {
         'name': 'Russian',
-        'description': 'Organized crime, black market, underworld. Associated with organized crime and black market deals.',
+        'description': 'The cold, wintery language of the USSR.',
         'native': False,
         'common': False,
     },
     'arabic': {
         'name': 'Arabic',
-        'description': 'Middle Eastern districts and markets. Used in certain enclaves and trading communities.',
+        'description': 'A language from the Middle East',
         'native': False,
         'common': False,
     },
     'hindi': {
         'name': 'Hindi',
-        'description': 'Indian immigrant communities. Used by Indian laborers, merchants, and cultural enclaves.',
+        'description': 'Spoken by the Indian laborers, merchants, and cultural enclaves.',
         'native': False,
         'common': False,
     },
@@ -106,7 +106,7 @@ LANGUAGES = {
 
 DEFAULT_LANGUAGE = 'cantonese'
 MAX_LANGUAGES = 10
-SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE = 4  # Characters with Smarts > 4 get a second language choice
+SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE = 7  # Characters with Smarts > 7 get a second language choice
 
 # Common languages available to all builders
 COMMON_LANGUAGES = [code for code, info in LANGUAGES.items() if info.get('common', False)]
