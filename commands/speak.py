@@ -76,11 +76,11 @@ class CmdSpeak(Command):
         # Check if Builder or higher
         is_builder = caller.locks.check_lockstring(caller, "perm(Builder)")
         
-        # Get languages being learned (any proficiency > 0 but not in known set)
+        # Get languages being learned (any proficiency >= 0 but not in known set)
         learning_langs = []
         proficiency_dict = getattr(caller.db, 'language_proficiency', {}) or {}
         for lang_code, prof in proficiency_dict.items():
-            if lang_code not in known and prof > 0 and lang_code in LANGUAGES:
+            if lang_code not in known and lang_code in LANGUAGES:
                 learning_langs.append(lang_code)
         learning_langs = sorted(learning_langs)
         
