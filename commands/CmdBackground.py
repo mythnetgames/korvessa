@@ -6,7 +6,7 @@ Staff can approve/reject backgrounds and provide feedback via pnotes.
 Players receive 50 IP bonus upon first submission.
 """
 
-from evennia import Command
+from commands.command import Command
 from evennia.comms.models import ChannelDB
 
 
@@ -30,6 +30,23 @@ class CmdBackground(Command):
     locks = "cmd:all()"
     help_category = "Character"
     
+    def parse(self):
+        """Parse switches for staff commands."""
+        # Copied from Evennia MuxCommand pattern for switch parsing
+        raw = self.args
+        args = raw.strip()
+        switches = []
+        if args and len(args) > 1 and args[0] == "/":
+            switches = args[1:].split(None, 1)
+            if len(switches) > 1:
+                switches, args = switches
+                switches = switches.split('/')
+            else:
+                args = ""
+                switches = switches[0].split('/')
+        self.switches = switches
+        self.args = args.strip()
+
     def func(self):
         caller = self.caller
         
