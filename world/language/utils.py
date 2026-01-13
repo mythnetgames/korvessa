@@ -360,18 +360,13 @@ def set_language_proficiency(character, language_code, proficiency):
     """
     proficiency = max(0.0, min(100.0, proficiency))
     
-    # Get existing dict or create new one
-    try:
-        prof_dict = character.db.language_proficiency
-        if prof_dict is None or not isinstance(prof_dict, dict):
-            prof_dict = {}
-    except AttributeError:
-        prof_dict = {}
+    # Ensure the attribute exists first
+    if not character.db.language_proficiency:
+        character.db.language_proficiency = {}
     
-    # Update the value
+    # Get the dict, modify it, and reassign to force persistence
+    prof_dict = character.db.language_proficiency or {}
     prof_dict[language_code] = proficiency
-    
-    # Save back to character
     character.db.language_proficiency = prof_dict
     
     # Debug
@@ -379,6 +374,7 @@ def set_language_proficiency(character, language_code, proficiency):
     try:
         splattercast = ChannelDB.objects.get_channel("Splattercast")
         if splattercast:
+            # Force a fresh read to verify
             verify = character.db.language_proficiency
             splattercast.msg(f"SET_PROF: {character.key} {language_code}={proficiency}, verified={verify}")
     except:
@@ -800,6 +796,10 @@ def apply_language_garbling_to_observers(speaker, message, language_code):
         
         if splattercast:
             splattercast.msg(f"DEBUG: Processing {obj.key} for {language_code}")
+        
+        # Ensure character has language proficiency dict initialized
+        if not obj.db.language_proficiency:
+            obj.db.language_proficiency = {}
         
         # Get observer's proficiency in this language
         proficiency = get_language_proficiency(obj, language_code)
