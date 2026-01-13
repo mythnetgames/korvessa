@@ -150,9 +150,9 @@ SESSION_DISCONNECT_TIMEOUT = 5  # 5 seconds to detect disconnect
 TIME_FACTOR = 1.0  # Real-time speed (x1)
 
 # Game time epoch in seconds since Unix epoch (1970-01-01 00:00:00 UTC)
-# 0 = January 1, 1970
-# This sets the starting point of your game's calendar
-TIME_GAME_EPOCH = 0
+# Set to January 12, 1970 (11 days after epoch)
+# 11 days * 86400 seconds/day = 950400 seconds
+TIME_GAME_EPOCH = 950400
 
 
 ######################################################################
