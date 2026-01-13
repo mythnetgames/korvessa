@@ -112,7 +112,8 @@ class CmdSpeak(Command):
         
         # Show learning speed
         learning_speed = get_language_learning_speed(caller)
-        smarts = getattr(caller.db, 'smrt', 1)
+        # Try both 'smarts' and 'smrt' as the stat might be named either way
+        smarts = getattr(caller.db, 'smarts', None) or getattr(caller.db, 'smrt', 1)
         text += f"\nSmarts: {smarts} | Learning Speed: {learning_speed:.2f}x\n"
         text += f"You learn languages {learning_speed:.0%} faster than normal.\n"
         

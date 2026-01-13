@@ -377,8 +377,9 @@ def get_language_learning_speed(character):
         float: Learning speed multiplier (minimum 1.0)
     """
     try:
-        smarts = getattr(character.db, 'smrt', 1)
-        if not isinstance(smarts, (int, float)):
+        # Try both 'smarts' and 'smrt' as the stat might be named either way
+        smarts = getattr(character.db, 'smarts', None) or getattr(character.db, 'smrt', 1)
+        if not isinstance(smarts, (int, float)) or smarts is None:
             smarts = 1
         multiplier = 1.0 + (max(0, smarts - 1) * 0.15)
         return max(1.0, multiplier)
@@ -480,8 +481,9 @@ def get_daily_ip_cap_for_language(character, language_code):
         int: Daily IP cap
     """
     try:
-        smarts = getattr(character.db, 'smrt', 1)
-        if not isinstance(smarts, (int, float)):
+        # Try both 'smarts' and 'smrt' as the stat might be named either way
+        smarts = getattr(character.db, 'smarts', None) or getattr(character.db, 'smrt', 1)
+        if not isinstance(smarts, (int, float)) or smarts is None:
             smarts = 1
         cap = 50 + (max(0, smarts - 1) * 5)
         return int(cap)

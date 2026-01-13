@@ -41,18 +41,22 @@ class CmdSay(DefaultCmdSay):
         # Get speaker's primary language
         primary_language = get_primary_language(caller)
         
+        # Get language name
+        from world.language.constants import LANGUAGES
+        language_name = LANGUAGES[primary_language]['name']
+        
         # Check if character has a voice set
         voice = getattr(caller.db, 'voice', None)
         
         if voice:
-            # Format message with voice for speaker (no garbling for themselves)
-            message = f'{caller.name} says, "*in a {voice}* {speech}"|n'
+            # Format message with voice and language for speaker (no garbling for themselves)
+            message = f'{caller.name} says, "*speaking {language_name} in a {voice}* {speech}"|n'
             
             # Send to caller (ungarbled)
             caller.msg(message)
         else:
-            # No voice - format simple message
-            message = f'{caller.name} says, "{speech}"|n'
+            # No voice - format simple message with language
+            message = f'{caller.name} says, "*speaking {language_name}* {speech}"|n'
             caller.msg(message)
         
         # Apply language garbling for observers
@@ -64,7 +68,7 @@ class CmdSay(DefaultCmdSay):
             # Send garbled messages to each observer
             for observer, garbled_speech in observer_messages.items():
                 if voice:
-                    observer_msg = f'{caller.name} says, "*in a {voice}* {garbled_speech}"|n'
+                    observer_msg = f'{caller.name} says, "*speaking {language_name} in a {voice}* {garbled_speech}"|n'
                 else:
-                    observer_msg = f'{caller.name} says, "{garbled_speech}"|n'
+                    observer_msg = f'{caller.name} says, "*speaking {language_name}* {garbled_speech}"|n'
                 observer.msg(observer_msg)
