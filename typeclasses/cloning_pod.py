@@ -420,7 +420,7 @@ class CmdSitInPod(Command):
         # Find the TerraGroup Cloning Division pod in the room
         pod = None
         for obj in caller.location.contents:
-            if isinstance(obj, TerraGroupMedicalPod):
+            if isinstance(obj, CloningPod):
                 pod = obj
                 break
         
@@ -607,7 +607,7 @@ class CmdSpawnPod(Command):
         from evennia import create_object
         
         pod = create_object(
-            TerraGroupMedicalPod,
+            CloningPod,
             key="TerraGroup Cloning Division pod",
             location=self.caller.location
         )
