@@ -424,13 +424,17 @@ def apply_passive_language_learning(character, heard_language_code):
     if count < 5:  # Max 5 passive learning events per language per day
         increase_language_proficiency(character, heard_language_code, 0.04)
         character.ndb.daily_passive_learning[heard_language_code] = count + 1
+        # Notify the character they're picking up the language
+        lang_name = LANGUAGES[heard_language_code]['name']
+        new_prof = get_language_proficiency(character, heard_language_code)
+        character.msg(f"|x(You pick up a few words of {lang_name}... {new_prof:.2f}% proficiency)|n")
 
 
 def calculate_ip_cost_for_proficiency(target_proficiency):
     """
     Calculate IP cost to reach a target proficiency level.
     
-    System: 5 IP per 1% proficiency. Total cost to reach 100%: 500 IP.
+    System: 50 IP per 1% proficiency. Total cost to reach 100%: 5000 IP.
     
     Args:
         target_proficiency (float): Target proficiency (0-100)
@@ -438,7 +442,7 @@ def calculate_ip_cost_for_proficiency(target_proficiency):
     Returns:
         int: IP cost
     """
-    return int(target_proficiency * 5)
+    return int(target_proficiency * 50)
 
 
 def get_ip_spent_today_on_language(character, language_code):
@@ -526,8 +530,8 @@ def spend_ip_on_language(character, language_code, ip_amount):
         return (False, 0, f"Not enough IP. You have {character.db.IP} IP.")
     
     # Calculate proficiency gain
-    # 5 IP = 1% proficiency (0.2% per IP)
-    proficiency_gain = ip_to_spend * 0.2
+    # 50 IP = 1% proficiency (0.02% per IP)
+    proficiency_gain = ip_to_spend * 0.02
     
     # Apply learning speed multiplier based on Smarts
     learning_speed = get_language_learning_speed(character)
@@ -719,11 +723,27 @@ def apply_language_garbling_to_observers(speaker, message, language_code):
     if not location:
         return observer_messages
     
+    # Debug: Log all contents
+    from evennia.comms.models import ChannelDB
+    try:
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+        if splattercast:
+            splattercast.msg(f"LANG_DEBUG: Speaker={speaker.key}, Location={location.key}, Contents={[o.key for o in location.contents if hasattr(o, 'key')]}")
+    except:
+        pass
+    
     for obj in location.contents:
         if not hasattr(obj, 'db'):
             continue
         if obj == speaker:
             continue
+        
+        # Debug: Log each observer being processed
+        try:
+            if splattercast:
+                splattercast.msg(f"LANG_DEBUG: Processing observer {obj.key} for language {language_code}")
+        except:
+            pass
         
         # Get observer's proficiency in this language
         proficiency = get_language_proficiency(obj, language_code)
