@@ -142,6 +142,18 @@ IDLE_TIMEOUT = 86400
 # Prevents phantom sessions from disconnects
 SESSION_DISCONNECT_TIMEOUT = 5  # 5 seconds to detect disconnect
 
+######################################################################
+# Game Time Configuration
+######################################################################
+
+# Time factor: 1.0 = real time, >1 = faster, <1 = slower
+TIME_FACTOR = 1.0  # Real-time speed (x1)
+
+# Game epoch: set to January 1, 1970, 00:00:00 UTC
+# This ensures the game time starts at 1970
+import time
+_EPOCH_YEAR_1970 = 0  # Unix epoch is already 1970-01-01
+
 
 ######################################################################
 # Settings given in secret_settings.py override those in this file.

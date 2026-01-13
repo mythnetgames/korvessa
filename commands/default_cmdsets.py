@@ -78,7 +78,8 @@ class UnconsciousCmdSet(CmdSet):
         # Essential OOC commands only
         self.add(default_cmds.CmdHelp())      # Always allow help
         self.add(default_cmds.CmdWho())       # OOC player information
-        self.add(default_cmds.CmdTime())      # OOC time information
+        from commands.time import CmdTime
+        self.add(CmdTime())      # In-game time from clock display
         
         # System commands
         self.add(default_cmds.CmdQuit())      # Can always quit
