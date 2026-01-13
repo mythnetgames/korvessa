@@ -360,25 +360,16 @@ def set_language_proficiency(character, language_code, proficiency):
     """
     proficiency = max(0.0, min(100.0, proficiency))
     
-    # Ensure the attribute exists first
-    if not character.db.language_proficiency:
-        character.db.language_proficiency = {}
+    # Always create a fresh copy from the db, modify it, and save it back
+    existing = character.db.language_proficiency
+    if existing is None or not isinstance(existing, dict):
+        new_dict = {language_code: proficiency}
+    else:
+        new_dict = dict(existing)  # Create a new dict from existing
+        new_dict[language_code] = proficiency
     
-    # Get the dict, modify it, and reassign to force persistence
-    prof_dict = character.db.language_proficiency or {}
-    prof_dict[language_code] = proficiency
-    character.db.language_proficiency = prof_dict
-    
-    # Debug
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-        if splattercast:
-            # Force a fresh read to verify
-            verify = character.db.language_proficiency
-            splattercast.msg(f"SET_PROF: {character.key} {language_code}={proficiency}, verified={verify}")
-    except:
-        pass
+    # Save the new dict back - this forces Evennia to track the change
+    character.db.language_proficiency = new_dict
 
 
 def increase_language_proficiency(character, language_code, amount):
@@ -796,10 +787,6 @@ def apply_language_garbling_to_observers(speaker, message, language_code):
         
         if splattercast:
             splattercast.msg(f"DEBUG: Processing {obj.key} for {language_code}")
-        
-        # Ensure character has language proficiency dict initialized
-        if not obj.db.language_proficiency:
-            obj.db.language_proficiency = {}
         
         # Get observer's proficiency in this language
         proficiency = get_language_proficiency(obj, language_code)
