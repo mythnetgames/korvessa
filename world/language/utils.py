@@ -335,6 +335,9 @@ def get_language_proficiency(character, language_code):
     # Use character.db directly, not attributes API
     proficiency_dict = character.db.language_proficiency or {}
     
+    if splattercast:
+        splattercast.msg(f"GET_PROF: char={character.key}#{character.id} raw_dict={proficiency_dict}")
+    
     if not isinstance(proficiency_dict, dict):
         proficiency_dict = {}
     
@@ -343,11 +346,6 @@ def get_language_proficiency(character, language_code):
     for key, value in proficiency_dict.items():
         clean_key = key.strip("'\"") if isinstance(key, str) else key
         clean_dict[clean_key] = value
-        if splattercast:
-            splattercast.msg(f"GET_PROF: raw key={repr(key)} -> clean={repr(clean_key)} value={value}")
-    
-    if splattercast:
-        splattercast.msg(f"GET_PROF: clean_dict={clean_dict} looking for {repr(language_code)}")
     
     # Check if value exists in dict first
     value = clean_dict.get(language_code)
@@ -381,7 +379,7 @@ def set_language_proficiency(character, language_code, proficiency):
         splattercast = None
     
     if splattercast:
-        splattercast.msg(f"SET_PROF CALLED: {character.key} {language_code} = {proficiency}")
+        splattercast.msg(f"SET_PROF CALLED: {character.key}#{character.id} {language_code} = {proficiency}")
     
     proficiency = max(0.0, min(100.0, proficiency))
     
