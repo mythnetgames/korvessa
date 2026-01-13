@@ -137,19 +137,35 @@ class NPCWanderingScript(DefaultScript):
         # Check if we have a destination
         dest_x = getattr(obj.ndb, 'wander_dest_x', None)
         dest_y = getattr(obj.ndb, 'wander_dest_y', None)
-        
-        # 1/50 chance to pick a new destination (or if we don't have one)
-        roll = randint(1, 50)
         location = obj.location.key if obj.location else "unknown"
         
-        if roll == 1 or dest_x is None or dest_y is None:
-            # Pick new destination
-            if channel:
-                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - ROLL({roll}/50) -> Pick new destination")
-            self._pick_new_destination(obj, zone)
+        # If no destination, check cooldown and roll for new destination
+        if dest_x is None or dest_y is None:
+            import time
+            # Check if we're on cooldown (1 hour after arriving at destination)
+            cooldown_until = getattr(obj.ndb, 'wander_cooldown_until', 0)
+            current_time = time.time()
+            
+            if current_time < cooldown_until:
+                # Still on cooldown, don't pick new destination
+                remaining = int(cooldown_until - current_time)
+                mins = remaining // 60
+                if channel:
+                    channel.msg(f"TICK: {obj.name} in {location} ({zone}) - On cooldown ({mins}m remaining)")
+                return
+            
+            # 1/50 chance to pick a new destination
+            roll = randint(1, 50)
+            if roll == 1:
+                if channel:
+                    channel.msg(f"TICK: {obj.name} in {location} ({zone}) - ROLL({roll}/50) -> Pick new destination")
+                self._pick_new_destination(obj, zone)
+            else:
+                if channel:
+                    channel.msg(f"TICK: {obj.name} in {location} ({zone}) - ROLL({roll}/50) -> Wait")
+                return
         
         # Try to move toward current destination (if we have one)
-        # Rate limiting is handled inside _pathfind_step
         dest_x = getattr(obj.ndb, 'wander_dest_x', None)
         dest_y = getattr(obj.ndb, 'wander_dest_y', None)
         
@@ -242,19 +258,23 @@ class NPCWanderingScript(DefaultScript):
                     # Reached full 3D destination
                     if channel:
                         channel.msg(f"PATH_ARRIVED: {npc.name} reached destination ({dest_x},{dest_y},{dest_z})")
-                    # Clear destination and stop moving - wait for next roll to pick new one
+                    # Clear destination and set 1-hour cooldown
                     npc.ndb.wander_dest_x = None
                     npc.ndb.wander_dest_y = None
                     npc.ndb.wander_dest_z = None
+                    import time
+                    npc.ndb.wander_cooldown_until = time.time() + 3600  # 1 hour cooldown
                     return
             else:
                 # No z specified, 2D destination reached
                 if channel:
                     channel.msg(f"PATH_ARRIVED: {npc.name} reached destination ({dest_x},{dest_y})")
-                # Clear destination and stop moving - wait for next roll to pick new one
+                # Clear destination and set 1-hour cooldown
                 npc.ndb.wander_dest_x = None
                 npc.ndb.wander_dest_y = None
                 npc.ndb.wander_dest_z = None
+                import time
+                npc.ndb.wander_cooldown_until = time.time() + 3600  # 1 hour cooldown
                 return
         
         # Find best exit towards destination
