@@ -294,7 +294,11 @@ def initialize_language_proficiency(character):
     Args:
         character: The character object
     """
-    proficiency = getattr(character.db, 'language_proficiency', None)
+    # Use direct access instead of getattr for Evennia db attributes
+    try:
+        proficiency = character.db.language_proficiency
+    except AttributeError:
+        proficiency = None
     
     if proficiency is None or not isinstance(proficiency, dict):
         proficiency = {}
@@ -320,21 +324,16 @@ def get_language_proficiency(character, language_code):
     """
     initialize_language_proficiency(character)
     
-    proficiency_dict = getattr(character.db, 'language_proficiency', None)
+    # Use direct access instead of getattr for Evennia db attributes
+    try:
+        proficiency_dict = character.db.language_proficiency
+    except AttributeError:
+        proficiency_dict = None
     
     # Handle None or invalid proficiency dict
     if proficiency_dict is None or not isinstance(proficiency_dict, dict):
         proficiency_dict = {}
         character.db.language_proficiency = proficiency_dict
-    
-    # Debug: Check what's in dict
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-        if splattercast and language_code == 'arabic':
-            splattercast.msg(f"GET_PROF_DEBUG: {character.key} checking {language_code}, dict_contents={proficiency_dict}, looking for key={language_code}, value_in_dict={proficiency_dict.get(language_code, 'NOT_FOUND')}")
-    except:
-        pass
     
     # Known languages at 100%
     if language_code in get_character_languages(character)['known']:
@@ -375,16 +374,6 @@ def increase_language_proficiency(character, language_code, amount):
     current = get_language_proficiency(character, language_code)
     new_proficiency = min(100.0, current + amount)
     set_language_proficiency(character, language_code, new_proficiency)
-    
-    # Debug
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-        if splattercast:
-            actual = character.db.language_proficiency.get(language_code, 'NOT_SET')
-            splattercast.msg(f"INCREASE_PROF: {character.key} {language_code}: current={current}, amount={amount}, new={new_proficiency}, actual_in_db={actual}")
-    except:
-        pass
 
 
 def get_language_learning_speed(character):
@@ -448,16 +437,6 @@ def apply_passive_language_learning(character, heard_language_code):
     if count < 5:  # Max 5 passive learning events per language per day
         increase_language_proficiency(character, heard_language_code, 0.04)
         character.ndb.daily_passive_learning[heard_language_code] = count + 1
-        
-        # Debug output
-        from evennia.comms.models import ChannelDB
-        try:
-            splattercast = ChannelDB.objects.get_channel("Splattercast")
-            if splattercast:
-                new_prof = get_language_proficiency(character, heard_language_code)
-                splattercast.msg(f"PASSIVE_LEARN: {character.key} learned {heard_language_code} to {new_prof:.2f}% (count: {character.ndb.daily_passive_learning[heard_language_code]})")
-        except:
-            pass
 
 
 def calculate_ip_cost_for_proficiency(target_proficiency):
