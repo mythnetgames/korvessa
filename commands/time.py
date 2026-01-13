@@ -27,12 +27,12 @@ class CmdTime(Command):
         """Display the current game time."""
         caller = self.caller
         
-        # Get current game time
-        game_time = gametime.gametime()
+        # Get current game time in seconds
+        game_time_seconds = gametime.get_gametime()
         
-        # Format as a readable date and time
-        # Game starts at January 1, 1970
-        time_struct = real_time.localtime(game_time)
+        # Convert to time struct for formatting
+        # Since TIME_GAME_EPOCH = 0 (which is 1970-01-01), this will show 1970 dates
+        time_struct = real_time.gmtime(game_time_seconds)
         
         # Format the display
         date_str = real_time.strftime("%A, %B %d, %Y", time_struct)
