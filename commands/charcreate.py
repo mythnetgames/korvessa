@@ -916,9 +916,11 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
         'edge': 5
     })
     empathy = stats['edge'] + stats['willpower']
-    # Calculate distribution points used (each stat above base 5)
+    # Calculate distribution points used (total stats minus baseline of 7*5)
+    # This counts points below base as freed-up allotment
     STAT_BASE = 5
-    distribution_used = sum([max(0, v - STAT_BASE) for v in stats.values()])
+    total_stats = sum([v for k, v in stats.items() if k != 'empathy'])
+    distribution_used = total_stats - (STAT_BASE * 7)
     remaining = 12 - distribution_used
     text = f"""
 Let's assign your character's stats.
@@ -959,7 +961,8 @@ Commands:
             # Immediately update display after reset
             empathy = stats['edge'] + stats['willpower']
             STAT_BASE = 5
-            distribution_used = sum([max(0, v - STAT_BASE) for v in stats.values()])
+            total_stats = sum([v for k, v in stats.items() if k != 'empathy'])
+            distribution_used = total_stats - (STAT_BASE * 7)
             remaining = 12 - distribution_used
             text = f"""
 Let's assign your character's stats.
@@ -1009,7 +1012,8 @@ Commands:
             # Immediately update display after stat set
             empathy = stats['edge'] + stats['willpower']
             STAT_BASE = 5
-            distribution_used = sum([max(0, v - STAT_BASE) for v in stats.values()])
+            total_stats = sum([v for k, v in stats.items() if k != 'empathy'])
+            distribution_used = total_stats - (STAT_BASE * 7)
             remaining = 12 - distribution_used
             text = f"""
 Let's assign your character's stats.
@@ -1055,7 +1059,9 @@ def first_char_confirm(caller, raw_string, **kwargs):
     })
     empathy = stats['edge'] + stats['willpower']
     STAT_BASE = 5
-    distribution_used = sum([max(0, v - STAT_BASE) for v in stats.values()])
+    # Distribution = total all stats minus the baseline (7 stats * 5 base)
+    total_stats = sum([v for k, v in stats.items() if k != 'empathy'])
+    distribution_used = total_stats - (STAT_BASE * 7)
     text = f"""
 Just uh, let me know if everything looks good.
 
