@@ -223,7 +223,7 @@ def validate_stat_distribution(stats):
     STAT_BASE = 5  # All stats start at 5
     STAT_MAX = {k: 12 for k in stats if k != "empathy"}  # Max is 12
     STAT_MIN = 1  # Can still go down to 1
-    DISTRIBUTION_POINTS = 12  # Points to distribute above base
+    DISTRIBUTION_POINTS = 12  # Points to distribute
     
     for stat, value in stats.items():
         if stat == "empathy":
@@ -233,10 +233,12 @@ def validate_stat_distribution(stats):
         if value > STAT_MAX[stat]:
             return (False, f"{stat.capitalize()} cannot exceed 12.")
     
-    # Calculate total distribution points used (value - base for each stat)
-    total_distribution = sum([max(0, v - STAT_BASE) for k, v in stats.items() if k != "empathy"])
+    # Calculate total distribution points used (total stats minus baseline)
+    # This counts points below base as freed-up allotment
+    total_stats = sum([v for k, v in stats.items() if k != "empathy"])
+    total_distribution = total_stats - (STAT_BASE * 7)
     if total_distribution != DISTRIBUTION_POINTS:
-        return (False, f"You must distribute exactly {DISTRIBUTION_POINTS} points above the base of 5 (current: {total_distribution}).")
+        return (False, f"You must distribute exactly {DISTRIBUTION_POINTS} points (current: {total_distribution}).")
     return (True, None)
 
 
