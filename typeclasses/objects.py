@@ -484,7 +484,7 @@ class BloodPool(Object):
         # Set up integration for room description (like graffiti)
         self.db.integrate = True
         self.db.integration_priority = 4  # Lower priority than graffiti
-        self.db.integration_desc = "Dark |Rstains|n mark the ground where |Rblood|n has pooled.|w"
+        self.db.integration_desc = "Dark |Rstains|n mark the ground where |Rblood|n has pooled.|n"
         
         self.locks.add("get:false()")  # Can't be picked up
         
@@ -602,17 +602,16 @@ class BloodPool(Object):
             self.db.desc = f"Blood evidence shows {volume_desc}, {age_desc}."
             
             # Update integration description based on current state
-            # Wrap each blood word individually to prevent color bleeding
-            # End with explicit |w to force white and prevent red bleed to coords
+            # Use |n reset between each colored word to prevent bleed
             age_hours = self.get_age_hours()
             if age_hours < 1:
-                self.db.integration_desc = "Fresh |Rcrimson|n |Rstains|n glisten wetly on the ground.|w"
+                self.db.integration_desc = "Fresh |Rcrimson|n |Rstains|n glisten wetly on the ground.|n"
             elif age_hours < 6:
-                self.db.integration_desc = "Dark |Rblood|n |Rstains|n mark the ground ominously.|w"
+                self.db.integration_desc = "Dark |Rblood|n |Rstains|n mark the ground ominously.|n"
             elif age_hours < 24:
-                self.db.integration_desc = "Dried |Rbrown|n |Rstains|n show where blood once pooled.|w"
+                self.db.integration_desc = "Dried |Rbrown|n |Rstains|n show where blood once pooled.|n"
             else:
-                self.db.integration_desc = "Faint |Rrusty|n |Rmarks|n hint at old bloodshed.|w"
+                self.db.integration_desc = "Faint |Rrusty|n |Rmarks|n hint at old bloodshed.|n"
     
     def return_appearance(self, looker, **kwargs):
         """Return detailed forensic description showing all incidents."""
