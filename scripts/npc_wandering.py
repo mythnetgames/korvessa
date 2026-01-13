@@ -248,15 +248,21 @@ class NPCWanderingScript(DefaultScript):
         
         if channel:
             channel.msg(f"PATH_STEP: {npc.name} - Taking '{exit_obj.key}' towards ({dest_x},{dest_y})")
+            channel.msg(f"PATH_DEST_OBJ: {npc.name} - destination object is {destination}")
         
         # Move the NPC using move_to
         try:
             # Store original location before moving
             original_location = npc.location
             
+            if channel:
+                channel.msg(f"PATH_BEFORE_MOVE: {npc.name} at {original_location}")
+            
             # Call move_to with normal hooks enabled so at_post_move fires and sends messages
             try:
                 result = npc.move_to(destination, quiet=False)
+                if channel:
+                    channel.msg(f"PATH_MOVE_RESULT: {npc.name} - move_to returned {result}")
             except Exception as move_err:
                 if channel:
                     channel.msg(f"PATH_MOVE_ERROR: {npc.name} - move_to raised exception: {move_err}")
@@ -285,8 +291,10 @@ class NPCWanderingScript(DefaultScript):
                 if channel:
                     channel.msg(f"PATH_BLOCKED: {npc.name} - move_to returned {result}, will retry next tick")
         except Exception as e:
+            import traceback
             if channel:
                 channel.msg(f"PATH_ERROR: {npc.name} - Failed to move: {e}")
+                channel.msg(f"PATH_TRACEBACK: {traceback.format_exc()}")
     
     def _pick_new_destination(self, npc, zone):
         """
