@@ -1075,7 +1075,7 @@ Create this character?
 |w>|n """
     options = (
         {"key": ("y", "yes"),
-         "goto": "first_char_finalize",
+         "goto": "first_char_select_language",
          "auto_help": False,
          "auto_look": False},
         {"key": ("n", "no"),
@@ -1087,6 +1087,201 @@ Create this character?
          "auto_help": False,
          "auto_look": False},
     )
+    return text, options
+
+
+def first_char_select_language(caller, raw_string, **kwargs):
+    """Select primary language during character creation."""
+    from world.language.constants import (
+        LANGUAGES, SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE
+    )
+    
+    stats = caller.ndb.charcreate_data.get('stats', {})
+    smarts = stats.get('smarts', 1)
+    primary_language = caller.ndb.charcreate_data.get('primary_language', 'english')
+    secondary_languages = caller.ndb.charcreate_data.get('secondary_languages', [])
+    
+    # Determine if player can choose a second language
+    can_choose_second = smarts > SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE
+    
+    text = f"""
+|wChoose Your Primary Language|n
+
+Your character will speak this language by default.
+
+|wSmarts:|n {smarts} {'(You may also choose a second language!)' if can_choose_second else ''}
+
+|wAvailable Languages:|n
+"""
+    
+    # List all languages with their descriptions
+    lang_list = []
+    for i, (code, info) in enumerate(sorted(LANGUAGES.items()), 1):
+        lang_list.append(f"|w[{i}]|n |c{info['name']}|n - {info['description']}")
+        if code == primary_language:
+            lang_list[-1] += " |y(selected)|n"
+    
+    text += "\n".join(lang_list)
+    
+    # Handle input
+    options = (
+        {"key": "_default", "goto": "first_char_select_language"},
+    )
+    
+    if raw_string and raw_string.strip():
+        args = raw_string.strip().lower().split()
+        if not args:
+            return text, options
+        
+        command = args[0]
+        lang_codes = sorted(list(LANGUAGES.keys()))
+        
+        # Handle language selection
+        if command == 'done':
+            # Move to second language selection if eligible
+            if can_choose_second:
+                return first_char_select_second_language(caller, "", **kwargs)
+            else:
+                # Skip to finalize
+                return first_char_finalize(caller, "", **kwargs)
+        
+        # Try to parse as a number (1-indexed)
+        try:
+            lang_index = int(command) - 1
+            if 0 <= lang_index < len(lang_codes):
+                selected_code = lang_codes[lang_index]
+                caller.ndb.charcreate_data['primary_language'] = selected_code
+                caller.msg(f"|gPrimary language set to |c{LANGUAGES[selected_code]['name']}|g.|n")
+                
+                # Show updated text
+                primary_language = selected_code
+                text = f"""
+|wChoose Your Primary Language|n
+
+Your character will speak this language by default.
+
+|wSmarts:|n {smarts} {'(You may also choose a second language!)' if can_choose_second else ''}
+
+|wAvailable Languages:|n
+"""
+                lang_list = []
+                for i, (code, info) in enumerate(sorted(LANGUAGES.items()), 1):
+                    lang_list.append(f"|w[{i}]|n |c{info['name']}|n - {info['description']}")
+                    if code == primary_language:
+                        lang_list[-1] += " |y(selected)|n"
+                
+                text += "\n".join(lang_list)
+                text += f"\n\n|wPrimary Language:|n |c{LANGUAGES[primary_language]['name']}|n"
+                if can_choose_second:
+                    text += f"\n\nType |wdone|n when ready to choose your second language, or select another language above."
+                else:
+                    text += f"\n\nType |wdone|n when ready to create your character."
+                text += "\n\n|w>|n"
+                return text, options
+        except ValueError:
+            pass
+        
+        caller.msg("|rInvalid selection. Please enter a number or 'done'.|n")
+    
+    if primary_language:
+        text += f"\n\n|wPrimary Language:|n |c{LANGUAGES[primary_language]['name']}|n"
+    
+    if can_choose_second:
+        text += f"\n\nType |wdone|n when ready to choose your second language, or select another language above."
+    else:
+        text += f"\n\nType |wdone|n when ready to create your character."
+    
+    text += "\n\n|w>|n"
+    return text, options
+
+
+def first_char_select_second_language(caller, raw_string, **kwargs):
+    """Select secondary language if Smarts > 4."""
+    from world.language.constants import LANGUAGES
+    
+    stats = caller.ndb.charcreate_data.get('stats', {})
+    smarts = stats.get('smarts', 1)
+    primary_language = caller.ndb.charcreate_data.get('primary_language', 'english')
+    secondary_languages = caller.ndb.charcreate_data.get('secondary_languages', [])
+    
+    text = f"""
+|wChoose Your Secondary Language|n
+
+Your Smarts of {smarts} allows you to learn a second language!
+
+|wAvailable Languages:|n
+"""
+    
+    # List all languages except primary
+    lang_list = []
+    lang_codes = sorted([code for code in LANGUAGES.keys() if code != primary_language])
+    for i, code in enumerate(lang_codes, 1):
+        info = LANGUAGES[code]
+        lang_list.append(f"|w[{i}]|n |c{info['name']}|n - {info['description']}")
+        if code in secondary_languages:
+            lang_list[-1] += " |y(selected)|n"
+    
+    text += "\n".join(lang_list)
+    
+    # Handle input
+    options = (
+        {"key": "_default", "goto": "first_char_select_second_language"},
+    )
+    
+    if raw_string and raw_string.strip():
+        args = raw_string.strip().lower().split()
+        if not args:
+            return text, options
+        
+        command = args[0]
+        lang_codes = sorted([code for code in LANGUAGES.keys() if code != primary_language])
+        
+        # Handle language selection
+        if command == 'done':
+            # Proceed to finalize
+            return first_char_finalize(caller, "", **kwargs)
+        
+        if command == 'skip':
+            # Skip second language
+            caller.msg("|ySkipping second language selection.|n")
+            return first_char_finalize(caller, "", **kwargs)
+        
+        # Try to parse as a number (1-indexed)
+        try:
+            lang_index = int(command) - 1
+            if 0 <= lang_index < len(lang_codes):
+                selected_code = lang_codes[lang_index]
+                caller.ndb.charcreate_data['secondary_languages'] = [selected_code]
+                caller.msg(f"|gSecondary language set to |c{LANGUAGES[selected_code]['name']}|g.|n")
+                
+                # Show updated text
+                text = f"""
+|wChoose Your Secondary Language|n
+
+Your Smarts of {smarts} allows you to learn a second language!
+
+|wAvailable Languages:|n
+"""
+                lang_list = []
+                for i, code in enumerate(lang_codes, 1):
+                    info = LANGUAGES[code]
+                    lang_list.append(f"|w[{i}]|n |c{info['name']}|n - {info['description']}")
+                    if code == selected_code:
+                        lang_list[-1] += " |y(selected)|n"
+                
+                text += "\n".join(lang_list)
+                text += f"\n\n|wSecondary Language:|n |c{LANGUAGES[selected_code]['name']}|n"
+                text += f"\n\nType |wdone|n to create your character, or select another language."
+                text += "\n\n|w>|n"
+                return text, options
+        except ValueError:
+            pass
+        
+        caller.msg("|rInvalid selection. Please enter a number, 'done', or 'skip'.|n")
+    
+    text += f"\n\n|wPrimary Language:|n |c{LANGUAGES[primary_language]['name']}|n"
+    text += f"\n\nType |wdone|n to create your character, |wskip|n to choose no second language, or select a language above."
+    text += "\n\n|w>|n"
     return text, options
 
 

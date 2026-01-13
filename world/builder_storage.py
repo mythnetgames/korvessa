@@ -158,9 +158,11 @@ def delete_furniture(furniture_id):
 # ============================================================================
 
 def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=False,
-            stats=None, skills=None, created_by=""):
+            stats=None, skills=None, created_by="", primary_language="cantonese", known_languages=None):
     """
     Add a new NPC template to storage.
+    
+    Cantonese is the default primary language of Kowloon NPCs.
     
     Args:
         name: NPC name
@@ -171,6 +173,8 @@ def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=Fals
         stats: Dictionary of stats (body, ref, dex, tech, smrt, will, edge, emp)
         skills: Dictionary of skills (brawling, blades, ranged, grapple, dodge, stealth, etc.)
         created_by: Character who created this
+        primary_language: Primary language code (defaults to Cantonese)
+        known_languages: List of language codes NPC knows
     
     Returns:
         dict: The created NPC data or None on failure
@@ -223,6 +227,9 @@ def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=Fals
             "instrument": 0,
         }
     
+    if known_languages is None:
+        known_languages = ["cantonese"]
+    
     # Generate unique ID
     existing_ids = [n["id"] for n in storage.db.npcs]
     npc_id = f"npc_{len(existing_ids) + 1}"
@@ -237,6 +244,8 @@ def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=Fals
         "stats": stats,
         "skills": skills,
         "created_by": created_by,
+        "primary_language": primary_language,
+        "known_languages": known_languages,
     }
     
     storage.db.npcs.append(npc_data)

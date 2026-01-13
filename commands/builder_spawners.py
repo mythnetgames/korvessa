@@ -257,6 +257,19 @@ class CmdSpawnNPC(Command):
                 for skill_name, skill_value in npc_data['skills'].items():
                     setattr(npc.db, skill_name, skill_value)
             
+            # Set languages from template
+            if 'primary_language' in npc_data:
+                npc.db.primary_language = npc_data['primary_language']
+            if 'known_languages' in npc_data:
+                npc.db.known_languages = set(npc_data['known_languages'])
+            
+            # Initialize language system for the NPC
+            try:
+                from world.language.utils import initialize_character_languages
+                initialize_character_languages(npc)
+            except (ImportError, AttributeError):
+                pass
+            
             # Enable wandering if zone is set
             if npc_data['wandering_zone']:
                 npc.db.npc_can_wander = True

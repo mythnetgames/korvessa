@@ -255,8 +255,16 @@ class Character(ObjectParent, DefaultCharacter):
         if not self.db.nakeds:
             self.db.nakeds = {}
 
+        # Initialize language system
+        self._initialize_language_system()
+
         # Initialize medical system - replaces legacy HP system
         self._initialize_medical_state()
+
+    def _initialize_language_system(self):
+        """Initialize the character's language system."""
+        from world.language.utils import initialize_character_languages
+        initialize_character_languages(self)
 
     def at_pre_move(self, destination, **kwargs):
         """

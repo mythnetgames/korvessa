@@ -329,6 +329,8 @@ def npc_start(caller, raw_string, **kwargs):
         "faction": "neutral",
         "wandering_zone": "",
         "is_shopkeeper": False,
+        "primary_language": "cantonese",
+        "known_languages": ["cantonese"],
         "stats": {
             "body": 1,
             "ref": 1,
@@ -449,15 +451,17 @@ def npc_properties(caller, raw_string, **kwargs):
             caller.ndb._npc_data["is_shopkeeper"] = not caller.ndb._npc_data["is_shopkeeper"]
             return npc_properties(caller, "", **kwargs)  # Re-display with updated value
         elif choice == "5":
-            return npc_stats_menu(caller, "", **kwargs)
+            return npc_languages(caller, "", **kwargs)
         elif choice == "6":
+            return npc_stats_menu(caller, "", **kwargs)
+        elif choice == "7":
             return npc_skills_menu(caller, "", **kwargs)
         elif choice in ["s", "save"]:
             return npc_save(caller, "", **kwargs)
         elif choice in ["q", "quit", "cancel"]:
             return npc_cancel(caller, "", **kwargs)
         else:
-            caller.msg("|rInvalid choice. Please enter 1-6, s, or q.|n")
+            caller.msg("|rInvalid choice. Please enter 1-7, s, or q.|n")
             return npc_properties(caller, "", **kwargs)  # Re-display menu
     
     # Display mode - show menu
@@ -467,8 +471,9 @@ def npc_properties(caller, raw_string, **kwargs):
     text += "|y2|n - Wandering Zone: " + (caller.ndb._npc_data["wandering_zone"] or "(none - static)") + "\n"
     text += "|y3|n - Look Place: " + (caller.ndb._npc_data["lookplace"] or "(none)") + "\n"
     text += "|y4|n - Shopkeeper: " + ("Yes" if caller.ndb._npc_data["is_shopkeeper"] else "No") + "\n"
-    text += "|y5|n - Configure Stats\n"
-    text += "|y6|n - Configure Skills\n"
+    text += "|y5|n - Languages: " + ", ".join([lang.capitalize() for lang in caller.ndb._npc_data["known_languages"]]) + "\n"
+    text += "|y6|n - Configure Stats\n"
+    text += "|y7|n - Configure Skills\n"
     text += "|ys|n - Finish and Save\n"
     text += "|yq|n - Cancel\n"
     
@@ -512,6 +517,106 @@ def npc_faction(caller, raw_string, **kwargs):
     
     options = (
         {"key": "_default", "goto": "npc_faction"},
+    )
+    return text, options
+
+
+def npc_languages(caller, raw_string, **kwargs):
+    """Configure NPC languages."""
+    from world.language.constants import LANGUAGES, COMMON_LANGUAGES, ALL_LANGUAGES
+    
+    # Builders and higher have access to all languages
+    has_builder_perm = caller.locks.check_lockstring(caller, "perm(Builder)")
+    available_languages = ALL_LANGUAGES if has_builder_perm else COMMON_LANGUAGES
+    
+    # Input mode - process user's choice
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip().lower()
+        
+        if choice == "b":
+            return npc_properties(caller, "", **kwargs)
+        
+        # Check if it's a language code or number
+        lang_codes = sorted([code for code in LANGUAGES.keys() if code in available_languages])
+        
+        # Try as index (1-based)
+        try:
+            idx = int(choice) - 1
+            if 0 <= idx < len(lang_codes):
+                lang_code = lang_codes[idx]
+                known = caller.ndb._npc_data["known_languages"]
+                
+                # Toggle language
+                if lang_code in known:
+                    if len(known) <= 1:
+                        caller.msg("|rNPC must know at least one language.|n")
+                        return npc_languages(caller, "", **kwargs)
+                    known.remove(lang_code)
+                else:
+                    if len(known) < 10:
+                        known.append(lang_code)
+                    else:
+                        caller.msg("|rMaximum 10 languages allowed.|n")
+                        return npc_languages(caller, "", **kwargs)
+                
+                caller.ndb._npc_data["known_languages"] = known
+                return npc_languages(caller, "", **kwargs)
+        except ValueError:
+            pass
+        
+        # Try as language code
+        if choice in available_languages:
+            known = caller.ndb._npc_data["known_languages"]
+            
+            if choice in known:
+                if len(known) <= 1:
+                    caller.msg("|rNPC must know at least one language.|n")
+                    return npc_languages(caller, "", **kwargs)
+                known.remove(choice)
+            else:
+                if len(known) < 10:
+                    known.append(choice)
+                else:
+                    caller.msg("|rMaximum 10 languages allowed.|n")
+                    return npc_languages(caller, "", **kwargs)
+            
+            caller.ndb._npc_data["known_languages"] = known
+            return npc_languages(caller, "", **kwargs)
+        
+        caller.msg("|rInvalid choice. Enter a number, language code, or 'b'.|n")
+    
+    # Display mode - show menu
+    from world.language.constants import LANGUAGES, COMMON_LANGUAGES, ALL_LANGUAGES
+    
+    # Builders and higher have access to all languages
+    has_builder_perm = caller.locks.check_lockstring(caller, "perm(Builder)")
+    available_languages = ALL_LANGUAGES if has_builder_perm else COMMON_LANGUAGES
+    
+    lang_codes = sorted([code for code in LANGUAGES.keys() if code in available_languages])
+    known = caller.ndb._npc_data["known_languages"]
+    primary = caller.ndb._npc_data["primary_language"]
+    
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - LANGUAGES")
+    text += f"\nNPC: {caller.ndb._npc_data['name']}\n"
+    text += f"|yFirst language in list will be primary on save|n\n"
+    text += f"|yCurrently selected: {', '.join([LANGUAGES[code]['name'] for code in known if code in available_languages])}|n\n\n"
+    text += "|yToggle languages (select to add/remove):|n\n"
+    
+    for idx, code in enumerate(lang_codes, 1):
+        lang_name = LANGUAGES[code]['name']
+        is_known = 'X' if code in known else ' '
+        text += f"|y[{idx}]|n [{is_known}] {lang_name}\n"
+    
+    if has_builder_perm:
+        text += "\n|g[Builder - All languages available]|n\n"
+    
+    text += f"\n|ySelected: {len(known)}/10|n\n"
+    text += "\n|yCommands:|n\n"
+    text += "- Enter a number to toggle language\n"
+    text += "|yb|n - Back\n"
+    
+    options = (
+        {"key": "_default", "goto": "npc_languages"},
     )
     return text, options
 
@@ -815,6 +920,11 @@ def npc_edit_skill(caller, raw_string, **kwargs):
 def npc_save(caller, raw_string, **kwargs):
     """Save NPC design."""
     data = caller.ndb._npc_data
+    
+    # Set primary language to the first language in the known_languages list
+    if data["known_languages"]:
+        data["primary_language"] = data["known_languages"][0]
+    
     npc = add_npc(
         name=data["name"],
         desc=data["desc"],
@@ -823,7 +933,9 @@ def npc_save(caller, raw_string, **kwargs):
         is_shopkeeper=data["is_shopkeeper"],
         stats=data["stats"],
         skills=data["skills"],
-        created_by=caller.key
+        created_by=caller.key,
+        primary_language=data["primary_language"],
+        known_languages=data["known_languages"]
     )
     
     text = BuilderMenuMixin.format_header("SUCCESS")
@@ -831,6 +943,8 @@ def npc_save(caller, raw_string, **kwargs):
     text += f"Name: {npc['name']}\n"
     text += f"ID: {npc['id']}\n"
     text += f"Faction: {npc['faction']}\n"
+    text += f"Primary Language: {npc['primary_language']}\n"
+    text += f"Known Languages: {', '.join(npc['known_languages'])}\n"
     text += f"Stats: {npc['stats']}\n"
     text += f"Skills: {npc['skills']}\n\n"
     text += f"You can now spawn it using: |yspawnnpc {npc['id']}|n\n"
