@@ -672,18 +672,14 @@ def _create_restored_clone(account, old_character, session, backup_data):
         
         _log(f"CLONE_CREATE: Account characters after removal: {[c.key for c in account.characters]}")
         
-        # Archive and rename the old dead character to free up the name
-        # This allows the new clone to use the same name
+        # Delete the old dead character entirely to free up the name and prevent resurrection
+        # This ensures the old clone is not available if the player dies again
         if old_character:
-            import time
-            archive_suffix = f"_DEAD_{int(time.time())}"
-            old_name = old_character.key
-            old_character.key = f"{old_name}{archive_suffix}"
-            old_character.db.archived = True
-            old_character.db.archived_at = time.time()
-            old_character.db.death_archive_name = old_name
-            old_character.save()  # Force save to database
-            _log(f"CLONE_CREATE: Archived old character as '{old_character.key}' (dbref: {old_character.dbref})")
+            old_char_name = old_character.key
+            old_char_dbref = old_character.dbref
+            # Delete the old character object from the database
+            old_character.delete()
+            _log(f"CLONE_CREATE: Deleted old character '{old_char_name}' ({old_char_dbref})")
         
         # Create new character with same name
         char, errors = account.create_character(
