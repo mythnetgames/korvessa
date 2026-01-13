@@ -220,19 +220,23 @@ def validate_stat_distribution(stats):
     Returns:
         tuple: (is_valid: bool, error_message: str or None)
     """
-    STAT_MAX = {k: 10 for k in stats if k != "empathy"}
-    STAT_MIN = 1
-    STAT_TOTAL = 35
+    STAT_BASE = 5  # All stats start at 5
+    STAT_MAX = {k: 12 for k in stats if k != "empathy"}  # Max is 12
+    STAT_MIN = 1  # Can still go down to 1
+    DISTRIBUTION_POINTS = 12  # Points to distribute above base
+    
     for stat, value in stats.items():
         if stat == "empathy":
             continue
         if value < STAT_MIN:
             return (False, f"{stat.capitalize()} must be at least {STAT_MIN}.")
         if value > STAT_MAX[stat]:
-            return (False, f"{stat.capitalize()} cannot exceed 10.")
-    total = sum([v for k, v in stats.items() if k != "empathy"])
-    if total != STAT_TOTAL:
-        return (False, f"Stats must total {STAT_TOTAL} (current total: {total}).")
+            return (False, f"{stat.capitalize()} cannot exceed 12.")
+    
+    # Calculate total distribution points used (value - base for each stat)
+    total_distribution = sum([max(0, v - STAT_BASE) for k, v in stats.items() if k != "empathy"])
+    if total_distribution != DISTRIBUTION_POINTS:
+        return (False, f"You must distribute exactly {DISTRIBUTION_POINTS} points above the base of 5 (current: {total_distribution}).")
     return (True, None)
 
 
@@ -896,24 +900,26 @@ Select biological sex:
 
 
 def first_char_stat_assign(caller, raw_string, **kwargs):
-    """Distribute 35 points among 7 assignable stats (empathy is auto-calculated)."""
+    """Distribute 12 points among 7 assignable stats above base of 5 (empathy is auto-calculated)."""
     if 'sex' in kwargs:
         caller.ndb.charcreate_data['sex'] = kwargs['sex']
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     stats = caller.ndb.charcreate_data.get('stats', {
-        'body': 1,
-        'reflexes': 1,
-        'dexterity': 1,
-        'technique': 1,
-        'smarts': 1,
-        'willpower': 1,
-        'edge': 1
+        'body': 5,
+        'reflexes': 5,
+        'dexterity': 5,
+        'technique': 5,
+        'smarts': 5,
+        'willpower': 5,
+        'edge': 5
     })
     empathy = stats['edge'] + stats['willpower']
-    total = sum(stats.values())
-    remaining = 35 - total
+    # Calculate distribution points used (each stat above base 5)
+    STAT_BASE = 5
+    distribution_used = sum([max(0, v - STAT_BASE) for v in stats.values()])
+    remaining = 12 - distribution_used
     text = f"""
 Let's assign your character's stats.
 
@@ -948,34 +954,35 @@ Commands:
         command = args[0]
         valid_stats = ['body', 'reflexes', 'dexterity', 'technique', 'smarts', 'willpower', 'edge']
         if command == 'reset':
-            stats = {k: 1 for k in valid_stats}
+            stats = {k: 5 for k in valid_stats}
             caller.ndb.charcreate_data['stats'] = stats
             # Immediately update display after reset
             empathy = stats['edge'] + stats['willpower']
-            total = sum(stats.values())
-            remaining = 35 - total
+            STAT_BASE = 5
+            distribution_used = sum([max(0, v - STAT_BASE) for v in stats.values()])
+            remaining = 12 - distribution_used
             text = f"""
 Let's assign your character's stats.
 
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
 
-Distribute |w35 points|n among the following stats:
-    |wBody|n (1-10):        {stats['body']}
-    |wReflexes|n (1-10):    {stats['reflexes']}
-    |wDexterity|n (1-10):   {stats['dexterity']}
-    |wTechnique|n (1-10):   {stats['technique']}
-    |wSmarts|n (1-10):      {stats['smarts']}
-    |wWillpower|n (1-10):   {stats['willpower']}
-    |wEdge|n (1-10):        {stats['edge']}
+|wAll stats start at 5. Distribute |y12 points|w among them (max 12).|n
+    |wBody|n (1-12):        {stats['body']}
+    |wReflexes|n (1-12):    {stats['reflexes']}
+    |wDexterity|n (1-12):   {stats['dexterity']}
+    |wTechnique|n (1-12):   {stats['technique']}
+    |wSmarts|n (1-12):      {stats['smarts']}
+    |wWillpower|n (1-12):   {stats['willpower']}
+    |wEdge|n (1-12):        {stats['edge']}
     |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
 
-|wTotal assigned:|n {total}/35  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|wDistribution points used:|n {distribution_used}/12  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
 
 Commands:
     |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
-    |wreset|n           - Reset all stats to 1
-    |wdone|n            - Finalize character (when total = 35)
+    |wreset|n           - Reset all stats to 5
+    |wdone|n            - Finalize character (when 12 points distributed)
 
 |w>|n """
             return text, options
@@ -994,37 +1001,38 @@ Commands:
             except ValueError:
                 caller.msg("|rValue must be a number.|n")
                 return text, options
-            if value < 1 or value > 10:
-                caller.msg("|rValue must be 1-10.|n")
+            if value < 1 or value > 12:
+                caller.msg("|rValue must be 1-12.|n")
                 return text, options
             stats[command] = value
             caller.ndb.charcreate_data['stats'] = stats
             # Immediately update display after stat set
             empathy = stats['edge'] + stats['willpower']
-            total = sum(stats.values())
-            remaining = 35 - total
+            STAT_BASE = 5
+            distribution_used = sum([max(0, v - STAT_BASE) for v in stats.values()])
+            remaining = 12 - distribution_used
             text = f"""
 Let's assign your character's stats.
 
 Name: |c{first_name} {last_name}|n
 Sex: |c{sex.capitalize()}|n
 
-Distribute |w35 points|n among the following stats:
-    |wBody|n (1-10):        {stats['body']}
-    |wReflexes|n (1-10):    {stats['reflexes']}
-    |wDexterity|n (1-10):   {stats['dexterity']}
-    |wTechnique|n (1-10):   {stats['technique']}
-    |wSmarts|n (1-10):      {stats['smarts']}
-    |wWillpower|n (1-10):   {stats['willpower']}
-    |wEdge|n (1-10):        {stats['edge']}
+|wAll stats start at 5. Distribute |y12 points|w among them (max 12).|n
+    |wBody|n (1-12):        {stats['body']}
+    |wReflexes|n (1-12):    {stats['reflexes']}
+    |wDexterity|n (1-12):   {stats['dexterity']}
+    |wTechnique|n (1-12):   {stats['technique']}
+    |wSmarts|n (1-12):      {stats['smarts']}
+    |wWillpower|n (1-12):   {stats['willpower']}
+    |wEdge|n (1-12):        {stats['edge']}
     |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
 
-|wTotal assigned:|n {total}/35  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|wDistribution points used:|n {distribution_used}/12  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
 
 Commands:
     |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
-    |wreset|n           - Reset all stats to 1
-    |wdone|n            - Finalize character (when total = 35)
+    |wreset|n           - Reset all stats to 5
+    |wdone|n            - Finalize character (when 12 points distributed)
 
 |w>|n """
             return text, options
@@ -1037,16 +1045,17 @@ def first_char_confirm(caller, raw_string, **kwargs):
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     stats = caller.ndb.charcreate_data.get('stats', {
-        'body': 1,
-        'reflexes': 1,
-        'dexterity': 1,
-        'technique': 1,
-        'smarts': 1,
-        'willpower': 1,
-        'edge': 1
+        'body': 5,
+        'reflexes': 5,
+        'dexterity': 5,
+        'technique': 5,
+        'smarts': 5,
+        'willpower': 5,
+        'edge': 5
     })
     empathy = stats['edge'] + stats['willpower']
-    total = sum(stats.values())
+    STAT_BASE = 5
+    distribution_used = sum([max(0, v - STAT_BASE) for v in stats.values()])
     text = f"""
 Just uh, let me know if everything looks good.
 
@@ -1063,7 +1072,7 @@ Just uh, let me know if everything looks good.
     |wEdge:|n      {stats['edge']}
     |wEmpathy:|n   {empathy} (calculated: edge + willpower)
 
-|wTotal assigned:|n {total}/35
+|wDistribution points used:|n {distribution_used}/12
 
 |yOnce created, your name cannot be changed.|n
 |yStats can be modified through gameplay.|n
@@ -1294,13 +1303,13 @@ def first_char_finalize(caller, raw_string, **kwargs):
     full_name = f"{first_name} {last_name}"
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     stats = caller.ndb.charcreate_data.get('stats', {
-        'body': 1,
-        'reflexes': 1,
-        'dexterity': 1,
-        'technique': 1,
-        'smarts': 1,
-        'willpower': 1,
-        'edge': 1
+        'body': 5,
+        'reflexes': 5,
+        'dexterity': 5,
+        'technique': 5,
+        'smarts': 5,
+        'willpower': 5,
+        'edge': 5
     })
     empathy = stats['edge'] + stats['willpower']
     start_location = get_start_location()
@@ -1323,6 +1332,11 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.emp = empathy
         char.sex = sex
         char.db.archived = False
+        
+        # Award starting IP
+        char.db.ip = char.db.ip if hasattr(char.db, 'ip') and char.db.ip else 0
+        char.db.ip += 200
+        
         import uuid
         char.db.stack_id = str(uuid.uuid4())
         char.db.original_creation = time.time()
@@ -1335,6 +1349,18 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.msg("")
         char.msg("|wPro tip? Don't trust anyone.|n")
         char.msg("|wJust a little work north, and you're in the City.|n")
+        char.msg("")
+        char.msg("|g=== Character Creation Complete ===|n")
+        char.msg(f"|gYou have been awarded |y200 Investment Points (IP)|g.|n")
+        char.msg(f"|cCurrent IP:|n |y{char.db.ip}|n")
+        char.msg("")
+        char.msg("|yYou can spend IP to improve your skills and abilities.|n")
+        char.msg("|yType |whelp ip|y to learn more about the IP system.|n")
+        char.msg("")
+        char.msg("|c=== Optional: Submit Your Background ===|n")
+        char.msg("|ySubmit a character background to receive an additional |w50 IP bonus|y!|n")
+        char.msg("|yType |wbackground submit <text>|y to write your character's story.|n")
+        char.msg("|yBackgrounds must be approved by staff but can be edited until approval.|n")
         char.msg("")
         char.msg("|yType |wlook|y to examine your surroundings.|n")
         char.msg("|yType |whelp|y for a list of commands.|n")

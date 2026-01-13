@@ -304,6 +304,7 @@ class CloningPod(Object):
         character.msg("|cEncoding personality matrix...|n")
         character.msg("|cCompressing memory engrams...|n")
         character.msg("|cVerifying stack integrity...|n")
+        character.msg("|yVires in Scientia. Scientia est fortis. Et oculus spectans deus nobis.|n")
     
     def _cutscene_frame_4(self, character, is_update):
         """Completion phase."""
@@ -343,7 +344,6 @@ class CloningPod(Object):
         character.msg(f"|gBackup timestamp: {formatted_time}|n")
         character.msg("|gIn the event of sleeve death, your consciousness will be restored.|n")
         character.msg(f"|g{'=' * 60}|n")
-        character.msg("|y[SYSTEM]: Vires in Scientia. Scientia est fortis. Et oculus spectans deus nobis.|n")
         character.msg("")
         character.msg("|bThe pod's canopy slides open. You may now stand.|n")
         

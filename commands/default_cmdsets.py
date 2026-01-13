@@ -347,6 +347,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdIP())        # Admin: grant/subtract IP
         self.add(CmdSetSkill())  # Admin: directly set skills
         self.add(CmdInvest())    # Player: invest IP into skills
+        # Add background command
+        from commands.CmdBackground import CmdBackground
+        self.add(CmdBackground())
         # Add cooking system commands
         from commands.CmdCooking import (
             CmdDesignRecipe, CmdCook, CmdEat, CmdDrink, CmdTaste, CmdSmellFood,
