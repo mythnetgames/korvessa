@@ -196,9 +196,9 @@ class NPCWanderingScript(DefaultScript):
         if last_move_time is None:
             last_move_time = 0
         
-        # Get variable rate limit (1-2 seconds)
-        min_interval = getattr(npc.ndb, 'move_interval_min', 1.0)
-        max_interval = getattr(npc.ndb, 'move_interval_max', 2.0)
+        # Get variable rate limit (1-2 seconds) with proper defaults
+        min_interval = getattr(npc.ndb, 'move_interval_min', None) or 1.0
+        max_interval = getattr(npc.ndb, 'move_interval_max', None) or 2.0
         rate_limit = uniform(min_interval, max_interval)
         
         current_time = time.time()
