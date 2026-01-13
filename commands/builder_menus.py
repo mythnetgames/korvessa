@@ -325,6 +325,7 @@ def npc_start(caller, raw_string, **kwargs):
     caller.ndb._npc_data = {
         "name": "",
         "desc": "",
+        "lookplace": "",
         "faction": "neutral",
         "wandering_zone": "",
         "is_shopkeeper": False,
@@ -425,18 +426,20 @@ def npc_properties(caller, raw_string, **kwargs):
         elif choice == "2":
             return npc_wandering(caller, "", **kwargs)
         elif choice == "3":
+            return npc_set_lookplace(caller, "", **kwargs)
+        elif choice == "4":
             caller.ndb._npc_data["is_shopkeeper"] = not caller.ndb._npc_data["is_shopkeeper"]
             return npc_properties(caller, "", **kwargs)  # Re-display with updated value
-        elif choice == "4":
-            return npc_stats_menu(caller, "", **kwargs)
         elif choice == "5":
+            return npc_stats_menu(caller, "", **kwargs)
+        elif choice == "6":
             return npc_skills_menu(caller, "", **kwargs)
         elif choice in ["s", "save"]:
             return npc_save(caller, "", **kwargs)
         elif choice in ["q", "quit", "cancel"]:
             return npc_cancel(caller, "", **kwargs)
         else:
-            caller.msg("|rInvalid choice. Please enter 1-5, s, or q.|n")
+            caller.msg("|rInvalid choice. Please enter 1-6, s, or q.|n")
             return npc_properties(caller, "", **kwargs)  # Re-display menu
     
     # Display mode - show menu
@@ -444,9 +447,10 @@ def npc_properties(caller, raw_string, **kwargs):
     text += f"\nNPC: {caller.ndb._npc_data['name']}\n\n"
     text += "|y1|n - Faction: " + caller.ndb._npc_data["faction"] + "\n"
     text += "|y2|n - Wandering Zone: " + (caller.ndb._npc_data["wandering_zone"] or "(none - static)") + "\n"
-    text += "|y3|n - Shopkeeper: " + ("Yes" if caller.ndb._npc_data["is_shopkeeper"] else "No") + "\n"
-    text += "|y4|n - Configure Stats\n"
-    text += "|y5|n - Configure Skills\n"
+    text += "|y3|n - Look Place: " + (caller.ndb._npc_data["lookplace"] or "(none)") + "\n"
+    text += "|y4|n - Shopkeeper: " + ("Yes" if caller.ndb._npc_data["is_shopkeeper"] else "No") + "\n"
+    text += "|y5|n - Configure Stats\n"
+    text += "|y6|n - Configure Skills\n"
     text += "|ys|n - Finish and Save\n"
     text += "|yq|n - Cancel\n"
     
@@ -522,6 +526,50 @@ def npc_wandering(caller, raw_string, **kwargs):
         caller.msg(f"|gWandering zone set to: {zone}|n")
     else:
         caller.msg("|gNPC set to static (no wandering)|n")
+    return npc_properties(caller, "", **kwargs)
+
+
+def npc_set_lookplace(caller, raw_string, **kwargs):
+    """Set NPC look place (LP) using proper EvMenu pattern."""
+    # Check if we're first entering this node (display mode) vs processing input
+    if not getattr(caller.ndb, '_lookplace_input_mode', False):
+        # First entry - set flag and display prompt
+        caller.ndb._lookplace_input_mode = True
+        
+        text = BuilderMenuMixin.format_header("NPC DESIGNER - LOOK PLACE")
+        text += "\nEnter how this NPC appears when others look around the room.\n"
+        text += "Example: 'standing behind the counter' or 'lounging by the fire'\n"
+        text += "Press Enter to skip:\n"
+        
+        options = (
+            {"key": "_default", "goto": "npc_set_lookplace"},
+        )
+        
+        return text, options
+    
+    # Input mode - user has entered something (or pressed Enter to skip)
+    if hasattr(caller.ndb, '_lookplace_input_mode'):
+        delattr(caller.ndb, '_lookplace_input_mode')
+    
+    lookplace = raw_string.strip() if raw_string else ""
+    
+    # Validate length if provided
+    if lookplace:
+        if len(lookplace) < 2:
+            caller.msg("|rLook place must be at least 2 characters.|n")
+            caller.ndb._lookplace_input_mode = True
+            return npc_set_lookplace(caller, "", **kwargs)
+        if len(lookplace) > 200:
+            caller.msg("|rLook place must be 200 characters or less.|n")
+            caller.ndb._lookplace_input_mode = True
+            return npc_set_lookplace(caller, "", **kwargs)
+    
+    # Store lookplace
+    caller.ndb._npc_data["lookplace"] = lookplace
+    if lookplace:
+        caller.msg(f"|gLook place set to: {lookplace}|n")
+    else:
+        caller.msg("|gLook place cleared.|n")
     return npc_properties(caller, "", **kwargs)
 
 
