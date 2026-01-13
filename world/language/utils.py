@@ -332,8 +332,8 @@ def get_language_proficiency(character, language_code):
     except:
         splattercast = None
     
-    # Use Evennia's attributes API directly
-    proficiency_dict = character.attributes.get("language_proficiency", default={})
+    # Use character.db directly, not attributes API
+    proficiency_dict = character.db.language_proficiency or {}
     
     if not isinstance(proficiency_dict, dict):
         proficiency_dict = {}
@@ -357,7 +357,7 @@ def get_language_proficiency(character, language_code):
         return float(value)
     
     # If not in dict, check if it's a known language (should be 100%)
-    known = character.attributes.get("known_languages", default=set())
+    known = character.db.known_languages or set()
     if known and language_code in known:
         return 100.0
     
@@ -385,8 +385,8 @@ def set_language_proficiency(character, language_code, proficiency):
     
     proficiency = max(0.0, min(100.0, proficiency))
     
-    # Use Evennia's attributes API directly for persistence
-    existing = character.attributes.get("language_proficiency", default={})
+    # Get existing dict from character.db directly (not attributes API)
+    existing = character.db.language_proficiency or {}
     
     if not isinstance(existing, dict):
         existing = {}
@@ -404,12 +404,12 @@ def set_language_proficiency(character, language_code, proficiency):
     if splattercast:
         splattercast.msg(f"SET_PROF saving: {clean_dict}")
     
-    # Use attributes.add with overwrite=True to force persistence
-    character.attributes.add("language_proficiency", clean_dict, overwrite=True)
+    # Save to db directly - this forces Evennia to mark it dirty and save to DB
+    character.db.language_proficiency = clean_dict
     
     # Verify it saved
     if splattercast:
-        verify = character.attributes.get("language_proficiency")
+        verify = character.db.language_proficiency
         splattercast.msg(f"SET_PROF verify: {verify}")
 
 
