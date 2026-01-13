@@ -161,6 +161,11 @@ class CmdSpawnNPC(Command):
         # Get search keyword
         keyword = self.args.strip() if self.args else ""
         
+        # If user has an existing list and provides just a number, spawn from that list
+        if keyword and keyword.isdigit() and hasattr(caller.ndb, '_spawn_npc_choices'):
+            self._handle_spawn(caller, keyword)
+            return
+        
         # Search NPCs
         if keyword:
             npc_list = search_npcs(keyword)
@@ -201,13 +206,8 @@ class CmdSpawnNPC(Command):
         # Store for follow-up
         caller.ndb._spawn_npc_choices = npc_list
         caller.ndb._spawn_npc_mode = True
-        
-        # If they provided just a number, try to spawn immediately
-        if keyword and keyword.isdigit():
-            self._handle_spawn(caller, keyword)
-        else:
-            caller.msg(msg)
-            caller.ndb._waiting_for_spawn = True
+        caller.ndb._waiting_for_spawn = True
+        caller.msg(msg)
     
     def _handle_spawn(self, caller, choice_str):
         """Handle NPC spawning."""
