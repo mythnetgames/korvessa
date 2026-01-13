@@ -326,17 +326,8 @@ def get_language_proficiency(character, language_code):
     Returns:
         float: Proficiency percentage (0-100)
     """
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-    except:
-        splattercast = None
-    
     # Use character.db directly, not attributes API
     proficiency_dict = character.db.language_proficiency or {}
-    
-    if splattercast:
-        splattercast.msg(f"GET_PROF: char={character.key}#{character.id} raw_dict={proficiency_dict} type={type(proficiency_dict)}")
     
     # Don't check isinstance - Evennia returns special dict-like objects
     # Just try to use it as a dict
@@ -345,27 +336,15 @@ def get_language_proficiency(character, language_code):
     except (AttributeError, TypeError):
         items_list = []
     
-    if splattercast:
-        splattercast.msg(f"GET_PROF: items_list={items_list}")
-    
     # Rebuild dict with clean keys (Evennia serialization can add quotes)
     clean_dict = {}
     for key, value in items_list:
         clean_key = key.strip("'\"") if isinstance(key, str) else key
         clean_dict[clean_key] = value
-        if splattercast:
-            splattercast.msg(f"GET_PROF: key={repr(key)} clean={repr(clean_key)} value={value}")
-    
-    if splattercast:
-        splattercast.msg(f"GET_PROF: clean_dict={clean_dict} looking for {repr(language_code)}")
     
     # Check if value exists in dict first
     value = clean_dict.get(language_code)
-    if splattercast:
-        splattercast.msg(f"GET_PROF: clean_dict.get({repr(language_code)}) = {repr(value)}")
     if value is not None:
-        if splattercast:
-            splattercast.msg(f"GET_PROF: FOUND {value}")
         return float(value)
     
     # If not in dict, check if it's a known language (should be 100%)
@@ -386,46 +365,33 @@ def set_language_proficiency(character, language_code, proficiency):
         language_code (str): Language code
         proficiency (float): Proficiency percentage
     """
-    from evennia.comms.models import ChannelDB
-    try:
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
-    except:
-        splattercast = None
-    
-    if splattercast:
-        splattercast.msg(f"SET_PROF CALLED: {character.key}#{character.id} {language_code} = {proficiency}")
-    
     proficiency = max(0.0, min(100.0, proficiency))
     
     # Get existing dict from character.db directly (not attributes API)
-    existing = character.db.language_proficiency or {}
-    
-    if not isinstance(existing, dict):
+    existing = character.db.language_proficiency
+    if existing is None:
         existing = {}
     
     # Rebuild dict with clean keys (strip any quotes if they're there)
+    # Handle both real dicts and Evennia's special dict-like objects
     clean_dict = {}
-    for key, value in existing.items():
-        # Remove quotes from key if they're there
-        clean_key = key.strip("'\"") if isinstance(key, str) else key
-        clean_dict[clean_key] = value
+    try:
+        for key, value in existing.items():
+            # Remove quotes from key if they're there
+            clean_key = key.strip("'\"") if isinstance(key, str) else key
+            clean_dict[clean_key] = value
+    except (AttributeError, TypeError):
+        # If it's not a dict-like object, start fresh
+        clean_dict = {}
     
     # Add the new value
     clean_dict[language_code] = proficiency
-    
-    if splattercast:
-        splattercast.msg(f"SET_PROF saving: {clean_dict}")
     
     # Save to db directly - this forces Evennia to mark it dirty and save to DB
     character.db.language_proficiency = clean_dict
     
     # Force save to database
     character.save()
-    
-    # Verify it saved
-    if splattercast:
-        verify = character.db.language_proficiency
-        splattercast.msg(f"SET_PROF verify: {verify}")
 
 
 def increase_language_proficiency(character, language_code, amount):
