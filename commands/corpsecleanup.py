@@ -52,22 +52,20 @@ class CmdCorpseCleanup(Command):
     
     def _find_dead_npcs(self):
         """Find all dead NPCs in the game."""
+        from evennia.objects.models import ObjectDB
+        
         dead_npcs = []
         
-        # Search for all objects with NPC marker
+        # Query all objects that are NPCs (have is_npc attribute set to True)
         try:
-            all_npcs = search_object(db_is_npc=True)
-            for npc in all_npcs:
-                # Check if dead using override_place or db.death_processed flag
-                if self._is_dead(npc):
-                    dead_npcs.append(npc)
-        except:
-            # Fallback: search by death-related attributes
-            all_objects = search_object()
+            all_objects = ObjectDB.objects.all()
             for obj in all_objects:
-                if (hasattr(obj, 'db') and getattr(obj.db, 'is_npc', False) and 
-                    self._is_dead(obj)):
+                # Check if it's marked as an NPC
+                if getattr(obj.db, 'is_npc', False) and self._is_dead(obj):
                     dead_npcs.append(obj)
+        except Exception as e:
+            self.caller.msg(f"|rError searching for dead NPCs: {e}|n")
+            return []
         
         return dead_npcs
     
