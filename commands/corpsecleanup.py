@@ -8,8 +8,7 @@ Usage:
     corpsecleanup <npc_name>   - Delete specific NPC by name
 """
 
-from evennia import Command
-from evennia.search import search_object
+from evennia import Command, search_object
 
 
 class CmdCorpseCleanup(Command):
