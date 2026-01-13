@@ -1,13 +1,17 @@
 """
-Custom Say command that integrates voice descriptions.
+Custom Say command that integrates voice descriptions and language garbling.
 """
 
 from evennia.commands.default.general import CmdSay as DefaultCmdSay
+from world.language.utils import (
+    get_primary_language,
+    apply_language_garbling_to_observers,
+)
 
 
 class CmdSay(DefaultCmdSay):
     """
-    Speak as your character with optional voice description.
+    Speak as your character with optional voice description and language garbling.
     
     Usage:
         say <message>
@@ -16,13 +20,16 @@ class CmdSay(DefaultCmdSay):
     If you have set a @voice, others will hear your speech as:
     *in a [voice description]* <message>
     
+    The language you speak is determined by your primary language.
+    Others will hear your speech garbled based on their proficiency in that language.
+    
     Examples:
         say Hello there!
         "How are you?
     """
     
     def func(self):
-        """Override say to include voice description."""
+        """Override say to include voice description and language garbling."""
         caller = self.caller
         
         if not self.args:
@@ -31,19 +38,33 @@ class CmdSay(DefaultCmdSay):
         
         speech = self.args
         
+        # Get speaker's primary language
+        primary_language = get_primary_language(caller)
+        
         # Check if character has a voice set
         voice = getattr(caller.db, 'voice', None)
         
         if voice:
-            # Format message with voice (plain color for name, just like emotes)
+            # Format message with voice for speaker (no garbling for themselves)
             message = f'{caller.name} says, "*in a {voice}* {speech}"|n'
             
-            # Send to caller
+            # Send to caller (ungarbled)
             caller.msg(message)
-            
-            # Send to others in location
-            if caller.location:
-                caller.location.msg_contents(message, exclude=[caller])
         else:
-            # No voice - use default behavior
-            super().func()
+            # No voice - format simple message
+            message = f'{caller.name} says, "{speech}"|n'
+            caller.msg(message)
+        
+        # Apply language garbling for observers
+        if caller.location:
+            observer_messages = apply_language_garbling_to_observers(
+                caller, speech, primary_language
+            )
+            
+            # Send garbled messages to each observer
+            for observer, garbled_speech in observer_messages.items():
+                if voice:
+                    observer_msg = f'{caller.name} says, "*in a {voice}* {garbled_speech}"|n'
+                else:
+                    observer_msg = f'{caller.name} says, "{garbled_speech}"|n'
+                observer.msg(observer_msg)

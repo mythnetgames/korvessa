@@ -258,3 +258,452 @@ def check_can_speak_language(character, language_code):
     
     languages = get_character_languages(character)
     return language_code in languages['known']
+
+
+# ===================================================================
+# LANGUAGE PROFICIENCY SYSTEM
+# ===================================================================
+
+def initialize_language_proficiency(character):
+    """
+    Initialize proficiency tracking for all known languages.
+    
+    Args:
+        character: The character object
+    """
+    if not hasattr(character.db, 'language_proficiency'):
+        proficiency = {}
+        
+        # Initialize known languages with 100% proficiency
+        known = get_character_languages(character)['known']
+        for lang in known:
+            proficiency[lang] = 100.0
+        
+        character.db.language_proficiency = proficiency
+
+
+def get_language_proficiency(character, language_code):
+    """
+    Get proficiency percentage (0-100) for a language.
+    
+    Args:
+        character: The character object
+        language_code (str): Language code
+        
+    Returns:
+        float: Proficiency percentage (0-100)
+    """
+    initialize_language_proficiency(character)
+    proficiency = character.db.language_proficiency
+    
+    # Known languages at 100%
+    if language_code in get_character_languages(character)['known']:
+        return proficiency.get(language_code, 100.0)
+    
+    # Unknown languages tracked separately
+    return proficiency.get(language_code, 0.0)
+
+
+def set_language_proficiency(character, language_code, proficiency):
+    """
+    Set proficiency for a language (0-100).
+    
+    Args:
+        character: The character object
+        language_code (str): Language code
+        proficiency (float): Proficiency percentage
+    """
+    initialize_language_proficiency(character)
+    proficiency = max(0.0, min(100.0, proficiency))
+    character.db.language_proficiency[language_code] = proficiency
+
+
+def increase_language_proficiency(character, language_code, amount):
+    """
+    Increase proficiency for a language.
+    
+    Args:
+        character: The character object
+        language_code (str): Language code
+        amount (float): Amount to increase (capped at 100)
+    """
+    current = get_language_proficiency(character, language_code)
+    new_proficiency = min(100.0, current + amount)
+    set_language_proficiency(character, language_code, new_proficiency)
+
+
+def get_language_learning_speed(character):
+    """
+    Calculate learning speed multiplier based on Smarts stat.
+    
+    Smarts stat ranges 1-10, with 1 being baseline (1x speed).
+    Each point of Smarts above 1 gives 0.15x multiplier.
+    
+    Args:
+        character: The character object
+        
+    Returns:
+        float: Learning speed multiplier (minimum 1.0)
+    """
+    try:
+        smarts = getattr(character.db, 'smrt', 1)
+        if not isinstance(smarts, (int, float)):
+            smarts = 1
+        multiplier = 1.0 + (max(0, smarts - 1) * 0.15)
+        return max(1.0, multiplier)
+    except:
+        return 1.0
+
+
+def apply_passive_language_learning(character, heard_language_code):
+    """
+    Apply passive learning when hearing a language.
+    
+    Hearing a language you don't know increases proficiency by 0.04 per event.
+    Daily cap: 5 events = 0.2 proficiency per day.
+    
+    Args:
+        character: The character object
+        heard_language_code (str): Language code heard
+    """
+    if heard_language_code not in LANGUAGES:
+        return
+    
+    # Only passive learning for languages not fully known
+    known = get_character_languages(character)['known']
+    if heard_language_code in known:
+        return
+    
+    # Check daily passive learning cap (max 5 events = 0.2 proficiency per day)
+    if not hasattr(character.ndb, 'daily_passive_learning'):
+        character.ndb.daily_passive_learning = {}
+    
+    today = str(__import__('datetime').datetime.now().date())
+    if not hasattr(character.ndb, 'passive_learning_date'):
+        character.ndb.passive_learning_date = today
+    
+    # Reset if it's a new day
+    if character.ndb.passive_learning_date != today:
+        character.ndb.daily_passive_learning = {}
+        character.ndb.passive_learning_date = today
+    
+    # Track passive learning count
+    count = character.ndb.daily_passive_learning.get(heard_language_code, 0)
+    if count < 5:  # Max 5 passive learning events per language per day
+        increase_language_proficiency(character, heard_language_code, 0.04)
+        character.ndb.daily_passive_learning[heard_language_code] = count + 1
+
+
+def calculate_ip_cost_for_proficiency(target_proficiency):
+    """
+    Calculate IP cost to reach a target proficiency level.
+    
+    System: 5 IP per 1% proficiency. Total cost to reach 100%: 500 IP.
+    
+    Args:
+        target_proficiency (float): Target proficiency (0-100)
+        
+    Returns:
+        int: IP cost
+    """
+    return int(target_proficiency * 5)
+
+
+def get_ip_spent_today_on_language(character, language_code):
+    """
+    Get total IP spent today on a specific language.
+    
+    Args:
+        character: The character object
+        language_code (str): Language code
+        
+    Returns:
+        int: IP spent today
+    """
+    if not hasattr(character.ndb, 'daily_ip_spent'):
+        character.ndb.daily_ip_spent = {}
+    
+    today = str(__import__('datetime').datetime.now().date())
+    if not hasattr(character.ndb, 'ip_spending_date'):
+        character.ndb.ip_spending_date = today
+    
+    # Reset if new day
+    if character.ndb.ip_spending_date != today:
+        character.ndb.daily_ip_spent = {}
+        character.ndb.ip_spending_date = today
+    
+    return character.ndb.daily_ip_spent.get(language_code, 0)
+
+
+def get_daily_ip_cap_for_language(character, language_code):
+    """
+    Get daily IP spending cap for learning a language.
+    
+    Cap based on Smarts stat. Max 50 IP/day at Smarts 1, +5 per point.
+    
+    Args:
+        character: The character object
+        language_code (str): Language code
+        
+    Returns:
+        int: Daily IP cap
+    """
+    try:
+        smarts = getattr(character.db, 'smrt', 1)
+        if not isinstance(smarts, (int, float)):
+            smarts = 1
+        cap = 50 + (max(0, smarts - 1) * 5)
+        return int(cap)
+    except:
+        return 50
+
+
+def spend_ip_on_language(character, language_code, ip_amount):
+    """
+    Spend IP to learn a language.
+    
+    Returns proficiency gained and any excess IP.
+    
+    Args:
+        character: The character object
+        language_code (str): Language code to learn
+        ip_amount (int): IP to spend
+        
+    Returns:
+        tuple: (success: bool, proficiency_gained: float, message: str)
+    """
+    if language_code not in LANGUAGES:
+        return (False, 0, f"Invalid language: {language_code}")
+    
+    if ip_amount <= 0:
+        return (False, 0, "IP amount must be positive")
+    
+    # Check daily IP cap
+    spent_today = get_ip_spent_today_on_language(character, language_code)
+    daily_cap = get_daily_ip_cap_for_language(character, language_code)
+    
+    if spent_today >= daily_cap:
+        return (False, 0, f"Daily IP spending cap for {LANGUAGES[language_code]['name']} ({daily_cap} IP) reached. Try again tomorrow.")
+    
+    # Limit IP spending to daily cap
+    ip_to_spend = min(ip_amount, daily_cap - spent_today)
+    
+    # Check character has enough IP
+    if character.db.IP < ip_to_spend:
+        return (False, 0, f"Not enough IP. You have {character.db.IP} IP.")
+    
+    # Calculate proficiency gain
+    # 5 IP = 1% proficiency (0.2% per IP)
+    proficiency_gain = ip_to_spend * 0.2
+    
+    # Apply learning speed multiplier based on Smarts
+    learning_speed = get_language_learning_speed(character)
+    proficiency_gain *= learning_speed
+    
+    # Update character
+    character.db.IP -= ip_to_spend
+    increase_language_proficiency(character, language_code, proficiency_gain)
+    
+    # Track daily spending
+    if not hasattr(character.ndb, 'daily_ip_spent'):
+        character.ndb.daily_ip_spent = {}
+    character.ndb.daily_ip_spent[language_code] = spent_today + ip_to_spend
+    
+    # If language is unknown, add it to known languages
+    if not check_can_speak_language(character, language_code):
+        add_language(character, language_code)
+    
+    proficiency = get_language_proficiency(character, language_code)
+    
+    return (True, proficiency_gain, f"Spent {ip_to_spend} IP on {LANGUAGES[language_code]['name']}. Proficiency: {proficiency:.1f}%")
+
+
+# ===================================================================
+# LANGUAGE GARBLING SYSTEM
+# ===================================================================
+
+def garble_text_by_proficiency(text, proficiency):
+    """
+    Garble text based on language proficiency.
+    
+    At 0% proficiency: Almost all words are garbled
+    At 50% proficiency: About half the words are garbled
+    At 100% proficiency: No words are garbled
+    
+    Garbled words are replaced with random character sequences of similar length.
+    The process is randomized so patterns cannot be extracted algorithmically.
+    
+    Args:
+        text (str): The text to garble
+        proficiency (float): Proficiency percentage (0-100)
+        
+    Returns:
+        str: Garbled text appropriate to proficiency level
+    """
+    import random
+    import re
+    
+    if proficiency >= 99.0:
+        # Nearly perfect understanding - minimal garbling
+        return text
+    
+    if proficiency <= 0.1:
+        # No understanding - garble everything
+        return _garble_all_text(text)
+    
+    # Split into words (preserve spacing and punctuation)
+    words = text.split()
+    garbled_words = []
+    
+    # Calculate garble probability (inverse of proficiency)
+    # At 80% proficiency, garble 20% of words
+    garble_chance = (100.0 - proficiency) / 100.0
+    
+    for word in words:
+        # Separate word from trailing punctuation
+        trailing_punct = ''
+        clean_word = word
+        
+        while clean_word and not clean_word[-1].isalnum():
+            trailing_punct = clean_word[-1] + trailing_punct
+            clean_word = clean_word[:-1]
+        
+        # Randomly decide whether to garble this word
+        if random.random() < garble_chance and clean_word:
+            # Sometimes garble the whole word, sometimes just parts
+            if random.random() < 0.6:
+                # Garble entire word
+                garbled = _generate_random_word(len(clean_word))
+            else:
+                # Garble parts of word - leave some letters for recognition
+                garbled = _garble_word_partially(clean_word)
+            
+            garbled_words.append(garbled + trailing_punct)
+        else:
+            # Keep word as-is
+            garbled_words.append(word)
+    
+    return ' '.join(garbled_words)
+
+
+def _garble_all_text(text):
+    """Garble all words in text (0% proficiency)."""
+    import random
+    import re
+    
+    words = text.split()
+    garbled = []
+    
+    for word in words:
+        # Separate punctuation
+        trailing_punct = ''
+        clean_word = word
+        while clean_word and not clean_word[-1].isalnum():
+            trailing_punct = clean_word[-1] + trailing_punct
+            clean_word = clean_word[:-1]
+        
+        if clean_word:
+            garbled.append(_generate_random_word(len(clean_word)) + trailing_punct)
+        else:
+            garbled.append(word)
+    
+    return ' '.join(garbled)
+
+
+def _garble_word_partially(word):
+    """
+    Garble parts of a word to allow some recognition.
+    Randomly replaces 50-80% of letters with random characters.
+    """
+    import random
+    
+    word_list = list(word)
+    garble_count = random.randint(
+        int(len(word_list) * 0.5),
+        int(len(word_list) * 0.8)
+    )
+    
+    # Randomly select positions to garble
+    positions = random.sample(range(len(word_list)), min(garble_count, len(word_list)))
+    
+    for pos in positions:
+        word_list[pos] = _random_character()
+    
+    return ''.join(word_list)
+
+
+def _generate_random_word(length):
+    """Generate a random garbled word of given length."""
+    import random
+    return ''.join(_random_character() for _ in range(length))
+
+
+def _random_character():
+    """
+    Generate a random character for garbling.
+    Uses mix of consonants, vowels, and symbols for natural-looking gibberish.
+    """
+    import random
+    
+    # Mix different character types for variety
+    choice = random.random()
+    
+    if choice < 0.4:
+        # Consonants
+        chars = 'bcdfghjklmnpqrstvwxyz'
+    elif choice < 0.7:
+        # Vowels
+        chars = 'aeiou'
+    elif choice < 0.85:
+        # Numbers
+        chars = '0123456789'
+    else:
+        # Symbol-like chars
+        chars = '&@#%$!?'
+    
+    return random.choice(chars)
+
+
+def apply_language_garbling_to_observers(speaker, message, language_code):
+    """
+    Apply language garbling to message for all observers except speaker.
+    
+    This function should be called after a character speaks.
+    Each observer sees the message garbled to their proficiency level.
+    
+    Args:
+        speaker: The character speaking
+        message (str): The message spoken
+        language_code (str): Language code being spoken
+        
+    Returns:
+        dict: Mapping of character to their garbled message
+    """
+    observer_messages = {}
+    
+    # Get all characters in the room except the speaker
+    location = speaker.location
+    if not location:
+        return observer_messages
+    
+    for obj in location.contents:
+        if not hasattr(obj, 'db'):
+            continue
+        if obj == speaker:
+            continue
+        
+        # Get observer's proficiency in this language
+        proficiency = get_language_proficiency(obj, language_code)
+        
+        # Apply garbling
+        if proficiency < 100.0:
+            garbled = garble_text_by_proficiency(message, proficiency)
+        else:
+            garbled = message
+        
+        observer_messages[obj] = garbled
+        
+        # Apply passive learning if they don't know the language
+        apply_passive_language_learning(obj, language_code)
+    
+    return observer_messages

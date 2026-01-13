@@ -9,8 +9,8 @@ SYSTEM COMPONENTS
 1. Language Constants (world/language/constants.py)
    - 10 languages defined: English, Mandarin, Cantonese, Japanese, Korean, Vietnamese, Russian, Spanish, Arabic, Street Cant
    - Each language has name, description, and native flag
-   - DEFAULT_LANGUAGE = 'english'
-   - MAX_LANGUAGES = 10
+   - DEFAULT_LANGUAGE = 'cantonese'
+   - MAX_LANGUAGES = 11
 
 2. Language Utilities (world/language/utils.py)
    - initialize_character_languages(character, primary_language, additional_languages)

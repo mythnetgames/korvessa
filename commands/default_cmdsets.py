@@ -260,6 +260,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdTPEmote())
         # Add voice command
         self.add(CmdVoice())
+        # Add language commands
+        from commands.speak import CmdSpeak, CmdLearn
+        self.add(CmdSpeak())
+        self.add(CmdLearn())
         # Add petition commands
         self.add(CmdPetition())
         self.add(CmdErasePetition())

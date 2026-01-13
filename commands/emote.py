@@ -1,21 +1,28 @@
 """
-Custom Emote command that integrates voice descriptions into speech.
+Custom Emote command that integrates voice descriptions into speech and language garbling.
 """
 
 import re
 from evennia.commands.default.general import CmdPose as DefaultCmdPose
+from world.language.utils import (
+    get_primary_language,
+    garble_text_by_proficiency,
+    get_language_proficiency,
+    apply_passive_language_learning,
+)
 
 
 class CmdEmote(DefaultCmdPose):
     """
-    Perform an action (emote) with optional voice description in speech.
+    Perform an action (emote) with optional voice description in speech and language garbling.
     
     Usage:
         emote <action>
         :<action>
     
     If your emote contains speech (like "says,"), your @voice will be inserted
-    around the speech text.
+    around the speech text. Speech text will also be garbled for observers based
+    on their language proficiency.
     
     Examples:
         emote passes the boof to Test Dummy and says, "Hit this shit."
@@ -23,7 +30,7 @@ class CmdEmote(DefaultCmdPose):
     """
     
     def func(self):
-        """Override emote to include voice description in speech and perspective replacement."""
+        """Override emote to include voice description and language garbling."""
         caller = self.caller
         
         if not self.args:
@@ -35,11 +42,15 @@ class CmdEmote(DefaultCmdPose):
         # Check if character has a voice set
         voice = getattr(caller.db, 'voice', None)
         
+        # Get speaker's primary language
+        primary_language = get_primary_language(caller)
+        
+        # Extract speech from emote for language processing
+        quote_pattern = r'(["\'])(.*?)\1'
+        speech_matches = list(re.finditer(quote_pattern, emote_text))
+        
         if voice:
             # Look for any quoted speech in the emote and insert accent
-            # Match patterns like: says "text", exclaiming to you, "text", etc.
-            quote_pattern = r'(["\'])(.*?)\1'
-            
             def replace_quotes(match):
                 quote = match.group(1)  # The quote character (" or ')
                 speech = match.group(2)  # The actual speech
@@ -51,7 +62,7 @@ class CmdEmote(DefaultCmdPose):
         # Format the pose with caller's name (ensure single space)
         pose_text = f"{caller.name} {emote_text}"
         
-        # Send to the caller
+        # Send to the caller (ungarbled)
         caller.msg(pose_text)
         
         # Send to others in the location, replacing their name with "you" if present
@@ -71,6 +82,26 @@ class CmdEmote(DefaultCmdPose):
                     message,
                     flags=re.IGNORECASE
                 )
+                
+                # Apply language garbling to speech if present
+                if speech_matches:
+                    proficiency = get_language_proficiency(char, primary_language)
+                    
+                    if proficiency < 100.0:
+                        # Process each quoted section with garbling
+                        for match in reversed(speech_matches):  # Reverse to maintain positions
+                            quote_char = match.group(1)
+                            speech_text = match.group(2)
+                            start, end = match.span()
+                            
+                            # Garble the speech
+                            garbled_speech = garble_text_by_proficiency(speech_text, proficiency)
+                            
+                            # Replace in message
+                            message = message[:start] + quote_char + f'*in a {voice}* {garbled_speech}' + quote_char + message[end:] if voice else message[:start] + quote_char + garbled_speech + quote_char + message[end:]
+                        
+                        # Apply passive learning
+                        apply_passive_language_learning(char, primary_language)
                 
                 if hasattr(char, 'msg'):
                     char.msg(message)
