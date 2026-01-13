@@ -386,21 +386,34 @@ def set_language_proficiency(character, language_code, proficiency):
     # Use Evennia's attributes API directly for persistence
     existing = character.attributes.get("language_proficiency", default={})
     if splattercast:
-        splattercast.msg(f"SET_PROF existing via attributes.get: {existing}")
+        splattercast.msg(f"SET_PROF existing: {existing}")
+        splattercast.msg(f"SET_PROF existing keys: {list(existing.keys())}")
+        if existing:
+            first_key = list(existing.keys())[0]
+            splattercast.msg(f"SET_PROF first key: {repr(first_key)} type={type(first_key)}")
     
     if not isinstance(existing, dict):
         existing = {}
     
-    # Create new dict with updated value
-    new_dict = dict(existing)
-    new_dict[language_code] = proficiency
+    # Rebuild dict with clean keys (strip any quotes if they're there)
+    clean_dict = {}
+    for key, value in existing.items():
+        # Remove quotes from key if they're there
+        clean_key = key.strip("'\"") if isinstance(key, str) else key
+        clean_dict[clean_key] = value
+    
+    # Add the new value
+    clean_dict[language_code] = proficiency
+    
+    if splattercast:
+        splattercast.msg(f"SET_PROF new dict: {clean_dict}")
     
     # Use attributes.add to force persistence
-    character.attributes.add("language_proficiency", new_dict)
+    character.attributes.add("language_proficiency", clean_dict)
     
     if splattercast:
         verify = character.attributes.get("language_proficiency")
-        splattercast.msg(f"SET_PROF after attributes.add: {verify}")
+        splattercast.msg(f"SET_PROF after add: {verify}")
 
 
 def increase_language_proficiency(character, language_code, amount):
