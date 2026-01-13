@@ -225,7 +225,6 @@ class NPCWanderingScript(DefaultScript):
                 if channel:
                     channel.msg(f"PATH_ARRIVED: {npc.name} reached destination ({dest_x},{dest_y})")
                 need_new_dest = True
-                need_new_dest = True
         
         if need_new_dest:
             self._pick_new_destination(npc, zone)
