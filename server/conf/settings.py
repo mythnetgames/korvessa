@@ -150,9 +150,8 @@ SESSION_DISCONNECT_TIMEOUT = 5  # 5 seconds to detect disconnect
 TIME_FACTOR = 1.0  # Real-time speed (x1)
 
 # Game time epoch in seconds since Unix epoch
-# Adjusted to match January 12, 1970 at current time
-# Adding 6 hours (21,600 seconds) to previous calculation
-TIME_GAME_EPOCH = -3115300
+# Adjusted to match January 12, 1970 at current time (adding 10 minutes)
+TIME_GAME_EPOCH = -3114700
 
 
 ######################################################################
