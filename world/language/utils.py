@@ -326,22 +326,19 @@ def get_language_proficiency(character, language_code):
     Returns:
         float: Proficiency percentage (0-100)
     """
-    # Force fresh read from database
-    proficiency_dict = character.db.language_proficiency
+    # Use Evennia's attributes API directly
+    proficiency_dict = character.attributes.get("language_proficiency", default={})
     
-    # Handle None or invalid proficiency dict
-    if proficiency_dict is None or not isinstance(proficiency_dict, dict):
+    if not isinstance(proficiency_dict, dict):
         proficiency_dict = {}
-        character.db.language_proficiency = proficiency_dict
-        return proficiency_dict.get(language_code, 0.0)
     
-    # Try to get from dict
+    # Check if value exists in dict first
     value = proficiency_dict.get(language_code)
     if value is not None:
         return float(value)
     
     # If not in dict, check if it's a known language (should be 100%)
-    known = character.db.known_languages
+    known = character.attributes.get("known_languages", default=set())
     if known and language_code in known:
         return 100.0
     
@@ -364,28 +361,26 @@ def set_language_proficiency(character, language_code, proficiency):
     except:
         splattercast = None
     
-    if splattercast:
-        splattercast.msg(f"SET_PROF CALLED: {character.key} {language_code}={proficiency}")
-    
     proficiency = max(0.0, min(100.0, proficiency))
     
-    # Always create a fresh copy from the db, modify it, and save it back
-    existing = character.db.language_proficiency
+    # Use Evennia's attributes API directly for persistence
+    existing = character.attributes.get("language_proficiency", default={})
     if splattercast:
-        splattercast.msg(f"SET_PROF existing: {existing}")
+        splattercast.msg(f"SET_PROF existing via attributes.get: {existing}")
     
-    if existing is None or not isinstance(existing, dict):
-        new_dict = {language_code: proficiency}
-    else:
-        new_dict = dict(existing)  # Create a new dict from existing
-        new_dict[language_code] = proficiency
+    if not isinstance(existing, dict):
+        existing = {}
     
-    # Save the new dict back - this forces Evennia to track the change
-    character.db.language_proficiency = new_dict
+    # Create new dict with updated value
+    new_dict = dict(existing)
+    new_dict[language_code] = proficiency
+    
+    # Use attributes.add to force persistence
+    character.attributes.add("language_proficiency", new_dict)
     
     if splattercast:
-        verify = character.db.language_proficiency
-        splattercast.msg(f"SET_PROF after save: {verify}")
+        verify = character.attributes.get("language_proficiency")
+        splattercast.msg(f"SET_PROF after attributes.add: {verify}")
 
 
 def increase_language_proficiency(character, language_code, amount):
