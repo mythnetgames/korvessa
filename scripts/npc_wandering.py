@@ -280,10 +280,10 @@ class NPCWanderingScript(DefaultScript):
                 if channel:
                     channel.msg(f"PATH_SUCCESS: {npc.name} moved via '{exit_obj.key}' to '{npc.location.key}'")
             else:
-                # Movement failed for some reason
+                # Movement failed - don't pick a new destination, just log and return
+                # The NPC will retry on the next tick with the same destination
                 if channel:
-                    channel.msg(f"PATH_BLOCKED: {npc.name} - move_to returned {result}, picking new destination")
-                self._pick_new_destination(npc, zone)
+                    channel.msg(f"PATH_BLOCKED: {npc.name} - move_to returned {result}, will retry next tick")
         except Exception as e:
             if channel:
                 channel.msg(f"PATH_ERROR: {npc.name} - Failed to move: {e}")
