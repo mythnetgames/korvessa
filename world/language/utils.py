@@ -346,9 +346,16 @@ def get_language_proficiency(character, language_code):
     for key, value in proficiency_dict.items():
         clean_key = key.strip("'\"") if isinstance(key, str) else key
         clean_dict[clean_key] = value
+        if splattercast:
+            splattercast.msg(f"GET_PROF: key={repr(key)} clean={repr(clean_key)} value={value}")
+    
+    if splattercast:
+        splattercast.msg(f"GET_PROF: clean_dict={clean_dict} looking for {repr(language_code)}")
     
     # Check if value exists in dict first
     value = clean_dict.get(language_code)
+    if splattercast:
+        splattercast.msg(f"GET_PROF: clean_dict.get({repr(language_code)}) = {repr(value)}")
     if value is not None:
         if splattercast:
             splattercast.msg(f"GET_PROF: FOUND {value}")
