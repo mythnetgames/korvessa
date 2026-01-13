@@ -336,14 +336,21 @@ def get_language_proficiency(character, language_code):
     proficiency_dict = character.db.language_proficiency or {}
     
     if splattercast:
-        splattercast.msg(f"GET_PROF: char={character.key}#{character.id} raw_dict={proficiency_dict}")
+        splattercast.msg(f"GET_PROF: char={character.key}#{character.id} raw_dict={proficiency_dict} type={type(proficiency_dict)}")
     
-    if not isinstance(proficiency_dict, dict):
-        proficiency_dict = {}
+    # Don't check isinstance - Evennia returns special dict-like objects
+    # Just try to use it as a dict
+    try:
+        items_list = list(proficiency_dict.items()) if proficiency_dict else []
+    except (AttributeError, TypeError):
+        items_list = []
+    
+    if splattercast:
+        splattercast.msg(f"GET_PROF: items_list={items_list}")
     
     # Rebuild dict with clean keys (Evennia serialization can add quotes)
     clean_dict = {}
-    for key, value in proficiency_dict.items():
+    for key, value in items_list:
         clean_key = key.strip("'\"") if isinstance(key, str) else key
         clean_dict[clean_key] = value
         if splattercast:
