@@ -1,7 +1,7 @@
 """
 Death Choice Commands
 
-Commands for choosing CLONE or DIE after death.
+Commands for choosing SLEEVE or DIE after death.
 These are added to the account when death choice is presented.
 """
 
@@ -11,10 +11,10 @@ from evennia.commands.default.muxcommand import MuxCommand
 
 class CmdDeathClone(MuxCommand):
     """
-    Choose to transfer to your clone backup.
+    Choose to transfer to your sleeve backup.
     
     Usage:
-        clone
+        sleeve
     """
     key = "clone"
     locks = "cmd:all()"

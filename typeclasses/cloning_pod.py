@@ -1,18 +1,18 @@
 """
-Cloning Pod - Consciousness Backup System
+"""\nTerraGroup Cloning Division Pod - Consciousness Backup System
 
-Players can sit in the cloning pod to backup their current state:
+Players can sit in the TerraGroup Cloning Division pod to backup their current state:
 - Stats (body, ref, dex, tech, smrt, will, edge, emp)
 - Skills
 - Nakeds (body descriptions)
 - Description
 
-When they die, they respawn with their LAST BACKED UP state.
+When they die, they respawn in a new sleeve with their LAST BACKED UP state.
 Chrome and items are NOT backed up (lost on death).
 
 Pricing:
-- New clone: Free (will cost money later)
-- Update clone: Free (will cost less than new later)
+- New sleeve: Free (will cost money later)
+- Update backup: Free (will cost less than new later)
 """
 
 from typeclasses.objects import Object
@@ -189,12 +189,12 @@ def restore_from_clone(new_character, backup_data):
 
 
 # ============================================================================
-# CLONING POD TYPECLASS
+# TERRAGROUP CLONING DIVISION TYPECLASS
 # ============================================================================
 
 class CloningPod(Object):
     """
-    A cloning pod that players can sit in to backup their consciousness.
+    A TerraGroup Cloning Division pod that players can sit in to backup their consciousness.
     
     Usage:
         sit in pod - Start the cloning process
@@ -202,12 +202,13 @@ class CloningPod(Object):
     """
     
     def at_object_creation(self):
-        """Set up the cloning pod."""
+        """Set up the TerraGroup Cloning Division pod."""
         self.db.desc = (
             "A sleek, coffin-shaped pod made of polished white polymer and brushed steel. "
             "A faint blue glow emanates from within, pulsing slowly like a heartbeat. "
             "The interior is lined with thousands of microscopic neural sensors. "
-            "A small display reads: |gCONSCIOUSNESS BACKUP READY|n"
+            "A sleek TerraGroup Cloning Division logo is embossed on the side. "
+            "A small display reads: |gTERRAGROUP CLONING DIVISION - CONSCIOUSNESS BACKUP READY|n"
         )
         
         # Pod state
@@ -215,7 +216,7 @@ class CloningPod(Object):
         self.db.in_use = False
         
         # Add the pod command set
-        self.cmdset.add_default(CloningPodCmdSet)
+        self.cmdset.add_default(TerraGroupCloningDivisionCmdSet)
     
     def get_display_name(self, looker, **kwargs):
         """Show status in name."""
@@ -244,8 +245,8 @@ class CloningPod(Object):
         # Mark pod and character as busy
         self.db.in_use = True
         self.db.occupant = character
-        character.ndb._in_cloning_pod = True
-        character.ndb._cloning_pod = self
+        character.ndb._in_terragroup_pod = True
+        character.ndb._terragroup_pod = self
         
         # Restrict movement
         character.ndb._movement_locked = True
@@ -272,7 +273,7 @@ class CloningPod(Object):
         
         if character.location:
             character.location.msg_contents(
-                f"|bThe cloning pod closes around {character.key}, blue light pulsing within.|n",
+                f"|bThe TerraGroup Cloning Division pod closes around {character.key}, blue light pulsing within.|n",
                 exclude=[character]
             )
         
@@ -292,7 +293,7 @@ class CloningPod(Object):
         """Scanning phase."""
         if not character or not self.db.in_use:
             return
-        character.msg(f"|c[VECTOR INDUSTRIES BACKUP SYSTEM]|n")
+        character.msg(f"|c[TERRAGROUP CLONING DIVISION - CONSCIOUSNESS BACKUP SYSTEM]|n")
         character.msg(f"|c{action_msg}...|n")
         character.msg("|cScanning neural pathways... mapping synaptic connections...|n")
     
@@ -342,7 +343,7 @@ class CloningPod(Object):
         
         if character.location:
             character.location.msg_contents(
-                f"|bThe cloning pod opens with a hiss. {character.key} has completed their backup.|n",
+                f"|bThe TerraGroup Cloning Division pod opens with a hiss. {character.key} has completed their backup.|n",
                 exclude=[character]
             )
         
@@ -359,10 +360,10 @@ class CloningPod(Object):
             return
         
         # Clear character's pod state
-        if hasattr(character.ndb, '_in_cloning_pod'):
-            del character.ndb._in_cloning_pod
-        if hasattr(character.ndb, '_cloning_pod'):
-            del character.ndb._cloning_pod
+        if hasattr(character.ndb, '_in_terragroup_pod'):
+            del character.ndb._in_terragroup_pod
+        if hasattr(character.ndb, '_terragroup_pod'):
+            del character.ndb._terragroup_pod
         
         # Reset pod state
         self._reset_pod()
@@ -371,7 +372,7 @@ class CloningPod(Object):
         if hasattr(character, 'db') and hasattr(character.db, 'sitting_on'):
             character.db.sitting_on = None
         
-        character.msg("|wYou stand up from the cloning pod.|n")
+        character.msg("|wYou stand up from the TerraGroup Cloning Division pod.|n")
     
     def _reset_pod(self):
         """Reset the pod to available state."""
@@ -382,22 +383,22 @@ class CloningPod(Object):
         """Force eject a character from the pod (for emergencies)."""
         if character:
             character.ndb._movement_locked = False
-            if hasattr(character.ndb, '_in_cloning_pod'):
-                del character.ndb._in_cloning_pod
-            if hasattr(character.ndb, '_cloning_pod'):
-                del character.ndb._cloning_pod
-            character.msg("|yYou are ejected from the cloning pod.|n")
+            if hasattr(character.ndb, '_in_terragroup_pod'):
+                del character.ndb._in_terragroup_pod
+            if hasattr(character.ndb, '_terragroup_pod'):
+                del character.ndb._terragroup_pod
+            character.msg("|yYou are ejected from the TerraGroup Cloning Division pod.|n")
         
         self._reset_pod()
 
 
 # ============================================================================
-# CLONING POD COMMANDS
+# TERRAGROUP CLONING DIVISION POD COMMANDS
 # ============================================================================
 
 class CmdSitInPod(Command):
     """
-    Sit in the cloning pod to backup your consciousness.
+    Sit in the TerraGroup Cloning Division pod to backup your consciousness.
     
     Usage:
         sit in pod
@@ -406,7 +407,7 @@ class CmdSitInPod(Command):
         enter pod
     
     This will backup your current stats, skills, and appearance.
-    When you die, you will be restored to this backup state.
+    When you die, you will be restored to this backup state in a new sleeve.
     """
     
     key = "sit"
@@ -416,25 +417,25 @@ class CmdSitInPod(Command):
     def func(self):
         caller = self.caller
         
-        # Find the cloning pod in the room
+        # Find the TerraGroup Cloning Division pod in the room
         pod = None
         for obj in caller.location.contents:
-            if isinstance(obj, CloningPod):
+            if isinstance(obj, TerraGroupMedicalPod):
                 pod = obj
                 break
         
         if not pod:
-            caller.msg("There's no cloning pod here.")
+            caller.msg("There's no TerraGroup Cloning Division pod here.")
             return
         
         # Check if already in pod
-        if getattr(caller.ndb, '_in_cloning_pod', False):
-            caller.msg("You're already in the cloning pod.")
+        if getattr(caller.ndb, '_in_terragroup_pod', False):
+            caller.msg("You're already in the TerraGroup Cloning Division pod.")
             return
         
         # Check if pod is in use
         if pod.db.in_use:
-            caller.msg("The cloning pod is currently in use.")
+            caller.msg("The TerraGroup Cloning Division pod is currently in use.")
             return
         
         # Check cost and show appropriate message
@@ -454,11 +455,11 @@ class CmdSitInPod(Command):
             caller.msg("|cCost: Free|n")
         
         # Start the cloning sequence
-        caller.msg("|wYou climb into the cloning pod and lie back...|n")
+        caller.msg("|wYou climb into the TerraGroup Cloning Division pod and lie back...|n")
         
         if caller.location:
             caller.location.msg_contents(
-                f"|w{caller.key} climbs into the cloning pod.|n",
+                f"|w{caller.key} climbs into the TerraGroup Cloning Division pod.|n",
                 exclude=[caller]
             )
         
@@ -467,7 +468,7 @@ class CmdSitInPod(Command):
 
 class CmdLeavePod(Command):
     """
-    Stand up / leave the cloning pod.
+    Stand up / leave the TerraGroup Cloning Division pod.
     
     Usage:
         stand
@@ -485,8 +486,8 @@ class CmdLeavePod(Command):
         caller = self.caller
         
         # Check if in pod
-        if not getattr(caller.ndb, '_in_cloning_pod', False):
-            caller.msg("You're not in the cloning pod.")
+        if not getattr(caller.ndb, '_in_terragroup_pod', False):
+            caller.msg("You're not in the TerraGroup Cloning Division pod.")
             return
         
         # Check if locked (during cutscene)
@@ -495,19 +496,19 @@ class CmdLeavePod(Command):
             return
         
         # Get the pod and force eject
-        pod = getattr(caller.ndb, '_cloning_pod', None)
+        pod = getattr(caller.ndb, '_terragroup_pod', None)
         if pod:
             pod.force_eject(caller)
         else:
             # Clean up manually
-            caller.ndb._in_cloning_pod = False
-            caller.msg("|wYou stand up from the cloning pod.|n")
+            caller.ndb._in_terragroup_pod = False
+            caller.msg("|wYou stand up from the TerraGroup Cloning Division pod.|n")
 
 
-class CloningPodCmdSet(CmdSet):
-    """Commands available at cloning pods."""
+class TerraGroupCloningDivisionCmdSet(CmdSet):
+    """Commands available at TerraGroup Cloning Division pods."""
     
-    key = "cloning_pod_cmdset"
+    key = "terragroup_cloning_division_cmdset"
     priority = 1
     
     def at_cmdset_creation(self):
@@ -521,7 +522,7 @@ class CloningPodCmdSet(CmdSet):
 
 class CmdCloneStatus(Command):
     """
-    Check your consciousness backup status.
+    Check your sleeve backup status.
     
     Usage:
         clone
@@ -529,7 +530,7 @@ class CmdCloneStatus(Command):
         backup
         backup status
     
-    Shows whether you have a consciousness backup and when it was last updated.
+    Shows whether you have a sleeve backup and when it was last updated.
     """
     
     key = "clone"
@@ -544,11 +545,11 @@ class CmdCloneStatus(Command):
         
         if not backup:
             caller.msg("|r" + "=" * 50 + "|n")
-            caller.msg("|rCONSCIOUSNESS BACKUP STATUS: |RNOT FOUND|n")
+            caller.msg("|rSLEEVE BACKUP STATUS: |RNOT FOUND|n")
             caller.msg("|r" + "=" * 50 + "|n")
-            caller.msg("|yYou have no consciousness backup on file.|n")
+            caller.msg("|yYou have no sleeve backup on file.|n")
             caller.msg("|yIf you die, you will need to create a new identity.|n")
-            caller.msg("|yFind a cloning pod to create a backup.|n")
+            caller.msg("|yFind a TerraGroup Cloning Division pod to create a backup.|n")
             return
         
         # Format timestamp
@@ -565,7 +566,7 @@ class CmdCloneStatus(Command):
             age_str = f"{int(age_seconds / 86400)} days ago"
         
         caller.msg("|g" + "=" * 50 + "|n")
-        caller.msg("|gCONSCIOUSNESS BACKUP STATUS: |GACTIVE|n")
+        caller.msg("|gSLEEVE BACKUP STATUS: |GACTIVE|n")
         caller.msg("|g" + "=" * 50 + "|n")
         caller.msg(f"|wLast backup: |c{time_str}|n")
         caller.msg(f"|w            ({age_str})|n")
@@ -585,17 +586,17 @@ class CmdCloneStatus(Command):
         caller.msg(f"  |wAppearance:|n Backed up")
         caller.msg("|g" + "-" * 50 + "|n")
         caller.msg("|yNote: Chrome and inventory are NOT backed up.|n")
-        caller.msg("|yUpdate your backup regularly at a cloning pod.|n")
+        caller.msg("|yUpdate your backup regularly at a TerraGroup Cloning Division pod.|n")
 
 
 class CmdSpawnPod(Command):
     """
-    Spawn a cloning pod in the current room.
+    Spawn a TerraGroup Cloning Division pod in the current room.
     
     Usage:
         @spawnpod
     
-    Admin command to create a cloning pod.
+    Admin command to create a TerraGroup Cloning Division pod.
     """
     
     key = "@spawnpod"
@@ -606,13 +607,13 @@ class CmdSpawnPod(Command):
         from evennia import create_object
         
         pod = create_object(
-            CloningPod,
-            key="cloning pod",
+            TerraGroupMedicalPod,
+            key="TerraGroup Cloning Division pod",
             location=self.caller.location
         )
         
-        self.caller.msg(f"|gCreated cloning pod: {pod.key} (#{pod.dbref})|n")
+        self.caller.msg(f"|gCreated TerraGroup Cloning Division pod: {pod.key} (#{pod.dbref})|n")
         self.caller.location.msg_contents(
-            f"|wA cloning pod materializes in the room.|n",
+            f"|wA TerraGroup Cloning Division pod materializes in the room.|n",
             exclude=[self.caller]
         )

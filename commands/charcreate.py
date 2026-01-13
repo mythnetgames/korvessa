@@ -512,7 +512,7 @@ def respawn_welcome(caller, raw_string, **kwargs):
     text = """
 |r╔════════════════════════════════════════════════════════════════╗
 ║  CONSCIOUSNESS BACKUP PROTOCOL INITIATED                       ║
-║  VECTOR INDUSTRIES - MEDICAL RECONSTRUCTION DIVISION           ║
+║  TERRAGROUP CLONING DIVISION - SLEEVE RESTORATION INITIATED    ║
 ╚════════════════════════════════════════════════════════════════╝|n
 
 |yYour previous sleeve has been terminated.|n
