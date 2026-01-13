@@ -337,7 +337,6 @@ def npc_start(caller, raw_string, **kwargs):
             "smrt": 1,
             "will": 1,
             "edge": 1,
-            "emp": 1,
         },
         "skills": {
             "brawling": 0,
@@ -580,13 +579,13 @@ def npc_stats_menu(caller, raw_string, **kwargs):
         choice = raw_string.strip().lower()
         
         if choice == "q":
-            return npc_properties(caller, "", **kwargs)
+            return "npc_properties"  # Use goto-style return for proper EvMenu handling
         
-        # Check if it's a stat number (1-8)
+        # Check if it's a stat number (1-7)
         try:
             stat_num = int(choice)
-            if 1 <= stat_num <= 8:
-                stat_names = ["body", "ref", "dex", "tech", "smrt", "will", "edge", "emp"]
+            if 1 <= stat_num <= 7:
+                stat_names = ["body", "ref", "dex", "tech", "smrt", "will", "edge"]
                 stat_name = stat_names[stat_num - 1]
                 # Store the selected stat in ndb so edit function can access it
                 caller.ndb._editing_stat = stat_name
@@ -594,7 +593,7 @@ def npc_stats_menu(caller, raw_string, **kwargs):
         except ValueError:
             pass
         
-        caller.msg("|rInvalid choice. Enter 1-8 or q.|n")
+        caller.msg("|rInvalid choice. Enter 1-7 or q.|n")
         return npc_stats_menu(caller, "", **kwargs)  # Re-display menu
     
     # Display mode - show menu
@@ -603,22 +602,29 @@ def npc_stats_menu(caller, raw_string, **kwargs):
     text += "Stats scale from 1-10 (1 = weak, 10 = exceptional)\n\n"
     
     stats = caller.ndb._npc_data["stats"]
-    stat_names = ["body", "ref", "dex", "tech", "smrt", "will", "edge", "emp"]
+    stat_names = ["body", "ref", "dex", "tech", "smrt", "will", "edge"]
     stat_display = {
-        "body": "Body (Physical toughness)",
-        "ref": "Ref (Reaction speed)",
-        "dex": "Dex (Manual dexterity)",
-        "tech": "Tech (Technical aptitude)",
-        "smrt": "Smrt (Intelligence)",
-        "will": "Will (Mental fortitude)",
-        "edge": "Edge (Luck/chance)",
-        "emp": "Emp (Empathy/social)",
+        "body": "Body (BODY): Your size, toughness, and ability to stay alive and conscious due to physical mass, structure, or other qualities. Important for how much damage you can take.",
+        "ref": "Reflexes (REF): Your response time and coordination, as used in aiming, throwing, juggling, etc. Affects ability to hit with ranged weapons.",
+        "dex": "Dexterity (DEX): Your overall physical competence for balancing, leaping, jumping, combat, and athletics. Affects ability to hit with melee weapons and dodge attacks.",
+        "tech": "Technique (TECH): Your ability to manipulate tools or instruments. Covers knack for using tools, not just reaction speed. Now a real stat!",
+        "smrt": "Smarts (SMRT): How generally bright you are, including cleverness, awareness, perception, and ability to learn.",
+        "will": "Willpower (WILL): Your determination and ability to face danger and stress. Represents courage and ability to survive long-term privation. Important for how much damage you can take.",
+        "edge": "Edge (EDGE): Your ability to impress and influence people through character and charisma; how well you get along with others; how you interact in social situations. Formerly 'Cool'.",
     }
     
     for idx, stat in enumerate(stat_names, 1):
         value = stats[stat]
-        text += f"|y{idx}|n - {stat_display[stat]:30} [Current: {value}]\n"
+        text += f"|y{idx}|n - {stat_display[stat].split(':')[0]:30} [Current: {value}]\n"
+
+    emp_value = stats["edge"] + stats["will"]
+    text += f"|y*|n - Empathy (EMP): |g[Calculated: {emp_value} (EDGE {stats['edge']} + WILL {stats['will']})]|n\n"
+
+    text += "\n|wStat Details:|n\n"
+    for stat in stat_names:
+        text += f"|c{stat_display[stat]}|n\n\n"
     
+    text += "|cEmpathy (EMP): Your ability to relate to and care for others, and take others into consideration. Offsets cyberpsychosis. In this MOO, starting empathy is a combination of EDGE and WILLPOWER.|n\n"
     text += "|yq|n - Back to Properties\n"
     
     options = (
