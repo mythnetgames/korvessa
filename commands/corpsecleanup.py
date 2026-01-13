@@ -52,8 +52,6 @@ class CmdCorpseCleanup(Command):
     
     def _find_dead_npcs(self):
         """Find all dead NPCs in the game."""
-        from evennia.search import search_object
-        
         dead_npcs = []
         
         # Search for all objects with NPC marker
