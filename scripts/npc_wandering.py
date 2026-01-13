@@ -147,40 +147,19 @@ class NPCWanderingScript(DefaultScript):
             if channel:
                 channel.msg(f"TICK: {obj.name} in {location} ({zone}) - ROLL({roll}/50) -> Pick new destination")
             self._pick_new_destination(obj, zone)
-            # After picking destination, set the next allowed move time
-            import time
-            from random import uniform
-            min_interval = getattr(obj.ndb, 'move_interval_min', None) or 1.0
-            max_interval = getattr(obj.ndb, 'move_interval_max', None) or 2.0
-            rate_limit = uniform(min_interval, max_interval)
-            obj.ndb.next_pathfind_move = time.time() + rate_limit
         
-        # Only try to move if we have a destination AND enough time has passed since last attempt
+        # Try to move toward current destination (if we have one)
+        # Rate limiting is handled inside _pathfind_step
         dest_x = getattr(obj.ndb, 'wander_dest_x', None)
         dest_y = getattr(obj.ndb, 'wander_dest_y', None)
         
         if dest_x is not None and dest_y is not None:
-            import time
-            next_move_time = getattr(obj.ndb, 'next_pathfind_move', 0)
-            current_time = time.time()
-            
-            if current_time >= next_move_time:
-                if channel:
-                    channel.msg(f"TICK: {obj.name} in {location} ({zone}) - Moving toward ({dest_x},{dest_y})")
-                self._pathfind_step(obj, zone)
-                # Schedule the next move
-                from random import uniform
-                min_interval = getattr(obj.ndb, 'move_interval_min', None) or 1.0
-                max_interval = getattr(obj.ndb, 'move_interval_max', None) or 2.0
-                rate_limit = uniform(min_interval, max_interval)
-                obj.ndb.next_pathfind_move = time.time() + rate_limit
-            else:
-                if channel:
-                    wait_time = next_move_time - current_time
-                    channel.msg(f"TICK: {obj.name} in {location} ({zone}) - Waiting {wait_time:.1f}s before next move")
+            if channel:
+                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - Moving toward ({dest_x},{dest_y})")
+            self._pathfind_step(obj, zone)
         else:
             if channel:
-                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - No destination, waiting for next roll")
+                channel.msg(f"TICK: {obj.name} in {location} ({zone}) - No destination, waiting for roll")
     
     def _pathfind_step(self, npc, zone):
         """
@@ -213,8 +192,25 @@ class NPCWanderingScript(DefaultScript):
         if hasattr(npc.ndb, '_movement_locked'):
             delattr(npc.ndb, '_movement_locked')
         
-        # No rate limiting needed here - rate limiting is handled at the tick level
-        # by checking next_pathfind_move before calling this function
+        # Rate limiting: Require 1-2 seconds between moves (variable)
+        # Track the last time we successfully moved
+        last_move_time = getattr(npc.ndb, 'last_pathfind_move', None)
+        if last_move_time is None:
+            last_move_time = 0
+        
+        # Get variable rate limit (1-2 seconds) with proper defaults
+        min_interval = getattr(npc.ndb, 'move_interval_min', None) or 1.0
+        max_interval = getattr(npc.ndb, 'move_interval_max', None) or 2.0
+        rate_limit = uniform(min_interval, max_interval)
+        
+        current_time = time.time()
+        time_since_last = current_time - last_move_time
+        
+        if time_since_last < rate_limit:
+            # Too soon since last move, skip this step
+            if channel:
+                channel.msg(f"PATH_RATE_LIMIT: {npc.name} - Only {time_since_last:.1f}s since last move (need {rate_limit:.1f}s)")
+            return
 
         
         # Get or set destination
@@ -297,7 +293,10 @@ class NPCWanderingScript(DefaultScript):
             
             # Check if movement actually occurred
             if result and npc.location and npc.location != original_location:
-                # Movement succeeded - handle followers and message
+                # Movement succeeded - record the time and handle followers
+                import time
+                npc.ndb.last_pathfind_move = time.time()
+                
                 try:
                     from scripts.follow_system import handle_character_move
                     handle_character_move(npc, npc.location, original_location)
