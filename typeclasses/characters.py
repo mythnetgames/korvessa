@@ -585,24 +585,19 @@ class Character(ObjectParent, DefaultCharacter):
     
     def _append_combat_prompt(self, text):
         """
-        Append combat status prompt to the end of a message if in combat and prompt enabled.
+        Append status prompt to the end of a message showing vitals.
         
         Args:
             text: The original message text
             
         Returns:
-            str: Text with combat prompt appended if applicable, otherwise original text
+            str: Text with status prompt appended if enabled, otherwise original text
         """
-        # Check if in combat
-        handler = getattr(self.ndb, 'combat_handler', None)
-        if not handler or not handler.is_active:
-            return text
-        
         # Check if prompt is disabled (default is on)
         if getattr(self.db, 'combat_prompt', True) is False:
             return text
         
-        # Build combat prompt
+        # Build status prompt
         parts = []
         
         # --- HEALTH STATUS (Blood Level) ---
