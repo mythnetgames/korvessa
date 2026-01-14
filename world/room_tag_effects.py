@@ -129,7 +129,7 @@ class RoomTagEffectHandler(DefaultScript):
     
     def _handle_underwater(self, room, characters):
         """Handle underwater stamina/breath drain"""
-        UNDERWATER_STAMINA_DRAIN = 5  # Stamina points per tick (every 5 seconds)
+        UNDERWATER_STAMINA_DRAIN = 25  # Stamina points per tick (every 2 seconds) - harsh drain
         
         for char in characters:
             # Notify on first tick
