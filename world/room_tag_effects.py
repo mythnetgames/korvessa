@@ -194,15 +194,19 @@ def attach_effect_handler(room):
         room: Room object
     """
     from evennia.scripts.models import ScriptDB
+    from evennia.comms.models import ChannelDB
     
-    # Check if already attached
+    try:
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+    except:
+        splattercast = None
+    
+    # Delete any existing handlers and create fresh
     existing = ScriptDB.objects.filter(db_obj=room, db_key="room_tag_effects")
-    if existing.exists():
-        handler = existing[0]
-        # Make sure it's running
-        if not handler.is_active:
-            handler.start()
-        return handler
+    for script in existing:
+        if splattercast:
+            splattercast.msg(f"FIRE_DEBUG: Deleting old script {script.id}")
+        script.delete()
     
     # Create new handler
     from evennia.utils.create import create_script
@@ -210,8 +214,22 @@ def attach_effect_handler(room):
         RoomTagEffectHandler,
         obj=room,
         key="room_tag_effects",
-        autostart=True
+        autostart=True,
+        interval=5,
+        start_delay=0,
+        repeats=0,
+        persistent=True
     )
+    
+    if splattercast:
+        splattercast.msg(f"FIRE_DEBUG: Created new script {handler.id if handler else 'NONE'}, is_active={handler.is_active if handler else 'N/A'}")
+    
+    # Force start the script
+    if handler and not handler.is_active:
+        handler.start()
+        if splattercast:
+            splattercast.msg(f"FIRE_DEBUG: Force started script")
+    
     return handler
 
 
