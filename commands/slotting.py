@@ -38,10 +38,17 @@ class CmdSlot(Command):
         device_name = parts[1].strip()
         
         # Find item in inventory
-        item = caller.search(item_name, location=caller, quiet=True)
+        item = caller.search(item_name, location=caller)
         if not item:
             caller.msg(f"|rYou don't have '{item_name}'.|n")
             return
+        
+        # Handle if search returns a list
+        if isinstance(item, list):
+            item = item[0] if item else None
+            if not item:
+                caller.msg(f"|rYou don't have '{item_name}'.|n")
+                return
         
         # Check if item is a proxy module
         if not getattr(item.db, "is_proxy", False):
@@ -49,10 +56,17 @@ class CmdSlot(Command):
             return
         
         # Find device
-        device = caller.search(device_name, location=caller, quiet=True)
+        device = caller.search(device_name, location=caller)
         if not device:
             caller.msg(f"|rYou don't have '{device_name}'.|n")
             return
+        
+        # Handle if search returns a list
+        if isinstance(device, list):
+            device = device[0] if device else None
+            if not device:
+                caller.msg(f"|rYou don't have '{device_name}'.|n")
+                return
         
         # Check if device can accept modules
         if not (getattr(device.db, "is_wristpad", False) or 
@@ -95,10 +109,17 @@ class CmdUnslot(Command):
             return
         
         # Find device
-        device = caller.search(self.args.strip(), location=caller, quiet=True)
+        device = caller.search(self.args.strip(), location=caller)
         if not device:
             caller.msg(f"|rYou don't have '{self.args.strip()}'.|n")
             return
+        
+        # Handle if search returns a list
+        if isinstance(device, list):
+            device = device[0] if device else None
+            if not device:
+                caller.msg(f"|rYou don't have '{self.args.strip()}'.|n")
+                return
         
         # Get slotted item
         slotted = getattr(device.db, "slotted_proxy", None)
