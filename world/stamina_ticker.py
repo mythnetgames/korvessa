@@ -4,7 +4,7 @@ Stamina Ticker Script
 A global ticker that updates all character stamina every tick.
 """
 
-from evennia import DefaultScript, search_object
+from evennia import DefaultScript
 
 
 class StaminaTicker(DefaultScript):
@@ -23,22 +23,20 @@ class StaminaTicker(DefaultScript):
     
     def at_repeat(self):
         """Called every interval (1 second)."""
-        from evennia.accounts.models import AccountDB
+        from evennia import SESSION_HANDLER
         
-        # Get all connected accounts and their characters
-        connected_accounts = AccountDB.objects.filter(db_is_connected=True)
-        
-        for account in connected_accounts:
-            char = account.db_puppet_character
+        # Get all active sessions and their puppets
+        for session in SESSION_HANDLER.get_sessions():
+            char = session.get_puppet()
             if not char:
                 continue
             
-            # Create stamina component if needed
-            if not hasattr(char.ndb, "stamina"):
+            # Get or create stamina component
+            stamina = getattr(char.ndb, "stamina", None)
+            if stamina is None:
                 from commands.movement import _get_or_create_stamina
                 stamina = _get_or_create_stamina(char)
-            else:
-                stamina = char.ndb.stamina
             
-            # Update stamina
-            stamina.update(self.interval)
+            if stamina:
+                # Update stamina
+                stamina.update(self.interval)

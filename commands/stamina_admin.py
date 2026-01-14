@@ -23,15 +23,12 @@ class CmdStaminaStart(Command):
         from evennia.scripts.models import ScriptDB
         from world.stamina_ticker import StaminaTicker
         
-        # Check if ticker already exists
+        # Always remove existing ticker and create fresh one
         existing = ScriptDB.objects.filter(db_key="stamina_ticker").first()
-        if existing and existing.is_active:
-            self.caller.msg("Stamina ticker is already running.")
-            return
-        
-        # Remove old one if exists but not active
         if existing:
+            existing.stop()
             existing.delete()
+            self.caller.msg("Stopped old stamina ticker.")
         
         # Create new ticker
         ticker = StaminaTicker.create(key="stamina_ticker")
