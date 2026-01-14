@@ -34,23 +34,33 @@ def format_raw_skill(value):
     return f"{rounded:.2f}"
 
 
-def get_effective_skill(raw_value):
+def get_effective_skill(raw_value, char=None, skill_attr=None):
     """
     Get the effective (integer) skill value from a raw value.
     Round down unless thousandths >= 5.
+    Applies room tag bonuses if character and skill are provided.
     """
-    if isinstance(raw_value, int):
+    if isinstance(raw_value, int) and raw_value == 0 and char is None:
         return raw_value
     
     if raw_value == 0:
-        return 0
-    
-    thousandths = int(abs(raw_value) * 1000) % 10
-    
-    if thousandths >= 5:
-        return math.ceil(raw_value)
+        effective = 0
     else:
-        return math.floor(raw_value)
+        thousandths = int(abs(raw_value) * 1000) % 10
+        
+        if thousandths >= 5:
+            effective = math.ceil(raw_value)
+        else:
+            effective = math.floor(raw_value)
+    
+    # Apply room tag bonuses if character and location are available
+    if char and skill_attr and char.location:
+        from world.room_tags import get_room_skill_bonuses
+        bonuses = get_room_skill_bonuses(char.location)
+        if skill_attr in bonuses:
+            effective += bonuses[skill_attr]
+    
+    return effective
 
 
 class CmdStats(Command):
@@ -161,7 +171,7 @@ class CmdStats(Command):
         for display_name, attr_name in skills:
             raw = getattr(char.db, attr_name, 0) or 0
             raw_formatted = format_raw_skill(raw)
-            effective = get_effective_skill(raw)
+            effective = get_effective_skill(raw, char=char, skill_attr=attr_name)
             
             # Color code based on skill level
             if effective >= 90:

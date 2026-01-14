@@ -169,7 +169,7 @@ def attach_effect_handler(room):
     from evennia.scripts.models import ScriptDB
     
     # Check if already attached
-    existing = ScriptDB.objects.filter(obj=room, db_key="room_tag_effects")
+    existing = ScriptDB.objects.filter(db_obj=room, db_key="room_tag_effects")
     if existing.exists():
         return existing[0]
     
