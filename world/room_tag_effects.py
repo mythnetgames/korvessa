@@ -42,11 +42,23 @@ class RoomTagEffectHandler(DefaultScript):
         characters = [obj for obj in room.contents 
                      if hasattr(obj, 'has_account') or obj.is_typeclass("typeclasses.characters.Character", exact=False)]
         
+        from evennia.comms.models import ChannelDB
+        try:
+            splattercast = ChannelDB.objects.get_channel("Splattercast")
+        except:
+            splattercast = None
+        
+        # Debug output
+        if splattercast:
+            splattercast.msg(f"FIRE_DEBUG: at_repeat called, room={room.key}, chars={len(characters)}")
+        
         if not characters:
             return
         
         # Process each active tag
         if has_tag(room, "FIRE"):
+            if splattercast:
+                splattercast.msg(f"FIRE_DEBUG: FIRE tag found, calling _handle_on_fire")
             self._handle_on_fire(room, characters)
         
         if has_tag(room, "UNDERWATER"):
