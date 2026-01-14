@@ -175,20 +175,25 @@ def _get_or_create_stamina(character):
     The stamina component is stored in character.ndb.stamina for the session.
     Stats are pulled from the character's attributes.
     """
-    if not hasattr(character.ndb, "stamina") or character.ndb.stamina is None:
-        # Get stats from character - default to 50 if not set
-        body = getattr(character, "body", None) or character.db.body or 50
-        dex = getattr(character, "dexterity", None) or character.db.dexterity or 50
-        will = getattr(character, "willpower", None) or character.db.willpower or 50
+    # Always check if stamina exists AND is valid
+    existing = getattr(character.ndb, "stamina", None)
+    if existing is not None:
+        return existing
+    
+    # Get stats from character - default to 50 if not set
+    body = getattr(character, "body", None) or getattr(character.db, "body", None) or 50
+    dex = getattr(character, "dexterity", None) or getattr(character.db, "dexterity", None) or 50
+    will = getattr(character, "willpower", None) or getattr(character.db, "willpower", None) or 50
 
-        # Create stamina component
-        character.ndb.stamina = CharacterMovementStamina(
-            body=body,
-            dex=dex,
-            will=will
-        )
+    # Create stamina component
+    stamina = CharacterMovementStamina(
+        body=body,
+        dex=dex,
+        will=will
+    )
+    character.ndb.stamina = stamina
 
-    return character.ndb.stamina
+    return stamina
 
 
 def _set_movement_tier(character, desired_tier):

@@ -157,11 +157,12 @@ class Exit(DefaultExit):
         try:
             if traversing_object.has_account:
                 # Get or create stamina component
-                if not hasattr(traversing_object.ndb, "stamina"):
-                    from commands.movement import _get_or_create_stamina
-                    stamina = _get_or_create_stamina(traversing_object)
-                else:
-                    stamina = traversing_object.ndb.stamina
+                from commands.movement import _get_or_create_stamina
+                stamina = _get_or_create_stamina(traversing_object)
+                
+                # Skip stamina system if component failed to create
+                if stamina is None:
+                    raise ValueError("Stamina component is None")
                 
                 # Check if enough stamina for current tier
                 if not stamina.can_afford_move():
