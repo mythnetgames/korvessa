@@ -737,7 +737,8 @@ class CmdSafetyNet(Command):
             success, message, new_rating, result_type = manager.raise_ice(caller, handle, amount)
             
             if success:
-                caller.msg(f"{message} (New: {new_rating}/100)")
+                caller.msg(f"{message}")
+                caller.msg(f"|wNew ICE Rating:|n {new_rating}/100")
             else:
                 caller.msg(f"|r{message}|n")
         

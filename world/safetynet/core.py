@@ -768,6 +768,7 @@ class SafetyNetManager(DefaultScript):
                    result_type: 'success', 'failure', or 'critfail'
         """
         import random
+        from evennia.objects.models import ObjectDB
         
         handle_key = handle_name.lower()
         
@@ -779,27 +780,72 @@ class SafetyNetManager(DefaultScript):
         
         current_ice = self.db.handles[handle_key].get("ice_rating", DEFAULT_ICE_RATING)
         
-        # Skill roll based on decker's tech stat
-        # Higher ICE on target = harder to improve
-        difficulty = max(10, current_ice // 10)  # Scale difficulty with target ICE
-        roll = random.randint(1, 20)
+        # Get decker's skill
+        decking_skill = 0
+        if hasattr(decker.db, 'skills') and decker.db.skills:
+            decking_skill = decker.db.skills.get('Decking', 0)
+        
+        # Skill check: roll d100 vs skill
+        # Higher current ICE adds difficulty modifier
+        ice_modifier = current_ice // 5  # Every 5 ICE adds 1% difficulty
+        target_number = decking_skill - ice_modifier
+        roll = random.randint(1, 100)
         
         # Determine result
         if roll == 1:
-            # Critical failure - set to 1
-            self.db.handles[handle_key]["ice_rating"] = 1
-            return (True, f"|r[CRITICAL FAILURE]|n ICE on {handle_name} collapsed to 1!", 1, 'critfail')
-        elif roll < difficulty:
-            # Failure - reduce ICE
-            reduction = random.randint(1, amount)
-            new_ice = max(1, current_ice - reduction)
+            # Always critical success on 1
+            new_ice = min(current_ice + amount, MAX_ICE_RATING)
             self.db.handles[handle_key]["ice_rating"] = new_ice
-            return (True, f"|y[FAILED]|n ICE on {handle_name} degraded by {reduction}. (Now: {new_ice}/100)", new_ice, 'failure')
-        else:
+            return (True, f"|G[CRITICAL SUCCESS]|n Perfectly raised ICE on {handle_name} by {amount}!", new_ice, 'critsuccess')
+        elif roll == 100:
+            # Always critical failure on 100
+            self.db.handles[handle_key]["ice_rating"] = 1
+            # Alert the account owner
+            self._alert_ice_collapse(handle_key, decker)
+            return (True, f"|r[CRITICAL FAILURE]|n ICE on {handle_name} collapsed to 1!", 1, 'critfail')
+        elif roll <= target_number:
             # Success - raise ICE as requested
             new_ice = min(current_ice + amount, MAX_ICE_RATING)
             self.db.handles[handle_key]["ice_rating"] = new_ice
             return (True, f"|g[SUCCESS]|n Raised ICE on {handle_name} by {amount}.", new_ice, 'success')
+        else:
+            # Failure - reduce ICE
+            reduction = random.randint(1, amount)
+            new_ice = max(1, current_ice - reduction)
+            self.db.handles[handle_key]["ice_rating"] = new_ice
+            return (True, f"|y[FAILED]|n ICE on {handle_name} degraded by {reduction}.", new_ice, 'failure')
+    
+    def _alert_ice_collapse(self, handle_key, decker):
+        """Alert account owner when ICE catastrophically fails."""
+        from evennia.objects.models import ObjectDB
+        from evennia.comms.models import ChannelDB
+        
+        try:
+            handle_data = self.db.handles.get(handle_key)
+            if not handle_data:
+                return
+            
+            owner_id = handle_data.get("session_char_id")
+            display_name = handle_data.get("display_name", "Unknown")
+            
+            # Alert if owner is online
+            if owner_id:
+                try:
+                    owner = ObjectDB.objects.get(id=owner_id)
+                    if owner:
+                        owner.msg(f"|R[!!! SECURITY ALERT !!!]|n Your handle |c{display_name}|n has experienced catastrophic ICE failure!")
+                except:
+                    pass
+            
+            # Alert SafetyNet admin channel
+            try:
+                channel = ChannelDB.objects.get_channel("SafetyNet")
+                if channel:
+                    channel.msg(f"|R[ICE COLLAPSE]|n Handle {display_name} suffered catastrophic security failure!")
+            except:
+                pass
+        except:
+            pass
     
     # =========================================================================
     # HACKING
