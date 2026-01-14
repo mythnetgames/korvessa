@@ -2738,6 +2738,11 @@ class Character(ObjectParent, DefaultCharacter):
         
         # First, convert percent-sign pronoun codes (%p, %s, %o, %q, %r) to curly braces for processing
         desc = self._convert_percent_pronouns_to_template(desc, looker, force_third_person)
+        
+        # Replace %N with character's display name (for clothing worn descriptions)
+        # %N is always third person (the wearer's name as seen by observer)
+        if "%N" in desc:
+            desc = desc.replace("%N", self.get_display_name(looker))
             
         # Map of available template variables based on perspective
         is_self = (looker == self) and not force_third_person

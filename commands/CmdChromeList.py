@@ -38,7 +38,8 @@ class CmdChromeList(Command):
 
     key = "chromelist"
     aliases = ["chromelist"]
-    help_category = "Info"
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
 
     CHROME_PROTOTYPES = {
         # HEAD CHROME
