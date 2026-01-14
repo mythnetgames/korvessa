@@ -88,13 +88,22 @@ class Exit(DefaultExit):
         egress_verb = "leaves"
         direction = self.key.lower()
         
-        if traversing_object.has_account and hasattr(traversing_object.ndb, "stamina"):
-            from world.stamina import TIER_NAMES
-            tier_name = TIER_NAMES.get(traversing_object.ndb.stamina.current_tier, "WALK").lower()
-            verbs = self._get_movement_verb(tier_name)
-            movement_verb = verbs["present"]
-            ingress_verb = verbs["ingress"]
-            egress_verb = verbs["egress"]
+        try:
+            if traversing_object.has_account:
+                # Ensure stamina is initialized
+                if not hasattr(traversing_object.ndb, "stamina"):
+                    from commands.movement import _get_or_create_stamina
+                    _get_or_create_stamina(traversing_object)
+                
+                if hasattr(traversing_object.ndb, "stamina"):
+                    from world.stamina import TIER_NAMES
+                    tier_name = TIER_NAMES.get(traversing_object.ndb.stamina.current_tier, "WALK").lower()
+                    verbs = self._get_movement_verb(tier_name)
+                    movement_verb = verbs["present"]
+                    ingress_verb = verbs["ingress"]
+                    egress_verb = verbs["egress"]
+        except Exception:
+            pass  # Fall back to defaults
         
         # Send exit message to source room
         if traversing_object.location:
@@ -141,82 +150,88 @@ class Exit(DefaultExit):
     def at_traverse(self, traversing_object, target_location):
         # --- STAMINA MOVEMENT SYSTEM ---
         # Only apply to characters (not objects/NPCs)
-        if traversing_object.has_account:
-            # Get or create stamina component
-            if not hasattr(traversing_object.ndb, "stamina"):
-                from commands.movement import _get_or_create_stamina
-                stamina = _get_or_create_stamina(traversing_object)
-            else:
-                stamina = traversing_object.ndb.stamina
-            
-            move_cost = stamina.get_move_cost()
-            move_delay = stamina.get_move_delay()
-            
-            # Check if enough stamina
-            if not stamina.can_afford_move():
-                # Auto-downgrade to affordable tier
-                from world.stamina import MovementTier, TIER_NAMES
-                downgraded = False
-                for tier in [MovementTier.RUN, MovementTier.JOG, MovementTier.WALK, MovementTier.STROLL]:
-                    if stamina.can_afford_move(tier):
-                        old_tier_name = TIER_NAMES[stamina.current_tier].lower()
-                        stamina.set_tier(tier)
-                        new_tier_name = TIER_NAMES[tier].lower()
-                        traversing_object.msg(f"|yToo tired to {old_tier_name}! Slowing to {new_tier_name}.|n")
-                        downgraded = True
-                        break
-                
-                if not downgraded:
-                    # Can't afford any movement
-                    traversing_object.msg("|rYou are too tired to move! Rest to recover stamina.|n")
-                    return
-            
-            # Apply movement delay if needed
-            if move_delay > 0:
-                # Store the pending move
-                if not hasattr(traversing_object.ndb, "pending_move"):
-                    from evennia.utils import delay
-                    from world.stamina import TIER_NAMES
-                    
-                    tier_name = TIER_NAMES[stamina.current_tier].lower()
-                    
-                    # Show movement initiation message
-                    verb = {
-                        "stroll": "strolling",
-                        "walk": "walking", 
-                        "jog": "jogging",
-                        "run": "running"
-                    }.get(tier_name, "moving")
-                    
-                    traversing_object.msg(f"|yYou begin {verb} {self.key}...|n")
-                    traversing_object.location.msg_contents(
-                        f"{traversing_object.key} begins {verb} {self.key}...",
-                        exclude=[traversing_object]
-                    )
-                    
-                    # Mark as having a pending move
-                    traversing_object.ndb.pending_move = True
-                    
-                    # Schedule the actual move
-                    def complete_move():
-                        # Pay the stamina cost
-                        actual_cost = stamina.pay_move_cost()
-                        
-                        # Clear pending flag
-                        if hasattr(traversing_object.ndb, "pending_move"):
-                            del traversing_object.ndb.pending_move
-                        
-                        # Execute the original traversal
-                        super(Exit, self).at_traverse(traversing_object, target_location)
-                    
-                    delay(move_delay, complete_move)
-                    return  # Block immediate traversal
+        try:
+            if traversing_object.has_account:
+                # Get or create stamina component
+                if not hasattr(traversing_object.ndb, "stamina"):
+                    from commands.movement import _get_or_create_stamina
+                    stamina = _get_or_create_stamina(traversing_object)
                 else:
-                    # Already have a pending move, ignore this attempt
-                    return
-            
-            # Sprint (instant movement) - pay cost and proceed
-            actual_cost = stamina.pay_move_cost()
+                    stamina = traversing_object.ndb.stamina
+                
+                move_cost = stamina.get_move_cost()
+                move_delay = stamina.get_move_delay()
+                
+                # Check if enough stamina
+                if not stamina.can_afford_move():
+                    # Auto-downgrade to affordable tier
+                    from world.stamina import MovementTier, TIER_NAMES
+                    downgraded = False
+                    for tier in [MovementTier.RUN, MovementTier.JOG, MovementTier.WALK, MovementTier.STROLL]:
+                        if stamina.can_afford_move(tier):
+                            old_tier_name = TIER_NAMES[stamina.current_tier].lower()
+                            stamina.set_tier(tier)
+                            new_tier_name = TIER_NAMES[tier].lower()
+                            traversing_object.msg(f"|yToo tired to {old_tier_name}! Slowing to {new_tier_name}.|n")
+                            downgraded = True
+                            break
+                    
+                    if not downgraded:
+                        # Can't afford any movement
+                        traversing_object.msg("|rYou are too tired to move! Rest to recover stamina.|n")
+                        return
+                
+                # Apply movement delay if needed
+                if move_delay > 0:
+                    # Store the pending move
+                    if not hasattr(traversing_object.ndb, "pending_move"):
+                        from evennia.utils import delay
+                        from world.stamina import TIER_NAMES
+                        
+                        tier_name = TIER_NAMES[stamina.current_tier].lower()
+                        
+                        # Show movement initiation message
+                        verb = {
+                            "stroll": "strolling",
+                            "walk": "walking", 
+                            "jog": "jogging",
+                            "run": "running"
+                        }.get(tier_name, "moving")
+                        
+                        traversing_object.msg(f"|yYou begin {verb} {self.key}...|n")
+                        traversing_object.location.msg_contents(
+                            f"{traversing_object.key} begins {verb} {self.key}...",
+                            exclude=[traversing_object]
+                        )
+                        
+                        # Mark as having a pending move
+                        traversing_object.ndb.pending_move = True
+                        
+                        # Schedule the actual move using the custom message traversal
+                        def complete_move():
+                            # Pay the stamina cost
+                            actual_cost = stamina.pay_move_cost()
+                            
+                            # Clear pending flag
+                            if hasattr(traversing_object.ndb, "pending_move"):
+                                del traversing_object.ndb.pending_move
+                            
+                            # Execute the traversal with custom movement messages
+                            self._traverse_with_stamina_messages(traversing_object, target_location)
+                        
+                        delay(move_delay, complete_move)
+                        return  # Block immediate traversal
+                    else:
+                        # Already have a pending move, ignore this attempt
+                        return
+                
+                # Sprint (instant movement) - pay cost and proceed
+                actual_cost = stamina.pay_move_cost()
+        except Exception as e:
+            # Log stamina system errors but don't block movement
+            splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+            splattercast.msg(f"STAMINA_ERROR: {traversing_object.key} traversing {self.key}: {e}")
+            # Continue with normal traversal
         
         # --- DOOR BLOCKING CHECK ---
         direction = self.key.lower()
