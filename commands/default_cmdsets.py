@@ -197,6 +197,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add spawnchrome command (builder and up)
         from commands.CmdSpawnChrome import CmdSpawnChrome
         self.add(CmdSpawnChrome())
+        # Add chromelist command (info command for listing all chrome)
+        from commands.CmdChromeList import CmdChromeList
+        self.add(CmdChromeList())
         # Add spawnset command for armor sets (builder and up)
         from commands.CmdSpawnSet import CmdSpawnSet
         self.add(CmdSpawnSet())
