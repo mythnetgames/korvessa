@@ -831,10 +831,10 @@ class CmdSafetyNet(Command):
                 
                 caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
             else:
-                caller.msg("|r>>>ACCESS DENIED<<<|n")
-                caller.msg(f"|r>ICE COUNTERMEASURES ACTIVE|n")
-                caller.msg(f"|r>LOCKOUT: 30 seconds|n")
-                caller.msg("|r>>>CONNECTION TERMINATED<<<|n")
+                caller.msg("|#00af00>>>|r[ACCESS DENIED]|#00af00<<<|n")
+                caller.msg(f"|#00af00>ICE COUNTERMEASURES ACTIVE|n")
+                caller.msg(f"|#00af00>LOCKOUT: |r30 seconds|#00af00|n")
+                caller.msg("|#00af00>>>CONNECTION TERMINATED<<<|n")
                 
                 # Alert the target if online
                 if result.get("alert") and result.get("target_char_id"):
@@ -917,11 +917,11 @@ class CmdSafetyNet(Command):
                 caller.msg(f"|#00ff00>New ICE Rating: |#5fff00{new_rating}/100|n")
                 caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
             else:
-                caller.msg(f"|r>>>ATTACK FAILED<<<|n")
-                caller.msg(f"|r>Result: {result['message']}|n")
+                caller.msg(f"|#00af00>>>|r[ATTACK FAILED]|#00af00<<<|n")
+                caller.msg(f"|#00af00>Result: |r{result['message']}|#00af00|n")
                 if result.get("traced"):
-                    caller.msg("|r>>>WARNING: TRACED<<<|n")
-                    caller.msg("|r>Your location has been exposed to target!|n")
+                    caller.msg("|#00af00>>>|r[WARNING: TRACED]|#00af00<<<|n")
+                    caller.msg("|#00af00>Your location has been exposed to target!|n")
                     
                     # Alert the target if online
                     if result.get("alert") and result.get("target_char_id"):
@@ -932,7 +932,7 @@ class CmdSafetyNet(Command):
                                 target_char.msg(f"|#008700[SafetyNet System Alert]|w: |R{result['alert']}")
                         except:
                             pass
-                caller.msg("|r>>>CONNECTION TERMINATED<<<|n")
+                caller.msg("|#00af00>>>CONNECTION TERMINATED<<<|n")
         
         # Chain the delays
         delay(base_delay * 1, step1)
@@ -1065,7 +1065,7 @@ class CmdSafetyNet(Command):
             caller.msg("|#00af00>run.enhance [|****]|n")
         
         def step5():
-            caller.msg("|#00af00>run.enhance [|||**]|n")
+            caller.msg("|#00af00>run.enhance [||||*]|n")
         
         def step6():
             caller.msg("|#00af00>run.enhance [|||||]|n")
@@ -1102,11 +1102,11 @@ class CmdSafetyNet(Command):
                 caller.msg(f"|#00ff00>New ICE Rating: |#5fff00{new_rating}/100|n")
                 caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
             else:
-                caller.msg("|r>>>ENHANCEMENT FAILED<<<|n")
-                caller.msg(f"|r>Result: {message}|n")
+                caller.msg("|#00af00>>>|r[FAILED]|#00af00<<<|n")
+                caller.msg(f"|#00af00>Result: |r{message}|#00af00|n")
                 if result_type == 'critfail':
-                    caller.msg("|r>SYSTEM LOCKOUT: 30 seconds|n")
-                caller.msg("|r>>>CONNECTION TERMINATED<<<|n")
+                    caller.msg("|#00af00>SYSTEM LOCKOUT: |r30 seconds|#00af00|n")
+                caller.msg("|#00af00>>>CONNECTION TERMINATED<<<|n")
         
         # Chain the delays
         delay(base_delay * 1, step1)
