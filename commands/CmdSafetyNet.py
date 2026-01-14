@@ -838,8 +838,7 @@ class CmdSafetyNet(Command):
                         try:
                             target_char = ObjectDB.objects.get(id=result.get("target_char_id"))
                             if target_char:
-                                attacker_handle = result.get("attacker_handle", "Unknown")
-                                target_char.msg(f"|#008700From your {attacker_handle}:|w |R{result['alert']}")
+                                target_char.msg(f"|#008700From your wristpad:|w |R{result['alert']}")
                         except:
                             pass
             except Exception as e:
