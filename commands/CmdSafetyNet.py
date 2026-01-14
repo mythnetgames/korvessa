@@ -81,98 +81,74 @@ class CmdSafetyNet(Command):
             caller.msg(MSG_NO_DEVICE)
             return
         
-        # Parse switches
+        # Parse switches - try both getattr and lhs syntax
         switches = getattr(self, 'switches', []) or []
         args = self.args.strip() if self.args else ""
         
+        # If we have lhs (left-hand side from = syntax), try to use it as a subcommand
+        lhs = getattr(self, 'lhs', None) or ""
+        
+        # Determine the primary command
+        if switches:
+            # We have switches from /syntax (e.g., sn/register <args>)
+            primary_cmd = switches[0].lower() if switches else None
+        elif lhs:
+            # We have lhs from =syntax (e.g., sn register=args)
+            primary_cmd = lhs.lower().strip()
+        elif args:
+            # Try to parse first word of args as command
+            parts = args.split(None, 1)
+            primary_cmd = parts[0].lower() if parts else None
+            args = parts[1] if len(parts) > 1 else ""
+        else:
+            # No command specified, show status
+            primary_cmd = None
+        
         # Route to appropriate handler
-        if not switches and not args:
+        if not primary_cmd:
             self.do_status(device_type)
-        elif "read" in switches:
+        elif primary_cmd == "read":
             if "next" in switches:
                 self.do_read_next(device_type)
             else:
                 self.do_read(device_type, args)
-        elif "post" in switches:
+        elif primary_cmd == "post":
             self.do_post(device_type, args)
-        elif "login" in switches:
+        elif primary_cmd == "login":
             self.do_login(device_type, args)
-        elif "logout" in switches:
+        elif primary_cmd == "logout":
             self.do_logout(device_type)
-        elif "dm" in switches:
+        elif primary_cmd == "dm":
             self.do_dm(device_type, args)
-        elif "inbox" in switches:
+        elif primary_cmd == "inbox":
             if "next" in switches:
                 self.do_inbox_next(device_type)
             else:
                 self.do_inbox(device_type)
-        elif "thread" in switches:
+        elif primary_cmd == "thread":
             self.do_thread(device_type, args)
-        elif "search" in switches:
+        elif primary_cmd == "search":
             self.do_search(device_type, args)
-        elif "handles" in switches:
+        elif primary_cmd == "handles":
             self.do_handles(device_type)
-        elif "register" in switches:
+        elif primary_cmd == "register":
             self.do_register(device_type, args)
-        elif "delete" in switches:
+        elif primary_cmd == "delete":
             self.do_delete(device_type, args)
-        elif "passchange" in switches:
+        elif primary_cmd == "passchange":
             self.do_passchange(device_type, args)
-        elif "passadd" in switches:
+        elif primary_cmd == "passadd":
             self.do_passadd(device_type, args)
-        elif "ice" in switches:
+        elif primary_cmd == "ice":
             self.do_ice(device_type, args)
-        elif "hack" in switches:
+        elif primary_cmd == "hack":
             self.do_hack(device_type, args)
-        elif "upgrade" in switches:
+        elif primary_cmd == "upgrade":
             self.do_upgrade(device_type, args)
-        elif "whois" in switches:
+        elif primary_cmd == "whois":
             self.do_whois(device_type, args)
         else:
-            # Check if first word is a subcommand
-            parts = args.split(None, 1)
-            if parts:
-                subcmd = parts[0].lower()
-                subargs = parts[1] if len(parts) > 1 else ""
-                
-                if subcmd == "read":
-                    self.do_read(device_type, subargs)
-                elif subcmd == "post":
-                    self.do_post(device_type, subargs)
-                elif subcmd == "login":
-                    self.do_login(device_type, subargs)
-                elif subcmd == "logout":
-                    self.do_logout(device_type)
-                elif subcmd == "dm":
-                    self.do_dm(device_type, subargs)
-                elif subcmd == "inbox":
-                    self.do_inbox(device_type)
-                elif subcmd == "thread":
-                    self.do_thread(device_type, subargs)
-                elif subcmd == "search":
-                    self.do_search(device_type, subargs)
-                elif subcmd == "handles":
-                    self.do_handles(device_type)
-                elif subcmd == "register":
-                    self.do_register(device_type, subargs)
-                elif subcmd == "delete":
-                    self.do_delete(device_type, subargs)
-                elif subcmd == "passchange":
-                    self.do_passchange(device_type, subargs)
-                elif subcmd == "passadd":
-                    self.do_passadd(device_type, subargs)
-                elif subcmd == "ice":
-                    self.do_ice(device_type, subargs)
-                elif subcmd == "hack":
-                    self.do_hack(device_type, subargs)
-                elif subcmd == "upgrade":
-                    self.do_upgrade(device_type, subargs)
-                elif subcmd == "whois":
-                    self.do_whois(device_type, subargs)
-                else:
-                    caller.msg(f"|rUnknown SafetyNet command.|n Use |wsn|n for help.")
-            else:
-                self.do_status(device_type)
+            caller.msg(f"|rUnknown SafetyNet command: {primary_cmd}|n Use |wsn|n for help.")
     
     def do_status(self, device_type):
         """Show SafetyNet status and help."""
