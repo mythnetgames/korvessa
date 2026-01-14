@@ -226,14 +226,9 @@ def _cleanup_auto_walk(character):
         pathing_channel.msg(f"CLEANUP: {character.key} - clearing auto-walk state")
     
     # Clear NDB attributes
-    for attr in ['auto_walk_path', 'auto_walk_mode', 'auto_walk_destination', 'auto_walk_cancelled', '_auto_walk_script']:
+    for attr in ['auto_walk_path', 'auto_walk_mode', 'auto_walk_destination', 'auto_walk_cancelled']:
         if hasattr(character.ndb, attr):
             delattr(character.ndb, attr)
-    
-    # Stop any auto-walk scripts
-    for script in character.scripts.all():
-        if script.key == "auto_walk_script":
-            script.stop()
 
 
 
@@ -554,22 +549,13 @@ def start_auto_walk(character, path, mode="walk", destination_alias="destination
     if pathing_channel:
         pathing_channel.msg(f"START_WALK_STORED: {character.key} - NDB state set, path length: {len(path)}")
     
-    # Create the script object but don't rely on at_start()
+    # Send user messages
     try:
-        character.msg(f"|y[START_AUTO_WALK] Creating AutoWalkScript|n")
-        script = character.scripts.add(AutoWalkScript, key="auto_walk_script")
-        if pathing_channel:
-            pathing_channel.msg(f"START_WALK_SCRIPT: {character.key} - script created: {script}")
-        
-        # Store script reference on character for cleanup
-        character.ndb._auto_walk_script = script
-        
-        character.msg(f"|y[START_AUTO_WALK] Starting auto-walk directly (bypassing script.start())|n")
-        
-        # Send user messages
         stamina_cost, step_delay = MOVEMENT_MODES.get(mode, MOVEMENT_MODES[DEFAULT_MODE])
         character.msg(f"|gAuto-walk started.|n Mode: |w{mode}|n, {len(path)} steps to {destination_alias}.")
         character.msg("|yType any movement command or |wpath stop|y to cancel.|n")
+        
+        character.msg(f"|y[START_AUTO_WALK] Scheduling first step in 0.5s|n")
         
         # Schedule first step directly using delay, not through script
         delay(0.5, _execute_auto_walk_step, character)
@@ -612,14 +598,6 @@ def cancel_auto_walk(character, silent=False):
         was_active = True
         if pathing_channel:
             pathing_channel.msg(f"CANCEL_WALK: {character.key} - flag set")
-    
-    # Stop any auto-walk scripts
-    for script in character.scripts.all():
-        if script.key == "auto_walk_script":
-            if pathing_channel:
-                pathing_channel.msg(f"CANCEL_WALK: {character.key} - stopping script")
-            script.stop()
-            was_active = True
     
     # Clear NDB attributes
     for attr in ['auto_walk_path', 'auto_walk_mode', 'auto_walk_destination', 'auto_walk_cancelled']:
