@@ -646,8 +646,8 @@ class CmdSafetyNet(Command):
         
         # Check for cooldown
         import time
-        if hasattr(caller.ndb, 'hack_cooldown') and caller.ndb.hack_cooldown:
-            cooldown_until = caller.ndb.hack_cooldown
+        cooldown_until = getattr(caller.ndb, 'hack_cooldown', None)
+        if cooldown_until is not None and isinstance(cooldown_until, (int, float)):
             current_time = time.time()
             if current_time < cooldown_until:
                 remaining = int(cooldown_until - current_time)
