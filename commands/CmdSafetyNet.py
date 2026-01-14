@@ -230,7 +230,7 @@ class CmdSafetyNet(Command):
                 indicator = get_online_indicator(handle, manager)
                 time_str = format_timestamp(timestamp) if timestamp else "?"
                 
-                lines.append(f"|c{handle}|n {indicator} |K({time_str})|n")
+                lines.append(f"|c{handle}|n {indicator} |#ffff87({time_str})|n")
                 lines.append(f"  {message}")
                 lines.append("")
         
@@ -416,7 +416,7 @@ class CmdSafetyNet(Command):
                 # Mark as read
                 manager.mark_dm_read(handle_name, dm_id)
                 
-                lines.append(f"{read_marker}|cFrom: {from_handle}|n {indicator} |K({time_str})|n")
+                lines.append(f"{read_marker}|cFrom: {from_handle}|n {indicator} |#ffff87({time_str})|n")
                 # Truncate long messages
                 preview = message[:150] + "..." if len(message) > 150 else message
                 lines.append(f"  {preview}")
@@ -460,7 +460,7 @@ class CmdSafetyNet(Command):
                 
                 time_str = format_timestamp(timestamp) if timestamp else "?"
                 
-                lines.append(f"|c{from_handle}|n |K({time_str})|n")
+                lines.append(f"|c{from_handle}|n |#ffff87({time_str})|n")
                 lines.append(f"  {message}")
                 lines.append("")
         
@@ -500,7 +500,7 @@ class CmdSafetyNet(Command):
                     indicator = get_online_indicator(handle, manager)
                     time_str = format_timestamp(timestamp) if timestamp else "?"
                     
-                    lines.append(f"|c{handle}|n {indicator} in #{feed} |K({time_str})|n")
+                    lines.append(f"|c{handle}|n {indicator} in #{feed} |#ffff87({time_str})|n")
                     preview = message[:100] + "..." if len(message) > 100 else message
                     lines.append(f"  {preview}")
                     lines.append("")
