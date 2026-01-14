@@ -14,7 +14,7 @@ from evennia import CmdSet
 # Import commands from our organized modules
 from .core_actions import CmdAttack, CmdStop, CmdDummyReset
 from .movement import CmdFlee, CmdRetreat, CmdAdvance, CmdCharge, CmdJump
-from .special_actions import CmdEscapeGrapple, CmdReleaseGrapple, CmdDisarm, CmdReload, CmdAmmo
+from .special_actions import CmdEscapeGrapple, CmdReleaseGrapple, CmdDisarm, CmdReload, CmdAmmo, CmdCombatPrompt
 # Note: CmdLook moved to main character cmdset to be available outside combat
 
 
@@ -54,5 +54,6 @@ class CombatCmdSet(CmdSet):
         self.add(CmdDisarm)
         self.add(CmdReload)
         self.add(CmdAmmo)
+        self.add(CmdCombatPrompt)
         
         # Note: CmdLook, CmdAim, and CmdGrapple moved to main character cmdset to be available outside combat

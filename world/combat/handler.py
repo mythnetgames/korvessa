@@ -32,7 +32,9 @@ from .constants import (
     COMBAT_ROUND_INTERVAL, STAGGER_DELAY_INTERVAL, MAX_STAGGER_DELAY,
     # Ammunition system constants
     COMBAT_ACTION_RELOAD, NDB_RELOADING, DEFAULT_AMMO_CAPACITY,
-    MSG_OUT_OF_AMMO, MSG_RELOADING, MSG_RELOADED, MSG_NO_AMMO_AVAILABLE
+    MSG_OUT_OF_AMMO, MSG_RELOADING, MSG_RELOADED, MSG_NO_AMMO_AVAILABLE,
+    # Combat stamina constants
+    STAMINA_DRAIN_PER_ROUND, STAMINA_DRAIN_PER_ATTACK, STAMINA_MIN_TO_ATTACK, STAMINA_EXHAUSTED_MSG
 )
 from .utils import (
     get_numeric_stat, log_combat_action, get_display_name_safe,
@@ -544,6 +546,20 @@ class CombatHandler(DefaultScript):
                 return
 
         splattercast.msg(f"AT_REPEAT: Handler {self.key} (managing {[r.key for r in managed_rooms]}). Round {self.db.round} begins.")
+        
+        # --- PER-ROUND STAMINA DRAIN & COMBAT PROMPT ---
+        for entry in combatants_list:
+            char = entry.get(DB_CHAR)
+            if char and not char.is_dead():
+                # Drain stamina each round (combat fatigue)
+                stamina = getattr(char.ndb, "stamina", None)
+                if stamina:
+                    stamina.stamina_current = max(0, stamina.stamina_current - STAMINA_DRAIN_PER_ROUND)
+                    splattercast.msg(f"STAMINA_DRAIN_ROUND: {char.key} drained {STAMINA_DRAIN_PER_ROUND} stamina, now at {stamina.stamina_current:.1f}")
+                
+                # Send combat status prompt unless disabled
+                if getattr(char.db, "combat_prompt", True) is not False:
+                    self._send_combat_prompt(char)
         
         if len(combatants_list) <= 1:
             splattercast.msg(f"AT_REPEAT: Handler {self.key}. Not enough combatants ({len(combatants_list)}) to continue. Ending combat.")
@@ -1201,6 +1217,80 @@ class CombatHandler(DefaultScript):
             import traceback
             splattercast.msg(f"DELAYED_ATTACK: Traceback: {traceback.format_exc()}")
 
+    def _send_combat_prompt(self, char):
+        """
+        Send a combat status prompt to a character showing vital information.
+        
+        Shows: Health status, bleeding, stamina %, and critically damaged organs.
+        Only sent if char.db.combat_prompt is True.
+        
+        Args:
+            char: The character to send the prompt to
+        """
+        parts = []
+        
+        # --- HEALTH STATUS ---
+        hp_current = getattr(char.db, "hp", 0) or 0
+        hp_max = getattr(char.db, "hp_max", 10) or 10
+        hp_pct = (hp_current / hp_max * 100) if hp_max > 0 else 0
+        
+        if hp_pct > 75:
+            health_color = "|g"
+            health_status = "Healthy"
+        elif hp_pct > 50:
+            health_color = "|y"
+            health_status = "Wounded"
+        elif hp_pct > 25:
+            health_color = "|r"
+            health_status = "Injured"
+        else:
+            health_color = "|R"
+            health_status = "Critical"
+        
+        parts.append(f"{health_color}HP: {hp_current}/{hp_max} ({health_status})|n")
+        
+        # --- BLEEDING STATUS ---
+        is_bleeding = getattr(char.db, "is_bleeding", False)
+        bleed_rate = getattr(char.db, "bleed_rate", 0) or 0
+        if is_bleeding and bleed_rate > 0:
+            if bleed_rate >= 3:
+                parts.append("|R[BLEEDING HEAVILY]|n")
+            elif bleed_rate >= 1.5:
+                parts.append("|r[BLEEDING]|n")
+            else:
+                parts.append("|y[bleeding]|n")
+        
+        # --- STAMINA STATUS ---
+        stamina = getattr(char.ndb, "stamina", None)
+        if stamina:
+            stam_pct = (stamina.stamina_current / stamina.stamina_max * 100) if stamina.stamina_max > 0 else 0
+            if stam_pct > 50:
+                stam_color = "|g"
+            elif stam_pct > 20:
+                stam_color = "|y"
+            else:
+                stam_color = "|r"
+            parts.append(f"{stam_color}Stamina: {stam_pct:.0f}%|n")
+        
+        # --- CRITICAL ORGAN DAMAGE ---
+        # Check for extremely damaged organs (severity >= 4 = "Extreme")
+        organ_conditions = getattr(char.db, "organ_conditions", {}) or {}
+        critical_organs = []
+        for organ_name, condition in organ_conditions.items():
+            if isinstance(condition, dict):
+                severity = condition.get("severity", 0)
+                if severity >= 4:  # Extreme damage
+                    critical_organs.append(organ_name)
+        
+        if critical_organs:
+            organ_list = ", ".join(critical_organs)
+            parts.append(f"|R[CRITICAL: {organ_list}]|n")
+        
+        # --- SEND THE PROMPT ---
+        if parts:
+            prompt = " | ".join(parts)
+            char.msg(f"|w[Combat]|n {prompt}")
+
     def _determine_injury_type(self, weapon):
         """
         Determine the injury type based on weapon's damage_type attribute.
@@ -1231,6 +1321,18 @@ class CombatHandler(DefaultScript):
         import time
         
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        
+        # --- STAMINA CHECK FOR ATTACK ---
+        # Check if attacker has enough stamina to attack
+        stamina = getattr(attacker.ndb, "stamina", None)
+        if stamina:
+            if stamina.stamina_current < STAMINA_MIN_TO_ATTACK:
+                attacker.msg(STAMINA_EXHAUSTED_MSG)
+                splattercast.msg(f"ATTACK_EXHAUSTED: {attacker.key} too tired to attack ({stamina.stamina_current:.1f} < {STAMINA_MIN_TO_ATTACK})")
+                return
+            # Drain stamina for attacking
+            stamina.stamina_current = max(0, stamina.stamina_current - STAMINA_DRAIN_PER_ATTACK)
+            splattercast.msg(f"STAMINA_DRAIN_ATTACK: {attacker.key} drained {STAMINA_DRAIN_PER_ATTACK} stamina, now at {stamina.stamina_current:.1f}")
         
         # Update last action time (combat is no longer idle)
         self.db.last_action_time = time.time()

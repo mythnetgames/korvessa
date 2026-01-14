@@ -675,6 +675,18 @@ STAGGER_DELAY_INTERVAL = 1.5  # seconds - delay between staggered attacks
 MAX_STAGGER_DELAY = 4.5  # seconds - maximum delay to ensure completion before next round
 
 # ===================================================================
+# COMBAT STAMINA DRAIN CONSTANTS
+# ===================================================================
+
+# Stamina costs during combat
+STAMINA_DRAIN_PER_ROUND = 2.0       # Slow drain each combat round (fatigue from tension)
+STAMINA_DRAIN_PER_ATTACK = 4.0      # Small cost per attack action
+STAMINA_DRAIN_FLEE = 15.0           # Medium cost to flee combat
+STAMINA_MIN_TO_ATTACK = 5.0         # Minimum stamina required to attack
+STAMINA_EXHAUSTED_MSG = "|rYou are too exhausted to attack! Rest or flee.|n"
+STAMINA_FLEE_EXHAUSTED_MSG = "|rYou are too exhausted to flee! You stumble and fail to escape.|n"
+
+# ===================================================================
 # SCRIPT & HANDLER CONSTANTS
 # ===================================================================
 

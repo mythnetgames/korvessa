@@ -36,7 +36,9 @@ from world.combat.constants import (
     COMBAT_ACTION_RETREAT, MSG_RETREAT_PREPARE, MSG_RETREAT_QUEUE_SUCCESS,
     COMBAT_ACTION_ADVANCE, MSG_ADVANCE_PREPARE, MSG_ADVANCE_QUEUE_SUCCESS,
     COMBAT_ACTION_CHARGE, MSG_CHARGE_PREPARE, MSG_CHARGE_QUEUE_SUCCESS,
-    COMBAT_ACTION_DISARM, MSG_DISARM_PREPARE, MSG_DISARM_QUEUE_SUCCESS
+    COMBAT_ACTION_DISARM, MSG_DISARM_PREPARE, MSG_DISARM_QUEUE_SUCCESS,
+    # Stamina constants
+    STAMINA_DRAIN_FLEE, STAMINA_FLEE_EXHAUSTED_MSG
 )
 from world.combat.utils import (
     initialize_proximity_ndb, get_wielded_weapon, roll_stat, opposed_roll,
@@ -88,6 +90,14 @@ class CmdFlee(Command):
             caller.msg("|rYou have already attempted to flee this combat round! Wait for the next round.|n")
             splattercast.msg(f"{DEBUG_PREFIX_FLEE}_COOLDOWN: {caller.key} attempted to flee but already tried this round.")
             return
+        
+        # --- STAMINA CHECK FOR FLEEING ---
+        stamina = getattr(caller.ndb, "stamina", None)
+        if stamina:
+            if stamina.stamina_current < STAMINA_DRAIN_FLEE:
+                caller.msg(STAMINA_FLEE_EXHAUSTED_MSG)
+                splattercast.msg(f"{DEBUG_PREFIX_FLEE}_EXHAUSTED: {caller.key} too tired to flee ({stamina.stamina_current:.1f} < {STAMINA_DRAIN_FLEE})")
+                return
         
         original_handler_at_flee_start = getattr(caller.ndb, "combat_handler", None)
         # This is the specific character who has an NDB-level aim lock on the caller.
@@ -247,6 +257,12 @@ class CmdFlee(Command):
             chosen_exit = choice(available_exits)
             destination = chosen_exit.destination
             
+            # --- DRAIN STAMINA ON SUCCESSFUL FLEE ---
+            stamina = getattr(caller.ndb, "stamina", None)
+            if stamina:
+                stamina.stamina_current = max(0, stamina.stamina_current - STAMINA_DRAIN_FLEE)
+                splattercast.msg(f"{DEBUG_PREFIX_FLEE}_STAMINA: {caller.key} drained {STAMINA_DRAIN_FLEE} stamina for fleeing, now at {stamina.stamina_current:.1f}")
+            
             # Move to the chosen exit
             caller.move_to(destination, quiet=True)
             
@@ -350,6 +366,12 @@ class CmdFlee(Command):
                 
             chosen_exit = choice(safe_exits)
             destination = chosen_exit.destination
+            
+            # --- DRAIN STAMINA ON SUCCESSFUL FLEE ---
+            stamina = getattr(caller.ndb, "stamina", None)
+            if stamina:
+                stamina.stamina_current = max(0, stamina.stamina_current - STAMINA_DRAIN_FLEE)
+                splattercast.msg(f"{DEBUG_PREFIX_FLEE}_STAMINA: {caller.key} drained {STAMINA_DRAIN_FLEE} stamina for fleeing, now at {stamina.stamina_current:.1f}")
             
             # Remove from combat before moving (this also clears proximity)
             original_handler_at_flee_start.remove_combatant(caller)

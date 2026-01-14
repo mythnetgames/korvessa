@@ -974,3 +974,39 @@ class CmdAmmo(Command):
                     caller.msg(f"  - {source}")
         else:
             caller.msg(f"|rNo reserve ammunition for {ammo_type}.|n")
+
+
+class CmdCombatPrompt(Command):
+    """
+    Toggle the combat status prompt on or off.
+
+    Usage:
+        combatprompt
+        cprompt
+
+    When enabled, you will see a status line at the start of each combat
+    round showing:
+    - Your current health status
+    - Whether you are bleeding (and how badly)
+    - Your current stamina percentage
+    - Any critically damaged organs (shown in red)
+
+    Example output:
+    [Combat] HP: 45/100 (Wounded) | |r[BLEEDING]|n | Stamina: 65% | |R[CRITICAL: heart, lung]|n
+    """
+    key = "combatprompt"
+    aliases = ["cprompt", "combatprompt"]
+    locks = "cmd:all()"
+    help_category = "Combat"
+
+    def func(self):
+        caller = self.caller
+        
+        # Toggle the combat prompt setting
+        current = getattr(caller.db, "combat_prompt", False)
+        caller.db.combat_prompt = not current
+        
+        if caller.db.combat_prompt:
+            caller.msg("|gCombat status prompt enabled.|n You will see health, bleeding, stamina, and critical organ status each combat round.")
+        else:
+            caller.msg("|yCombat status prompt disabled.|n")
