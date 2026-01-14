@@ -1396,3 +1396,87 @@ class RifleDrumMod(WeaponMod):
             "ammo_capacity_multiplier": 4,  # Quadruple capacity
             "weight_penalty": 4,  # Much heavier
         }
+
+
+# =============================================================================
+# SAFETYNET ACCESS DEVICES
+# =============================================================================
+
+class Wristpad(Item):
+    """
+    A wristpad - a sleek PDA/pipboy-like wearable device.
+    Provides access to the SafetyNet intranet system with slower connection speeds.
+    
+    Wristpads can be worn on the wrist and provide mobile SafetyNet access.
+    Connection is slower than computer terminals due to limited bandwidth.
+    Shows as an accessory on the arm when worn without covering naked body parts.
+    """
+    
+    def at_object_creation(self):
+        """Initialize wristpad attributes."""
+        super().at_object_creation()
+        
+        # SafetyNet access flag
+        self.db.is_wristpad = True
+        
+        # Default item properties
+        self.db.desc = "A compact wristpad with a flexible display screen. The device wraps around the forearm, its matte surface dotted with status LEDs and a small speaker grille. When activated, holographic displays project interface elements just above the screen. Standard municipal issue, but the firmware has clearly been modified."
+        
+        # Wearable on left or right arm as an accessory (thin layer, doesn't block arm)
+        self.coverage = ["left_arm", "right_arm"]
+        self.worn_desc = "a compact wristpad with a flickering holographic display"
+        
+        # Light weight
+        self.weight = 0.3
+        
+        # High layer number (worn on top, accessory layer)
+        # This ensures it displays as an accessory without blocking other clothing
+        self.layer = 10
+
+
+class ComputerTerminal(Item):
+    """
+    A computer terminal - provides fast SafetyNet access.
+    Typically found in fixed locations like offices, apartments, or public kiosks.
+    
+    Terminals provide near-instant SafetyNet access but are not portable.
+    They are usually placed in rooms rather than carried.
+    """
+    
+    def at_object_creation(self):
+        """Initialize computer terminal attributes."""
+        super().at_object_creation()
+        
+        # SafetyNet access flag
+        self.db.is_computer = True
+        
+        # Default item properties
+        self.db.desc = "A battered computer terminal with a flickering CRT monitor and a mechanical keyboard. Exposed wiring runs along its sides, patched with electrical tape and solder. Despite its appearance, the machine hums with surprising processing power. A small placard reads 'SAFETYNET ACCESS POINT' in faded municipal lettering."
+        
+        # Heavy, not meant to be carried
+        self.weight = 25.0
+        
+        # Cannot be picked up by default
+        self.locks.add("get:false()")
+
+
+class PortableComputer(Item):
+    """
+    A portable computer - laptop-style device for fast SafetyNet access.
+    More expensive than a wristpad but provides faster connection speeds.
+    Can be carried but must be set down to use.
+    """
+    
+    def at_object_creation(self):
+        """Initialize portable computer attributes."""
+        super().at_object_creation()
+        
+        # SafetyNet access flag
+        self.db.is_computer = True
+        
+        # Default item properties
+        self.db.desc = "A ruggedized portable computer with a reinforced case. The screen is protected by a scratch-resistant polymer, and the keyboard has been replaced with a more durable membrane type. Various ports line one edge, ready for peripheral connections. A high-gain antenna extends from the back for improved signal reception."
+        
+        # Moderate weight
+        self.weight = 3.5
+

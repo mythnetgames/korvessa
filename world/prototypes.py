@@ -3684,3 +3684,82 @@ CORNER_STORE_COOLER = {
     ],
 }
 
+
+# =============================================================================
+# SAFETYNET ACCESS DEVICE PROTOTYPES
+# =============================================================================
+
+# Standard municipal wristpad
+WRISTPAD = {
+    "prototype_key": "wristpad",
+    "key": "municipal wristpad",
+    "typeclass": "typeclasses.items.Wristpad",
+    "aliases": ["wristpad", "pad", "pda"],
+    "desc": "A compact wristpad with a flexible display screen. The device wraps around the forearm, its matte surface dotted with status LEDs and a small speaker grille. When activated, holographic displays project interface elements just above the screen. Standard municipal issue, but the firmware has clearly been modified - the SafetyNet access protocols have been unlocked.",
+    "attrs": [
+        ("is_wristpad", True),
+        ("coverage", ["left_wrist"]),
+        ("worn_desc", "a compact wristpad with a flickering display"),
+        ("weight", 0.3),
+        ("layer", 5),
+    ],
+}
+
+# High-end wristpad variant
+WRISTPAD_DELUXE = {
+    "prototype_key": "wristpad_deluxe",
+    "key": "Kiroshi TechBand Pro",
+    "typeclass": "typeclasses.items.Wristpad",
+    "aliases": ["techband", "kiroshi pad", "pro wristpad"],
+    "desc": "A sleek Kiroshi TechBand Pro - the premium wristpad favored by corporate executives and high-end fixers. The flexible OLED display wraps seamlessly around the forearm, with haptic feedback so refined you can feel every notification. The brushed titanium frame houses top-of-the-line processing power and an encrypted quantum chip for secure communications. Despite its corporate origins, this unit has been jailbroken to access the open SafetyNet protocols.",
+    "attrs": [
+        ("is_wristpad", True),
+        ("coverage", ["left_wrist"]),
+        ("worn_desc", "a sleek Kiroshi TechBand with a holographic display"),
+        ("weight", 0.2),
+        ("layer", 5),
+    ],
+}
+
+# Fixed computer terminal
+COMPUTER_TERMINAL = {
+    "prototype_key": "computer_terminal",
+    "key": "public access terminal",
+    "typeclass": "typeclasses.items.ComputerTerminal",
+    "aliases": ["terminal", "computer", "public terminal", "access terminal"],
+    "desc": "A battered public access terminal bolted to the wall. The CRT monitor flickers occasionally, displaying the familiar SafetyNet interface. A mechanical keyboard sits below, its keys worn smooth from countless users. Despite its age, the machine provides a fast, reliable connection to the network. A faded municipal seal is barely visible on the casing.",
+    "attrs": [
+        ("is_computer", True),
+        ("weight", 25.0),
+    ],
+    "locks": "get:false()",
+}
+
+# Personal computer terminal  
+COMPUTER_PERSONAL = {
+    "prototype_key": "computer_personal",
+    "key": "personal computer",
+    "typeclass": "typeclasses.items.ComputerTerminal",
+    "aliases": ["pc", "desktop", "personal terminal"],
+    "desc": "A cobbled-together personal computer station. Multiple monitors of different sizes and ages are connected to a tower case held together with zip ties and optimism. Cooling fans hum loudly, and LED strips cast the setup in shifting colors. Despite its chaotic appearance, the rig runs fast - clearly built by someone who knows their hardware.",
+    "attrs": [
+        ("is_computer", True),
+        ("weight", 20.0),
+    ],
+    "locks": "get:false()",
+}
+
+# Portable laptop-style computer
+PORTABLE_COMPUTER = {
+    "prototype_key": "portable_computer",
+    "key": "ruggedized laptop",
+    "typeclass": "typeclasses.items.PortableComputer",
+    "aliases": ["laptop", "portable", "rugged laptop"],
+    "desc": "A ruggedized portable computer with a reinforced case designed to survive the streets of Kowloon. The screen is protected by scratch-resistant polymer, and the sealed keyboard can handle spilled synthohol or worse. A high-gain antenna extends from the back for improved SafetyNet reception even in signal-dead zones. Heavy, but reliable.",
+    "attrs": [
+        ("is_computer", True),
+        ("weight", 3.5),
+    ],
+}
+
+

@@ -440,6 +440,17 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add diagnostic loop detection command (admin+)
         from commands.diagnose_loop import CmdDiagnoseLoop
         self.add(CmdDiagnoseLoop())       # Admin+: diagnose infinite loops/runaway scripts
+        # Add SafetyNet intranet social system commands
+        from commands.CmdSafetyNet import CmdSafetyNet
+        self.add(CmdSafetyNet())          # Player: SafetyNet social system
+        # Add SafetyNet device spawning commands
+        from commands.CmdSpawnSafetyNet import (
+            CmdSpawnSafetyNetDevice, CmdSpawnWristpad, CmdSpawnComputer, CmdSpawnPortableComputer
+        )
+        self.add(CmdSpawnSafetyNetDevice())  # Builder+: spawn SafetyNet devices (@spawnsn)
+        self.add(CmdSpawnWristpad())        # Builder+: quick spawn wristpad (@wristpad)
+        self.add(CmdSpawnComputer())        # Builder+: quick spawn computer (@computer)
+        self.add(CmdSpawnPortableComputer())  # Builder+: quick spawn portable computer (@portablecomp)
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
