@@ -833,14 +833,21 @@ class CmdSafetyNet(Command):
             caller.msg("|rAmount must be a number 1-20.|n")
             return
         
-        # Check daily limit
+        # Check daily limit based on handle (not character) to prevent multi-user exploits
         today = str(date.today())
-        raised_today = getattr(caller.ndb, 'ice_raised_today', 0)
-        raised_date = getattr(caller.ndb, 'ice_raised_date', None)
+        handle_data = manager.get_handle(handle)
+        if not handle_data:
+            caller.msg("|rHandle not found.|n")
+            return
+        
+        raised_today = handle_data.get('ice_raised_today', 0)
+        raised_date = handle_data.get('ice_raised_date', None)
         
         # Reset if it's a new day
         if raised_date != today:
             raised_today = 0
+            handle_data['ice_raised_today'] = 0
+            handle_data['ice_raised_date'] = today
         
         # Check if this attempt would exceed daily limit
         if raised_today + amount > 20:
@@ -858,17 +865,19 @@ class CmdSafetyNet(Command):
                 cooldown_duration = 30  # 30 second cooldown on critical failure
                 caller.ndb.raise_cooldown = time.time() + cooldown_duration
             elif result_type == 'success':
-                # Track daily ICE raised on success
-                today = str(date.today())
-                raised_today = getattr(caller.ndb, 'ice_raised_today', 0)
-                raised_date = getattr(caller.ndb, 'ice_raised_date', None)
-                
-                # Reset if it's a new day
-                if raised_date != today:
-                    raised_today = 0
-                
-                caller.ndb.ice_raised_today = raised_today + amount
-                caller.ndb.ice_raised_date = today
+                # Track daily ICE raised on handle (not character) to prevent multi-user exploits
+                handle_data = manager.get_handle(handle)
+                if handle_data:
+                    today = str(date.today())
+                    raised_today = handle_data.get('ice_raised_today', 0)
+                    raised_date = handle_data.get('ice_raised_date', None)
+                    
+                    # Reset if it's a new day
+                    if raised_date != today:
+                        raised_today = 0
+                    
+                    handle_data['ice_raised_today'] = raised_today + amount
+                    handle_data['ice_raised_date'] = today
             
             if success:
                 caller.msg(f"{message}")
