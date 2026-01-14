@@ -1221,37 +1221,41 @@ class CombatHandler(DefaultScript):
         """
         Send a combat status prompt to a character showing vital information.
         
-        Shows: Health status, bleeding, stamina %, and critically damaged organs.
-        Only sent if char.db.combat_prompt is True.
+        Shows: Health status (blood level), bleeding, stamina %, and critically damaged organs.
+        Only sent if char.db.combat_prompt is not False.
         
         Args:
             char: The character to send the prompt to
         """
         parts = []
         
-        # --- HEALTH STATUS ---
-        hp_current = getattr(char.db, "hp", 0) or 0
-        hp_max = getattr(char.db, "hp_max", 10) or 10
-        hp_pct = (hp_current / hp_max * 100) if hp_max > 0 else 0
+        # --- HEALTH STATUS (Blood Level) ---
+        blood_level = 100.0
+        if hasattr(char, 'medical_state') and char.medical_state:
+            blood_level = getattr(char.medical_state, 'blood_level', 100.0)
         
-        if hp_pct > 75:
+        if blood_level > 75:
             health_color = "|g"
             health_status = "Healthy"
-        elif hp_pct > 50:
+        elif blood_level > 50:
             health_color = "|y"
             health_status = "Wounded"
-        elif hp_pct > 25:
+        elif blood_level > 25:
             health_color = "|r"
             health_status = "Injured"
         else:
             health_color = "|R"
             health_status = "Critical"
         
-        parts.append(f"{health_color}HP: {hp_current}/{hp_max} ({health_status})|n")
+        parts.append(f"{health_color}Blood: {blood_level:.0f}% ({health_status})|n")
         
         # --- BLEEDING STATUS ---
-        is_bleeding = getattr(char.db, "is_bleeding", False)
-        bleed_rate = getattr(char.db, "bleed_rate", 0) or 0
+        is_bleeding = False
+        bleed_rate = 0
+        if hasattr(char, 'medical_state') and char.medical_state:
+            bleed_rate = char.medical_state.calculate_blood_loss_rate()
+            is_bleeding = bleed_rate > 0
+        
         if is_bleeding and bleed_rate > 0:
             if bleed_rate >= 3:
                 parts.append("|R[BLEEDING HEAVILY]|n")
@@ -1273,14 +1277,14 @@ class CombatHandler(DefaultScript):
             parts.append(f"{stam_color}Stamina: {stam_pct:.0f}%|n")
         
         # --- CRITICAL ORGAN DAMAGE ---
-        # Check for extremely damaged organs (severity >= 4 = "Extreme")
-        organ_conditions = getattr(char.db, "organ_conditions", {}) or {}
+        # Check for extremely damaged organs (functionality < 25%)
         critical_organs = []
-        for organ_name, condition in organ_conditions.items():
-            if isinstance(condition, dict):
-                severity = condition.get("severity", 0)
-                if severity >= 4:  # Extreme damage
-                    critical_organs.append(organ_name)
+        if hasattr(char, 'medical_state') and char.medical_state:
+            for organ_name, organ in char.medical_state.organs.items():
+                if hasattr(organ, 'get_functionality_percentage'):
+                    functionality = organ.get_functionality_percentage()
+                    if functionality < 0.25 and organ.current_hp < organ.max_hp:
+                        critical_organs.append(organ_name.replace('_', ' '))
         
         if critical_organs:
             organ_list = ", ".join(critical_organs)

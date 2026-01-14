@@ -30,7 +30,100 @@ class Command(BaseCommand):
     #     - at_post_cmd(): Extra actions, often things done after
     #         every command, like prompts.
     #
-    pass
+    
+    def at_post_cmd(self):
+        """
+        This hook is called after every command execution.
+        Shows combat prompt if character is in combat and prompt is enabled.
+        """
+        caller = self.caller
+        
+        # Only show prompt for characters in combat with prompt enabled
+        if not hasattr(caller, 'ndb'):
+            return
+            
+        handler = getattr(caller.ndb, 'combat_handler', None)
+        if not handler or not handler.is_active:
+            return
+            
+        # Check if prompt is disabled (default is on)
+        if getattr(caller.db, 'combat_prompt', True) is False:
+            return
+            
+        # Build and send the combat prompt
+        self._send_combat_prompt(caller)
+    
+    def _send_combat_prompt(self, char):
+        """
+        Send a combat status prompt to a character showing vital information.
+        Shows: Blood level, bleeding status, stamina %, and critical organs.
+        """
+        parts = []
+        
+        # --- HEALTH STATUS (Blood Level) ---
+        blood_level = 100.0
+        if hasattr(char, 'medical_state') and char.medical_state:
+            blood_level = getattr(char.medical_state, 'blood_level', 100.0)
+        
+        if blood_level > 75:
+            health_color = "|g"
+            health_status = "Healthy"
+        elif blood_level > 50:
+            health_color = "|y"
+            health_status = "Wounded"
+        elif blood_level > 25:
+            health_color = "|r"
+            health_status = "Injured"
+        else:
+            health_color = "|R"
+            health_status = "Critical"
+        
+        parts.append(f"{health_color}Blood: {blood_level:.0f}% ({health_status})|n")
+        
+        # --- BLEEDING STATUS ---
+        is_bleeding = False
+        bleed_rate = 0
+        if hasattr(char, 'medical_state') and char.medical_state:
+            bleed_rate = char.medical_state.calculate_blood_loss_rate()
+            is_bleeding = bleed_rate > 0
+        
+        if is_bleeding and bleed_rate > 0:
+            if bleed_rate >= 3:
+                parts.append("|R[BLEEDING HEAVILY]|n")
+            elif bleed_rate >= 1.5:
+                parts.append("|r[BLEEDING]|n")
+            else:
+                parts.append("|y[bleeding]|n")
+        
+        # --- STAMINA STATUS ---
+        stamina = getattr(char.ndb, "stamina", None)
+        if stamina:
+            stam_pct = (stamina.stamina_current / stamina.stamina_max * 100) if stamina.stamina_max > 0 else 0
+            if stam_pct > 50:
+                stam_color = "|g"
+            elif stam_pct > 20:
+                stam_color = "|y"
+            else:
+                stam_color = "|r"
+            parts.append(f"{stam_color}Stamina: {stam_pct:.0f}%|n")
+        
+        # --- CRITICAL ORGAN DAMAGE ---
+        critical_organs = []
+        if hasattr(char, 'medical_state') and char.medical_state:
+            for organ_name, organ in char.medical_state.organs.items():
+                if hasattr(organ, 'get_functionality_percentage'):
+                    functionality = organ.get_functionality_percentage()
+                    if functionality < 0.25 and organ.current_hp < organ.max_hp:
+                        critical_organs.append(organ_name.replace('_', ' '))
+        
+        if critical_organs:
+            organ_list = ", ".join(critical_organs)
+            parts.append(f"|R[CRITICAL: {organ_list}]|n")
+        
+        # --- SEND THE PROMPT ---
+        if parts:
+            prompt = " | ".join(parts)
+            char.msg(f"|w[Combat]|n {prompt}")
 
 
 # -------------------------------------------------------------
