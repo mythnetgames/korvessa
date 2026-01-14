@@ -575,8 +575,7 @@ class CmdSafetyNet(Command):
                 ice = data.get("ice_rating", 1)
                 is_current = current and current.get("display_name") == name
                 marker = " |g[ACTIVE]|n" if is_current else ""
-                
-lines.append(f"  |c{name}|n{marker} - ICE: {ice}/100")
+                lines.append(f"  |c{name}|n{marker} - ICE: {ice}/100")
         
         lines.append("|w==================================|n")
         
