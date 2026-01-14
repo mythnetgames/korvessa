@@ -159,12 +159,12 @@ def create_clone_backup(character):
     """
     Create or update a clone backup for the character.
     
-    Stores: BASELINE stats (without chrome bonuses), skills, nakeds, description
+    Stores: BASELINE stats (from character creation), skills, nakeds, description
     Does NOT store: chrome, inventory, current location
     
-    Chrome stat bonuses are subtracted before storing to ensure the backup
-    contains baseline stats. When restored, the character gets their natural
-    stats back, not the chrome-boosted stats they had.
+    Uses the character's stored baseline_stats (from creation) to ensure the backup
+    contains their natural stats. When restored, the character gets their original
+    stats back, not chrome-boosted stats.
     
     Args:
         character: The character to backup
@@ -172,18 +172,28 @@ def create_clone_backup(character):
     Returns:
         dict: The backup data created
     """
-    # Get chrome bonuses to subtract from current stats
-    chrome_bonuses = _get_chrome_stat_bonuses(character)
-    
-    # Calculate baseline stats (current stats minus chrome bonuses)
-    baseline_body = getattr(character, 'body', 1) - chrome_bonuses.get('body', 0)
-    baseline_ref = getattr(character, 'ref', 1) - chrome_bonuses.get('ref', 0)
-    baseline_dex = getattr(character, 'dex', 1) - chrome_bonuses.get('dex', 0)
-    baseline_tech = getattr(character, 'tech', 1) - chrome_bonuses.get('tech', 0)
-    baseline_smrt = getattr(character, 'smrt', 1) - chrome_bonuses.get('smrt', 0)
-    baseline_will = getattr(character, 'will', 1) - chrome_bonuses.get('will', 0)
-    baseline_edge = getattr(character, 'edge', 1) - chrome_bonuses.get('edge', 0)
-    baseline_emp = getattr(character, 'emp', 1) - chrome_bonuses.get('emp', 0)
+    # Get baseline stats from character (stored at creation)
+    # If not found, fall back to current stats (shouldn't happen for new chars)
+    baseline_stats = getattr(character.db, 'baseline_stats', None)
+    if baseline_stats:
+        baseline_body = baseline_stats.get('body', 1)
+        baseline_ref = baseline_stats.get('ref', 1)
+        baseline_dex = baseline_stats.get('dex', 1)
+        baseline_tech = baseline_stats.get('tech', 1)
+        baseline_smrt = baseline_stats.get('smrt', 1)
+        baseline_will = baseline_stats.get('will', 1)
+        baseline_edge = baseline_stats.get('edge', 1)
+        baseline_emp = baseline_stats.get('emp', 1)
+    else:
+        # Fallback: use current stats if baseline not stored (legacy characters)
+        baseline_body = getattr(character, 'body', 1)
+        baseline_ref = getattr(character, 'ref', 1)
+        baseline_dex = getattr(character, 'dex', 1)
+        baseline_tech = getattr(character, 'tech', 1)
+        baseline_smrt = getattr(character, 'smrt', 1)
+        baseline_will = getattr(character, 'will', 1)
+        baseline_edge = getattr(character, 'edge', 1)
+        baseline_emp = getattr(character, 'emp', 1)
     
     backup = {
         'timestamp': gametime.gametime(absolute=True),
@@ -216,8 +226,7 @@ def create_clone_backup(character):
     character.db.clone_backup_count = (character.db.clone_backup_count or 0) + 1
     
     _log(f"CLONE_BACKUP: Created backup for {character.key} (backup #{character.db.clone_backup_count})")
-    if chrome_bonuses:
-        _log(f"CLONE_BACKUP: Subtracted chrome bonuses: {chrome_bonuses}")
+    _log(f"CLONE_BACKUP: Stored baseline stats: body={baseline_body}, ref={baseline_ref}, dex={baseline_dex}, tech={baseline_tech}, smrt={baseline_smrt}, will={baseline_will}, edge={baseline_edge}, emp={baseline_emp}")
     
     return backup
 

@@ -283,6 +283,18 @@ def create_character_from_template(account, template, sex="ambiguous"):
     char.will = template.get('willpower', 1)  # Template uses 'willpower' for will
     char.edge = template.get('edge', 1)
     
+    # Store baseline stats (for clone restoration)
+    char.db.baseline_stats = {
+        'body': char.body,
+        'ref': char.ref,
+        'dex': char.dex,
+        'tech': char.tech,
+        'smrt': char.smrt,
+        'will': char.will,
+        'edge': char.edge,
+        'emp': 1  # Empathy calculated, but store baseline as 1
+    }
+    
     # Set sex
     char.sex = sex
     
