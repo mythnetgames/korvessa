@@ -1078,8 +1078,11 @@ class SafetyNetManager(DefaultScript):
         # Roll d100
         roll = random.randint(1, 100)
         
-        # Calculate target number: skill - ice (lower ICE = easier to wear down)
-        target_number = decking_skill - ice
+        # Calculate target number: skill + base bonus - ice difficulty
+        # Base bonus makes wearing easier - skilled deckers should succeed vs low ICE
+        base_bonus = 40  # Same as raise ICE
+        ice_difficulty = ice / 2  # Every 2 ICE adds 1% difficulty
+        target_number = max(5, min(95, decking_skill + base_bonus - ice_difficulty))
         
         # Success if roll <= target number
         success = roll <= target_number

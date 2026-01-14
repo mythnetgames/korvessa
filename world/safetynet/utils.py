@@ -198,15 +198,15 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
             return (False, margin, message)
     
     # Skill check: roll d100 vs (skill + modifiers - ICE difficulty)
-    online_bonus = 30 if online_status else 0  # Online targets easier
+    # Base bonus makes hacking easier - skilled deckers should succeed vs low ICE
+    base_bonus = 35  # Helps ensure skilled deckers succeed vs weak targets
+    online_bonus = 10 if online_status else 0  # Small bonus for online targets
     
     # ICE difficulty scaling - skill-friendly for deckers:
-    # - Online: ICE rating / 10 (1 ICE = 0.1, 50 ICE = 5, 100 ICE = 10)
-    # - Offline: ICE rating / 3 (1 ICE = 0.33, 50 ICE = 16.7, 100 ICE = 33.3)
-    ice_modifier = 0.33 if not online_status else 0.1
-    ice_difficulty = ice_rating * ice_modifier
+    # ICE rating / 2 means 3 ICE = 1.5 difficulty, 50 ICE = 25, 100 ICE = 50
+    ice_difficulty = ice_rating / 2
     
-    target_number = max(5, min(95, decking_skill + online_bonus - ice_difficulty))
+    target_number = max(5, min(95, decking_skill + base_bonus + online_bonus - ice_difficulty))
     roll = random.randint(1, 100)
     
     margin = target_number - roll
