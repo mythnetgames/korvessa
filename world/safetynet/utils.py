@@ -197,13 +197,13 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
                 message = "Access denied. Insufficient skill to breach ICE."
             return (False, margin, message)
     
-    # Skill check: roll d100 vs (skill - ICE difficulty + modifiers)
-    # Hacking is hard - no base bonus for unskilled players
-    online_bonus = 15 if online_status else 0  # Online targets easier
+    # Skill check: roll d100 vs (skill + modifiers - ICE difficulty)
+    online_bonus = 25 if online_status else 0  # Online targets easier
     
-    # ICE is 1.5x harder for hacking, and offline targets have MUCH stronger ICE
-    # (no active session to exploit)
-    ice_modifier = 2.5 if not online_status else 1.5  # Offline ICE is 2.5x harder
+    # ICE difficulty scaling - very generous for skilled deckers:
+    # - Online: ICE rating / 5 (1 ICE = 0.2, 50 ICE = 10, 100 ICE = 20)
+    # - Offline: ICE rating / 2 (1 ICE = 0.5, 50 ICE = 25, 100 ICE = 50)
+    ice_modifier = 0.5 if not online_status else 0.2
     ice_difficulty = ice_rating * ice_modifier
     
     target_number = max(5, min(95, decking_skill + online_bonus - ice_difficulty))

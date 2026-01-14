@@ -627,9 +627,9 @@ class CmdSafetyNet(Command):
         def do_ice_delayed():
             scan = manager.get_ice_scan(handle)
             if scan:
-                caller.msg(f"|w===== ICE Scan: {handle} =====|n")
+                caller.msg(f"|#87ff00===== ICE Scan: {handle} =====|n")
                 caller.msg(scan)
-                caller.msg("|w=============================|n")
+                caller.msg("|#87ff00=============================|n")
             else:
                 caller.msg(MSG_HANDLE_NOT_FOUND)
         
@@ -669,13 +669,13 @@ class CmdSafetyNet(Command):
                 caller.ndb.hack_cooldown = time.time() + cooldown_duration
             
             lines = []
-            lines.append("|w===== INTRUSION ATTEMPT =====|n")
-            lines.append(f"|yTarget:|n {handle}")
+            lines.append("|#87ff00===== INTRUSION ATTEMPT =====|n")
+            lines.append(f"|#afd700Target:|n {handle}")
             
             if result.get("success") and result.get("password"):
-                lines.append(f"|yPassword:|n {result['password']}")
+                lines.append(f"|#87ff00Password:|n {result['password']}")
             
-            lines.append(f"|yResult:|n {result['message']}")
+            lines.append(f"|#afd700Result:|n {result['message']}")
             
             if result.get("success"):
                 lines.append("")
@@ -684,31 +684,31 @@ class CmdSafetyNet(Command):
                 # Show trace if available
                 if result.get("trace"):
                     lines.append("")
-                    lines.append(f"|gTrace successful:|n Signal originates from '{result['trace']}'.")
+                    lines.append(f"|#87d700Trace successful:|n Signal originates from '{result['trace']}'.")
                 elif result.get("online"):
-                    lines.append("|yTrace failed:|n Could not pinpoint location.")
+                    lines.append("|#afaf00Trace failed:|n Could not pinpoint location.")
                 else:
-                    lines.append("|yNo trace:|n Target offline.")
+                    lines.append("|#afaf00No trace:|n Target offline.")
                 
                 # Show DMs if available
                 dms = result.get("dms", [])
                 if dms:
                     lines.append("")
-                    lines.append(f"|w----- Recovered Messages ({len(dms)}) -----|n")
+                    lines.append(f"|#87ff00----- Recovered Messages ({len(dms)}) -----|n")
                     for dm in dms[:5]:
                         from_h = dm.get("from_handle", "?")
                         msg = dm.get("message", "")[:80]
-                        lines.append(f"  |c{from_h}:|n {msg}")
+                        lines.append(f"  |#87d700{from_h}:|n {msg}")
             else:
                 lines.append("")
                 lines.append(MSG_HACK_FAILED)
                 lines.append(f"|r[ICE TRIGGERED]|n 30 second lockout initiated.|n")
             
-            lines.append("|w=============================|n")
+            lines.append("|#87ff00=============================|n")
             caller.msg("\n".join(lines))
         
         delay_time = get_connection_delay(device_type, "hack")
-        caller.msg("|y[SafetyNet] Initiating intrusion sequence...|n")
+        caller.msg("|#afd700[SafetyNet] Initiating intrusion sequence...|n")
         delay(delay_time, do_hack_delayed)
     
     def do_wear(self, device_type, args):
@@ -728,13 +728,13 @@ class CmdSafetyNet(Command):
             result = manager.attempt_wear_ice(caller, handle)
             
             lines = []
-            lines.append("|w===== BRUTE FORCE WEAR =====|n")
-            lines.append(f"|yTarget:|n {handle}")
+            lines.append("|#87ff00===== BRUTE FORCE WEAR =====|n")
+            lines.append(f"|#afd700Target:|n {handle}")
             
             if result.get("success"):
-                lines.append(f"|gResult:|n {result['message']}|n")
+                lines.append(f"|#87d700Result:|n {result['message']}|n")
                 new_rating = result.get("new_rating", "?")
-                lines.append(f"|gNew Rating:|n {new_rating}/100")
+                lines.append(f"|#87d700New Rating:|n {new_rating}/100")
             else:
                 roll = result.get("roll", "?")
                 target = result.get("target_number", "?")
@@ -742,11 +742,11 @@ class CmdSafetyNet(Command):
                 if result.get("traced"):
                     lines.append("|r[TRACED]|n Target owner has been alerted to your location!|n")
             
-            lines.append("|w=============================|n")
+            lines.append("|#87ff00=============================|n")
             caller.msg("\n".join(lines))
         
         delay_time = get_connection_delay(device_type, "write")
-        caller.msg("|y[SafetyNet] Initiating wear attack...|n")
+        caller.msg("|#afd700[SafetyNet] Initiating wear attack...|n")
         delay(delay_time, do_wear_delayed)
     
     def do_upgrade(self, device_type, args):

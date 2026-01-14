@@ -779,21 +779,21 @@ class SafetyNetManager(DefaultScript):
         ice = handle_data.get("ice_rating", DEFAULT_ICE_RATING)
         online = handle_data.get("session_char_id") is not None
         
-        # Descriptive ICE levels (1-100 scale)
+        # Descriptive ICE levels (1-100 scale) with hacker color scheme
         if ice <= 15:
-            level_desc = "|gMinimal|n"
+            level_desc = "|#87d700Minimal|n"
         elif ice <= 30:
-            level_desc = "|yBasic|n"
+            level_desc = "|#afd700Basic|n"
         elif ice <= 50:
-            level_desc = "|yStandard|n"
+            level_desc = "|#afaf00Standard|n"
         elif ice <= 75:
-            level_desc = "|rHardened|n"
+            level_desc = "|#87af00Hardened|n"
         else:
-            level_desc = "|R[BLACK ICE]|n"
+            level_desc = "|r[BLACK ICE]|n"
         
-        status = "|g[ONLINE]|n" if online else "|r[OFFLINE]|n"
+        status = "|#87ff00[ONLINE]|n" if online else "|r[OFFLINE]|n"
         
-        return f"ICE Profile: {level_desc} (Rating: {ice}/100) - Status: {status}"
+        return f"|#afd700ICE Profile:|n {level_desc} (Rating: {ice}/100) - Status: {status}"
     
     def raise_ice(self, decker, handle_name, amount):
         """
@@ -985,7 +985,7 @@ class SafetyNetManager(DefaultScript):
         Returns:
             dict with wear results
         """
-        from world.safetynet.utils import get_character_stat
+        import random
         from world.safetynet.constants import MSG_HACK_ALERT
         
         target_key = target_handle_name.lower()
@@ -1006,12 +1006,14 @@ class SafetyNetManager(DefaultScript):
                 "traced": False,
             }
         
-        # Skill-based check: d100 vs (Decking skill - ice_rating)
-        decking_skill = get_character_stat(attacker, "decking", default=1)
+        # Get attacker's Decking skill
+        decking_skill = 0
+        if hasattr(attacker.db, 'skills') and attacker.db.skills:
+            decking_skill = attacker.db.skills.get('Decking', 0)
+        
         ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
         
         # Roll d100
-        import random
         roll = random.randint(1, 100)
         
         # Calculate target number: skill - ice (lower ICE = easier to wear down)
