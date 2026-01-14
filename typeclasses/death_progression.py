@@ -503,11 +503,33 @@ def _create_corpse(character):
         corpse.db.death_time = time.time()
         corpse.db.physical_description = getattr(character.db, 'desc', 'A person.')
         
-        # Transfer inventory
+        # Preserve worn items data before transferring
+        worn_items_data = {}
+        if hasattr(character.db, 'worn_items') and character.db.worn_items:
+            # Copy worn items structure, mapping item dbrefs
+            for location, items in character.db.worn_items.items():
+                worn_items_data[location] = [item.dbref for item in items if item]
+        corpse.db.worn_items_data = worn_items_data
+        
+        # Preserve hands/wielded items data
+        hands_data = {}
+        if hasattr(character, 'hands') and character.hands:
+            for hand, item in character.hands.items():
+                if item:
+                    hands_data[hand] = item.dbref
+        corpse.db.hands_data = hands_data
+        
+        # Transfer inventory (all items in character contents)
         for item in list(character.contents):
             item.move_to(corpse, quiet=True)
         
-        _log(f"DEATH_PROG: Corpse created for {character.key}")
+        # Clear character's worn_items and hands since items are now on corpse
+        if hasattr(character.db, 'worn_items'):
+            character.db.worn_items = {}
+        if hasattr(character, 'hands'):
+            character.hands = {"left": None, "right": None}
+        
+        _log(f"DEATH_PROG: Corpse created for {character.key} with {len(list(corpse.contents))} items")
         return corpse
         
     except Exception as e:
