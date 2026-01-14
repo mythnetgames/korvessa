@@ -55,7 +55,7 @@ class CmdChromeInstall(Command):
         
         # Store chrome info in character's db for stats display
         chrome_list = target.db.installed_chrome_list
-        if chrome_list is None:
+        if not chrome_list:
             chrome_list = []
         chrome_entry = {
             "name": chrome_name,
@@ -185,7 +185,7 @@ class CmdChromeUninstall(Command):
         
         # Remove chrome from stats display list
         chrome_list_db = target.db.installed_chrome_list
-        if chrome_list_db and isinstance(chrome_list_db, list):
+        if chrome_list_db:
             target.db.installed_chrome_list = [c for c in chrome_list_db if c.get("shortname", "").lower() != shortname.lower()]
         
         # Stat name mapping (long name -> short name used by character)
