@@ -16,6 +16,13 @@ from world.combat.constants import SPLATTERCAST_CHANNEL, DB_CHAR, NDB_PROXIMITY_
 from .objects import ObjectParent
 
 class Exit(DefaultExit):
+        def announce_move_from(self, traversing_object, destination):
+            """Suppress default Evennia exit departure message."""
+            return ""
+
+        def announce_move_to(self, traversing_object, source_location):
+            """Suppress default Evennia exit arrival message."""
+            return ""
     """
     Exits are connectors between rooms. Exits are normal Objects except
     they define the `destination` property and override some hooks
