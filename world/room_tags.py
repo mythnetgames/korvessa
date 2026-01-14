@@ -103,7 +103,7 @@ def get_tag_display_string(tags):
         tags (list): List of tag names
         
     Returns:
-        str: Formatted tag display with colors (e.g., "|#ff0000[ON FIRE]|n [TAG]")
+        str: Formatted tag display with colors (e.g., "|#ff0000[FIRE]|n [TAG]")
     """
     if not tags:
         return ""
@@ -116,7 +116,7 @@ def get_tag_display_string(tags):
             color = tag_data.get("color", "")
             
             if color:
-                # Colored tag: |#ff0000[ON FIRE]|n
+                # Colored tag: |#ff0000[FIRE]|n
                 display_parts.append(f"{color}[{tag_upper}]|n")
             else:
                 # Plain tag: [TAG]
