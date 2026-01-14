@@ -90,23 +90,29 @@ class CmdSafetyNet(Command):
         # If we have lhs (left-hand side from = syntax), try to use it as a subcommand
         lhs = getattr(self, 'lhs', None) or ""
         
+        # Parse cmdstring for /subcommand pattern (e.g., "sn/register")
+        cmdstring = getattr(self, 'cmdstring', '') or ''
+        
         # Determine the primary command
-        if switches:
-            # We have switches from /syntax (e.g., sn/register <args>)
-            # Strip leading slash if present
+        primary_cmd = None
+        
+        # First check if cmdstring contains a slash (e.g., "sn/register")
+        if '/' in cmdstring:
+            parts = cmdstring.split('/', 1)
+            if len(parts) > 1:
+                primary_cmd = parts[1].lower()
+        # Then check switches
+        elif switches:
             raw_switch = switches[0] if switches else ""
             primary_cmd = str(raw_switch).lower().lstrip('/')
+        # Then check lhs
         elif lhs:
-            # We have lhs from =syntax (e.g., sn register=args)
             primary_cmd = lhs.lower().strip()
+        # Finally try to parse first word of args as command
         elif args:
-            # Try to parse first word of args as command
             parts = args.split(None, 1)
             primary_cmd = parts[0].lower() if parts else None
             args = parts[1] if len(parts) > 1 else ""
-        else:
-            # No command specified, show status
-            primary_cmd = None
         
         # Route to appropriate handler
         if not primary_cmd:
