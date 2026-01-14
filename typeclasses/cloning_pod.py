@@ -267,7 +267,8 @@ def restore_from_clone(new_character, backup_data):
     new_character.smrt = backup_data.get('smrt', 1)
     new_character.will = backup_data.get('will', 1)
     new_character.edge = backup_data.get('edge', 1)
-    new_character.emp = backup_data.get('emp', 1)
+    # Empathy: set to None so it auto-calculates from edge + willpower
+    new_character._emp = None
     
     # Store baseline stats on new character (for future clone backups)
     new_character.db.baseline_stats = {
@@ -290,7 +291,8 @@ def restore_from_clone(new_character, backup_data):
     new_character.max_smrt = backup_data.get('smrt', 1)
     new_character.max_will = backup_data.get('will', 1)
     new_character.max_edge = backup_data.get('edge', 1)
-    new_character.max_emp = backup_data.get('emp', 1)
+    # Empathy max: calculate from edge + willpower baseline
+    new_character.max_emp = backup_data.get('edge', 1) + backup_data.get('will', 1)
     
     # Restore skills
     new_character.db.skills = dict(backup_data.get('skills', {}))
