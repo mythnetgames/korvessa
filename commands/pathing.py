@@ -78,9 +78,12 @@ class CmdPath(Command):
         caller.msg("  |wpath remember <alias>|n - Save current location")
         caller.msg("  |wpath forget <alias>|n   - Remove a saved location")
         caller.msg("  |wpath list|n             - List saved locations")
-        caller.msg("  |wpath go <alias>|n       - Auto-walk to location")
-        caller.msg("  |wpath go <alias> <mode>|n - Walk with mode (walk/jog/run/sprint)")
+        caller.msg("  |wpath go <alias>|n       - Auto-walk to location (uses current movement mode)")
+        caller.msg("  |wpath go <alias> <mode>|n - Override mode (walk/jog/run/sprint)")
         caller.msg("  |wpath stop|n             - Cancel auto-walk")
+        caller.msg("")
+        caller.msg("|yMovement Modes:|n")
+        caller.msg("  Auto-walk respects your current movement tier set by: stroll, walk, jog, run, sprint")
         caller.msg("")
         
         # Show current status
@@ -199,8 +202,19 @@ class CmdPath(Command):
         
         # If no mode specified, use character's current movement mode
         if not mode or mode not in ["walk", "jog", "run", "sprint"]:
-            # Try to get character's current movement mode
-            current_mode = getattr(caller.ndb, 'movement_mode', None)
+            # Try to get character's current movement tier from stamina system
+            current_mode = None
+            try:
+                stamina = getattr(caller.ndb, 'stamina', None)
+                if stamina and hasattr(stamina, 'current_tier'):
+                    from world.stamina import MovementTier, TIER_NAMES
+                    tier_name = TIER_NAMES.get(stamina.current_tier, "walk").lower()
+                    if tier_name in ["walk", "jog", "run", "sprint", "stroll"]:
+                        # Map stroll to walk since our pathing system doesn't have stroll
+                        current_mode = tier_name if tier_name != "stroll" else "walk"
+            except:
+                pass
+            
             if current_mode and current_mode in ["walk", "jog", "run", "sprint"]:
                 mode = current_mode
             else:
