@@ -756,7 +756,7 @@ class CmdSafetyNet(Command):
         if last_raise is not None and isinstance(last_raise, (int, float)):
             current_time = time.time()
             if current_time - last_raise < 10:
-                caller.msg(f"|r[SPAM PROTECTION]|n Wait before attempting again.|n")
+                caller.msg(f"|rThe network is busy. Please wait before trying again.|n")
                 return
         
         if "=" not in args:
