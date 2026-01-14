@@ -63,6 +63,13 @@ class CmdSetRoomType(Command):
         caller.msg(msg)
         if applied:
             caller.msg(f"\n|gRoom tags updated: {', '.join(applied)}|n")
+            
+            # Attach effect handler if there are active tags
+            from world.room_tag_effects import attach_effect_handler
+            has_active = any(tag in ACTIVE_TAGS for tag in applied)
+            if has_active:
+                handler = attach_effect_handler(room)
+                caller.msg("|y[!] Effect handler activated for this room.|n")
     
     def _show_help(self, caller):
         """Show help text"""

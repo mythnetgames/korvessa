@@ -9,12 +9,14 @@ ACTIVE_TAGS = {
     "ON FIRE": {
         "desc": "Burning damage every 5 seconds",
         "icon": "x",
+        "color": "|#ff0000",
         "damage_per_tick": 5,
         "tick_interval": 5,
     },
     "SMOKED OUT": {
         "desc": "Contact high effect (lasts 1 hr after leaving)",
         "icon": "x",
+        "color": "|#6c6c6c",
         "effect": "contact_high",
         "duration_minutes": 60,
     },
@@ -30,15 +32,18 @@ ACTIVE_TAGS = {
     "FLOODED": {
         "desc": "Room is filled with water",
         "icon": "x",
+        "color": "|#005fff",
     },
     "TREADING WATER": {
         "desc": "More stamina for movement",
         "icon": "x",
+        "color": "|#00d7ff",
         "stamina_cost_reduction": 0.5,
     },
     "UNDERWATER": {
         "desc": "Uses stamina pool for breath holding",
         "icon": "x",
+        "color": "|#00005f",
     },
 }
 
@@ -92,12 +97,13 @@ VALID_TAG_NAMES = set(ALL_TAGS.keys())
 def get_tag_display_string(tags):
     """
     Generate display string for room tags to show in room title.
+    Applies color codes from tag definitions.
     
     Args:
         tags (list): List of tag names
         
     Returns:
-        str: Formatted tag display (e.g., "[x ON FIRE] [o MEDICAL]")
+        str: Formatted tag display with colors (e.g., "|#ff0000[ON FIRE]|n [TAG]")
     """
     if not tags:
         return ""
@@ -106,8 +112,15 @@ def get_tag_display_string(tags):
     for tag in tags:
         tag_upper = tag.upper()
         if tag_upper in ALL_TAGS:
-            icon = ALL_TAGS[tag_upper]["icon"]
-            display_parts.append(f"[{icon} {tag_upper}]")
+            tag_data = ALL_TAGS[tag_upper]
+            color = tag_data.get("color", "")
+            
+            if color:
+                # Colored tag: |#ff0000[ON FIRE]|n
+                display_parts.append(f"{color}[{tag_upper}]|n")
+            else:
+                # Plain tag: [TAG]
+                display_parts.append(f"[{tag_upper}]")
     
     return " ".join(display_parts) if display_parts else ""
 
