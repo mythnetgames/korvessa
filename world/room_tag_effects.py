@@ -62,46 +62,56 @@ class RoomTagEffectHandler(DefaultScript):
         """Apply fire damage and burns every tick"""
         import random
         from world.medical.conditions import BurnCondition
+        from evennia.comms.models import ChannelDB
+        
+        try:
+            splattercast = ChannelDB.objects.get_channel("Splattercast")
+        except:
+            splattercast = None
         
         for char in characters:
-            # Random damage message variety
-            messages = [
-                "|r[!] You're burned by the intense heat!|n",
-                "|r[!] Flames scorch your skin!|n",
-                "|r[!] The fire sears you with unbearable pain!|n",
-            ]
-            char.msg(random.choice(messages))
-            room_messages = [
-                f"|r[!] {char.key} is burned by the intense heat!|n",
-                f"|r[!] Flames scorch {char.key}'s skin!|n",
-                f"|r[!] {char.key} screams as fire sears them!|n",
-            ]
-            room.msg_contents(random.choice(room_messages), exclude=[char])
-            
-            # Create burn wounds
-            if hasattr(char, 'medical_state'):
-                medical_state = char.medical_state
+            try:
+                # Random damage message variety
+                messages = [
+                    "|r[!] You're burned by the intense heat!|n",
+                    "|r[!] Flames scorch your skin!|n",
+                    "|r[!] The fire sears you with unbearable pain!|n",
+                ]
+                char.msg(random.choice(messages))
+                room_messages = [
+                    f"|r[!] {char.key} is burned by the intense heat!|n",
+                    f"|r[!] Flames scorch {char.key}'s skin!|n",
+                    f"|r[!] {char.key} screams as fire sears them!|n",
+                ]
+                room.msg_contents(random.choice(room_messages), exclude=[char])
                 
-                # Determine severity based on existing burns
-                existing_burns = [c for c in medical_state.conditions if c.condition_type == "burn"]
-                burn_severity = 1 + len(existing_burns)  # Stacking burns get worse
-                
-                # Randomly pick body location for the burn
-                locations = ["chest", "arms", "legs", "head", "back"]
-                location = random.choice(locations)
-                
-                # Create burn condition
-                burn = BurnCondition(burn_severity, location)
-                medical_state.conditions.append(burn)
-                burn.start_condition(char)
-                
-                # If severe enough, also cause bleeding
-                if burn_severity >= 3:
-                    from world.medical.conditions import BleedingCondition
-                    if random.random() < 0.3:  # 30% chance for severe burns to cause bleeding
-                        bleed = BleedingCondition(max(1, burn_severity - 2), location)
-                        medical_state.conditions.append(bleed)
-                        bleed.start_condition(char)
+                # Create burn wounds
+                if hasattr(char, 'medical_state'):
+                    medical_state = char.medical_state
+                    
+                    # Determine severity based on existing burns
+                    existing_burns = [c for c in medical_state.conditions if c.condition_type == "burn"]
+                    burn_severity = 1 + len(existing_burns)  # Stacking burns get worse
+                    
+                    # Randomly pick body location for the burn
+                    locations = ["chest", "arms", "legs", "head", "back"]
+                    location = random.choice(locations)
+                    
+                    # Create burn condition
+                    burn = BurnCondition(burn_severity, location)
+                    medical_state.conditions.append(burn)
+                    burn.start_condition(char)
+                    
+                    # If severe enough, also cause bleeding
+                    if burn_severity >= 3:
+                        from world.medical.conditions import BleedingCondition
+                        if random.random() < 0.3:  # 30% chance for severe burns to cause bleeding
+                            bleed = BleedingCondition(max(1, burn_severity - 2), location)
+                            medical_state.conditions.append(bleed)
+                            bleed.start_condition(char)
+            except Exception as e:
+                if splattercast:
+                    splattercast.msg(f"FIRE_ERROR on {char.key}: {e}")
     
     def _handle_underwater(self, room, characters):
         """Handle underwater stamina/breath drain"""
