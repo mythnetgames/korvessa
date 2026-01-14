@@ -155,6 +155,13 @@ TIME_GAME_EPOCH = -3114700
 
 
 ######################################################################
+# Prototype Modules
+######################################################################
+
+# Add chrome prototypes to the default prototype modules
+PROTOTYPE_MODULES = ["world.prototypes", "world.chrome_prototypes"]
+
+######################################################################
 # Settings given in secret_settings.py override those in this file.
 ######################################################################
 try:
