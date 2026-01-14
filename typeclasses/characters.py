@@ -290,8 +290,11 @@ class Character(ObjectParent, DefaultCharacter):
         Clears @temp_place when moving to a new room.
         Sends consistent movement messages for other players to see.
         """
-        # Send custom movement messages to maintain consistency
-        if source_location and self.location != source_location:
+        # Check if this was a quiet move (exit system handles its own messages)
+        quiet = kwargs.get("quiet", False)
+        
+        # Send custom movement messages to maintain consistency (unless quiet)
+        if not quiet and source_location and self.location != source_location:
             # Try to find the actual exit that was used
             direction = None
             exit_used = None
