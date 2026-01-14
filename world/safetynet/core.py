@@ -54,6 +54,7 @@ def get_safetynet_manager():
         SafetyNetManager,
         key="safetynet_manager",
         persistent=True,
+        repeat=3600,  # Repeat every hour (3600 seconds) for ICE decay
     )
     return _manager_cache
 
@@ -129,6 +130,46 @@ class SafetyNetManager(DefaultScript):
                 "created": datetime.now(timezone.utc),
                 "session_char_id": None,
             }
+    
+    def at_repeat(self):
+        """Periodic maintenance - ICE decay and cleanup."""
+        self.decay_ice()
+    
+    def decay_ice(self):
+        """
+        Decay ICE on all handles over time.
+        Very slow decay - 1 point per day per handle that hasn't been maintained.
+        """
+        current_time = datetime.now(timezone.utc)
+        
+        for handle_key, handle_data in self.db.handles.items():
+            # Skip System account
+            if handle_key == SYSTEM_HANDLE.lower():
+                continue
+            
+            # Get last decay time, default to now if not set
+            last_decay = handle_data.get("last_decay", datetime.min.replace(tzinfo=timezone.utc))
+            
+            # Check if 24 hours have passed since last decay
+            time_since_decay = current_time - last_decay
+            if time_since_decay.total_seconds() >= 86400:  # 24 hours in seconds
+                # Decay by 1 point
+                current_ice = handle_data.get("ice_rating", DEFAULT_ICE_RATING)
+                new_ice = max(1, current_ice - 1)  # Don't go below 1
+                handle_data["ice_rating"] = new_ice
+                handle_data["last_decay"] = current_time
+                
+                # Alert owner if online
+                owner_id = handle_data.get("session_char_id")
+                if owner_id:
+                    from evennia.objects.models import ObjectDB
+                    try:
+                        owner = ObjectDB.objects.get(id=owner_id)
+                        if owner:
+                            display_name = handle_data.get("display_name", "Unknown")
+                            owner.msg(f"|y[SafetyNet]|n Your handle |c{display_name}|n ICE is decaying. Consider hiring a decker to maintain it.|n")
+                    except:
+                        pass
     
     # =========================================================================
     # HANDLE MANAGEMENT

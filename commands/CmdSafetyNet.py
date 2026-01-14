@@ -736,11 +736,13 @@ class CmdSafetyNet(Command):
     
     def do_raise_ice(self, device_type, args):
         """Decker function: Raise ICE by a small amount (1-20 per use) with skill check."""
+        import time
+        from datetime import date
+        
         caller = self.caller
         manager = get_safetynet_manager()
         
         # Check for cooldown from critical failure
-        import time
         raise_cooldown = getattr(caller.ndb, 'raise_cooldown', None)
         if raise_cooldown is not None and isinstance(raise_cooldown, (int, float)):
             current_time = time.time()
@@ -749,9 +751,17 @@ class CmdSafetyNet(Command):
                 caller.msg(f"|r[SYSTEM LOCKED]|n Systems still recovering. Try again in {remaining} seconds.|n")
                 return
         
+        # Check spam cooldown (10 second minimum between attempts)
+        last_raise = getattr(caller.ndb, 'last_raise_attempt', None)
+        if last_raise is not None and isinstance(last_raise, (int, float)):
+            current_time = time.time()
+            if current_time - last_raise < 10:
+                caller.msg(f"|r[SPAM PROTECTION]|n Wait before attempting again.|n")
+                return
+        
         if "=" not in args:
             caller.msg("|rUsage: sn raise <handle>=<amount>|n")
-            caller.msg("|yAmount: 1-20 per action|n")
+            caller.msg("|yAmount: 1-20 per action (max 20/day)|n")
             caller.msg("|yRisk: Failure locks you out, critical failure locks you out for 30 seconds|n")
             return
         
@@ -764,18 +774,51 @@ class CmdSafetyNet(Command):
             caller.msg("|rAmount must be a number 1-20.|n")
             return
         
+        # Check daily limit
+        today = str(date.today())
+        raised_today = getattr(caller.ndb, 'ice_raised_today', 0)
+        raised_date = getattr(caller.ndb, 'ice_raised_date', None)
+        
+        # Reset if it's a new day
+        if raised_date != today:
+            raised_today = 0
+        
+        # Check if this attempt would exceed daily limit
+        if raised_today + amount > 20:
+            remaining_daily = 20 - raised_today
+            caller.msg(f"|r[DAILY LIMIT]|n You can only raise {remaining_daily} more ICE points today.|n")
+            return
+        
+        # Record this attempt timestamp
+        caller.ndb.last_raise_attempt = time.time()
+        
         def do_raise_delayed():
             success, message, new_rating, result_type = manager.raise_ice(caller, handle, amount)
             
             # Set cooldown on critical failure
             if result_type == 'critfail':
-                import time
                 cooldown_duration = 30  # 30 second cooldown on critical failure
                 caller.ndb.raise_cooldown = time.time() + cooldown_duration
+            elif result_type == 'success':
+                # Track daily ICE raised on success
+                today = str(date.today())
+                raised_today = getattr(caller.ndb, 'ice_raised_today', 0)
+                raised_date = getattr(caller.ndb, 'ice_raised_date', None)
+                
+                # Reset if it's a new day
+                if raised_date != today:
+                    raised_today = 0
+                
+                caller.ndb.ice_raised_today = raised_today + amount
+                caller.ndb.ice_raised_date = today
             
             if success:
                 caller.msg(f"{message}")
                 caller.msg(f"|wNew ICE Rating:|n {new_rating}/100")
+                if result_type == 'success':
+                    total_raised = getattr(caller.ndb, 'ice_raised_today', 0)
+                    remaining = 20 - total_raised
+                    caller.msg(f"|wDaily limit:|n {total_raised}/20 points used ({remaining} remaining)|n")
             else:
                 caller.msg(f"|r{message}|n")
         
