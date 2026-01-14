@@ -1293,7 +1293,7 @@ class CombatHandler(DefaultScript):
         # --- SEND THE PROMPT ---
         if parts:
             prompt = " | ".join(parts)
-            char.msg(f"|w[Combat]|n {prompt}")
+            char.msg(prompt)
 
     def _determine_injury_type(self, weapon):
         """

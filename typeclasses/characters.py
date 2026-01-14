@@ -543,22 +543,27 @@ class Character(ObjectParent, DefaultCharacter):
 
     def msg(self, text=None, from_obj=None, session=None, **kwargs):
         """
-        Override msg method to implement death message filtering.
+        Override msg method to implement death message filtering and combat prompt appending.
         
         Dead characters receive only death-related messages for immersion.
         The _death_curtain_active flag bypasses ALL filtering.
+        Combat prompt is appended to every message when in combat with prompt enabled.
         """
         # If not dead, use normal messaging
         if not self.is_dead():
+            # Append combat prompt if in combat
+            text = self._append_combat_prompt(text)
             return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
         
         # CRITICAL: Allow ALL messages when death curtain/progression flag is set
         # This is the main mechanism for death messages to get through
         if getattr(self.ndb, '_death_curtain_active', False):
+            text = self._append_combat_prompt(text)
             return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
         
         # Also allow if in active death progression
         if getattr(self.ndb, '_death_progression_active', False):
+            text = self._append_combat_prompt(text)
             return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
             
         # No text = nothing to filter
@@ -570,12 +575,106 @@ class Character(ObjectParent, DefaultCharacter):
             try:
                 if from_obj.locks.check(from_obj, "perm(Builder)"):
                     if not self._is_social_message(text, kwargs):
+                        text = self._append_combat_prompt(text)
                         return super().msg(text=text, from_obj=from_obj, session=session, **kwargs)
             except:
                 pass
             
         # Block all other messages for immersion - dead characters see nothing
         return
+    
+    def _append_combat_prompt(self, text):
+        """
+        Append combat status prompt to the end of a message if in combat and prompt enabled.
+        
+        Args:
+            text: The original message text
+            
+        Returns:
+            str: Text with combat prompt appended if applicable, otherwise original text
+        """
+        # Check if in combat
+        handler = getattr(self.ndb, 'combat_handler', None)
+        if not handler or not handler.is_active:
+            return text
+        
+        # Check if prompt is disabled (default is on)
+        if getattr(self.db, 'combat_prompt', True) is False:
+            return text
+        
+        # Build combat prompt
+        parts = []
+        
+        # --- HEALTH STATUS (Blood Level) ---
+        blood_level = 100.0
+        if hasattr(self, 'medical_state') and self.medical_state:
+            blood_level = getattr(self.medical_state, 'blood_level', 100.0)
+        
+        if blood_level > 75:
+            health_color = "|g"
+            health_status = "Healthy"
+        elif blood_level > 50:
+            health_color = "|y"
+            health_status = "Wounded"
+        elif blood_level > 25:
+            health_color = "|r"
+            health_status = "Injured"
+        else:
+            health_color = "|R"
+            health_status = "Critical"
+        
+        parts.append(f"{health_color}Blood: {blood_level:.0f}% ({health_status})|n")
+        
+        # --- BLEEDING STATUS ---
+        is_bleeding = False
+        bleed_rate = 0
+        if hasattr(self, 'medical_state') and self.medical_state:
+            bleed_rate = self.medical_state.calculate_blood_loss_rate()
+            is_bleeding = bleed_rate > 0
+        
+        if is_bleeding and bleed_rate > 0:
+            if bleed_rate >= 3:
+                parts.append("|R[BLEEDING HEAVILY]|n")
+            elif bleed_rate >= 1.5:
+                parts.append("|r[BLEEDING]|n")
+            else:
+                parts.append("|y[bleeding]|n")
+        
+        # --- STAMINA STATUS ---
+        stamina = getattr(self.ndb, "stamina", None)
+        if stamina:
+            stam_pct = (stamina.stamina_current / stamina.stamina_max * 100) if stamina.stamina_max > 0 else 0
+            if stam_pct > 50:
+                stam_color = "|g"
+            elif stam_pct > 20:
+                stam_color = "|y"
+            else:
+                stam_color = "|r"
+            parts.append(f"{stam_color}Stamina: {stam_pct:.0f}%|n")
+        
+        # --- CRITICAL ORGAN DAMAGE ---
+        critical_organs = []
+        if hasattr(self, 'medical_state') and self.medical_state:
+            for organ_name, organ in self.medical_state.organs.items():
+                if hasattr(organ, 'get_functionality_percentage'):
+                    functionality = organ.get_functionality_percentage()
+                    if functionality < 0.25 and organ.current_hp < organ.max_hp:
+                        critical_organs.append(organ_name.replace('_', ' '))
+        
+        if critical_organs:
+            organ_list = ", ".join(critical_organs)
+            parts.append(f"|R[CRITICAL: {organ_list}]|n")
+        
+        # Append prompt to text
+        if parts:
+            prompt = " | ".join(parts)
+            if isinstance(text, str):
+                return f"{text}\n{prompt}"
+            elif isinstance(text, tuple) and len(text) >= 1:
+                # Handle (text, options) format
+                return (f"{text[0]}\n{prompt}", text[1]) if len(text) > 1 else (f"{text[0]}\n{prompt}",)
+        
+        return text
         
     def _is_social_message(self, text, kwargs):
         """
