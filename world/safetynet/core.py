@@ -418,6 +418,9 @@ class SafetyNetManager(DefaultScript):
         self.db.posts.append(post)
         self.db.next_post_id += 1
         
+        # Notify SafetyNet channel and active terminals
+        self._broadcast_post_notification(handle_name, feed, message)
+        
         return (True, f"Posted to {feed}.")
     
     def get_posts(self, feed=None, limit=10, offset=0):
@@ -522,6 +525,9 @@ class SafetyNetManager(DefaultScript):
         if recipient_data and recipient_data.get("session_char_id"):
             self._notify_dm_recipient(recipient_data["session_char_id"], from_handle, message)
         
+        # Notify SafetyNet channel and active terminals
+        self._broadcast_dm_notification(from_handle, to_handle, message)
+        
         return (True, f"Message sent to {to_handle}.")
     
     def _notify_dm_recipient(self, char_id, from_handle, message):
@@ -533,6 +539,44 @@ class SafetyNetManager(DefaultScript):
                 # Truncate long messages for notification
                 preview = message[:100] + "..." if len(message) > 100 else message
                 char.msg(f"|c[SafetyNet DM from {from_handle}]|n {preview}")
+        except:
+            pass
+    
+    def _broadcast_post_notification(self, handle_name, feed, message):
+        """Broadcast post notification to SafetyNet channel and active terminals."""
+        from evennia.comms.models import ChannelDB
+        from evennia.objects.models import ObjectDB
+        
+        try:
+            # Send to SafetyNet admin channel
+            channel = ChannelDB.objects.get_channel("SafetyNet")
+            if channel:
+                preview = message[:50] + "..." if len(message) > 50 else message
+                channel.msg(f"|c[NEW POST]|n {handle_name} posted to {feed}: {preview}")
+        except:
+            pass
+        
+        # Notify all active characters with wristpads
+        try:
+            for handle_key, handle_data in self.db.handles.items():
+                if handle_data.get("session_char_id"):
+                    char = ObjectDB.objects.get(id=handle_data["session_char_id"])
+                    if char:
+                        preview = message[:50] + "..." if len(message) > 50 else message
+                        char.msg(f"|y[SafetyNet Post]|n {handle_name}: {preview}")
+        except:
+            pass
+    
+    def _broadcast_dm_notification(self, from_handle, to_handle, message):
+        """Broadcast DM notification to SafetyNet channel."""
+        from evennia.comms.models import ChannelDB
+        
+        try:
+            # Send to SafetyNet admin channel
+            channel = ChannelDB.objects.get_channel("SafetyNet")
+            if channel:
+                preview = message[:50] + "..." if len(message) > 50 else message
+                channel.msg(f"|c[NEW DM]|n {from_handle} -> {to_handle}: {preview}")
         except:
             pass
     

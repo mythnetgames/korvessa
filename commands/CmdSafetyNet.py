@@ -835,18 +835,9 @@ class CmdSafetyNetAdmin(Command):
             return
         
         # Find handle and set ICE
-        handles = manager.get_all_handles()
-        handle_found = False
-        for char_name, char_handles in handles.items():
-            for handle_data in char_handles:
-                if handle_data.get("name", "").lower() == handle_name.lower():
-                    handle_data["ice_rating"] = level
-                    handle_found = True
-                    break
-            if handle_found:
-                break
-        
-        if handle_found:
+        handle_key = handle_name.lower()
+        if handle_key in manager.db.handles:
+            manager.db.handles[handle_key]["ice_rating"] = level
             caller.msg(f"|gSet ICE rating for {handle_name} to {level}.|n")
         else:
             caller.msg(f"|rHandle '{handle_name}' not found.|n")
@@ -861,22 +852,13 @@ class CmdSafetyNetAdmin(Command):
             return
         
         # Find and reset handle
-        handles = manager.get_all_handles()
-        handle_found = False
-        for char_name, char_handles in handles.items():
-            for handle_data in char_handles:
-                if handle_data.get("name", "").lower() == handle_name.lower():
-                    # Generate new password
-                    new_pass = manager.generate_password()
-                    handle_data["password"] = new_pass
-                    handle_found = True
-                    caller.msg(f"|gReset password for {handle_name}.|n")
-                    caller.msg(f"|wNew password:|n {new_pass}")
-                    break
-            if handle_found:
-                break
-        
-        if not handle_found:
+        handle_key = handle_name.lower()
+        if handle_key in manager.db.handles:
+            new_pass = manager.generate_password()
+            manager.db.handles[handle_key]["password"] = new_pass
+            caller.msg(f"|gReset password for {handle_name}.|n")
+            caller.msg(f"|wNew password:|n {new_pass}")
+        else:
             caller.msg(f"|rHandle '{handle_name}' not found.|n")
     
     def do_admin_info(self, manager, args):
@@ -889,20 +871,21 @@ class CmdSafetyNetAdmin(Command):
             return
         
         # Find handle and display info
-        handles = manager.get_all_handles()
-        for char_name, char_handles in handles.items():
-            for handle_data in char_handles:
-                if handle_data.get("name", "").lower() == handle_name.lower():
-                    lines = ["|w=== Handle Info ===|n"]
-                    lines.append(f"|wHandle:|n {handle_data.get('name')}")
-                    lines.append(f"|wOwner:|n {char_name}")
-                    lines.append(f"|wICE Rating:|n {handle_data.get('ice_rating', 0)}/10")
-                    lines.append(f"|wCreated:|n {format_timestamp(handle_data.get('created', 0))}")
-                    lines.append(f"|wPosts:|n {len(handle_data.get('posts', []))}")
-                    caller.msg("\n".join(lines))
-                    return
-        
-        caller.msg(f"|rHandle '{handle_name}' not found.|n")
+        handle_key = handle_name.lower()
+        if handle_key in manager.db.handles:
+            handle_data = manager.db.handles[handle_key]
+            lines = [""]
+            lines.append(f"|wHandle:|n {handle_data.get('display_name')}")
+            if handle_data.get('owner_id'):
+                lines.append(f"|wOwner ID:|n {handle_data.get('owner_id')}")
+            else:
+                lines.append("|wOwner:|n System Account")
+            lines.append(f"|wICE Rating:|n {handle_data.get('ice_rating', 0)}/100")
+            lines.append(f"|wCreated:|n {format_timestamp(handle_data.get('created', 0))}")
+            lines.append(f"|wOnline:|n {'Yes' if handle_data.get('session_char_id') else 'No'}")
+            caller.msg("".join(lines))
+        else:
+            caller.msg(f"|rHandle '{handle_name}' not found.|n")
     
     def do_admin_nuke(self, manager, args):
         """Delete a handle permanently."""
@@ -920,30 +903,28 @@ class CmdSafetyNetAdmin(Command):
             return
         
         # Find and delete handle
-        handles = manager.get_all_handles()
-        for char_name, char_handles in handles.items():
-            for i, handle_data in enumerate(char_handles):
-                if handle_data.get("name", "").lower() == handle_name.lower():
-                    char_handles.pop(i)
-                    caller.msg(f"|rDeleted handle '{handle_name}' and all associated data.|n")
-                    return
-        
-        caller.msg(f"|rHandle '{handle_name}' not found.|n")
+        handle_key = handle_name.lower()
+        if handle_key in manager.db.handles:
+            del manager.db.handles[handle_key]
+            if handle_key in manager.db.dms:
+                del manager.db.dms[handle_key]
+            caller.msg(f"|rDeleted handle '{handle_name}' and all associated data.|n")
+        else:
+            caller.msg(f"|rHandle '{handle_name}' not found.|n")
     
     def do_admin_stats(self, manager, args):
         """Show SafetyNet statistics."""
         caller = self.caller
         
-        handles = manager.get_all_handles()
-        total_handles = sum(len(h) for h in handles.values())
-        total_posts = sum(len(h.get("posts", [])) for h in manager.db.posts.get("posts", []))
-        total_dms = len(manager.db.dms)
-        total_users = len(handles)
+        total_handles = len(manager.db.handles)
+        total_posts = len(manager.db.posts)
+        total_dms = sum(len(dms) for dms in manager.db.dms.values())
+        online_handles = sum(1 for h in manager.db.handles.values() if h.get('session_char_id'))
         
         lines = ["|w=== SafetyNet Statistics ===|n"]
-        lines.append(f"|wTotal Users:|n {total_users}")
         lines.append(f"|wTotal Handles:|n {total_handles}")
-        lines.append(f"|wTotal Posts:|n {len(manager.db.posts.get('posts', []))}")
+        lines.append(f"|wOnline Handles:|n {online_handles}")
+        lines.append(f"|wTotal Posts:|n {total_posts}")
         lines.append(f"|wTotal DMs:|n {total_dms}")
         
         caller.msg("\n".join(lines))
