@@ -92,6 +92,9 @@ class Room(ObjectParent, DefaultRoom):
     # Crowd system base level
     crowd_base_level = AttributeProperty(default=0, autocreate=True)
     
+    # Room tags/attributes system
+    tags = AttributeProperty(default=[], autocreate=True)
+    
     def at_object_creation(self):
         """
         Called when room is first created.
@@ -269,6 +272,17 @@ class Room(ObjectParent, DefaultRoom):
 
         # Zone-aware mapping: only show exits and map info for rooms in the same zone
         appearance = super().return_appearance(looker, **kwargs)
+        
+        # Add room tags to the title line if they exist
+        from world.room_tags import get_tag_display_string
+        tag_display = get_tag_display_string(getattr(self, 'tags', []))
+        if tag_display:
+            lines = appearance.split('\n')
+            if lines and lines[0].startswith('|c'):
+                # This is the room name line, append tags
+                lines[0] = lines[0].rstrip('|n') + f" {tag_display}|n"
+                appearance = '\n'.join(lines)
+        
         integrated_content = self.get_integrated_objects_content(looker)
         weather_desc = weather_system.get_weather_contributions(self, looker)
         all_integrated_content = []

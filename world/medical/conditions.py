@@ -540,3 +540,64 @@ def set_infection_environmental_risk(character, modifier, reason="environmental 
         
         splattercast.msg(f"INFECTION_ENV_RISK: {character.key} infection risk set to {modifier}x due to {reason}")
     # If no infections, the modifier would apply to future infections created in this environment
+
+
+class BurnCondition(MedicalCondition):
+    """Burn wounds from fire exposure. High infection risk, painful, and require special treatment."""
+    
+    def __init__(self, severity, location=None):
+        super().__init__("burn", severity, location, tick_interval=60)
+        self.infection_risk = 0.3 + (severity * 0.05)  # 30% base + 5% per severity level
+        self.infection_risk = min(self.infection_risk, 0.9)  # Cap at 90%
+        
+    def tick_effect(self, character):
+        """Apply pain and infection risk from burns."""
+        from world.combat.constants import SPLATTERCAST_CHANNEL
+        from evennia.comms.models import ChannelDB
+        
+        splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        
+        if not hasattr(character, 'medical_state'):
+            return
+        
+        medical_state = character.medical_state
+        
+        # Severe burns cause ongoing pain
+        if self.severity >= 3:
+            character.msg("|r[!] Searing pain from your burns.|n")
+        elif self.severity >= 1:
+            character.msg("|r[!] You feel burning pain.|n")
+        
+        # Check for infection development (burns are very prone to infection)
+        import random
+        if random.random() < (self.infection_risk / 60):  # Per-second rate
+            # Burn infection is already forming
+            existing_infections = [c for c in medical_state.conditions 
+                                  if c.condition_type == "infection" and c.location == self.location]
+            if not existing_infections:
+                infection = InfectionCondition(max(1, self.severity - 1), self.location)
+                # Burn infections are aggressive
+                infection.infection_rate = min(infection.infection_rate * 1.5, 0.15)
+                medical_state.conditions.append(infection)
+                infection.start_condition(character)
+                character.msg(f"|r[!] Your burn is becoming infected!|n")
+        
+        # Severe burns can cause tissue damage (reduce max severity gradually)
+        if self.severity >= 4 and random.random() < 0.05:
+            self.max_severity = max(1, self.max_severity - 1)
+            character.msg("|r[!] Your burns are worsening despite your body's attempts to heal.|n")
+    
+    def get_pain_contribution(self):
+        """Burn conditions contribute significant pain."""
+        # Severe burns are excruciating
+        return self.severity * 2
+    
+    def should_end(self):
+        """Burns heal slowly - require treatment."""
+        # Without treatment, burns persist longer
+        if self.treated:
+            return self.severity <= 0
+        else:
+            # Untreated burns persist - only reduce naturally if very mild
+            return self.severity <= -10
+

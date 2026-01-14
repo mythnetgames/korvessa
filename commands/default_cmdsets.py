@@ -61,6 +61,7 @@ from commands.adminkill import CmdAdminKill
 from commands.CmdTogglePickup import CmdTogglePickup
 from commands.stamina_admin import CmdStaminaStart, CmdStaminaStatus
 from commands.CmdFollow import CmdFollow, CmdUnfollow, CmdLose
+from commands.CmdSetRoomType import CmdSetRoomType
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -323,6 +324,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add control command
         from commands.control import CmdControl
         self.add(CmdControl())
+        # Add room type/tag command
+        self.add(CmdSetRoomType())
         # Add tailoring commands
         from commands.CmdTailoring import (
             CmdSpawnMaterial, CmdTailorName, CmdTailorCoverage, CmdTailorColor,
