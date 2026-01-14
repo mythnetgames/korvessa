@@ -42,17 +42,17 @@ class CmdSpawnSafetyNetDevice(Command):
         
         if device_type == "wristpad":
             if variant == "deluxe":
-                self._spawn_device("world.prototypes:WRISTPAD_DELUXE", "wristpad (deluxe)")
+                self._spawn_device("wristpad_deluxe", "wristpad (deluxe)")
             else:
-                self._spawn_device("world.prototypes:WRISTPAD", "wristpad")
+                self._spawn_device("wristpad", "wristpad")
                 
         elif device_type == "computer":
             if variant == "personal":
-                self._spawn_device("world.prototypes:COMPUTER_PERSONAL", "personal computer")
+                self._spawn_device("computer_personal", "personal computer")
             elif variant == "portable":
-                self._spawn_device("world.prototypes:PORTABLE_COMPUTER", "portable computer")
+                self._spawn_device("portable_computer", "portable computer")
             else:
-                self._spawn_device("world.prototypes:COMPUTER_TERMINAL", "computer terminal")
+                self._spawn_device("computer_terminal", "computer terminal")
         else:
             caller.msg(f"Unknown device type: {device_type}")
             return
@@ -88,7 +88,7 @@ class CmdSpawnWristpad(Command):
     def func(self):
         try:
             from evennia.prototypes.spawner import spawn
-            spawned = spawn("world.prototypes:WRISTPAD")
+            spawned = spawn("wristpad")
             if spawned:
                 obj = spawned[0]
                 obj.location = self.caller.location
@@ -108,7 +108,7 @@ class CmdSpawnComputer(Command):
     def func(self):
         try:
             from evennia.prototypes.spawner import spawn
-            spawned = spawn("world.prototypes:COMPUTER_TERMINAL")
+            spawned = spawn("computer_terminal")
             if spawned:
                 obj = spawned[0]
                 obj.location = self.caller.location
@@ -128,7 +128,7 @@ class CmdSpawnPortableComputer(Command):
     def func(self):
         try:
             from evennia.prototypes.spawner import spawn
-            spawned = spawn("world.prototypes:PORTABLE_COMPUTER")
+            spawned = spawn("portable_computer")
             if spawned:
                 obj = spawned[0]
                 obj.location = self.caller.location
