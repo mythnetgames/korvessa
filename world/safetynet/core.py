@@ -1109,10 +1109,24 @@ class SafetyNetManager(DefaultScript):
             # Failure: trace attacker and alert target owner
             result["message"] = "Brute force failed. ICE countermeasures activated."
             result["traced"] = True
-            # Trace attacker's location
-            trace_location = self._trace_location(attacker.pk)
-            # Return alert for target to be sent by command
-            trace_msg = f"Wear-down attack from: {trace_location}" if trace_location else "Wear-down attack detected (location unknown)"
+            # Check if attacker has proxy active (masks location)
+            has_proxy = False
+            if hasattr(attacker, 'ndb'):
+                # Check if attacker has proxy equipped and active
+                from world.safetynet.utils import check_access_device
+                device_type, device = check_access_device(attacker)
+                if device:
+                    proxy = getattr(device.db, "slotted_proxy", None)
+                    if proxy and getattr(proxy.db, "is_active", False):
+                        has_proxy = True
+            
+            # Only trace if attacker doesn't have proxy active
+            if has_proxy:
+                trace_msg = "Wear-down attack detected (origin masked)"
+            else:
+                trace_location = self._trace_location(attacker.pk)
+                trace_msg = f"Wear-down attack from: {trace_location}" if trace_location else "Wear-down attack detected (location unknown)"
+            
             result["alert"] = trace_msg
             result["target_char_id"] = target_data.get("session_char_id")
         

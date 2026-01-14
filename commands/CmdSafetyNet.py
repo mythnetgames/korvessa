@@ -769,15 +769,12 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>initiating ice.bypass|n")
         
         def step3():
-            caller.msg("|#00af00>run.crack |#5fff00[|#00af00*|#5fff00****]|n")
+            caller.msg("|#00af00>run.crack |#5fff00[|#00af00*****|#5fff00]|n")
         
         def step4():
-            caller.msg("|#00af00>run.crack |#5fff00[|#00af00||#5fff00|||*]|n")
+            caller.msg("|#00af00>run.crack |#5fff00[|#00af00||||*|#5fff00]|n")
         
         def step5():
-            caller.msg("|#00af00>run.crack |#5fff00[|#00af00||||#5fff00|*]|n")
-        
-        def step6():
             caller.msg("|#00af00>run.crack |#5fff00[|#00af00|||||#5fff00]|n")
         
         def step7():
@@ -785,15 +782,12 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>running trace.protocol|n")
         
         def step8():
-            caller.msg("|#00af00>run.trace |#5fff00[|#00af00*|#5fff00****]|n")
+            caller.msg("|#00af00>run.trace |#5fff00[|#00af00*****|#5fff00]|n")
         
         def step9():
-            caller.msg("|#00af00>run.trace |#5fff00[|#00af00||#5fff00|||*]|n")
+            caller.msg("|#00af00>run.trace |#5fff00[|#00af00||||*|#5fff00]|n")
         
         def step10():
-            caller.msg("|#00af00>run.trace |#5fff00[|#00af00||||#5fff00|*]|n")
-        
-        def step11():
             caller.msg("|#00af00>run.trace |#5fff00[|#00af00|||||#5fff00]|n")
         
         def final_result():
@@ -892,18 +886,15 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>initiating ice.degrade|n")
         
         def step3():
-            caller.msg("|#00af00>run.wear |#5fff00[|#00af00*|#5fff00****]|n")
+            caller.msg("|#00af00>run.wear |#5fff00[|#00af00*****|#5fff00]|n")
         
         def step4():
-            caller.msg("|#00af00>run.wear |#5fff00[|#00af00||#5fff00|||*]|n")
+            caller.msg("|#00af00>run.wear |#5fff00[|#00af00||||*|#5fff00]|n")
         
         def step5():
-            caller.msg("|#00af00>run.wear |#5fff00[|#00af00||||#5fff00|*]|n")
-        
-        def step6():
             caller.msg("|#00af00>run.wear |#5fff00[|#00af00|||||#5fff00]|n")
         
-        def step7():
+        def step6():
             caller.msg("|#5fd700>>>ATTACK COMPLETE|n")
             caller.msg("|#00d700>>analyzing results...|n")
         
