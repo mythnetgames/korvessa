@@ -932,8 +932,7 @@ class CmdSafetyNet(Command):
         delay(base_delay * 4, step4)
         delay(base_delay * 5, step5)
         delay(base_delay * 6, step6)
-        delay(base_delay * 7, step7)
-        delay(base_delay * 8, final_result)
+        delay(base_delay * 7, final_result)
     
     def do_upgrade(self, device_type, args):
         """Upgrade ICE rating for a handle. ADMIN ONLY."""
