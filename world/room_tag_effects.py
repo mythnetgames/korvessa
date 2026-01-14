@@ -27,6 +27,9 @@ class RoomTagEffectHandler(DefaultScript):
         self.interval = 5  # Run every 5 seconds
         self.start_delay = 0  # Start immediately
         self.repeats = 0  # Repeat forever
+        # If script is paused, resume it
+        if hasattr(self, 'is_paused') and self.is_paused:
+            self.resume()
         
     def at_repeat(self):
         """Called every interval to process room effects"""
