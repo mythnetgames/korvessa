@@ -99,8 +99,22 @@ def _execute_auto_walk_step(character):
         _cleanup_auto_walk(character)
         return
     
-    # Check stamina
+    # Check stamina and get current movement mode dynamically
+    # Try to get current tier from stamina system (allows mid-walk speed changes)
     mode = getattr(character.ndb, 'auto_walk_mode', DEFAULT_MODE)
+    
+    try:
+        stamina = getattr(character.ndb, 'stamina', None)
+        if stamina and hasattr(stamina, 'current_tier'):
+            from world.stamina import MovementTier, TIER_NAMES
+            tier_name = TIER_NAMES.get(stamina.current_tier, "walk").lower()
+            if tier_name in ["walk", "jog", "run", "sprint"]:
+                mode = tier_name
+            elif tier_name == "stroll":
+                mode = "walk"
+    except:
+        pass  # Fall back to cached mode
+    
     stamina_cost, step_delay = MOVEMENT_MODES.get(mode, MOVEMENT_MODES[DEFAULT_MODE])
     stamina = getattr(character.ndb, 'stamina', None)
     
