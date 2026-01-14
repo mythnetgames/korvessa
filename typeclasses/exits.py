@@ -150,8 +150,11 @@ class Exit(DefaultExit):
     def at_traverse(self, traversing_object, target_location):
         # --- STAMINA MOVEMENT SYSTEM ---
         # Only apply to characters (not objects/NPCs)
+        # Skip stamina checks if this is a completing delayed move
+        is_completing_delayed_move = getattr(traversing_object.ndb, "completing_delayed_move", False)
+        
         try:
-            if traversing_object.has_account:
+            if traversing_object.has_account and not is_completing_delayed_move:
                 # Get or create stamina component
                 if not hasattr(traversing_object.ndb, "stamina"):
                     from commands.movement import _get_or_create_stamina
@@ -207,17 +210,30 @@ class Exit(DefaultExit):
                         # Mark as having a pending move
                         traversing_object.ndb.pending_move = True
                         
+                        # Store references for the callback
+                        exit_obj = self
+                        char_obj = traversing_object
+                        dest = target_location
+                        
                         # Schedule the actual move using the custom message traversal
                         def complete_move():
                             # Pay the stamina cost
-                            actual_cost = stamina.pay_move_cost()
+                            if hasattr(char_obj.ndb, "stamina"):
+                                char_obj.ndb.stamina.pay_move_cost()
                             
                             # Clear pending flag
-                            if hasattr(traversing_object.ndb, "pending_move"):
-                                del traversing_object.ndb.pending_move
+                            if hasattr(char_obj.ndb, "pending_move"):
+                                del char_obj.ndb.pending_move
+                            
+                            # Mark as completing delayed move to skip stamina checks
+                            char_obj.ndb.completing_delayed_move = True
                             
                             # Execute the traversal with custom movement messages
-                            self._traverse_with_stamina_messages(traversing_object, target_location)
+                            exit_obj._traverse_with_stamina_messages(char_obj, dest)
+                            
+                            # Clear the flag
+                            if hasattr(char_obj.ndb, "completing_delayed_move"):
+                                del char_obj.ndb.completing_delayed_move
                         
                         delay(move_delay, complete_move)
                         return  # Block immediate traversal
