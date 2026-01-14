@@ -1110,12 +1110,16 @@ class SafetyNetManager(DefaultScript):
             result["new_rating"] = base_ice
             return result
         if success:
-            # Reduce ICE by 1 point
+            # Reduce ICE by amount based on Decking skill
+            # Scaling: every 20 skill points = 1 additional wear
+            # 0-19: 1 point, 20-39: 2 points, 40-59: 3 points, 60-79: 4 points, 80+: 5 points
+            wear_amount = max(1, decking_skill // 20 + 1)
             current_ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
-            new_ice = max(1, current_ice - 1)
+            new_ice = max(1, current_ice - wear_amount)
             target_data["ice_rating"] = new_ice
-            result["message"] = "Brute force successful. ICE worn down."
+            result["message"] = f"Brute force successful. ICE worn down by {wear_amount} point{'s' if wear_amount != 1 else ''}."
             result["new_rating"] = new_ice
+            result["wear_amount"] = wear_amount
         else:
             # Failure: trace attacker and alert target owner
             result["message"] = "Brute force failed. ICE countermeasures activated."
