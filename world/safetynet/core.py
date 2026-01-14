@@ -850,10 +850,10 @@ class SafetyNetManager(DefaultScript):
         
         current_ice = self.db.handles[handle_key].get("ice_rating", DEFAULT_ICE_RATING)
         
-        # Get decker's skill
-        decking_skill = 0
-        if hasattr(decker.db, 'skills') and decker.db.skills:
-            decking_skill = decker.db.skills.get('Decking', 0)
+        # Get decker's skill - try multiple storage formats
+        decking_skill = getattr(decker.db, 'decking', 0) or 0
+        if decking_skill == 0:
+            decking_skill = getattr(decker.db, 'Decking', 0) or 0
         
         # Skill check: roll d100 vs (skill + base bonus - difficulty)
         # Base bonus helps skilled deckers - ICE raising is easier than hacking
@@ -1060,10 +1060,10 @@ class SafetyNetManager(DefaultScript):
                 "traced": False,
             }
         
-        # Get attacker's Decking skill
-        decking_skill = 0
-        if hasattr(attacker.db, 'skills') and attacker.db.skills:
-            decking_skill = attacker.db.skills.get('Decking', 0)
+        # Get attacker's Decking skill - try multiple storage formats
+        decking_skill = getattr(attacker.db, 'decking', 0) or 0
+        if decking_skill == 0:
+            decking_skill = getattr(attacker.db, 'Decking', 0) or 0
         
         ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
         
