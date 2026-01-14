@@ -2216,11 +2216,30 @@ class Character(ObjectParent, DefaultCharacter):
         
         # Get installed chrome
         installed_chrome = getattr(self.db, 'installed_chrome_list', None) or []
-        chrome_map = {}  # Map slot -> chrome data
+        chrome_map = {}  # Map location -> chrome data
+        
+        # Slot to location mapping for chrome
+        chrome_slot_mapping = {
+            'head': ['head'],
+            'face': ['face'],
+            'eyes': ['leye', 'reye'],
+            'eye': ['leye'],  # Single eye (would need to check which one)
+            'ears': ['lear', 'rear'],
+            'arms': ['larm', 'rarm', 'lhand', 'rhand'],
+            'arm': ['larm'],  # Single arm
+            'legs': ['lthigh', 'rthigh', 'lshin', 'rshin'],
+            'leg': ['lthigh', 'rshin'],  # Single leg
+            'feet': ['lfoot', 'rfoot'],
+            'foot': ['lfoot'],  # Single foot
+        }
+        
         for chrome in installed_chrome:
             slot = chrome.get('slot')
             if slot and chrome.get('type') == 'external':
-                chrome_map[slot] = chrome
+                # Map chrome slot to actual anatomical locations
+                locations = chrome_slot_mapping.get(slot, [])
+                for loc in locations:
+                    chrome_map[loc] = chrome
         
         # Track which clothing items we've already added to avoid duplicates
         added_clothing_items = set()
