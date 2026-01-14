@@ -1030,29 +1030,29 @@ class SafetyNetManager(DefaultScript):
             "target_number": target_number,
         }
         
-            # If ICE is already at minimum, return special message
-            if ice <= 1:
-                result["success"] = False
-                result["message"] = "ICE is already at its minimum rating. Further wear is not possible."
-                result["new_rating"] = ice
-                return result
-            if success:
-                # Reduce ICE by 1 point
-                current_ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
-                new_ice = max(1, current_ice - 1)
-                target_data["ice_rating"] = new_ice
-                result["message"] = "Brute force successful. ICE worn down."
-                result["new_rating"] = new_ice
-            else:
-                # Failure: trace attacker and alert target owner
-                result["message"] = "Brute force failed. ICE countermeasures activated."
-                result["traced"] = True
-                # Trace attacker's location
-                trace_location = self._trace_location(attacker.pk)
-                # Return alert for target to be sent by command
-                trace_msg = f"Wear-down attack from: {trace_location}" if trace_location else "Wear-down attack detected (location unknown)"
-                result["alert"] = trace_msg
-                result["target_char_id"] = target_data.get("session_char_id")
+        # If ICE is already at minimum, return special message
+        if ice <= 1:
+            result["success"] = False
+            result["message"] = "ICE is already at its minimum rating. Further wear is not possible."
+            result["new_rating"] = ice
+            return result
+        if success:
+            # Reduce ICE by 1 point
+            current_ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
+            new_ice = max(1, current_ice - 1)
+            target_data["ice_rating"] = new_ice
+            result["message"] = "Brute force successful. ICE worn down."
+            result["new_rating"] = new_ice
+        else:
+            # Failure: trace attacker and alert target owner
+            result["message"] = "Brute force failed. ICE countermeasures activated."
+            result["traced"] = True
+            # Trace attacker's location
+            trace_location = self._trace_location(attacker.pk)
+            # Return alert for target to be sent by command
+            trace_msg = f"Wear-down attack from: {trace_location}" if trace_location else "Wear-down attack detected (location unknown)"
+            result["alert"] = trace_msg
+            result["target_char_id"] = target_data.get("session_char_id")
         
         return result
     
