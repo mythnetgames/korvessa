@@ -146,39 +146,52 @@ class CmdSafetyNet(Command):
         manager = get_safetynet_manager()
         
         output = []
-        output.append("|w============= SafetyNet =============|n")
-        output.append("|yMunicipal Safety & Communication Network|n")
+        output.append("|#00ff00================ SafetyNet ================|n")
+        output.append("|#00af00Municipal Safety & Communication Network|n")
         output.append("")
         
         # Device info
         device_name = "Wristpad" if device_type == "wristpad" else "Computer Terminal"
-        output.append(f"|wDevice:|n {device_name}")
+        output.append(f"|#00d700Device:|n {device_name}")
         
         # Login status
         handle_data = manager.get_logged_in_handle(caller)
         if handle_data:
-            output.append(f"|wLogged in as:|n |c{handle_data['display_name']}|n |g[ACTIVE]|n")
+            output.append(f"|#00d700Logged in as:|n |#5fff00{handle_data['display_name']}|n |#00ff00[ACTIVE]|n")
         else:
-            output.append("|wLogged in as:|n |r[NOT LOGGED IN]|n")
+            output.append("|#00d700Logged in as:|n |r[NOT LOGGED IN]|n")
         
         # Quick stats
-        handles = manager.get_character_handles(caller)
-        output.append(f"|wYour handles:|n {len(handles)}")
         
         output.append("")
-        output.append("|wCommands:|n")
-        output.append("  |wsn read|n               - Read posts")
-        output.append("  |wsn post|n <msg>         - Post message")
-        output.append("  |wsn login|n <h> <pass>   - Log in")
-        output.append("  |wsn logout|n             - Log out")
-        output.append("  |wsn dm|n <h>=<msg>       - Send DM")
-        output.append("  |wsn inbox|n              - View DMs")
-        output.append("  |wsn register|n <handle>  - Create handle")
-        output.append("  |wsn ice|n <handle>       - Scan ICE profile")
-        output.append("  |wsn hack|n <handle>      - Attempt hack")
+        output.append("|#00af00SOCIAL COMMANDS:|n")
+        output.append("  |#5fd700sn read|n                 - Read posts")
+        output.append("  |#5fd700sn post|n <msg>           - Post message")
+        output.append("  |#5fd700sn search|n <query>       - Search posts")
+        output.append("  |#5fd700sn dm|n <handle>=<msg>    - Send DM")
+        output.append("  |#5fd700sn inbox|n                - View DMs")
+        output.append("  |#5fd700sn thread|n <handle>      - View thread")
+        
         output.append("")
-        output.append(f"|wFeeds:|n {', '.join(AVAILABLE_FEEDS)}")
-        output.append("|w=====================================|n")
+        output.append("|#00af00ACCOUNT COMMANDS:|n")
+        output.append("  |#5fd700sn login|n <handle> <pass> - Log in")
+        output.append("  |#5fd700sn logout|n                - Log out")
+        output.append("  |#5fd700sn register|n <handle>     - Create handle")
+        output.append("  |#5fd700sn delete|n <h>=<pass>     - Delete handle")
+        output.append("  |#5fd700sn passchange|n <h>=<old>  - Change password")
+        output.append("  |#5fd700sn whois|n <handle>        - Lookup handle")
+        
+        output.append("")
+        output.append("|#00af00SECURITY COMMANDS:|n")
+        output.append("  |#5fd700sn ice|n <handle>         - Scan ICE profile")
+        output.append("  |#5fd700sn hack|n <handle>        - Attempt hack")
+        output.append("  |#5fd700sn wear|n <handle>        - Wear down ICE")
+        output.append("  |#5fd700sn raise|n <h>=<amt>      - Raise ICE (Decker)")
+        output.append("  |#5fd700sn upgrade|n <h>=<lvl>    - Set ICE level")
+        
+        output.append("")
+        output.append(f"|#00d700Feeds:|n {', '.join(AVAILABLE_FEEDS)}")
+        output.append("|#00ff00==========================================|n")
         
         delay_time = get_connection_delay(device_type, "read")
         delayed_output(caller, "\n".join(output), delay_time)
