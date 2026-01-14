@@ -964,6 +964,11 @@ class SafetyNetManager(DefaultScript):
         
         success, margin, message, roll, target_number = resolve_hack(attacker, target_data, online, ice)
         
+        # Get decking skill safely - skills stored as individual db attributes, not in dict
+        decking_skill = getattr(attacker.db, 'decking', 0) or 0
+        if decking_skill == 0:
+            decking_skill = getattr(attacker.db, 'Decking', 0) or 0
+        
         result = {
             "success": success,
             "margin": margin,
@@ -971,7 +976,7 @@ class SafetyNetManager(DefaultScript):
             "online": online,
             "roll": roll,
             "target_number": target_number,
-            "decking_skill": getattr(attacker.db, 'skills', {}).get('Decking', 0) if hasattr(attacker.db, 'skills') else 0,
+            "decking_skill": decking_skill,
         }
         
         if success:

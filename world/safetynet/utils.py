@@ -178,21 +178,26 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
     """
     # Get attacker's Decking skill - try multiple possible storage formats
     decking_skill = 0
-    if hasattr(attacker.db, 'skills') and attacker.db.skills:
-        # Try various possible key names
-        decking_skill = attacker.db.skills.get('Decking', 0)
-        if decking_skill == 0:
-            decking_skill = attacker.db.skills.get('decking', 0)
-        if decking_skill == 0:
-            decking_skill = attacker.db.skills.get('Hacking', 0)
-        if decking_skill == 0:
-            decking_skill = attacker.db.skills.get('hacking', 0)
     
-    # Also try direct character attributes
+    # Try direct character db attributes (primary storage format)
+    decking_skill = getattr(attacker.db, 'decking', 0) or 0
+    
+    # Try capitalized version
     if decking_skill == 0:
-        decking_skill = getattr(attacker.db, 'decking', 0)
+        decking_skill = getattr(attacker.db, 'Decking', 0) or 0
+    
+    # Try hacking aliases
     if decking_skill == 0:
-        decking_skill = getattr(attacker.db, 'Decking', 0)
+        decking_skill = getattr(attacker.db, 'hacking', 0) or 0
+    if decking_skill == 0:
+        decking_skill = getattr(attacker.db, 'Hacking', 0) or 0
+    
+    # Fallback: try skills dict (backup storage format)
+    if decking_skill == 0 and hasattr(attacker.db, 'skills') and attacker.db.skills is not None:
+        if isinstance(attacker.db.skills, dict):
+            decking_skill = attacker.db.skills.get('Decking', 0) or 0
+            if decking_skill == 0:
+                decking_skill = attacker.db.skills.get('decking', 0) or 0
     
     # Low skill check - need at least 20 skill to have a chance
     if decking_skill < 20:
