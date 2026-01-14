@@ -82,6 +82,9 @@ class CmdSafetyNet(Command):
         
         # Parse switches - try both getattr and lhs syntax
         switches = getattr(self, 'switches', []) or []
+        # Ensure switches is a list
+        if not isinstance(switches, list):
+            switches = [switches] if switches else []
         args = self.args.strip() if self.args else ""
         
         # If we have lhs (left-hand side from = syntax), try to use it as a subcommand
@@ -91,7 +94,8 @@ class CmdSafetyNet(Command):
         if switches:
             # We have switches from /syntax (e.g., sn/register <args>)
             # Strip leading slash if present
-            primary_cmd = switches[0].lower().lstrip('/') if switches else None
+            raw_switch = switches[0] if switches else ""
+            primary_cmd = str(raw_switch).lower().lstrip('/')
         elif lhs:
             # We have lhs from =syntax (e.g., sn register=args)
             primary_cmd = lhs.lower().strip()
