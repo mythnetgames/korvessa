@@ -597,6 +597,18 @@ class Character(ObjectParent, DefaultCharacter):
         if getattr(self.db, 'combat_prompt', True) is False:
             return text
         
+        # Don't show during death, cloning, or revival sequences
+        if self.is_dead():
+            return text
+        if getattr(self.ndb, '_death_curtain_active', False):
+            return text
+        if getattr(self.ndb, '_death_progression_active', False):
+            return text
+        if getattr(self.ndb, '_cloning_active', False):
+            return text
+        if getattr(self.ndb, '_revival_active', False):
+            return text
+        
         # Build status prompt
         parts = []
         
