@@ -445,6 +445,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         from commands.CmdSafetyNet import CmdSafetyNet, CmdSafetyNetAdmin
         self.add(CmdSafetyNet())          # Player: SafetyNet social system
         self.add(CmdSafetyNetAdmin())     # Builder+: SafetyNet admin commands
+        # Add slotting system commands
+        from commands.slotting import CmdSlot, CmdUnslot
+        self.add(CmdSlot())               # Player: slot items into devices
+        self.add(CmdUnslot())             # Player: unslot items from devices
         # Add SafetyNet device spawning commands
         from commands.CmdSpawnSafetyNet import (
             CmdSpawnSafetyNetDevice, CmdSpawnWristpad, CmdSpawnComputer, CmdSpawnPortableComputer
