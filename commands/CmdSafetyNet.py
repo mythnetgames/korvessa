@@ -791,56 +791,62 @@ class CmdSafetyNet(Command):
             caller.msg("|#00af00>run.trace |#5fff00[|#00af00*****|#5fff00]|n")
         
         def final_result():
-            result = manager.attempt_hack(caller, handle)
-            
-            # Set cooldown on failure
-            if not result.get("success"):
-                cooldown_duration = 30
-                caller.ndb.hack_cooldown = time.time() + cooldown_duration
-            
-            if result.get("success"):
-                caller.msg("|#5fff00>>>ACCESS GRANTED<<<|n")
-                caller.msg("|#00d700>>running get.credentials.db.kwc|n")
+            try:
+                caller.msg("|#00d700>analyzing results...|n")
+                result = manager.attempt_hack(caller, handle)
                 
-                if result.get("password"):
-                    caller.msg(f"|#00ff00>Password: |#5fff00{result['password']}|n")
+                # Set cooldown on failure
+                if not result.get("success"):
+                    cooldown_duration = 30
+                    caller.ndb.hack_cooldown = time.time() + cooldown_duration
                 
-                # Show trace if available
-                if result.get("trace"):
-                    caller.msg("|#5fd700>Trace Found|n")
-                    caller.msg(f"|#00af00>Location: |#5fff00{result['trace']}|n")
-                elif result.get("online"):
-                    caller.msg("|#00af00>Trace Failed: Signal bounced|n")
+                if result.get("success"):
+                    caller.msg("|#5fff00>>>ACCESS GRANTED<<<|n")
+                    caller.msg("|#00d700>>running get.credentials.db.kwc|n")
+                    
+                    if result.get("password"):
+                        caller.msg(f"|#00ff00>Password: |#5fff00{result['password']}|n")
+                    
+                    # Show trace if available
+                    if result.get("trace"):
+                        caller.msg("|#5fd700>Trace Found|n")
+                        caller.msg(f"|#00af00>Location: |#5fff00{result['trace']}|n")
+                    elif result.get("online"):
+                        caller.msg("|#00af00>Trace Failed: Signal bounced|n")
+                    else:
+                        caller.msg("|#00af00>No trace: Target offline|n")
+                    
+                    # Show DMs if available
+                    dms = result.get("dms", [])
+                    if dms:
+                        caller.msg(f"|#00ff00>>>Recovered Messages ({len(dms)})|n")
+                        for dm in dms[:5]:
+                            from_h = dm.get("from_handle", "?")
+                            msg = dm.get("message", "")[:80]
+                            caller.msg(f"|#00d700>  {from_h}: |#5fd700{msg}|n")
+                    
+                    caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
                 else:
-                    caller.msg("|#00af00>No trace: Target offline|n")
-                
-                # Show DMs if available
-                dms = result.get("dms", [])
-                if dms:
-                    caller.msg(f"|#00ff00>>>Recovered Messages ({len(dms)})|n")
-                    for dm in dms[:5]:
-                        from_h = dm.get("from_handle", "?")
-                        msg = dm.get("message", "")[:80]
-                        caller.msg(f"|#00d700>  {from_h}: |#5fd700{msg}|n")
-                
-                caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
-            else:
-                caller.msg("|#00af00>>>|r[ACCESS DENIED]|#00af00<<<|n")
-                caller.msg(f"|#00af00>ICE COUNTERMEASURES ACTIVE|n")
-                caller.msg(f"|#00af00>LOCKOUT: |r30 seconds|#00af00|n")
-                # Debug info
-                caller.msg(f"|#5fff00>DEBUG: roll={result.get('roll', '?')} target={result.get('target_number', '?')} skill={result.get('decking_skill', '?')}|n")
-                caller.msg("|#00af00>>>CONNECTION TERMINATED<<<|n")
-                
-                # Alert the target if online
-                if result.get("alert") and result.get("target_char_id"):
-                    from evennia.objects.models import ObjectDB
-                    try:
-                        target_char = ObjectDB.objects.get(id=result.get("target_char_id"))
-                        if target_char:
-                            target_char.msg(f"|#008700[SafetyNet System Alert]|w: |R{result['alert']}")
-                    except:
-                        pass
+                    caller.msg("|#00af00>>>|r[ACCESS DENIED]|#00af00<<<|n")
+                    caller.msg(f"|#00af00>ICE COUNTERMEASURES ACTIVE|n")
+                    caller.msg(f"|#00af00>LOCKOUT: |r30 seconds|#00af00|n")
+                    # Debug info
+                    caller.msg(f"|#5fff00>DEBUG: roll={result.get('roll', '?')} target={result.get('target_number', '?')} skill={result.get('decking_skill', '?')}|n")
+                    caller.msg("|#00af00>>>CONNECTION TERMINATED<<<|n")
+                    
+                    # Alert the target if online
+                    if result.get("alert") and result.get("target_char_id"):
+                        from evennia.objects.models import ObjectDB
+                        try:
+                            target_char = ObjectDB.objects.get(id=result.get("target_char_id"))
+                            if target_char:
+                                target_char.msg(f"|#008700[SafetyNet System Alert]|w: |R{result['alert']}")
+                        except:
+                            pass
+            except Exception as e:
+                caller.msg(f"|rERROR in final_result: {e}|n")
+                import traceback
+                caller.msg(f"|r{traceback.format_exc()}|n")
         
         # Chain the delays
         delay(base_delay * 1, step1)
