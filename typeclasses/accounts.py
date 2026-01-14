@@ -185,6 +185,12 @@ class Account(DefaultAccount):
         
         # CRITICAL: Only start character creation if there are ZERO active characters
         if len(active_chars) == 0:
+            # Staff/admins bypass character creation - just give them a shell
+            if self.is_staff or self.is_superuser:
+                # Don't show menus to staff - they use admin commands
+                self.msg("|gWelcome, staff member. Use |w@charcreate|g to create test characters.|n")
+                return
+            
             # No active characters - start character creation
             # Import here to avoid circular imports
             try:
