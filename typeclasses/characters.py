@@ -26,6 +26,17 @@ class Character(ObjectParent, DefaultCharacter):
             self.account.db.mapper_enabled = True
         self.ndb.mapper_enabled = True
         
+        # Reset proxy active state on login - players must re-enable each session
+        from world.safetynet.utils import check_access_device
+        try:
+            device_type, device = check_access_device(self)
+            if device:
+                proxy = getattr(device.db, "slotted_proxy", None)
+                if proxy:
+                    proxy.db.is_active = False
+        except:
+            pass
+        
         # Check for missed IP grant from login catch-up
         try:
             from scripts.ip_grant_script import grant_missed_ip_on_login

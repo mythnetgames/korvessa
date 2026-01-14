@@ -995,6 +995,10 @@ class SafetyNetManager(DefaultScript):
             # Return alert for target to be sent by command
             result["alert"] = "Your account has been under attack. It is recommended you raise your ICE rating."
             result["target_char_id"] = target_data.get("session_char_id")
+            # Include attacker's handle for alert messaging
+            attacker_handle = self.get_logged_in_handle(attacker)
+            if attacker_handle:
+                result["attacker_handle"] = attacker_handle.get("display_name", "Unknown")
         
         return result
     
@@ -1144,6 +1148,10 @@ class SafetyNetManager(DefaultScript):
             
             result["alert"] = trace_msg
             result["target_char_id"] = target_data.get("session_char_id")
+            # Include attacker's handle for alert messaging
+            attacker_handle = self.get_logged_in_handle(attacker)
+            if attacker_handle:
+                result["attacker_handle"] = attacker_handle.get("display_name", "Unknown")
         
         return result
     

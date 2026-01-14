@@ -830,8 +830,6 @@ class CmdSafetyNet(Command):
                     caller.msg("|#00af00>>>|r[ACCESS DENIED]|#00af00<<<|n")
                     caller.msg(f"|#00af00>ICE COUNTERMEASURES ACTIVE|n")
                     caller.msg(f"|#00af00>LOCKOUT: |r30 seconds|#00af00|n")
-                    # Debug info
-                    caller.msg(f"|#5fff00>DEBUG: roll={result.get('roll', '?')} target={result.get('target_number', '?')} skill={result.get('decking_skill', '?')}|n")
                     caller.msg("|#00af00>>>CONNECTION TERMINATED<<<|n")
                     
                     # Alert the target if online
@@ -840,7 +838,8 @@ class CmdSafetyNet(Command):
                         try:
                             target_char = ObjectDB.objects.get(id=result.get("target_char_id"))
                             if target_char:
-                                target_char.msg(f"|#008700[SafetyNet System Alert]|w: |R{result['alert']}")
+                                attacker_handle = result.get("attacker_handle", "Unknown")
+                                target_char.msg(f"|#008700From your {attacker_handle}:|w |R{result['alert']}")
                         except:
                             pass
             except Exception as e:
@@ -926,7 +925,8 @@ class CmdSafetyNet(Command):
                         try:
                             target_char = ObjectDB.objects.get(id=result.get("target_char_id"))
                             if target_char:
-                                target_char.msg(f"|#008700[SafetyNet System Alert]|w: |R{result['alert']}")
+                                attacker_handle = result.get("attacker_handle", "Unknown")
+                                target_char.msg(f"|#008700From your {attacker_handle}:|w |R{result['alert']}")
                         except:
                             pass
                 caller.msg("|#00af00>>>CONNECTION TERMINATED<<<|n")
