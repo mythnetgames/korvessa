@@ -33,8 +33,8 @@ class CmdLookPlace(Command):
         - Write in third person (he/she/they, not I/my)
         - Use |ctpemote|n to toggle auto-emote when setting temp_place
     """
-    key = "look_place"
-    aliases = ["lp"]
+    key = "lp"
+    aliases = []
     locks = "cmd:all()"
     help_category = "Character"
 
@@ -113,8 +113,8 @@ class CmdTempPlace(Command):
         - Temp place clears automatically when you change rooms
         - Use |ctpemote|n to toggle auto-emote when setting temp_place
     """
-    key = "temp_place"
-    aliases = ["tp"]
+    key = "tp"
+    aliases = []
     locks = "cmd:all()"
     help_category = "Character"
 
