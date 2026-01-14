@@ -360,14 +360,42 @@ def create_flash_clone(account, old_character):
         # Handle creation errors
         raise Exception(f"Flash clone creation failed: {errors}")
     
-    # INHERIT: Stats (8-stat system with fallback defaults)
-    char.body = old_character.body if hasattr(old_character, 'body') and old_character.body is not None else 1
-    char.ref = old_character.ref if hasattr(old_character, 'ref') and old_character.ref is not None else 1
-    char.dex = old_character.dex if hasattr(old_character, 'dex') and old_character.dex is not None else 1
-    char.tech = old_character.tech if hasattr(old_character, 'tech') and old_character.tech is not None else 1
-    char.smrt = old_character.smrt if hasattr(old_character, 'smrt') and old_character.smrt is not None else 1
-    char.will = old_character.will if hasattr(old_character, 'will') and old_character.will is not None else 1
-    char.edge = old_character.edge if hasattr(old_character, 'edge') and old_character.edge is not None else 1
+    # INHERIT: Stats from baseline (not chrome-boosted stats)
+    # Use baseline_stats if available, otherwise fall back to current stats
+    old_baseline = getattr(old_character.db, 'baseline_stats', None)
+    if old_baseline:
+        char.body = old_baseline.get('body', 1)
+        char.ref = old_baseline.get('ref', 1)
+        char.dex = old_baseline.get('dex', 1)
+        char.tech = old_baseline.get('tech', 1)
+        char.smrt = old_baseline.get('smrt', 1)
+        char.will = old_baseline.get('will', 1)
+        char.edge = old_baseline.get('edge', 1)
+        char.emp = old_baseline.get('emp', 1)
+        
+        # Store baseline stats on new character
+        char.db.baseline_stats = dict(old_baseline)
+    else:
+        # Fallback for legacy characters without baseline_stats
+        char.body = old_character.body if hasattr(old_character, 'body') and old_character.body is not None else 1
+        char.ref = old_character.ref if hasattr(old_character, 'ref') and old_character.ref is not None else 1
+        char.dex = old_character.dex if hasattr(old_character, 'dex') and old_character.dex is not None else 1
+        char.tech = old_character.tech if hasattr(old_character, 'tech') and old_character.tech is not None else 1
+        char.smrt = old_character.smrt if hasattr(old_character, 'smrt') and old_character.smrt is not None else 1
+        char.will = old_character.will if hasattr(old_character, 'will') and old_character.will is not None else 1
+        char.edge = old_character.edge if hasattr(old_character, 'edge') and old_character.edge is not None else 1
+        
+        # Store as baseline for this character
+        char.db.baseline_stats = {
+            'body': char.body,
+            'ref': char.ref,
+            'dex': char.dex,
+            'tech': char.tech,
+            'smrt': char.smrt,
+            'will': char.will,
+            'edge': char.edge,
+            'emp': 1
+        }
     
     # INHERIT: Appearance
     char.db.desc = old_character.db.desc

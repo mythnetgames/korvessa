@@ -269,6 +269,18 @@ def restore_from_clone(new_character, backup_data):
     new_character.edge = backup_data.get('edge', 1)
     new_character.emp = backup_data.get('emp', 1)
     
+    # Store baseline stats on new character (for future clone backups)
+    new_character.db.baseline_stats = {
+        'body': backup_data.get('body', 1),
+        'ref': backup_data.get('ref', 1),
+        'dex': backup_data.get('dex', 1),
+        'tech': backup_data.get('tech', 1),
+        'smrt': backup_data.get('smrt', 1),
+        'will': backup_data.get('will', 1),
+        'edge': backup_data.get('edge', 1),
+        'emp': backup_data.get('emp', 1)
+    }
+    
     # Reset max stats to defaults (chrome bonuses not carried over)
     # Default max is typically 10 or based on stat value
     new_character.max_body = 10
