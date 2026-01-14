@@ -60,7 +60,6 @@ class CmdSafetyNet(Command):
         sn ice <handle>             - Scan a handle's ICE profile
         sn hack <handle>            - Attempt to hack a handle
         sn wear <handle>            - Brute force wear down ICE (risky)
-        sn upgrade <handle>=<level> - Upgrade your ICE (1-100)
         sn raise <handle>=<amount>  - Decker: Raise ICE by amount (1-20)
         sn whois <handle>           - Look up handle info
     
@@ -187,7 +186,7 @@ class CmdSafetyNet(Command):
         output.append("  |#5fd700sn hack|n <handle>        - Attempt hack")
         output.append("  |#5fd700sn wear|n <handle>        - Wear down ICE")
         output.append("  |#5fd700sn raise|n <h>=<amt>      - Raise ICE")
-        output.append("  |#5fd700sn upgrade|n <h>=<lvl>    - Set ICE level")
+
         
         output.append("")
         output.append("|#00ff00==========================================|n")
