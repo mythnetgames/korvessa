@@ -557,9 +557,8 @@ class CombatHandler(DefaultScript):
                     stamina.stamina_current = max(0, stamina.stamina_current - STAMINA_DRAIN_PER_ROUND)
                     splattercast.msg(f"STAMINA_DRAIN_ROUND: {char.key} drained {STAMINA_DRAIN_PER_ROUND} stamina, now at {stamina.stamina_current:.1f}")
                 
-                # Send combat status prompt unless disabled
-                if getattr(char.db, "combat_prompt", True) is not False:
-                    self._send_combat_prompt(char)
+                # Combat status prompt is now automatically appended to all messages via Character.msg()
+                # No need to send it explicitly here
         
         if len(combatants_list) <= 1:
             splattercast.msg(f"AT_REPEAT: Handler {self.key}. Not enough combatants ({len(combatants_list)}) to continue. Ending combat.")
