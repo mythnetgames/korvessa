@@ -681,9 +681,9 @@ class CmdSafetyNet(Command):
         
         def step1():
             if has_proxy:
-                caller.msg("|#5fd700>Proxy FOUND!|n")
+                caller.msg("|#5fd700>Proxy FOUND! (Active)|n")
             else:
-                caller.msg("|#5fff00>No proxy detected!|n")
+                caller.msg("|#5fff00>No proxy detected! (Inactive)|n")
         
         def step2():
             caller.msg("|#00d700>>scanning ice.profile|n")
@@ -828,6 +828,8 @@ class CmdSafetyNet(Command):
                 caller.msg("|#00af00>>>|r[ACCESS DENIED]|#00af00<<<|n")
                 caller.msg(f"|#00af00>ICE COUNTERMEASURES ACTIVE|n")
                 caller.msg(f"|#00af00>LOCKOUT: |r30 seconds|#00af00|n")
+                # Debug info
+                caller.msg(f"|#5fff00>DEBUG: roll={result.get('roll', '?')} target={result.get('target_number', '?')}|n")
                 caller.msg("|#00af00>>>CONNECTION TERMINATED<<<|n")
                 
                 # Alert the target if online

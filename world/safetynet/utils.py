@@ -169,10 +169,12 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
         ice_rating: The target's ICE rating (int)
         
     Returns:
-        tuple: (success, margin, message)
+        tuple: (success, margin, message, roll, target_number)
                success: bool
                margin: int (positive = success margin, negative = failure margin)
                message: str describing the result
+               roll: int (1-100)
+               target_number: int (the target number for the roll)
     """
     # Get attacker's Decking skill
     decking_skill = 0
@@ -187,7 +189,7 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
             # 1% critical success even with no skill
             margin = 5
             message = "Access granted. Narrowly avoided detection."
-            return (True, margin, message)
+            return (True, margin, message, roll, 1)
         else:
             # Always fail
             margin = -50
@@ -195,7 +197,7 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
                 message = "Critical failure. ICE counterattack triggered."
             else:
                 message = "Access denied. Insufficient skill to breach ICE."
-            return (False, margin, message)
+            return (False, margin, message, roll, 1)
     
     # Skill check: roll d100 vs (skill + modifiers - ICE difficulty)
     # Base bonus makes hacking easier - skilled deckers should succeed vs low ICE
@@ -238,7 +240,7 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
         else:
             message = "Access denied. Connection terminated."
     
-    return (success, margin, message)
+    return (success, margin, message, roll, target_number)
 
 
 def get_online_indicator(handle_name, manager):

@@ -962,13 +962,15 @@ class SafetyNetManager(DefaultScript):
             except:
                 pass
         
-        success, margin, message = resolve_hack(attacker, target_data, online, ice)
+        success, margin, message, roll, target_number = resolve_hack(attacker, target_data, online, ice)
         
         result = {
             "success": success,
             "margin": margin,
             "message": message,
             "online": online,
+            "roll": roll,
+            "target_number": target_number,
         }
         
         if success:
