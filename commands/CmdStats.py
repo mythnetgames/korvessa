@@ -108,6 +108,9 @@ class CmdStats(Command):
         
         # Chrome/augmentations section
         chrome_list = getattr(char.db, 'installed_chrome_list', None)
+        # Debug output
+        char.msg(f"|yDEBUG: Chrome list from db: {chrome_list}|n")
+        char.msg(f"|yDEBUG: Type: {type(chrome_list)}|n")
         if chrome_list and isinstance(chrome_list, list) and len(chrome_list) > 0:
             msg += "\n|#870000Chrome & Augmentations:|n\n"
             for chrome in chrome_list:
