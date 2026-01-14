@@ -1059,16 +1059,16 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>initiating ice.upgrade|n")
         
         def step3():
-            caller.msg("|#00af00>run.enhance [*****]|n")
+            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00*|#5fff00****]|#00af00|n")
         
         def step4():
-            caller.msg("|#00af00>run.enhance [|****]|n")
+            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00||#5fff00|||*]|#00af00|n")
         
         def step5():
-            caller.msg("|#00af00>run.enhance [||||*]|n")
+            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00||||#5fff00|*]|#00af00|n")
         
         def step6():
-            caller.msg("|#00af00>run.enhance [|||||]|n")
+            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00|||||#5fff00]|#00af00|n")
         
         def step7():
             caller.msg("|#5fd700>>>ENHANCEMENT COMPLETE|n")

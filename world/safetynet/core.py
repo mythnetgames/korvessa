@@ -870,7 +870,7 @@ class SafetyNetManager(DefaultScript):
             return (True, f"|G[CRITICAL SUCCESS]|n Perfectly raised ICE on {handle_name} by {amount}!", new_ice, 'critsuccess')
         elif roll == 100:
             # Always critical failure on 100 - just lock out without changing anything
-            return (True, f"|r[CRITICAL FAILURE]|n System locked out. Try again later.", current_ice, 'critfail')
+            return (True, f"|r[CRITICAL FAILURE]|n |#00af00System locked out. Try again later.|n", current_ice, 'critfail')
         elif roll <= target_number:
             # Success - raise ICE as requested
             new_ice = min(current_ice + amount, MAX_ICE_RATING)
