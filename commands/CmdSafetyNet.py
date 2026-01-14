@@ -813,6 +813,207 @@ class CmdSafetyNet(Command):
         delay(delay_time, do_whois_delayed)
 
 
+class CmdSafetyNetAdmin(Command):
+    """
+    Admin SafetyNet management commands.
+    
+    Usage:
+        snadmin/ice <handle>=<level>        - Set ICE rating (0-10)
+        snadmin/reset <handle>              - Reset password
+        snadmin/info <handle>               - Show detailed handle info
+        snadmin/nuke <handle>               - Delete handle and data
+        snadmin/stats                       - Show SafetyNet statistics
+    
+    Builders and higher only.
+    """
+    
+    key = "snadmin"
+    aliases = []
+    locks = "cmd:perm(Builder)"
+    help_category = "Admin"
+    
+    def func(self):
+        caller = self.caller
+        switches = self.switches
+        args = self.args.strip() if self.args else ""
+        
+        manager = get_safetynet_manager()
+        
+        if not switches:
+            self.show_admin_help()
+            return
+        
+        if "ice" in switches:
+            self.do_admin_ice(manager, args)
+        elif "reset" in switches:
+            self.do_admin_reset(manager, args)
+        elif "info" in switches:
+            self.do_admin_info(manager, args)
+        elif "nuke" in switches:
+            self.do_admin_nuke(manager, args)
+        elif "stats" in switches:
+            self.do_admin_stats(manager, args)
+        else:
+            self.show_admin_help()
+    
+    def show_admin_help(self):
+        """Show admin command help."""
+        caller = self.caller
+        output = ["|w=== SafetyNet Admin Commands ===|n"]
+        output.append("")
+        output.append("|wsnadmin/ice|n <handle>=<level>")
+        output.append("  Set ICE rating for a handle (0-10)")
+        output.append("")
+        output.append("|wsnadmin/reset|n <handle>")
+        output.append("  Force password reset for a handle")
+        output.append("")
+        output.append("|wsnadmin/info|n <handle>")
+        output.append("  Show detailed information about a handle")
+        output.append("")
+        output.append("|wsnadmin/nuke|n <handle>")
+        output.append("  Permanently delete a handle and all data")
+        output.append("")
+        output.append("|wsnadmin/stats|n")
+        output.append("  Show SafetyNet system statistics")
+        output.append("")
+        caller.msg("\n".join(output))
+    
+    def do_admin_ice(self, manager, args):
+        """Set ICE rating for a handle."""
+        caller = self.caller
+        
+        if "=" not in args:
+            caller.msg("|rUsage: snadmin/ice <handle>=<level>|n")
+            return
+        
+        handle_name, level_str = args.split("=", 1)
+        handle_name = handle_name.strip()
+        level_str = level_str.strip()
+        
+        try:
+            level = int(level_str)
+            if level < 0 or level > 10:
+                caller.msg("|rICE level must be between 0 and 10.|n")
+                return
+        except ValueError:
+            caller.msg("|rICE level must be a number.|n")
+            return
+        
+        # Find handle and set ICE
+        handles = manager.get_all_handles()
+        handle_found = False
+        for char_name, char_handles in handles.items():
+            for handle_data in char_handles:
+                if handle_data.get("name", "").lower() == handle_name.lower():
+                    handle_data["ice_rating"] = level
+                    handle_found = True
+                    break
+            if handle_found:
+                break
+        
+        if handle_found:
+            caller.msg(f"|gSet ICE rating for {handle_name} to {level}.|n")
+        else:
+            caller.msg(f"|rHandle '{handle_name}' not found.|n")
+    
+    def do_admin_reset(self, manager, args):
+        """Force reset a handle's password."""
+        caller = self.caller
+        
+        handle_name = args.strip()
+        if not handle_name:
+            caller.msg("|rUsage: snadmin/reset <handle>|n")
+            return
+        
+        # Find and reset handle
+        handles = manager.get_all_handles()
+        handle_found = False
+        for char_name, char_handles in handles.items():
+            for handle_data in char_handles:
+                if handle_data.get("name", "").lower() == handle_name.lower():
+                    # Generate new password
+                    new_pass = manager.generate_password()
+                    handle_data["password"] = new_pass
+                    handle_found = True
+                    caller.msg(f"|gReset password for {handle_name}.|n")
+                    caller.msg(f"|wNew password:|n {new_pass}")
+                    break
+            if handle_found:
+                break
+        
+        if not handle_found:
+            caller.msg(f"|rHandle '{handle_name}' not found.|n")
+    
+    def do_admin_info(self, manager, args):
+        """Show detailed handle information."""
+        caller = self.caller
+        
+        handle_name = args.strip()
+        if not handle_name:
+            caller.msg("|rUsage: snadmin/info <handle>|n")
+            return
+        
+        # Find handle and display info
+        handles = manager.get_all_handles()
+        for char_name, char_handles in handles.items():
+            for handle_data in char_handles:
+                if handle_data.get("name", "").lower() == handle_name.lower():
+                    lines = ["|w=== Handle Info ===|n"]
+                    lines.append(f"|wHandle:|n {handle_data.get('name')}")
+                    lines.append(f"|wOwner:|n {char_name}")
+                    lines.append(f"|wICE Rating:|n {handle_data.get('ice_rating', 0)}/10")
+                    lines.append(f"|wCreated:|n {format_timestamp(handle_data.get('created', 0))}")
+                    lines.append(f"|wPosts:|n {len(handle_data.get('posts', []))}")
+                    caller.msg("\n".join(lines))
+                    return
+        
+        caller.msg(f"|rHandle '{handle_name}' not found.|n")
+    
+    def do_admin_nuke(self, manager, args):
+        """Delete a handle permanently."""
+        caller = self.caller
+        
+        handle_name = args.strip()
+        if not handle_name:
+            caller.msg("|rUsage: snadmin/nuke <handle>|n")
+            return
+        
+        # Confirm deletion
+        if not self.args.endswith("!"):
+            caller.msg(f"|rThis will PERMANENTLY delete {handle_name} and all its data.|n")
+            caller.msg(f"|rRe-run with an exclamation mark to confirm: snadmin/nuke {handle_name}!|n")
+            return
+        
+        # Find and delete handle
+        handles = manager.get_all_handles()
+        for char_name, char_handles in handles.items():
+            for i, handle_data in enumerate(char_handles):
+                if handle_data.get("name", "").lower() == handle_name.lower():
+                    char_handles.pop(i)
+                    caller.msg(f"|rDeleted handle '{handle_name}' and all associated data.|n")
+                    return
+        
+        caller.msg(f"|rHandle '{handle_name}' not found.|n")
+    
+    def do_admin_stats(self, manager, args):
+        """Show SafetyNet statistics."""
+        caller = self.caller
+        
+        handles = manager.get_all_handles()
+        total_handles = sum(len(h) for h in handles.values())
+        total_posts = sum(len(h.get("posts", [])) for h in manager.db.posts.get("posts", []))
+        total_dms = len(manager.db.dms)
+        total_users = len(handles)
+        
+        lines = ["|w=== SafetyNet Statistics ===|n"]
+        lines.append(f"|wTotal Users:|n {total_users}")
+        lines.append(f"|wTotal Handles:|n {total_handles}")
+        lines.append(f"|wTotal Posts:|n {len(manager.db.posts.get('posts', []))}")
+        lines.append(f"|wTotal DMs:|n {total_dms}")
+        
+        caller.msg("\n".join(lines))
+
+
 class SafetyNetCmdSet(CmdSet):
     """Command set for SafetyNet commands."""
     
@@ -820,3 +1021,4 @@ class SafetyNetCmdSet(CmdSet):
     
     def at_cmdset_creation(self):
         self.add(CmdSafetyNet())
+        self.add(CmdSafetyNetAdmin())

@@ -61,7 +61,7 @@ class CmdSpawnSafetyNetDevice(Command):
         """Helper to spawn a device from prototype."""
         caller = self.caller
         try:
-            from evennia.prototypes import spawn
+            from evennia.prototypes.spawner import spawn
             spawned = spawn(prototype)
             
             if not spawned:
@@ -87,7 +87,7 @@ class CmdSpawnWristpad(Command):
     
     def func(self):
         try:
-            from evennia.prototypes import spawn
+            from evennia.prototypes.spawner import spawn
             spawned = spawn("world.prototypes:WRISTPAD")
             if spawned:
                 obj = spawned[0]
@@ -107,7 +107,7 @@ class CmdSpawnComputer(Command):
     
     def func(self):
         try:
-            from evennia.prototypes import spawn
+            from evennia.prototypes.spawner import spawn
             spawned = spawn("world.prototypes:COMPUTER_TERMINAL")
             if spawned:
                 obj = spawned[0]
@@ -127,7 +127,7 @@ class CmdSpawnPortableComputer(Command):
     
     def func(self):
         try:
-            from evennia.prototypes import spawn
+            from evennia.prototypes.spawner import spawn
             spawned = spawn("world.prototypes:PORTABLE_COMPUTER")
             if spawned:
                 obj = spawned[0]
