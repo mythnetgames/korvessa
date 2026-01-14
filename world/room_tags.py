@@ -23,6 +23,7 @@ ACTIVE_TAGS = {
     "CROWDED": {
         "desc": "Snooping+ Disguise+ Stealing+ Hiding+",
         "icon": "x",
+        "color": "|#5f5f00",
         "skill_bonuses": {"snooping": 10, "disguise": 10, "stealing": 10, "hiding": 10},
     },
     "UNSTABLE": {
