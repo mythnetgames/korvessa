@@ -644,6 +644,38 @@ class SafetyNetManager(DefaultScript):
         
         return all_dms[:limit]
     
+    def delete_dm_thread(self, handle_name, other_handle):
+        """
+        Delete entire DM thread between two handles.
+        
+        Args:
+            handle_name: The requesting handle
+            other_handle: The other party
+            
+        Returns:
+            tuple: (success, message)
+        """
+        handle_key = handle_name.lower()
+        other_key = other_handle.lower()
+        
+        # Remove DMs received from other
+        if handle_key in self.db.dms:
+            self.db.dms[handle_key] = [d for d in self.db.dms[handle_key]
+                                       if d.get("from_handle", "").lower() != other_key]
+        
+        # Remove DMs sent to other (from other's inbox)
+        if other_key in self.db.dms:
+            self.db.dms[other_key] = [d for d in self.db.dms[other_key]
+                                      if d.get("from_handle", "").lower() != handle_key]
+        
+        # Clean up empty entries
+        if handle_key in self.db.dms and not self.db.dms[handle_key]:
+            del self.db.dms[handle_key]
+        if other_key in self.db.dms and not self.db.dms[other_key]:
+            del self.db.dms[other_key]
+        
+        return (True, f"Deleted conversation with {other_handle}.")
+    
     # =========================================================================
     # ICE MANAGEMENT
     # =========================================================================
@@ -698,21 +730,68 @@ class SafetyNetManager(DefaultScript):
         ice = handle_data.get("ice_rating", DEFAULT_ICE_RATING)
         online = handle_data.get("session_char_id") is not None
         
-        # Descriptive ICE levels
-        if ice <= 2:
+        # Descriptive ICE levels (1-100 scale)
+        if ice <= 15:
             level_desc = "|gMinimal|n"
-        elif ice <= 4:
+        elif ice <= 30:
             level_desc = "|yBasic|n"
-        elif ice <= 6:
+        elif ice <= 50:
             level_desc = "|yStandard|n"
-        elif ice <= 8:
+        elif ice <= 75:
             level_desc = "|rHardened|n"
         else:
             level_desc = "|R[BLACK ICE]|n"
         
         status = "|g[ONLINE]|n" if online else "|r[OFFLINE]|n"
         
-        return f"ICE Profile: {level_desc} (Rating: {ice}/10) - Status: {status}"
+        return f"ICE Profile: {level_desc} (Rating: {ice}/100) - Status: {status}"
+    
+    def raise_ice(self, decker, handle_name, amount):
+        """
+        Raise the ICE rating on a handle (decker/admin function with skill check).
+        
+        Args:
+            decker: The character attempting to raise ICE
+            handle_name: The handle to upgrade
+            amount: How much to raise ICE by (1-20 per action)
+            
+        Returns:
+            tuple: (success, message, new_rating, result_type)
+                   result_type: 'success', 'failure', or 'critfail'
+        """
+        import random
+        
+        handle_key = handle_name.lower()
+        
+        if handle_key not in self.db.handles:
+            return (False, f"Handle '{handle_name}' not found.", None, None)
+        
+        if amount < 1 or amount > 20:
+            return (False, "ICE increase must be between 1 and 20 per action.", None, None)
+        
+        current_ice = self.db.handles[handle_key].get("ice_rating", DEFAULT_ICE_RATING)
+        
+        # Skill roll based on decker's tech stat
+        # Higher ICE on target = harder to improve
+        difficulty = max(10, current_ice // 10)  # Scale difficulty with target ICE
+        roll = random.randint(1, 20)
+        
+        # Determine result
+        if roll == 1:
+            # Critical failure - set to 1
+            self.db.handles[handle_key]["ice_rating"] = 1
+            return (True, f"|r[CRITICAL FAILURE]|n ICE on {handle_name} collapsed to 1!", 1, 'critfail')
+        elif roll < difficulty:
+            # Failure - reduce ICE
+            reduction = random.randint(1, amount)
+            new_ice = max(1, current_ice - reduction)
+            self.db.handles[handle_key]["ice_rating"] = new_ice
+            return (True, f"|y[FAILED]|n ICE on {handle_name} degraded by {reduction}. (Now: {new_ice}/100)", new_ice, 'failure')
+        else:
+            # Success - raise ICE as requested
+            new_ice = min(current_ice + amount, MAX_ICE_RATING)
+            self.db.handles[handle_key]["ice_rating"] = new_ice
+            return (True, f"|g[SUCCESS]|n Raised ICE on {handle_name} by {amount}.", new_ice, 'success')
     
     # =========================================================================
     # HACKING

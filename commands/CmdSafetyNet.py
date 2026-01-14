@@ -52,6 +52,7 @@ class CmdSafetyNet(Command):
         sn dm <handle>=<message>    - Send a direct message
         sn inbox                    - View your DM inbox
         sn thread <handle>          - View DM thread with handle
+        sn thread <handle> delete   - Delete a DM thread (needs confirmation)
         sn search <query>           - Search posts
         sn register <handle>        - Create a new handle
         sn delete <handle>=<pass>   - Delete a handle
@@ -59,6 +60,7 @@ class CmdSafetyNet(Command):
         sn ice <handle>             - Scan a handle's ICE profile
         sn hack <handle>            - Attempt to hack a handle
         sn upgrade <handle>=<level> - Upgrade your ICE (1-100)
+        sn raise <handle>=<amount>  - Decker: Raise ICE by amount (1-20)
         sn whois <handle>           - Look up handle info
     
     Requires a Wristpad or Computer to access.
@@ -128,6 +130,8 @@ class CmdSafetyNet(Command):
             self.do_hack(device_type, subargs)
         elif primary_cmd == "upgrade":
             self.do_upgrade(device_type, subargs)
+        elif primary_cmd == "raise":
+            self.do_raise_ice(device_type, subargs)
         elif primary_cmd == "whois":
             self.do_whois(device_type, subargs)
         else:
@@ -428,7 +432,7 @@ class CmdSafetyNet(Command):
         return "\n".join(lines)
     
     def do_thread(self, device_type, args):
-        """View DM thread with a handle."""
+        """View DM thread with a handle or delete it."""
         caller = self.caller
         manager = get_safetynet_manager()
         
@@ -438,11 +442,29 @@ class CmdSafetyNet(Command):
             return
         
         if not args:
-            caller.msg("|rUsage: sn thread <handle>|n")
+            caller.msg("|rUsage: sn thread <handle> [delete]|n")
             return
         
-        other_handle = args.strip()
+        # Parse args for optional 'delete' command
+        parts = args.strip().split()
+        other_handle = parts[0]
+        delete_flag = len(parts) > 1 and parts[1].lower() == "delete"
+        
         my_handle = handle_data["display_name"]
+        
+        if delete_flag:
+            # Confirm deletion
+            if len(parts) < 3 or parts[2] != "!":
+                caller.msg(f"|rThis will DELETE the entire conversation with {other_handle}.|n")
+                caller.msg(f"|rRe-run with an exclamation mark to confirm: sn thread {other_handle} delete !|n")
+                return
+            
+            success, msg = manager.delete_dm_thread(my_handle, other_handle)
+            if success:
+                caller.msg(f"|g{msg}|n")
+            else:
+                caller.msg(f"|r{msg}|n")
+            return
         
         dms = manager.get_dm_thread(my_handle, other_handle, limit=20)
         
@@ -464,6 +486,7 @@ class CmdSafetyNet(Command):
                 lines.append(f"  {message}")
                 lines.append("")
         
+        lines.append("|wUse 'sn thread <handle> delete' to delete this conversation.|n")
         lines.append("|w==========================================|n")
         
         delay_time = get_connection_delay(device_type, "read")
@@ -689,6 +712,39 @@ class CmdSafetyNet(Command):
             caller.msg(f"|g{message}|n")
         else:
             caller.msg(f"|r{message}|n")
+    
+    def do_raise_ice(self, device_type, args):
+        """Decker function: Raise ICE by a small amount (1-20 per use) with skill check."""
+        caller = self.caller
+        manager = get_safetynet_manager()
+        
+        if "=" not in args:
+            caller.msg("|rUsage: sn raise <handle>=<amount>|n")
+            caller.msg("|yAmount: 1-20 per action|n")
+            caller.msg("|yRisk: Failure lowers ICE, critical failure sets to 1|n")
+            return
+        
+        handle, amount_str = args.split("=", 1)
+        handle = handle.strip()
+        
+        try:
+            amount = int(amount_str.strip())
+        except ValueError:
+            caller.msg("|rAmount must be a number 1-20.|n")
+            return
+        
+        def do_raise_delayed():
+            success, message, new_rating, result_type = manager.raise_ice(caller, handle, amount)
+            
+            if success:
+                caller.msg(f"{message} (New: {new_rating}/100)")
+            else:
+                caller.msg(f"|r{message}|n")
+        
+        delay_time = get_connection_delay(device_type, "write")
+        if delay_time > 0.5:
+            caller.msg("|yInitiating ICE enhancement...|n")
+        delay(delay_time, do_raise_delayed)
     
     def do_whois(self, device_type, args):
         """Look up handle info."""
