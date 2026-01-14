@@ -995,6 +995,16 @@ class SafetyNetManager(DefaultScript):
             # Return alert for target to be sent by command
             result["alert"] = "Your account has been under attack. It is recommended you raise your ICE rating."
             result["target_char_id"] = target_data.get("session_char_id")
+            # Get target's device type for alert messaging
+            target_char_id = target_data.get("session_char_id")
+            if target_char_id:
+                from evennia.objects.models import ObjectDB
+                try:
+                    target_char = ObjectDB.objects.get(id=target_char_id)
+                    device_type, device = check_access_device(target_char)
+                    result["target_device_type"] = device_type if device_type else "wristpad"
+                except:
+                    result["target_device_type"] = "wristpad"
             # Include attacker's handle for alert messaging
             attacker_handle = self.get_logged_in_handle(attacker)
             if attacker_handle:
@@ -1148,6 +1158,16 @@ class SafetyNetManager(DefaultScript):
             
             result["alert"] = trace_msg
             result["target_char_id"] = target_data.get("session_char_id")
+            # Get target's device type for alert messaging
+            target_char_id = target_data.get("session_char_id")
+            if target_char_id:
+                from evennia.objects.models import ObjectDB
+                try:
+                    target_char = ObjectDB.objects.get(id=target_char_id)
+                    device_type, device = check_access_device(target_char)
+                    result["target_device_type"] = device_type if device_type else "wristpad"
+                except:
+                    result["target_device_type"] = "wristpad"
             # Include attacker's handle for alert messaging
             attacker_handle = self.get_logged_in_handle(attacker)
             if attacker_handle:

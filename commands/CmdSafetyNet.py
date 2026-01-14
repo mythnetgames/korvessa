@@ -838,7 +838,8 @@ class CmdSafetyNet(Command):
                         try:
                             target_char = ObjectDB.objects.get(id=result.get("target_char_id"))
                             if target_char:
-                                target_char.msg(f"|#008700From your wristpad:|w |R{result['alert']}")
+                                device_type = result.get("target_device_type", "wristpad")
+                                target_char.msg(f"|#008700From your {device_type}:|w |R{result['alert']}")
                         except:
                             pass
             except Exception as e:
@@ -924,8 +925,8 @@ class CmdSafetyNet(Command):
                         try:
                             target_char = ObjectDB.objects.get(id=result.get("target_char_id"))
                             if target_char:
-                                attacker_handle = result.get("attacker_handle", "Unknown")
-                                target_char.msg(f"|#008700From your {attacker_handle}:|w |R{result['alert']}")
+                                device_type = result.get("target_device_type", "wristpad")
+                                target_char.msg(f"|#008700From your {device_type}:|w |R{result['alert']}")
                         except:
                             pass
                 caller.msg("|#00af00>>>CONNECTION TERMINATED<<<|n")
