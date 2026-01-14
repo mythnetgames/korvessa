@@ -106,7 +106,7 @@ def _execute_auto_walk_step(character):
     
     if pathing_channel:
         current_stamina = stamina.stamina_current if stamina else 0
-        pathing_channel.msg(f"STEP_STAMINA: {character.key} - current={current_stamina}, cost={stamina_cost}")
+        pathing_channel.msg(f"STEP_STAMINA: {character.key} - mode={mode}, current={current_stamina}, cost={stamina_cost}, delay={step_delay}")
     
     if stamina:
         if stamina.stamina_current < stamina_cost:
@@ -126,7 +126,7 @@ def _execute_auto_walk_step(character):
         # Drain stamina
         stamina.stamina_current = max(0, stamina.stamina_current - stamina_cost)
         if pathing_channel:
-            pathing_channel.msg(f"STEP_DRAIN: {character.key} - stamina now {stamina.stamina_current}")
+            pathing_channel.msg(f"STEP_DRAIN: {character.key} - stamina now {stamina.stamina_current} (drained {stamina_cost})")
     
     # Execute movement
     original_location = character.location
@@ -544,10 +544,10 @@ def start_auto_walk(character, path, mode="walk", destination_alias="destination
     character.ndb.auto_walk_destination = destination_alias
     character.ndb.auto_walk_cancelled = False
     
-    character.msg(f"|y[START_AUTO_WALK] Path stored: {len(path)} steps|n")
+    character.msg(f"|y[START_AUTO_WALK] Path stored: {len(path)} steps, mode={mode}|n")
     
     if pathing_channel:
-        pathing_channel.msg(f"START_WALK_STORED: {character.key} - NDB state set, path length: {len(path)}")
+        pathing_channel.msg(f"START_WALK_STORED: {character.key} - NDB state set, path length: {len(path)}, mode={mode}")
     
     # Send user messages
     try:
