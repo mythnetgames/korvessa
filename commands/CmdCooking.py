@@ -995,6 +995,19 @@ class CmdEat(Command):
         caller.msg(msg_self)
         caller.location.msg_contents(msg_others, exclude=[caller])
         
+        # Apply nutritious buff if this is nutritious food
+        if getattr(item, 'is_nutritious', False):
+            from commands.movement import _get_or_create_stamina
+            stamina = _get_or_create_stamina(caller)
+            
+            # Apply stamina buff: +40% max stamina for 2 hours
+            buff_amount = int(stamina.stamina_max * 0.4)
+            stamina.stamina_current = min(stamina.stamina_current + buff_amount, stamina.stamina_max * 1.4)
+            stamina.ndb.stamina_buff_timer = 7200  # 2 hours in seconds
+            
+            caller.msg(f"|gYou feel energized! (+{buff_amount} stamina buff for 2 hours)|n")
+            caller.location.msg_contents(f"{caller.key} looks energized!", exclude=[caller])
+        
         # Decrement consumes
         consumes -= 1
         

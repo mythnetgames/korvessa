@@ -417,6 +417,15 @@ class CharacterMovementStamina:
         if dt <= 0:
             return
         
+        # --- Update stamina buff timer ---
+        if hasattr(self, 'ndb') and hasattr(self.ndb, 'stamina_buff_timer'):
+            self.ndb.stamina_buff_timer = max(0, self.ndb.stamina_buff_timer - dt)
+        
+        # --- Get effective max stamina (with buff if active) ---
+        effective_max = self.stamina_max
+        if hasattr(self, 'ndb') and hasattr(self.ndb, 'stamina_buff_timer') and self.ndb.stamina_buff_timer > 0:
+            effective_max = self.stamina_max * 1.4  # 40% buff
+        
         # --- Get base delta for current tier ---
         tier_name = TIER_NAMES[self.current_tier]
         base_delta = BASE_DELTA[tier_name]
@@ -452,7 +461,7 @@ class CharacterMovementStamina:
         
         # --- Apply stamina change ---
         self.stamina_current += final_delta * dt
-        self.stamina_current = clamp(self.stamina_current, 0, float(self.stamina_max))
+        self.stamina_current = clamp(self.stamina_current, 0, effective_max)
         
         # --- Update timers ---
         if self.fatigue_timer > 0:

@@ -23,12 +23,22 @@ class StaminaTicker(DefaultScript):
     
     def at_repeat(self):
         """Called every interval (1 second)."""
-        # Get all connected characters
-        from typeclasses.characters import Character
-        characters = search_object(typeclass=Character)
+        from evennia.accounts.models import AccountDB
         
-        for char in characters:
-            # Only update characters with accounts and stamina
-            if char.has_account and hasattr(char.ndb, "stamina"):
+        # Get all connected accounts and their characters
+        connected_accounts = AccountDB.objects.filter(db_is_connected=True)
+        
+        for account in connected_accounts:
+            char = account.db_puppet_character
+            if not char:
+                continue
+            
+            # Create stamina component if needed
+            if not hasattr(char.ndb, "stamina"):
+                from commands.movement import _get_or_create_stamina
+                stamina = _get_or_create_stamina(char)
+            else:
                 stamina = char.ndb.stamina
-                stamina.update(self.interval)
+            
+            # Update stamina
+            stamina.update(self.interval)

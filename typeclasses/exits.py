@@ -68,12 +68,87 @@ class Exit(DefaultExit):
         Uses our own get_display_desc method which includes weather, crowd, and character integration.
         """
         return self.get_display_desc(looker, **kwargs)
+    
+    def _get_movement_verb(self, tier_name):
+        """Get verb forms for movement tiers."""
+        verbs = {
+            "stroll": {"present": "stroll", "ingress": "strolls in", "egress": "strolls away"},
+            "walk": {"present": "walk", "ingress": "walks in", "egress": "walks away"},
+            "jog": {"present": "jog", "ingress": "jogs in", "egress": "jogs away"},
+            "run": {"present": "run", "ingress": "runs in", "egress": "runs away"},
+            "sprint": {"present": "sprint", "ingress": "sprints in", "egress": "sprints away"},
+        }
+        return verbs.get(tier_name.lower(), {"present": "move", "ingress": "enters", "egress": "leaves"})
+    
+    def _traverse_with_stamina_messages(self, traversing_object, target_location):
+        """Traverse with custom exit/enter messages based on movement tier."""
+        # Get movement tier for messaging
+        movement_verb = "moves"
+        ingress_verb = "enters"
+        egress_verb = "leaves"
+        direction = self.key.lower()
+        
+        if traversing_object.has_account and hasattr(traversing_object.ndb, "stamina"):
+            from world.stamina import TIER_NAMES
+            tier_name = TIER_NAMES.get(traversing_object.ndb.stamina.current_tier, "WALK").lower()
+            verbs = self._get_movement_verb(tier_name)
+            movement_verb = verbs["present"]
+            ingress_verb = verbs["ingress"]
+            egress_verb = verbs["egress"]
+        
+        # Send exit message to source room
+        if traversing_object.location:
+            source_room = traversing_object.location
+            exit_message = f"{traversing_object.key} {egress_verb} to the {direction}."
+            source_room.msg_contents(exit_message, exclude=[traversing_object])
+        
+        # Actually traverse
+        super(Exit, self).at_traverse(traversing_object, target_location)
+        
+        # Send entry message to destination room
+        if traversing_object.location == target_location:
+            entry_message = f"{traversing_object.key} {ingress_verb} from the {self._reverse_direction(direction)}."
+            target_location.msg_contents(entry_message, exclude=[traversing_object])
+    
+    def _reverse_direction(self, direction):
+        """Get the reverse of a direction."""
+        reverses = {
+            "north": "south",
+            "south": "north",
+            "east": "west",
+            "west": "east",
+            "northeast": "southwest",
+            "northwest": "southeast",
+            "southeast": "northwest",
+            "southwest": "northeast",
+            "up": "down",
+            "down": "up",
+            "in": "out",
+            "out": "in",
+            "n": "south",
+            "s": "north",
+            "e": "west",
+            "w": "east",
+            "ne": "southwest",
+            "nw": "southeast",
+            "se": "northwest",
+            "sw": "northeast",
+            "u": "down",
+            "d": "up"
+        }
+        return reverses.get(direction.lower(), direction)
 
     def at_traverse(self, traversing_object, target_location):
         # --- STAMINA MOVEMENT SYSTEM ---
         # Only apply to characters (not objects/NPCs)
-        if traversing_object.has_account and hasattr(traversing_object.ndb, "stamina"):
-            stamina = traversing_object.ndb.stamina
+        if traversing_object.has_account:
+            # Get or create stamina component
+            if not hasattr(traversing_object.ndb, "stamina"):
+                from commands.movement import _get_or_create_stamina
+                stamina = _get_or_create_stamina(traversing_object)
+            else:
+                stamina = traversing_object.ndb.stamina
+            
             move_cost = stamina.get_move_cost()
             move_delay = stamina.get_move_delay()
             
@@ -81,16 +156,19 @@ class Exit(DefaultExit):
             if not stamina.can_afford_move():
                 # Auto-downgrade to affordable tier
                 from world.stamina import MovementTier, TIER_NAMES
+                downgraded = False
                 for tier in [MovementTier.RUN, MovementTier.JOG, MovementTier.WALK, MovementTier.STROLL]:
                     if stamina.can_afford_move(tier):
                         old_tier_name = TIER_NAMES[stamina.current_tier].lower()
                         stamina.set_tier(tier)
                         new_tier_name = TIER_NAMES[tier].lower()
-                        traversing_object.msg(f"|yToo exhausted to {old_tier_name}! Slowing to {new_tier_name}.|n")
+                        traversing_object.msg(f"|yToo tired to {old_tier_name}! Slowing to {new_tier_name}.|n")
+                        downgraded = True
                         break
-                else:
+                
+                if not downgraded:
                     # Can't afford any movement
-                    traversing_object.msg("|rYou are too exhausted to move! Rest to recover stamina.|n")
+                    traversing_object.msg("|rYou are too tired to move! Rest to recover stamina.|n")
                     return
             
             # Apply movement delay if needed
@@ -506,8 +584,8 @@ class Exit(DefaultExit):
                 splattercast.msg(f"{traversing_object.key} tried to move via exit '{self.key}' while in combat. Drag conditions not met (grappling: {bool(grappled_victim_obj)}, yielding: {is_yielding}, targeted_by_others_not_victim: {is_targeted_by_others_not_victim}).")
                 return  # Block movement
 
-        # Not in combat, standard traversal
-        super().at_traverse(traversing_object, target_location)
+        # Not in combat, standard traversal with movement tier messaging
+        self._traverse_with_stamina_messages(traversing_object, target_location)
         
         # Clear temporary character placement on room change
         if hasattr(traversing_object, 'temp_place'):
