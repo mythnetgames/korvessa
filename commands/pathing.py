@@ -206,19 +206,32 @@ class CmdPath(Command):
             current_mode = None
             try:
                 stamina = getattr(caller.ndb, 'stamina', None)
-                if stamina and hasattr(stamina, 'current_tier'):
-                    from world.stamina import MovementTier, TIER_NAMES
-                    tier_name = TIER_NAMES.get(stamina.current_tier, "walk").lower()
-                    if tier_name in ["walk", "jog", "run", "sprint", "stroll"]:
-                        # Map stroll to walk since our pathing system doesn't have stroll
-                        current_mode = tier_name if tier_name != "stroll" else "walk"
-            except:
-                pass
+                caller.msg(f"|y[MODE_DEBUG] stamina object: {stamina}|n")
+                
+                if stamina:
+                    caller.msg(f"|y[MODE_DEBUG] stamina has current_tier: {hasattr(stamina, 'current_tier')}|n")
+                    
+                    if hasattr(stamina, 'current_tier'):
+                        from world.stamina import MovementTier, TIER_NAMES
+                        tier_num = stamina.current_tier
+                        caller.msg(f"|y[MODE_DEBUG] current_tier number: {tier_num}|n")
+                        
+                        tier_name = TIER_NAMES.get(tier_num, "walk").lower()
+                        caller.msg(f"|y[MODE_DEBUG] tier_name from TIER_NAMES: {tier_name}|n")
+                        
+                        if tier_name in ["walk", "jog", "run", "sprint", "stroll"]:
+                            # Map stroll to walk since our pathing system doesn't have stroll
+                            current_mode = tier_name if tier_name != "stroll" else "walk"
+                            caller.msg(f"|y[MODE_DEBUG] mapped mode: {current_mode}|n")
+            except Exception as e:
+                caller.msg(f"|r[MODE_DEBUG] Exception: {e}|n")
             
             if current_mode and current_mode in ["walk", "jog", "run", "sprint"]:
                 mode = current_mode
+                caller.msg(f"|g[MODE_DEBUG] Using detected mode: {mode}|n")
             else:
                 mode = "walk"  # Default to walk
+                caller.msg(f"|y[MODE_DEBUG] Defaulting to walk mode|n")
         
         # Get debug channel
         from evennia.comms.models import ChannelDB
