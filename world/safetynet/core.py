@@ -772,6 +772,8 @@ class SafetyNetManager(DefaultScript):
         Returns:
             str or None: ICE profile summary
         """
+        from world.safetynet.utils import check_access_device
+        
         handle_data = self.db.handles.get(handle_name.lower())
         if not handle_data:
             return None
@@ -779,21 +781,48 @@ class SafetyNetManager(DefaultScript):
         ice = handle_data.get("ice_rating", DEFAULT_ICE_RATING)
         online = handle_data.get("session_char_id") is not None
         
+        # Check if target has proxy slotted and active
+        proxy_active = False
+        effective_ice = ice
+        if online and handle_data.get("session_char_id"):
+            from evennia.objects.models import ObjectDB
+            try:
+                target_char = ObjectDB.objects.get(id=handle_data.get("session_char_id"))
+                if target_char:
+                    device_type, device = check_access_device(target_char)
+                    if device:
+                        # Check for slotted and active proxy
+                        proxy = getattr(device.db, "slotted_proxy", None)
+                        if proxy and getattr(proxy.db, "is_active", False):
+                            proxy_active = True
+                            effective_ice = ice + 25  # Proxy bonus
+            except:
+                pass
+        
         # Descriptive ICE levels (1-100 scale) with hacker color scheme
-        if ice <= 15:
+        if effective_ice <= 15:
             level_desc = "|#00d700Minimal|n"
-        elif ice <= 30:
+        elif effective_ice <= 30:
             level_desc = "|#5fd700Basic|n"
-        elif ice <= 50:
+        elif effective_ice <= 50:
             level_desc = "|#5fff00Standard|n"
-        elif ice <= 75:
+        elif effective_ice <= 75:
             level_desc = "|#00af00Hardened|n"
         else:
             level_desc = "|r[BLACK ICE]|n"
         
         status = "|#00ff00[ONLINE]|n" if online else "|r[OFFLINE]|n"
         
-        return f"|#00af00ICE Profile:|n {level_desc} (Rating: {ice}/100) - Status: {status}"
+        lines = []
+        lines.append(f"|#00af00>Handle:|n {handle_data.get('display_name', handle_name)}")
+        lines.append(f"|#00af00>ICE Level:|n {level_desc}")
+        lines.append(f"|#00af00>Base Rating:|n {ice}/100")
+        if proxy_active:
+            lines.append(f"|#5fd700>Proxy Detected:|n +25 ICE bonus")
+            lines.append(f"|#00af00>Effective Rating:|n {effective_ice}/100")
+        lines.append(f"|#00af00>Status:|n {status}")
+        
+        return "\n".join(lines)
     
     def raise_ice(self, decker, handle_name, amount):
         """
@@ -898,7 +927,7 @@ class SafetyNetManager(DefaultScript):
         Returns:
             dict with hack results
         """
-        from world.safetynet.utils import resolve_hack
+        from world.safetynet.utils import resolve_hack, check_access_device
         from world.safetynet.constants import (
             HACK_DM_ACCESS_BASE,
             HACK_DM_ACCESS_PER_MARGIN,
@@ -917,6 +946,21 @@ class SafetyNetManager(DefaultScript):
         
         online = target_data.get("session_char_id") is not None
         ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
+        
+        # Check if target has proxy slotted and active (adds ICE bonus)
+        if online and target_data.get("session_char_id"):
+            from evennia.objects.models import ObjectDB
+            try:
+                target_char = ObjectDB.objects.get(id=target_data.get("session_char_id"))
+                if target_char:
+                    device_type, device = check_access_device(target_char)
+                    if device:
+                        # Check for slotted and active proxy
+                        proxy = getattr(device.db, "slotted_proxy", None)
+                        if proxy and getattr(proxy.db, "is_active", False):
+                            ice += 25  # Proxy bonus
+            except:
+                pass
         
         success, margin, message = resolve_hack(attacker, target_data, online, ice)
         
@@ -988,6 +1032,7 @@ class SafetyNetManager(DefaultScript):
         """
         import random
         from world.safetynet.constants import MSG_HACK_ALERT
+        from world.safetynet.utils import check_access_device
         
         target_key = target_handle_name.lower()
         target_data = self.db.handles.get(target_key)
@@ -1014,6 +1059,22 @@ class SafetyNetManager(DefaultScript):
         
         ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
         
+        # Check if target has proxy slotted and active (adds ICE bonus for defense)
+        online = target_data.get("session_char_id") is not None
+        if online and target_data.get("session_char_id"):
+            from evennia.objects.models import ObjectDB
+            try:
+                target_char = ObjectDB.objects.get(id=target_data.get("session_char_id"))
+                if target_char:
+                    device_type, device = check_access_device(target_char)
+                    if device:
+                        # Check for slotted and active proxy
+                        proxy = getattr(device.db, "slotted_proxy", None)
+                        if proxy and getattr(proxy.db, "is_active", False):
+                            ice += 25  # Proxy bonus makes it harder to wear down
+            except:
+                pass
+        
         # Roll d100
         roll = random.randint(1, 100)
         
@@ -1031,10 +1092,11 @@ class SafetyNetManager(DefaultScript):
         }
         
         # If ICE is already at minimum, return special message
-        if ice <= 1:
+        base_ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
+        if base_ice <= 1:
             result["success"] = False
             result["message"] = "ICE is already at its minimum rating. Further wear is not possible."
-            result["new_rating"] = ice
+            result["new_rating"] = base_ice
             return result
         if success:
             # Reduce ICE by 1 point

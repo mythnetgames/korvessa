@@ -60,7 +60,8 @@ class CmdSafetyNet(Command):
         sn ice <handle>             - Scan a handle's ICE profile
         sn hack <handle>            - Attempt to hack a handle
         sn wear <handle>            - Brute force wear down ICE (risky)
-        sn raise <handle>=<amount>  - Decker: Raise ICE by amount (1-20)
+        sn raise <handle>=<amount>  - Raise ICE by amount (1-20)
+        sn proxy                    - Toggle proxy mode on device
         sn whois <handle>           - Look up handle info
     
     Requires a Wristpad or Computer to access.
@@ -125,17 +126,19 @@ class CmdSafetyNet(Command):
         elif primary_cmd == "passadd":
             self.do_passadd(device_type, subargs)
         elif primary_cmd == "ice":
-            self.do_ice(device_type, subargs)
+            self.do_ice(device_type, device, subargs)
         elif primary_cmd == "hack":
-            self.do_hack(device_type, subargs)
+            self.do_hack(device_type, device, subargs)
         elif primary_cmd == "wear":
-            self.do_wear(device_type, subargs)
+            self.do_wear(device_type, device, subargs)
         elif primary_cmd == "upgrade":
             self.do_upgrade(device_type, subargs)
         elif primary_cmd == "raise":
-            self.do_raise_ice(device_type, subargs)
+            self.do_raise_ice(device_type, device, subargs)
         elif primary_cmd == "whois":
             self.do_whois(device_type, subargs)
+        elif primary_cmd == "proxy":
+            self.do_proxy(device_type, device, subargs)
         else:
             caller.msg(f"|rUnknown SafetyNet command: {primary_cmd}|n Use |wsn|n for help.")
     
@@ -186,6 +189,7 @@ class CmdSafetyNet(Command):
         output.append("  |#5fd700sn hack|n <handle>        - Attempt hack")
         output.append("  |#5fd700sn wear|n <handle>        - Wear down ICE")
         output.append("  |#5fd700sn raise|n <h>=<amt>      - Raise ICE")
+        output.append("  |#5fd700sn proxy|n                - Toggle proxy mode")
 
         
         output.append("")
@@ -624,8 +628,42 @@ class CmdSafetyNet(Command):
         caller.msg("|yNote:|n Each SafetyNet handle can only have one password.")
         caller.msg("Use |w'sn passchange <handle> <old_password>'|n to rotate your password instead.")
     
-    def do_ice(self, device_type, args):
-        """Scan a handle's ICE profile."""
+    def _generate_hacker_header(self, device):
+        """Generate a random hacker-style header line."""
+        import random
+        port = random.randint(1000, 9999)
+        cpu = random.randint(12, 89)
+        local_ip = f"{random.randint(10,192)}.{random.randint(0,255)}.{random.randint(0,255)}.{random.randint(1,254)}"
+        cloak = "ACTIVE" if self._is_proxy_active(device) else "INACTIVE"
+        return f"|#00ff00>>===Port:{port}=====CPU:{cpu}%===CLOAK:{cloak}====LOCALIP:{local_ip}<<|n"
+    
+    def _get_slotted_proxy(self, device):
+        """Get the slotted proxy module from a device, if any."""
+        if not device:
+            return None
+        
+        # Check if device has a slotted proxy item
+        proxy_item = getattr(device.db, "slotted_proxy", None)
+        if proxy_item and proxy_item.db:
+            return proxy_item
+        return None
+    
+    def _is_proxy_active(self, device):
+        """Check if device has a proxy slotted and enabled."""
+        proxy = self._get_slotted_proxy(device)
+        if not proxy:
+            return False
+        return getattr(proxy.db, "is_active", False)
+    
+    def _get_proxy_ice_bonus(self, device):
+        """Get ICE bonus from proxy. Returns 0 if no proxy or not active."""
+        if self._is_proxy_active(device):
+            return 25  # +25 ICE when proxy is active and slotted
+        return 0
+    
+    def do_ice(self, device_type, device, args):
+        """Scan a handle's ICE profile with hacker cutscene."""
+        import random
         caller = self.caller
         manager = get_safetynet_manager()
         
@@ -634,23 +672,65 @@ class CmdSafetyNet(Command):
             return
         
         handle = args.strip()
+        has_proxy = self._is_proxy_active(device)
         
-        def do_ice_delayed():
+        # Hacker cutscene intro
+        caller.msg(self._generate_hacker_header(device))
+        caller.msg(f"|#00d700>get user = {handle}|n")
+        caller.msg("|#00af00>running ice.scan|n")
+        
+        def step1():
+            if has_proxy:
+                caller.msg("|#5fd700>Proxy FOUND!|n")
+            else:
+                caller.msg("|#5fff00>No proxy detected!|n")
+        
+        def step2():
+            caller.msg("|#00d700>>scanning ice.profile|n")
+        
+        def step3():
+            caller.msg("|#00af00>run.scan [*****]|n")
+        
+        def step4():
+            caller.msg("|#00af00>run.scan [|****]|n")
+        
+        def step5():
+            caller.msg("|#00af00>run.scan [|||**]|n")
+        
+        def step6():
+            caller.msg("|#00af00>run.scan [|||||]|n")
+        
+        def step7():
+            caller.msg("|#5fff00>Scan Complete|n")
+            caller.msg("|#00d700>>running get.ice.db.kwc|n")
+        
+        def final_result():
             scan = manager.get_ice_scan(handle)
             if scan:
-                caller.msg(f"|#00ff00===== ICE Scan: {handle} =====|n")
+                caller.msg(f"|#00ff00>>>ICE Profile: {handle}|n")
                 caller.msg(scan)
-                caller.msg("|#00ff00=============================|n")
+                caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
             else:
-                caller.msg(MSG_HANDLE_NOT_FOUND)
+                caller.msg("|r>>>ERROR: Handle not found in database<<<|n")
         
-        delay_time = get_connection_delay(device_type, "search")
-        if delay_time > 0.5:
-            caller.msg(MSG_CONNECTING)
-        delay(delay_time, do_ice_delayed)
+        # Chain the delays
+        base_delay = 0.3 if device_type == "computer" else 0.6
+        if has_proxy:
+            base_delay *= 1.5  # Proxy slows things down
+        
+        delay(base_delay * 1, step1)
+        delay(base_delay * 2, step2)
+        delay(base_delay * 3, step3)
+        delay(base_delay * 4, step4)
+        delay(base_delay * 5, step5)
+        delay(base_delay * 6, step6)
+        delay(base_delay * 7, step7)
+        delay(base_delay * 8, final_result)
     
-    def do_hack(self, device_type, args):
-        """Attempt to hack a handle."""
+    def do_hack(self, device_type, device, args):
+        """Attempt to hack a handle with hacker cutscene."""
+        import time
+        import random
         caller = self.caller
         manager = get_safetynet_manager()
         
@@ -659,7 +739,6 @@ class CmdSafetyNet(Command):
             return
         
         # Check for cooldown
-        import time
         cooldown_until = getattr(caller.ndb, 'hack_cooldown', None)
         if cooldown_until is not None and isinstance(cooldown_until, (int, float)):
             current_time = time.time()
@@ -669,51 +748,93 @@ class CmdSafetyNet(Command):
                 return
         
         handle = args.strip()
+        has_proxy = self._is_proxy_active(device)
         
-        def do_hack_delayed():
+        # Hacker cutscene intro
+        caller.msg(self._generate_hacker_header(device))
+        caller.msg(f"|#00d700>get user = {handle}|n")
+        caller.msg("|#00af00>running intrusion.exe|n")
+        
+        base_delay = 0.4 if device_type == "computer" else 0.7
+        if has_proxy:
+            base_delay *= 1.5
+        
+        def step1():
+            if has_proxy:
+                caller.msg("|#5fd700>Proxy FOUND! Routing through secure tunnel...|n")
+            else:
+                caller.msg("|#5fff00>No proxy detected! Connection exposed!|n")
+        
+        def step2():
+            caller.msg("|#00d700>>initiating ice.bypass|n")
+        
+        def step3():
+            caller.msg("|#00af00>run.crack [*****]|n")
+        
+        def step4():
+            caller.msg("|#00af00>run.crack [|****]|n")
+        
+        def step5():
+            caller.msg("|#00af00>run.crack [|||**]|n")
+        
+        def step6():
+            caller.msg("|#00af00>run.crack [|||||]|n")
+        
+        def step7():
+            caller.msg("|#5fd700>>>ICE BREACHED|n")
+            caller.msg("|#00d700>>running trace.protocol|n")
+        
+        def step8():
+            caller.msg("|#00af00>run.trace [*****]|n")
+        
+        def step9():
+            caller.msg("|#00af00>run.trace [|****]|n")
+        
+        def step10():
+            caller.msg("|#00af00>run.trace [|||**]|n")
+        
+        def step11():
+            caller.msg("|#00af00>run.trace [|||||]|n")
+        
+        def final_result():
             result = manager.attempt_hack(caller, handle)
             
             # Set cooldown on failure
             if not result.get("success"):
-                import time
-                cooldown_duration = 30  # 30 second cooldown on failed hacks
+                cooldown_duration = 30
                 caller.ndb.hack_cooldown = time.time() + cooldown_duration
             
-            lines = []
-            lines.append("|#00ff00===== INTRUSION ATTEMPT =====|n")
-            lines.append(f"|#00af00Target:|n {handle}")
-            
-            if result.get("success") and result.get("password"):
-                lines.append(f"|#5fff00Password:|n {result['password']}")
-            
-            lines.append(f"|#00af00Result:|n {result['message']}")
-            
             if result.get("success"):
-                lines.append("")
-                lines.append(MSG_HACK_SUCCESS)
+                caller.msg("|#5fff00>>>ACCESS GRANTED<<<|n")
+                caller.msg("|#00d700>>running get.credentials.db.kwc|n")
+                
+                if result.get("password"):
+                    caller.msg(f"|#00ff00>Password: |#5fff00{result['password']}|n")
                 
                 # Show trace if available
                 if result.get("trace"):
-                    lines.append("")
-                    lines.append(f"|#5fff00Trace successful:|n Signal originates from '{result['trace']}'.")
+                    caller.msg("|#5fd700>Trace Found|n")
+                    caller.msg(f"|#00af00>Location: |#5fff00{result['trace']}|n")
                 elif result.get("online"):
-                    lines.append("|#00af00Trace failed:|n Could not pinpoint location.")
+                    caller.msg("|#00af00>Trace Failed: Signal bounced|n")
                 else:
-                    lines.append("|#00af00No trace:|n Target offline.")
+                    caller.msg("|#00af00>No trace: Target offline|n")
                 
                 # Show DMs if available
                 dms = result.get("dms", [])
                 if dms:
-                    lines.append("")
-                    lines.append(f"|#00ff00----- Recovered Messages ({len(dms)}) -----|n")
+                    caller.msg(f"|#00ff00>>>Recovered Messages ({len(dms)})|n")
                     for dm in dms[:5]:
                         from_h = dm.get("from_handle", "?")
                         msg = dm.get("message", "")[:80]
-                        lines.append(f"  |#5fd700{from_h}:|n {msg}")
+                        caller.msg(f"|#00d700>  {from_h}: |#5fd700{msg}|n")
+                
+                caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
             else:
-                lines.append("")
-                lines.append(MSG_HACK_FAILED)
-                lines.append(f"|r[ICE TRIGGERED]|n 30 second lockout initiated.|n")
+                caller.msg("|r>>>ACCESS DENIED<<<|n")
+                caller.msg(f"|r>ICE COUNTERMEASURES ACTIVE|n")
+                caller.msg(f"|r>LOCKOUT: 30 seconds|n")
+                caller.msg("|r>>>CONNECTION TERMINATED<<<|n")
                 
                 # Alert the target if online
                 if result.get("alert") and result.get("target_char_id"):
@@ -724,42 +845,83 @@ class CmdSafetyNet(Command):
                             target_char.msg(f"|#008700[SafetyNet System Alert]|w: |R{result['alert']}")
                     except:
                         pass
-            
-            lines.append("|#00ff00=============================|n")
-            caller.msg("\n".join(lines))
         
-        delay_time = get_connection_delay(device_type, "hack")
-        caller.msg("|#00d700[SafetyNet] Initiating intrusion sequence...|n")
-        delay(delay_time, do_hack_delayed)
+        # Chain the delays
+        delay(base_delay * 1, step1)
+        delay(base_delay * 2, step2)
+        delay(base_delay * 3, step3)
+        delay(base_delay * 4, step4)
+        delay(base_delay * 5, step5)
+        delay(base_delay * 6, step6)
+        delay(base_delay * 7, step7)
+        delay(base_delay * 8, step8)
+        delay(base_delay * 9, step9)
+        delay(base_delay * 10, step10)
+        delay(base_delay * 11, step11)
+        delay(base_delay * 12, final_result)
     
-    def do_wear(self, device_type, args):
-        """Attempt to wear down a handle's ICE through brute force attack."""
+    def do_wear(self, device_type, device, args):
+        """Attempt to wear down a handle's ICE with hacker cutscene."""
+        import time
         caller = self.caller
         manager = get_safetynet_manager()
         
         if not args:
             caller.msg("|rUsage: sn wear <handle>|n")
-            caller.msg("|y[WARNING]|n Wear attacks are based on your Decking skill.|n")
-            caller.msg("|y[RISK]|n Failure traces your location to the target owner!|n")
             return
         
         handle = args.strip()
+        has_proxy = self._is_proxy_active(device)
         
-        def do_wear_delayed():
+        # Hacker cutscene intro
+        caller.msg(self._generate_hacker_header(device))
+        caller.msg(f"|#00d700>get user = {handle}|n")
+        caller.msg("|#00af00>running bruteforce.exe|n")
+        
+        base_delay = 0.4 if device_type == "computer" else 0.7
+        if has_proxy:
+            base_delay *= 1.5
+        
+        def step1():
+            if has_proxy:
+                caller.msg("|#5fd700>Proxy FOUND! Attack origin masked...|n")
+            else:
+                caller.msg("|#5fff00>No proxy detected! CAUTION: Traceable!|n")
+        
+        def step2():
+            caller.msg("|#00d700>>initiating ice.degrade|n")
+        
+        def step3():
+            caller.msg("|#00af00>run.wear [*****]|n")
+        
+        def step4():
+            caller.msg("|#00af00>run.wear [|****]|n")
+        
+        def step5():
+            caller.msg("|#00af00>run.wear [|||**]|n")
+        
+        def step6():
+            caller.msg("|#00af00>run.wear [|||||]|n")
+        
+        def step7():
+            caller.msg("|#5fd700>>>ATTACK COMPLETE|n")
+            caller.msg("|#00d700>>analyzing results...|n")
+        
+        def final_result():
             result = manager.attempt_wear_ice(caller, handle)
             
-            lines = []
-            lines.append("|#00ff00===== BRUTE FORCE WEAR =====|n")
-            lines.append(f"|#00af00Target:|n {handle}")
-            
             if result.get("success"):
-                lines.append(f"|#5fff00Result:|n {result['message']}|n")
                 new_rating = result.get("new_rating", "?")
-                lines.append(f"|#5fff00New Rating:|n {new_rating}/100")
+                caller.msg("|#5fff00>>>ICE DEGRADED<<<|n")
+                caller.msg(f"|#00af00>Result: {result['message']}|n")
+                caller.msg(f"|#00ff00>New ICE Rating: |#5fff00{new_rating}/100|n")
+                caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
             else:
-                lines.append(f"|rResult:|n {result['message']}|n")
+                caller.msg(f"|r>>>ATTACK FAILED<<<|n")
+                caller.msg(f"|r>Result: {result['message']}|n")
                 if result.get("traced"):
-                    lines.append("|r[TRACED]|n Target owner has been alerted to your location!|n")
+                    caller.msg("|r>>>WARNING: TRACED<<<|n")
+                    caller.msg("|r>Your location has been exposed to target!|n")
                     
                     # Alert the target if online
                     if result.get("alert") and result.get("target_char_id"):
@@ -770,17 +932,27 @@ class CmdSafetyNet(Command):
                                 target_char.msg(f"|#008700[SafetyNet System Alert]|w: |R{result['alert']}")
                         except:
                             pass
-            
-            lines.append("|#00ff00=============================|n")
-            caller.msg("\n".join(lines))
+                caller.msg("|r>>>CONNECTION TERMINATED<<<|n")
         
-        delay_time = get_connection_delay(device_type, "write")
-        caller.msg("|#00d700[SafetyNet] Initiating wear attack...|n")
-        delay(delay_time, do_wear_delayed)
+        # Chain the delays
+        delay(base_delay * 1, step1)
+        delay(base_delay * 2, step2)
+        delay(base_delay * 3, step3)
+        delay(base_delay * 4, step4)
+        delay(base_delay * 5, step5)
+        delay(base_delay * 6, step6)
+        delay(base_delay * 7, step7)
+        delay(base_delay * 8, final_result)
     
     def do_upgrade(self, device_type, args):
-        """Upgrade ICE rating for a handle."""
+        """Upgrade ICE rating for a handle. ADMIN ONLY."""
         caller = self.caller
+        
+        # Check if caller is a builder or higher
+        if not caller.check_permstring("Builder"):
+            caller.msg("|rYou do not have permission to use this command.|n")
+            return
+        
         manager = get_safetynet_manager()
         
         if "=" not in args:
@@ -804,8 +976,8 @@ class CmdSafetyNet(Command):
         else:
             caller.msg(f"|r{message}|n")
     
-    def do_raise_ice(self, device_type, args):
-        """Decker function: Raise ICE by a small amount (1-20 per use) with skill check."""
+    def do_raise_ice(self, device_type, device, args):
+        """Decker function: Raise ICE with hacker cutscene."""
         import time
         from datetime import date
         
@@ -831,8 +1003,6 @@ class CmdSafetyNet(Command):
         
         if "=" not in args:
             caller.msg("|rUsage: sn raise <handle>=<amount>|n")
-            caller.msg("|yAmount: 1-20 per action (max 20/day)|n")
-            caller.msg("|yRisk: Failure locks you out, critical failure locks you out for 30 seconds|n")
             return
         
         handle, amount_str = args.split("=", 1)
@@ -854,7 +1024,7 @@ class CmdSafetyNet(Command):
         raised_today = handle_data.get('ice_raised_today', 0)
         raised_date = handle_data.get('ice_raised_date', None)
         
-        # Reset if it's a new day
+        # Reset if it is a new day
         if raised_date != today:
             raised_today = 0
             handle_data['ice_raised_today'] = 0
@@ -868,12 +1038,48 @@ class CmdSafetyNet(Command):
         # Record this attempt timestamp
         caller.ndb.last_raise_attempt = time.time()
         
-        def do_raise_delayed():
+        has_proxy = self._is_proxy_active(device)
+        
+        # Hacker cutscene intro
+        caller.msg(self._generate_hacker_header(device))
+        caller.msg(f"|#00d700>get user = {handle}|n")
+        caller.msg(f"|#00af00>running ice.enhance +{amount}|n")
+        
+        base_delay = 0.4 if device_type == "computer" else 0.7
+        if has_proxy:
+            base_delay *= 1.5
+        
+        def step1():
+            if has_proxy:
+                caller.msg("|#5fd700>Proxy FOUND! Secure enhancement channel...|n")
+            else:
+                caller.msg("|#5fff00>No proxy detected! Direct connection...|n")
+        
+        def step2():
+            caller.msg("|#00d700>>initiating ice.upgrade|n")
+        
+        def step3():
+            caller.msg("|#00af00>run.enhance [*****]|n")
+        
+        def step4():
+            caller.msg("|#00af00>run.enhance [|****]|n")
+        
+        def step5():
+            caller.msg("|#00af00>run.enhance [|||**]|n")
+        
+        def step6():
+            caller.msg("|#00af00>run.enhance [|||||]|n")
+        
+        def step7():
+            caller.msg("|#5fd700>>>ENHANCEMENT COMPLETE|n")
+            caller.msg("|#00d700>>verifying ice.integrity...|n")
+        
+        def final_result():
             success, message, new_rating, result_type = manager.raise_ice(caller, handle, amount)
             
             # Set cooldown on critical failure
             if result_type == 'critfail':
-                cooldown_duration = 30  # 30 second cooldown on critical failure
+                cooldown_duration = 30
                 caller.ndb.raise_cooldown = time.time() + cooldown_duration
             elif result_type == 'success':
                 # Track daily ICE raised on handle (not character) to prevent multi-user exploits
@@ -883,7 +1089,7 @@ class CmdSafetyNet(Command):
                     raised_today = handle_data.get('ice_raised_today', 0)
                     raised_date = handle_data.get('ice_raised_date', None)
                     
-                    # Reset if it's a new day
+                    # Reset if it is a new day
                     if raised_date != today:
                         raised_today = 0
                     
@@ -891,15 +1097,26 @@ class CmdSafetyNet(Command):
                     handle_data['ice_raised_date'] = today
             
             if success:
-                caller.msg(f"{message}")
-                caller.msg(f"|#00ff00New ICE Rating:|n {new_rating}/100")
+                caller.msg("|#5fff00>>>ICE UPGRADED<<<|n")
+                caller.msg(f"|#00af00>Result: {message}|n")
+                caller.msg(f"|#00ff00>New ICE Rating: |#5fff00{new_rating}/100|n")
+                caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
             else:
-                caller.msg(f"|r{message}|n")
+                caller.msg("|r>>>ENHANCEMENT FAILED<<<|n")
+                caller.msg(f"|r>Result: {message}|n")
+                if result_type == 'critfail':
+                    caller.msg("|r>SYSTEM LOCKOUT: 30 seconds|n")
+                caller.msg("|r>>>CONNECTION TERMINATED<<<|n")
         
-        delay_time = get_connection_delay(device_type, "write")
-        if delay_time > 0.5:
-            caller.msg("|yInitiating ICE enhancement...|n")
-        delay(delay_time, do_raise_delayed)
+        # Chain the delays
+        delay(base_delay * 1, step1)
+        delay(base_delay * 2, step2)
+        delay(base_delay * 3, step3)
+        delay(base_delay * 4, step4)
+        delay(base_delay * 5, step5)
+        delay(base_delay * 6, step6)
+        delay(base_delay * 7, step7)
+        delay(base_delay * 8, final_result)
     
     def do_whois(self, device_type, args):
         """Look up handle info."""
@@ -952,6 +1169,72 @@ class CmdSafetyNet(Command):
         if delay_time > 0.5:
             caller.msg(MSG_CONNECTING)
         delay(delay_time, do_whois_delayed)
+    
+    def do_proxy(self, device_type, device, args):
+        """Toggle slotted proxy module on/off for enhanced security."""
+        caller = self.caller
+        
+        if not device:
+            caller.msg("|rNo device found.|n")
+            return
+        
+        # Check if there's a proxy slotted
+        proxy = self._get_slotted_proxy(device)
+        
+        if not proxy:
+            caller.msg("|rNo proxy module slotted in this device.|n")
+            caller.msg("|yYou need to slot a proxy module first.|n")
+            return
+        
+        # Toggle proxy active status
+        current_status = getattr(proxy.db, "is_active", False)
+        new_status = not current_status
+        proxy.db.is_active = new_status
+        
+        # Hacker-style output
+        caller.msg(self._generate_hacker_header(device))
+        caller.msg("|#00d700>system.proxy.toggle|n")
+        
+        def step1():
+            caller.msg("|#00af00>>accessing proxy.settings|n")
+        
+        def step2():
+            if new_status:
+                caller.msg("|#5fd700>Proxy ENABLED|n")
+                caller.msg("|#00af00>Routing all traffic through secure tunnel...|n")
+            else:
+                caller.msg("|#5fff00>Proxy DISABLED|n")
+                caller.msg("|#00af00>Direct connection established...|n")
+        
+        def step3():
+            caller.msg("|#00d700>>updating system.config|n")
+        
+        def final_result():
+            if new_status:
+                caller.msg("|#00ff00>>>PROXY ACTIVE<<<|n")
+                caller.msg("|#00af00>Module Status:|n |#5fd700Active|n")
+                caller.msg("|#00af00>Benefits:|n")
+                caller.msg("|#5fd700>  +25 ICE rating when defending|n")
+                caller.msg("|#5fd700>  Cloak status: ACTIVE|n")
+                caller.msg("|#00af00>Drawbacks:|n")
+                caller.msg("|#5fff00>  Slower connection speed (1.5x delay)|n")
+                caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
+            else:
+                caller.msg("|#00ff00>>>PROXY INACTIVE<<<|n")
+                caller.msg("|#00af00>Module Status:|n |#5fff00Inactive|n")
+                caller.msg("|#00af00>Status:|n")
+                caller.msg("|#5fd700>  Normal connection speed|n")
+                caller.msg("|#5fff00>  Cloak status: INACTIVE|n")
+                caller.msg("|#00af00>Note:|n")
+                caller.msg("|#5fd700>  Proxy module remains slotted|n")
+                caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
+        
+        base_delay = 0.3 if device_type == "computer" else 0.5
+        
+        delay(base_delay * 1, step1)
+        delay(base_delay * 2, step2)
+        delay(base_delay * 3, step3)
+        delay(base_delay * 4, final_result)
 
 
 class CmdSafetyNetAdmin(Command):
