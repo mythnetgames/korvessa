@@ -40,6 +40,77 @@ def _log(msg):
 
 
 # ============================================================================
+# CHROME STAT HELPER FUNCTIONS
+# ============================================================================
+
+def _get_chrome_stat_bonuses(character):
+    """
+    Calculate total stat bonuses from all installed chrome.
+    
+    Args:
+        character: The character to check
+        
+    Returns:
+        dict: Dictionary of stat short names to total bonus amounts
+              e.g. {'body': 2, 'ref': 1, 'emp': -3}
+    """
+    bonuses = {}
+    
+    # Stat name mapping (prototype long name -> character short name)
+    stat_map = {
+        "smarts": "smrt",
+        "willpower": "will",
+        "edge": "edge",
+        "reflexes": "ref",
+        "body": "body",
+        "dexterity": "dex",
+        "empathy": "emp",
+        "technique": "tech",
+    }
+    
+    # Get installed chrome list
+    chrome_list = getattr(character.db, 'installed_chrome_list', None) or []
+    
+    for chrome_entry in chrome_list:
+        shortname = chrome_entry.get("shortname", "")
+        if not shortname:
+            continue
+            
+        # Get chrome prototype for buffs
+        proto = _get_chrome_prototype(shortname)
+        if not proto:
+            continue
+            
+        # Add buffs from this chrome
+        if proto.get("buffs") and isinstance(proto["buffs"], dict):
+            for stat, bonus in proto["buffs"].items():
+                short_stat = stat_map.get(stat.lower(), stat)
+                bonuses[short_stat] = bonuses.get(short_stat, 0) + bonus
+        
+        # Empathy cost reduces max_emp (and we track it separately)
+        empathy_cost = proto.get("empathy_cost", 0)
+        if empathy_cost:
+            # Empathy cost is a reduction to max, tracked as negative bonus
+            bonuses["emp_max_reduction"] = bonuses.get("emp_max_reduction", 0) + empathy_cost
+    
+    return bonuses
+
+
+def _get_chrome_prototype(shortname):
+    """Get chrome prototype definition by shortname."""
+    try:
+        from world import chrome_prototypes
+        
+        for name in dir(chrome_prototypes):
+            obj = getattr(chrome_prototypes, name)
+            if isinstance(obj, dict) and obj.get("shortname", "").lower() == shortname.lower():
+                return obj
+    except ImportError:
+        pass
+    return None
+
+
+# ============================================================================
 # CLONE BACKUP FUNCTIONS
 # ============================================================================
 
@@ -88,8 +159,12 @@ def create_clone_backup(character):
     """
     Create or update a clone backup for the character.
     
-    Stores: stats, skills, nakeds, description
+    Stores: BASELINE stats (without chrome bonuses), skills, nakeds, description
     Does NOT store: chrome, inventory, current location
+    
+    Chrome stat bonuses are subtracted before storing to ensure the backup
+    contains baseline stats. When restored, the character gets their natural
+    stats back, not the chrome-boosted stats they had.
     
     Args:
         character: The character to backup
@@ -97,18 +172,31 @@ def create_clone_backup(character):
     Returns:
         dict: The backup data created
     """
+    # Get chrome bonuses to subtract from current stats
+    chrome_bonuses = _get_chrome_stat_bonuses(character)
+    
+    # Calculate baseline stats (current stats minus chrome bonuses)
+    baseline_body = getattr(character, 'body', 1) - chrome_bonuses.get('body', 0)
+    baseline_ref = getattr(character, 'ref', 1) - chrome_bonuses.get('ref', 0)
+    baseline_dex = getattr(character, 'dex', 1) - chrome_bonuses.get('dex', 0)
+    baseline_tech = getattr(character, 'tech', 1) - chrome_bonuses.get('tech', 0)
+    baseline_smrt = getattr(character, 'smrt', 1) - chrome_bonuses.get('smrt', 0)
+    baseline_will = getattr(character, 'will', 1) - chrome_bonuses.get('will', 0)
+    baseline_edge = getattr(character, 'edge', 1) - chrome_bonuses.get('edge', 0)
+    baseline_emp = getattr(character, 'emp', 1) - chrome_bonuses.get('emp', 0)
+    
     backup = {
         'timestamp': gametime.gametime(absolute=True),
         
-        # Stats (8-stat system)
-        'body': getattr(character, 'body', 1),
-        'ref': getattr(character, 'ref', 1),
-        'dex': getattr(character, 'dex', 1),
-        'tech': getattr(character, 'tech', 1),
-        'smrt': getattr(character, 'smrt', 1),
-        'will': getattr(character, 'will', 1),
-        'edge': getattr(character, 'edge', 1),
-        'emp': getattr(character, 'emp', 1),
+        # Stats (8-stat system) - BASELINE without chrome bonuses
+        'body': baseline_body,
+        'ref': baseline_ref,
+        'dex': baseline_dex,
+        'tech': baseline_tech,
+        'smrt': baseline_smrt,
+        'will': baseline_will,
+        'edge': baseline_edge,
+        'emp': baseline_emp,
         
         # Skills (copy the whole skills dict if it exists)
         'skills': dict(getattr(character.db, 'skills', {}) or {}),
@@ -128,6 +216,8 @@ def create_clone_backup(character):
     character.db.clone_backup_count = (character.db.clone_backup_count or 0) + 1
     
     _log(f"CLONE_BACKUP: Created backup for {character.key} (backup #{character.db.clone_backup_count})")
+    if chrome_bonuses:
+        _log(f"CLONE_BACKUP: Subtracted chrome bonuses: {chrome_bonuses}")
     
     return backup
 
@@ -160,7 +250,7 @@ def restore_from_clone(new_character, backup_data):
     if not backup_data:
         return False
     
-    # Restore stats
+    # Restore stats (these are BASELINE stats without chrome bonuses)
     new_character.body = backup_data.get('body', 1)
     new_character.ref = backup_data.get('ref', 1)
     new_character.dex = backup_data.get('dex', 1)
@@ -169,6 +259,17 @@ def restore_from_clone(new_character, backup_data):
     new_character.will = backup_data.get('will', 1)
     new_character.edge = backup_data.get('edge', 1)
     new_character.emp = backup_data.get('emp', 1)
+    
+    # Reset max stats to defaults (chrome bonuses not carried over)
+    # Default max is typically 10 or based on stat value
+    new_character.max_body = 10
+    new_character.max_ref = 10
+    new_character.max_dex = 10
+    new_character.max_tech = 10
+    new_character.max_smrt = 10
+    new_character.max_will = 10
+    new_character.max_edge = 10
+    new_character.max_emp = 10
     
     # Restore skills
     new_character.db.skills = dict(backup_data.get('skills', {}))
@@ -179,11 +280,16 @@ def restore_from_clone(new_character, backup_data):
     new_character.db.skintone = backup_data.get('skintone')
     new_character.sex = backup_data.get('sex', 'ambiguous')
     
-    # Copy the backup to the new character so they can update it
-    new_character.db.clone_backup = backup_data
+    # Clear installed chrome list (no chrome carried over)
+    new_character.db.installed_chrome_list = []
+    
+    # IMPORTANT: Do NOT copy the old backup to the new character
+    # The backup was CONSUMED when dying - they must make a new backup at the pod
+    # This ensures clone backup is a one-time use per death
+    new_character.db.clone_backup = None
     new_character.db.clone_backup_count = 0  # Reset update count for new sleeve
     
-    _log(f"CLONE_RESTORE: Restored {new_character.key} from backup")
+    _log(f"CLONE_RESTORE: Restored {new_character.key} from backup (backup consumed, chrome cleared)")
     
     return True
 
