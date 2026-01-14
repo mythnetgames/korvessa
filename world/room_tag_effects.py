@@ -17,9 +17,6 @@ class RoomTagEffectHandler(DefaultScript):
     Should be attached to individual rooms as needed.
     """
     
-    is_active = True
-    persistent = True
-    
     def at_script_creation(self):
         """Initialize script"""
         self.key = "room_tag_effects"
@@ -27,9 +24,11 @@ class RoomTagEffectHandler(DefaultScript):
         self.interval = 5  # Run every 5 seconds
         self.start_delay = 0  # Start immediately
         self.repeats = 0  # Repeat forever
-        # If script is paused, resume it
-        if hasattr(self, 'is_paused') and self.is_paused:
-            self.resume()
+        self.persistent = True
+    
+    def at_start(self):
+        """Called when the script starts running."""
+        pass  # Script is now running
         
     def at_repeat(self):
         """Called every interval to process room effects"""
@@ -225,8 +224,6 @@ def attach_effect_handler(room):
     # Delete any existing handlers and create fresh
     existing = ScriptDB.objects.filter(db_obj=room, db_key="room_tag_effects")
     for script in existing:
-        if splattercast:
-            splattercast.msg(f"FIRE_DEBUG: Deleting old script {script.id}")
         script.delete()
     
     # Create new handler
@@ -242,14 +239,17 @@ def attach_effect_handler(room):
         persistent=True
     )
     
-    if splattercast:
-        splattercast.msg(f"FIRE_DEBUG: Created new script {handler.id if handler else 'NONE'}, is_active={handler.is_active if handler else 'N/A'}")
-    
-    # Force start the script
-    if handler and not handler.is_active:
-        handler.start()
-        if splattercast:
-            splattercast.msg(f"FIRE_DEBUG: Force started script")
+    # Force unpause and start the script
+    if handler:
+        # Unpause if paused
+        if hasattr(handler, 'unpause'):
+            handler.unpause()
+        # Force start if not active
+        if not handler.is_active:
+            handler.start()
+        # Force the first repeat to happen now
+        if hasattr(handler, 'force_repeat'):
+            handler.force_repeat()
     
     return handler
 
