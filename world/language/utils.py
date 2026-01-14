@@ -326,6 +326,11 @@ def get_language_proficiency(character, language_code):
     Returns:
         float: Proficiency percentage (0-100)
     """
+    # Builder+ accounts understand all languages
+    if hasattr(character, 'account') and character.account:
+        if character.account.check_permstring("Builder"):
+            return 100.0
+    
     # Use character.db directly, not attributes API
     proficiency_dict = character.db.language_proficiency or {}
     

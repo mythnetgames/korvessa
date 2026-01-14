@@ -229,6 +229,19 @@ def _check_auto_walk_interrupts(character):
     if not character.location:
         return "Character has no location"
     
+    # Check for other PCs in the room (not NPCs) - stop for potential RP
+    if character.location:
+        for obj in character.location.contents:
+            if obj == character:
+                continue
+            # Check if it's a PC (has account/player attached and is not an NPC)
+            if hasattr(obj, 'account') and obj.account:
+                # This is a PC - check if they are visible to us (not hidden)
+                if hasattr(obj, 'is_hidden') and obj.is_hidden():
+                    continue  # Skip hidden characters
+                # Visible PC found - stop pathing
+                return f"|#5fafff[!] You see {obj.key} in the room.|n\n|#5fafff    Hint: Walk past them manually or ask them to move?|n"
+    
     return None
 
 
