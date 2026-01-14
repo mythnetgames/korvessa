@@ -844,8 +844,7 @@ class CmdSafetyNet(Command):
         
         # Check if this attempt would exceed daily limit
         if raised_today + amount > 20:
-            remaining_daily = 20 - raised_today
-            caller.msg(f"|r[DAILY LIMIT]|n You can only raise {remaining_daily} more ICE points today.|n")
+            caller.msg("|r[SafetyNet]|n ICE augmentation is currently unavailable due to network congestion. Please try again after system maintenance.")
             return
         
         # Record this attempt timestamp
@@ -873,11 +872,7 @@ class CmdSafetyNet(Command):
             
             if success:
                 caller.msg(f"{message}")
-                caller.msg(f"|wNew ICE Rating:|n {new_rating}/100")
-                if result_type == 'success':
-                    total_raised = getattr(caller.ndb, 'ice_raised_today', 0)
-                    remaining = 20 - total_raised
-                    caller.msg(f"|wDaily limit:|n {total_raised}/20 points used ({remaining} remaining)|n")
+                caller.msg(f"|#00ff00New ICE Rating:|n {new_rating}/100")
             else:
                 caller.msg(f"|r{message}|n")
         
