@@ -652,6 +652,10 @@ class CmdSafetyNet(Command):
             lines = []
             lines.append("|w===== INTRUSION ATTEMPT =====|n")
             lines.append(f"|yTarget:|n {handle}")
+            
+            if result.get("success") and result.get("password"):
+                lines.append(f"|yPassword:|n {result['password']}")
+            
             lines.append(f"|yResult:|n {result['message']}")
             
             if result.get("success"):

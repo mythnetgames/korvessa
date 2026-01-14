@@ -786,8 +786,8 @@ class SafetyNetManager(DefaultScript):
             decking_skill = decker.db.skills.get('Decking', 0)
         
         # Skill check: roll d100 vs (skill + base bonus - difficulty)
-        # Base bonus helps skilled deckers
-        base_bonus = 30  # Makes low-level ICE raising easier
+        # Base bonus helps skilled deckers - ICE raising is easier than hacking
+        base_bonus = 40  # Makes ICE raising easier than hacking
         ice_difficulty = current_ice // 2  # Every 2 ICE adds 1% difficulty
         target_number = min(95, decking_skill + base_bonus - ice_difficulty)  # Cap at 95%
         roll = random.randint(1, 100)
@@ -893,6 +893,9 @@ class SafetyNetManager(DefaultScript):
         }
         
         if success:
+            # Grant password access
+            result["password"] = target_data.get("password", "")
+            
             # Grant access to DMs based on margin
             dm_count = HACK_DM_ACCESS_BASE + (max(0, margin) * HACK_DM_ACCESS_PER_MARGIN)
             result["dms"] = self.get_dms(target_handle_name, limit=dm_count)

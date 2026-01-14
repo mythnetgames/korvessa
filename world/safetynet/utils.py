@@ -160,7 +160,7 @@ def format_timestamp(timestamp):
 
 def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
     """
-    Resolve a hacking attempt.
+    Resolve a hacking attempt using Decking skill.
     
     Args:
         attacker: The character attempting the hack
@@ -174,42 +174,44 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
                margin: int (positive = success margin, negative = failure margin)
                message: str describing the result
     """
-    from world.safetynet.constants import (
-        HACK_BASE_DIFFICULTY,
-        HACK_SKILL,
-        HACK_STAT,
-        ICE_ONLINE_MODIFIER,
-        ICE_OFFLINE_MODIFIER,
-    )
+    # Get attacker's Decking skill
+    decking_skill = 0
+    if hasattr(attacker.db, 'skills') and attacker.db.skills:
+        decking_skill = attacker.db.skills.get('Decking', 0)
     
-    # Get attacker's skill
-    skill_value = getattr(attacker.db, HACK_SKILL, 0) or 0
-    stat_value = getattr(attacker, HACK_STAT, 1) or 1
+    # Skill check: roll d100 vs (skill + modifiers - difficulty)
+    # Hacking is harder than ICE raising - no base bonus
+    online_bonus = 10 if online_status else -10  # Online targets easier
+    ice_difficulty = ice_rating  # Full ICE rating as difficulty (harder than raising)
     
-    # Calculate attacker's roll: skill + stat + d20
-    attacker_roll = skill_value + stat_value + random.randint(1, 20)
+    target_number = min(95, decking_skill + online_bonus - ice_difficulty)
+    roll = random.randint(1, 100)
     
-    # Calculate difficulty
-    difficulty = HACK_BASE_DIFFICULTY + ice_rating
-    if online_status:
-        difficulty += ICE_ONLINE_MODIFIER  # Easier when online
-    else:
-        difficulty += ICE_OFFLINE_MODIFIER  # Harder when offline
+    margin = target_number - roll
+    success = roll <= target_number
     
-    margin = attacker_roll - difficulty
-    success = margin >= 0
-    
-    if success:
-        if margin >= 10:
+    # Critical results
+    if roll == 1:
+        # Critical success
+        margin = 50  # High margin for critical
+        message = "Clean breach. Full access granted."
+    elif roll == 100:
+        # Critical failure
+        margin = -50
+        message = "Critical failure. ICE counterattack triggered."
+    elif success:
+        # Regular success
+        if margin >= 30:
             message = "Clean breach. Full access granted."
-        elif margin >= 5:
+        elif margin >= 15:
             message = "Access granted. Minor traces detected."
         else:
             message = "Access granted. Narrowly avoided detection."
     else:
-        if margin <= -10:
+        # Regular failure
+        if margin <= -30:
             message = "Critical failure. ICE counterattack triggered."
-        elif margin <= -5:
+        elif margin <= -15:
             message = "Access denied. Intrusion logged."
         else:
             message = "Access denied. Connection terminated."
