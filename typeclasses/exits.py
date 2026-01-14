@@ -247,8 +247,15 @@ class Exit(DefaultExit):
                         }
                         arrive_verb = arrive_verbs.get(tier, "arrives")
                         
+                        # Set flag to suppress at_post_move messages
+                        char.ndb._exit_handled_messages = True
+                        
                         # Move the character directly
                         char.move_to(dest, quiet=True)
+                        
+                        # Clear the flag
+                        if hasattr(char.ndb, "_exit_handled_messages"):
+                            del char.ndb._exit_handled_messages
                         
                         # Send arrival messages
                         char.msg(char.at_look(dest))
@@ -668,8 +675,15 @@ class Exit(DefaultExit):
                 exclude=[traversing_object]
             )
         
+        # Set flag to suppress at_post_move messages
+        traversing_object.ndb._exit_handled_messages = True
+        
         # Move the character directly
         traversing_object.move_to(target_location, quiet=True)
+        
+        # Clear the flag
+        if hasattr(traversing_object.ndb, "_exit_handled_messages"):
+            del traversing_object.ndb._exit_handled_messages
         
         # Send entry message to destination room
         if traversing_object.location == target_location:
