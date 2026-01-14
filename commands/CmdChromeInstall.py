@@ -42,6 +42,9 @@ class CmdChromeInstall(Command):
             self.caller.msg(f"Chrome definition not found for '{shortname}'.")
             return
         
+        # Get chrome long name
+        chrome_name = chrome_proto.get("key", shortname)
+        
         # Remove chrome from installer's inventory
         chrome.location = None
         
@@ -50,14 +53,24 @@ class CmdChromeInstall(Command):
             target.ndb.installed_chrome = []
         target.ndb.installed_chrome.append(chrome)
         
+        # Store chrome info in character's db for stats display
+        if not hasattr(target.db, "installed_chrome_list") or target.db.installed_chrome_list is None:
+            target.db.installed_chrome_list = []
+        target.db.installed_chrome_list.append({
+            "name": chrome_name,
+            "shortname": shortname,
+            "slot": chrome_proto.get("chrome_slot"),
+            "type": chrome_proto.get("chrome_type")
+        })
+        
         # Apply chrome stat bonuses from prototype
         if chrome_proto.get("buffs") and isinstance(chrome_proto["buffs"], dict):
             for stat, bonus in chrome_proto["buffs"].items():
                 current = getattr(target.db, stat, 0) if hasattr(target.db, stat) else 0
                 setattr(target.db, stat, current + bonus)
         
-        self.caller.msg(f"You install '{shortname}' into {target.key}. Surgery auto-succeeds for builders.")
-        target.msg(f"{self.caller.key} installs '{shortname}' into you. You feel different.")
+        self.caller.msg(f"You install '{chrome_name}' into {target.key}. Surgery auto-succeeds for builders.")
+        target.msg(f"{self.caller.key} installs '{chrome_name}' into you. You feel different.")
     
     def _get_chrome_prototype(self, shortname):
         """Get chrome prototype definition by shortname."""
@@ -118,8 +131,16 @@ class CmdChromeUninstall(Command):
             self.caller.msg(f"Chrome definition not found for '{shortname}'.")
             return
         
+        # Get chrome long name
+        chrome_name = chrome_proto.get("key", shortname)
+        
         # Remove chrome from target's installed chrome list
         chrome_list.remove(chrome)
+        
+        # Remove chrome from stats display list
+        chrome_list_db = getattr(target.db, "installed_chrome_list", None)
+        if chrome_list_db and isinstance(chrome_list_db, list):
+            target.db.installed_chrome_list = [c for c in chrome_list_db if c.get("shortname", "").lower() != shortname.lower()]
         
         # Remove chrome stat bonuses
         if chrome_proto.get("buffs") and isinstance(chrome_proto["buffs"], dict):
@@ -130,8 +151,8 @@ class CmdChromeUninstall(Command):
         # Move chrome to installer's inventory
         chrome.location = self.caller
         
-        self.caller.msg(f"You uninstall '{shortname}' from {target.key}. Surgery auto-succeeds for builders.")
-        target.msg(f"{self.caller.key} uninstalls '{shortname}' from you. You feel different.")
+        self.caller.msg(f"You uninstall '{chrome_name}' from {target.key}. Surgery auto-succeeds for builders.")
+        target.msg(f"{self.caller.key} uninstalls '{chrome_name}' from you. You feel different.")
     
     def _get_chrome_prototype(self, shortname):
         """Get chrome prototype definition by shortname."""

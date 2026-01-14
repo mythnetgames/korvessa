@@ -107,7 +107,15 @@ class CmdStats(Command):
             msg += f"\n|R[ NO CONSCIOUSNESS BACKUP - DEATH IS PERMANENT ]|n\n"
         
         # Chrome/augmentations section
-        msg += "\n|#870000No chrome or augmentations.|n\n"
+        chrome_list = getattr(char.db, 'installed_chrome_list', None)
+        if chrome_list and isinstance(chrome_list, list) and len(chrome_list) > 0:
+            msg += "\n|#870000Chrome & Augmentations:|n\n"
+            for chrome in chrome_list:
+                chrome_name = chrome.get("name", "Unknown")
+                chrome_slot = chrome.get("slot", "unknown")
+                msg += f"  |y{chrome_name}|n ({chrome_slot})\n"
+        else:
+            msg += "\n|#870000No chrome or augmentations.|n\n"
         
         # Investment Points (IP) section
         current_ip = getattr(char.db, 'ip', 0) or 0
