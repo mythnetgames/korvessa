@@ -781,19 +781,19 @@ class SafetyNetManager(DefaultScript):
         
         # Descriptive ICE levels (1-100 scale) with hacker color scheme
         if ice <= 15:
-            level_desc = "|#87d700Minimal|n"
+            level_desc = "|#00d700Minimal|n"
         elif ice <= 30:
-            level_desc = "|#afd700Basic|n"
+            level_desc = "|#5fd700Basic|n"
         elif ice <= 50:
-            level_desc = "|#afaf00Standard|n"
+            level_desc = "|#5fff00Standard|n"
         elif ice <= 75:
-            level_desc = "|#87af00Hardened|n"
+            level_desc = "|#00af00Hardened|n"
         else:
             level_desc = "|r[BLACK ICE]|n"
         
-        status = "|#87ff00[ONLINE]|n" if online else "|r[OFFLINE]|n"
+        status = "|#00ff00[ONLINE]|n" if online else "|r[OFFLINE]|n"
         
-        return f"|#afd700ICE Profile:|n {level_desc} (Rating: {ice}/100) - Status: {status}"
+        return f"|#00af00ICE Profile:|n {level_desc} (Rating: {ice}/100) - Status: {status}"
     
     def raise_ice(self, decker, handle_name, amount):
         """
@@ -940,8 +940,9 @@ class SafetyNetManager(DefaultScript):
                 char_id = target_data.get("session_char_id")
                 result["trace"] = self._trace_location(char_id)
         else:
-            # Alert the target
-            self.send_dm(SYSTEM_HANDLE, target_data["display_name"], MSG_HACK_ALERT)
+            # Return alert for target to be sent by command
+            result["alert"] = "Your account has been under attack. It is recommended you raise your ICE rating."
+            result["target_char_id"] = target_data.get("session_char_id")
         
         return result
     
@@ -1034,20 +1035,20 @@ class SafetyNetManager(DefaultScript):
             current_ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
             new_ice = max(1, current_ice - 1)
             target_data["ice_rating"] = new_ice
-            result["message"] = f"Brute force successful (rolled {roll} vs {target_number}). ICE worn down."
+            result["message"] = "Brute force successful. ICE worn down."
             result["new_rating"] = new_ice
         else:
             # Failure: trace attacker and alert target owner
-            result["message"] = f"Brute force failed (rolled {roll} vs {target_number}). ICE countermeasures traced you."
+            result["message"] = "Brute force failed. ICE countermeasures activated."
             result["traced"] = True
             
             # Trace attacker's location
             trace_location = self._trace_location(attacker.pk)
             
-            # Alert the target with trace info
-            target_display = target_data.get("display_name", target_handle_name)
+            # Return alert for target to be sent by command
             trace_msg = f"Wear-down attack from: {trace_location}" if trace_location else "Wear-down attack detected (location unknown)"
-            self.send_dm(SYSTEM_HANDLE, target_display, trace_msg)
+            result["alert"] = trace_msg
+            result["target_char_id"] = target_data.get("session_char_id")
         
         return result
     
