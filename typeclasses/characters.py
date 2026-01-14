@@ -255,6 +255,9 @@ class Character(ObjectParent, DefaultCharacter):
         if not self.db.nakeds:
             self.db.nakeds = {}
 
+        # Initialize combat prompt OFF by default (opt-in only)
+        self.db.combat_prompt = False
+
         # Initialize language system
         self._initialize_language_system()
 
@@ -603,8 +606,9 @@ class Character(ObjectParent, DefaultCharacter):
         Returns:
             str: Text with status prompt appended if enabled, otherwise original text
         """
-        # Check if prompt is disabled (default is off to avoid spamming new players)
-        if getattr(self.db, 'combat_prompt', False) is False:
+        # Check if prompt is disabled (default is OFF - must be explicitly True)
+        # Use explicit True check since unset attributes may return None
+        if not getattr(self.db, 'combat_prompt', False) is True:
             return text
         
         # Don't show during death, cloning, or revival sequences
