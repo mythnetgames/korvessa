@@ -131,9 +131,12 @@ class CmdPace(Command):
         current = status["stamina_current"]
         maximum = status["stamina_max"]
         ratio = status["stamina_ratio"] * 100
+        move_cost = status["move_cost"]
+        move_delay = status["move_delay"]
 
         msg = f"|wMovement:|n {tier_name.capitalize()}\n"
-        msg += f"|wStamina:|n {current:.0f}/{maximum} ({ratio:.0f}%)"
+        msg += f"|wStamina:|n {current:.0f}/{maximum} ({ratio:.0f}%)\n"
+        msg += f"|wMove Cost:|n {move_cost:.1f} stamina per room"
 
         # Show status effects
         if status["is_fatigued"]:
@@ -212,12 +215,10 @@ def _set_movement_tier(character, desired_tier):
     # Build response message
     if actual_tier == desired_tier:
         # Successfully changed to desired tier
+        move_cost = stamina.get_move_cost(actual_tier)
+        
         msg = f"You begin {_tier_verb(actual_name)}."
-
-        # Special messages for sprint
-        if actual_tier == MovementTier.SPRINT:
-            burst_cost = stamina._get_sprint_burst_cost()
-            msg += f" |y(-{burst_cost} stamina)|n"
+        msg += f" |y({move_cost:.1f} stamina per room)|n"
 
     else:
         # Forced to a lower tier due to stamina

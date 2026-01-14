@@ -20,7 +20,7 @@ STAMINA_BODY_MULT = 0.7         # How much BODY adds to max stamina
 STAMINA_SYNERGY_MULT = 0.3      # How much BODY+DEX synergy adds to max stamina
 
 # --- Base Stamina Delta per Second by Tier ---
-# Positive = regeneration, Negative = drain
+# Positive = regeneration, Negative = drain (when standing still)
 BASE_DELTA = {
     "STROLL": 3.0,
     "WALK": 1.0,
@@ -29,15 +29,30 @@ BASE_DELTA = {
     "SPRINT": -5.0,
 }
 
+# --- Movement Costs (stamina per room move) ---
+MOVE_COST = {
+    "STROLL": 2.0,      # Very light exertion
+    "WALK": 3.0,        # Light exertion
+    "JOG": 5.0,         # Moderate exertion
+    "RUN": 8.0,         # Heavy exertion
+    "SPRINT": 12.0,     # Very heavy exertion
+}
+
+# --- Movement Delay (seconds per room move) ---
+MOVE_DELAY = {
+    "STROLL": 4.0,      # Very slow
+    "WALK": 2.5,        # Slow
+    "JOG": 1.5,         # Moderate
+    "RUN": 0.5,         # Fast
+    "SPRINT": 0.0,      # Instant (current speed)
+}
+
 # --- DEX Modifiers ---
 DEX_REGEN_BONUS = 0.03          # Regen multiplier bonus per DEX point (scaled)
 DEX_DRAIN_REDUCTION = 0.04      # Drain reduction factor from DEX+BODY synergy
 
-# --- Sprint Burst Cost ---
-SPRINT_BURST_BASE = 10          # Base stamina cost to enter sprint
-SPRINT_BURST_WILL_FACTOR = 0.2  # How much WILL reduces burst cost
-SPRINT_BURST_MIN = 6            # Minimum burst cost
-SPRINT_BURST_MAX = 10           # Maximum burst cost
+# --- Movement Cost Modifiers ---
+DEX_MOVE_COST_REDUCTION = 0.03  # How much DEX reduces movement costs
 
 # --- Fatigue System ---
 FATIGUE_BASE_SECONDS = 7.0      # Base fatigue duration after leaving sprint
@@ -204,16 +219,107 @@ class CharacterMovementStamina:
         raw_grace = WILL_GRACE_FACTOR * self.will / (self.will + 50)
         return clamp(raw_grace, 0.0, WILL_GRACE_MAX)
     
-    def _get_sprint_burst_cost(self):
+    def _get_move_cost_multiplier(self):
         """
-        Calculate the stamina cost to enter sprint.
+        Calculate the movement cost multiplier based on DEX.
+        Higher DEX = lower movement costs.
         
-        Formula: burst_cost = 10 * (1 - 0.2 * WILL/(WILL+50))
-        Clamped to [6, 10].
+        Formula: cost_mult = 1 / (1 + 0.03 * DEX/100)
         """
-        will_factor = self.will / (self.will + 50) if self.will > 0 else 0
-        raw_cost = SPRINT_BURST_BASE * (1.0 - SPRINT_BURST_WILL_FACTOR * will_factor)
-        return round(clamp(raw_cost, SPRINT_BURST_MIN, SPRINT_BURST_MAX))
+        return 1.0 / (1.0 + (DEX_MOVE_COST_REDUCTION * self.dex / 100.0))
+    
+    def get_move_cost(self, tier=None):
+        """
+        Get the stamina cost for moving one room at the given tier.
+        
+        Args:
+            tier: MovementTier to get cost for (defaults to current tier)
+            
+        Returns:
+            Stamina cost as a float
+        """
+        if tier is None:
+            tier = self.current_tier
+        
+        tier_name = TIER_NAMES[tier]
+        base_cost = MOVE_COST[tier_name]
+        
+        # Apply DEX reduction
+        cost_mult = self._get_move_cost_multiplier()
+        final_cost = base_cost * cost_mult
+        
+        # Apply WILL grace at low stamina (small reduction)
+        ratio = self._get_stamina_ratio()
+        if ratio < LOW_STAMINA_THRESHOLD:
+            will_grace = self._get_will_grace()
+            final_cost *= (1.0 - will_grace * 0.3)  # 30% of grace applies to movement
+        
+        return max(0, final_cost)
+    
+    def get_move_delay(self, tier=None):
+        """
+        Get the delay in seconds before moving at the given tier.
+        
+        Args:
+            tier: MovementTier to get delay for (defaults to current tier)
+            
+        Returns:
+            Delay in seconds as a float
+        """
+        if tier is None:
+            tier = self.current_tier
+        
+        tier_name = TIER_NAMES[tier]
+        return MOVE_DELAY[tier_name]
+    
+    def can_afford_move(self, tier=None):
+        """
+        Check if character has enough stamina to move at the given tier.
+        
+        Args:
+            tier: MovementTier to check (defaults to current tier)
+            
+        Returns:
+            True if can afford the move, False otherwise
+        """
+        cost = self.get_move_cost(tier)
+        return self.stamina_current >= cost
+    
+    def pay_move_cost(self, tier=None):
+        """
+        Deduct stamina for moving one room at the given tier.
+        
+        Args:
+            tier: MovementTier for the move (defaults to current tier)
+            
+        Returns:
+            Actual cost paid (may be 0 if insufficient stamina)
+        """
+        if tier is None:
+            tier = self.current_tier
+        
+        cost = self.get_move_cost(tier)
+        
+        if self.stamina_current >= cost:
+            self.stamina_current -= cost
+            self.stamina_current = max(0, self.stamina_current)
+            
+            # Set regen delay after movement
+            self.regen_delay = REGEN_DELAY_SECONDS
+            
+            # Check if we need to auto-downgrade after the cost
+            new_tier = self._get_allowed_tier(self.current_tier)
+            if new_tier != self.current_tier:
+                self.set_tier(new_tier)
+            
+            return cost
+        else:
+            # Not enough stamina - auto-downgrade and try again
+            lower_tier = self._get_allowed_tier(self.current_tier)
+            if lower_tier != self.current_tier:
+                self.set_tier(lower_tier)
+                return self.pay_move_cost(lower_tier)
+            return 0
     
     def _get_fatigue_duration(self):
         """
@@ -269,7 +375,6 @@ class CharacterMovementStamina:
         
         Handles:
         - Automatic downgrade if stamina is too low
-        - Sprint burst cost when entering sprint
         - Fatigue application when leaving sprint
         
         Args:
@@ -293,18 +398,9 @@ class CharacterMovementStamina:
                 self.fatigue_timer = self._get_fatigue_duration()
                 self._was_sprinting = False
         
-        # Handle entering sprint - apply burst cost
+        # Handle entering sprint - no burst cost, just track state
         if actual_tier == MovementTier.SPRINT and old_tier != MovementTier.SPRINT:
-            burst_cost = self._get_sprint_burst_cost()
-            self.stamina_current = max(0, self.stamina_current - burst_cost)
             self._was_sprinting = True
-            
-            # Recheck if we can still sprint after burst cost
-            actual_tier = self._get_allowed_tier(actual_tier)
-            if actual_tier != MovementTier.SPRINT:
-                # Could not sustain sprint after burst, apply fatigue
-                self.fatigue_timer = self._get_fatigue_duration()
-                self._was_sprinting = False
         
         self.current_tier = actual_tier
         return actual_tier
@@ -389,6 +485,8 @@ class CharacterMovementStamina:
             # Tier
             "current_tier": tier_name,
             "tier_base_delta": base_delta,
+            "move_cost": round(self.get_move_cost(), 2),
+            "move_delay": self.get_move_delay(),
             
             # Stats
             "body": self.body,
@@ -399,6 +497,7 @@ class CharacterMovementStamina:
             # Multipliers
             "regen_mult": round(self._get_regen_multiplier(), 3),
             "drain_mult": round(self._get_drain_multiplier(), 3),
+            "move_cost_mult": round(self._get_move_cost_multiplier(), 3),
             "will_grace": round(self._get_will_grace(), 3),
             
             # Timers
@@ -407,8 +506,7 @@ class CharacterMovementStamina:
             "is_fatigued": self.fatigue_timer > 0,
             "is_regen_delayed": self.regen_delay > 0,
             
-            # Costs/Durations
-            "sprint_burst_cost": self._get_sprint_burst_cost(),
+            # Durations
             "fatigue_duration": self._get_fatigue_duration(),
         }
 

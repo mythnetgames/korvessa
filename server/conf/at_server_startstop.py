@@ -30,7 +30,15 @@ def at_server_start():
     This is called every time the server starts up, regardless of
     how it was shut down.
     """
-    pass
+    # Start the stamina ticker if not already running
+    from evennia.scripts.models import ScriptDB
+    from world.stamina_ticker import StaminaTicker
+    
+    ticker = ScriptDB.objects.filter(db_key="stamina_ticker").first()
+    if not ticker:
+        StaminaTicker.create(key="stamina_ticker")
+    elif not ticker.is_active:
+        ticker.start()
 
 
 def at_server_stop():
