@@ -21,7 +21,7 @@ class RoomTagEffectHandler(DefaultScript):
         """Initialize script"""
         self.key = "room_tag_effects"
         self.desc = "Handles active effects from room tags"
-        self.interval = 5  # Run every 5 seconds
+        self.interval = 2  # Run every 2 seconds
         self.start_delay = 0  # Start immediately
         self.repeats = 0  # Repeat forever
         self.persistent = True
