@@ -1,5 +1,4 @@
 from evennia import Command
-from evennia.utils.evmenu import list_to_string
 
 class CmdChromeInstall(Command):
     """
