@@ -40,7 +40,7 @@ class CmdFixBaselineStats(Command):
         # Get chrome bonuses
         chrome_bonuses = self._get_chrome_stat_bonuses(target)
         
-        # Calculate baseline stats
+        # Calculate baseline stats (current - chrome bonuses)
         baseline_stats = {
             'body': getattr(target, 'body', 1) - chrome_bonuses.get('body', 0),
             'ref': getattr(target, 'ref', 1) - chrome_bonuses.get('ref', 0),
@@ -49,17 +49,28 @@ class CmdFixBaselineStats(Command):
             'smrt': getattr(target, 'smrt', 1) - chrome_bonuses.get('smrt', 0),
             'will': getattr(target, 'will', 1) - chrome_bonuses.get('will', 0),
             'edge': getattr(target, 'edge', 1) - chrome_bonuses.get('edge', 0),
-            'emp': getattr(target, 'emp', 1) - chrome_bonuses.get('emp', 0)
+            'emp': 1  # Empathy baseline is always 1 (will be recalculated from edge+will)
         }
         
         # Store baseline stats
         target.db.baseline_stats = baseline_stats
         
+        # Also fix max stats to match baseline (subtract chrome bonuses from max stats too)
+        target.max_body = getattr(target, 'max_body', 10) - chrome_bonuses.get('body', 0)
+        target.max_ref = getattr(target, 'max_ref', 10) - chrome_bonuses.get('ref', 0)
+        target.max_dex = getattr(target, 'max_dex', 10) - chrome_bonuses.get('dex', 0)
+        target.max_tech = getattr(target, 'max_tech', 10) - chrome_bonuses.get('tech', 0)
+        target.max_smrt = getattr(target, 'max_smrt', 10) - chrome_bonuses.get('smrt', 0)
+        target.max_will = getattr(target, 'max_will', 10) - chrome_bonuses.get('will', 0)
+        target.max_edge = getattr(target, 'max_edge', 10) - chrome_bonuses.get('edge', 0)
+        target.max_emp = 1  # Empathy max is also baseline (recalculated)
+        
         # Report
         self.caller.msg(f"|gFixed baseline stats for {target.key}:|n")
-        self.caller.msg(f"  Chrome bonuses: {chrome_bonuses}")
-        self.caller.msg(f"  Baseline stats: {baseline_stats}")
-        self.caller.msg("|yNote: Stats will revert to baseline on next death/clone.|n")
+        self.caller.msg(f"  Chrome bonuses subtracted: {chrome_bonuses}")
+        self.caller.msg(f"  Baseline stats stored: {baseline_stats}")
+        self.caller.msg(f"  Max stats also reset to baseline")
+        self.caller.msg("|yNote: Stats will revert to these baseline values on next death/clone.|n")
     
     def _get_chrome_stat_bonuses(self, character):
         """Calculate total stat bonuses from all installed chrome."""
