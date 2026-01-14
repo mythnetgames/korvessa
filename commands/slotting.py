@@ -55,8 +55,12 @@ class CmdSlot(Command):
             caller.msg(f"|r{item.name} is not a slottable module.|n")
             return
         
-        # Find device
+        # Find device - search in inventory first, then in room
         device = caller.search(device_name, location=caller)
+        if not device:
+            # Search in room
+            device = caller.search(device_name, location=caller.location)
+        
         if not device:
             caller.msg(f"|rYou don't have '{device_name}'.|n")
             return
@@ -108,8 +112,12 @@ class CmdUnslot(Command):
             caller.msg("|rUsage: unslot <device>|n")
             return
         
-        # Find device
+        # Find device - search in inventory first, then in room
         device = caller.search(self.args.strip(), location=caller)
+        if not device:
+            # Search in room
+            device = caller.search(self.args.strip(), location=caller.location)
+        
         if not device:
             caller.msg(f"|rYou don't have '{self.args.strip()}'.|n")
             return

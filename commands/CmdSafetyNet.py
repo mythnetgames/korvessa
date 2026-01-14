@@ -689,16 +689,16 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>scanning ice.profile|n")
         
         def step3():
-            caller.msg("|#00af00>run.scan [*****]|n")
+            caller.msg("|#00af00>run.scan |#5fff00[|#00af00*|#5fff00****]|n")
         
         def step4():
-            caller.msg("|#00af00>run.scan [|****]|n")
+            caller.msg("|#00af00>run.scan |#5fff00[|#00af00||#5fff00|||*]|n")
         
         def step5():
-            caller.msg("|#00af00>run.scan [|||**]|n")
+            caller.msg("|#00af00>run.scan |#5fff00[|#00af00||||#5fff00|*]|n")
         
         def step6():
-            caller.msg("|#00af00>run.scan [|||||]|n")
+            caller.msg("|#00af00>run.scan |#5fff00[|#00af00|||||#5fff00]|n")
         
         def step7():
             caller.msg("|#5fff00>Scan Complete|n")
@@ -769,32 +769,32 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>initiating ice.bypass|n")
         
         def step3():
-            caller.msg("|#00af00>run.crack [*****]|n")
+            caller.msg("|#00af00>run.crack |#5fff00[|#00af00*|#5fff00****]|n")
         
         def step4():
-            caller.msg("|#00af00>run.crack [|****]|n")
+            caller.msg("|#00af00>run.crack |#5fff00[|#00af00||#5fff00|||*]|n")
         
         def step5():
-            caller.msg("|#00af00>run.crack [|||**]|n")
+            caller.msg("|#00af00>run.crack |#5fff00[|#00af00||||#5fff00|*]|n")
         
         def step6():
-            caller.msg("|#00af00>run.crack [|||||]|n")
+            caller.msg("|#00af00>run.crack |#5fff00[|#00af00|||||#5fff00]|n")
         
         def step7():
             caller.msg("|#5fd700>>>ICE BREACHED|n")
             caller.msg("|#00d700>>running trace.protocol|n")
         
         def step8():
-            caller.msg("|#00af00>run.trace [*****]|n")
+            caller.msg("|#00af00>run.trace |#5fff00[|#00af00*|#5fff00****]|n")
         
         def step9():
-            caller.msg("|#00af00>run.trace [|****]|n")
+            caller.msg("|#00af00>run.trace |#5fff00[|#00af00||#5fff00|||*]|n")
         
         def step10():
-            caller.msg("|#00af00>run.trace [|||**]|n")
+            caller.msg("|#00af00>run.trace |#5fff00[|#00af00||||#5fff00|*]|n")
         
         def step11():
-            caller.msg("|#00af00>run.trace [|||||]|n")
+            caller.msg("|#00af00>run.trace |#5fff00[|#00af00|||||#5fff00]|n")
         
         def final_result():
             result = manager.attempt_hack(caller, handle)
@@ -892,16 +892,16 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>initiating ice.degrade|n")
         
         def step3():
-            caller.msg("|#00af00>run.wear [*****]|n")
+            caller.msg("|#00af00>run.wear |#5fff00[|#00af00*|#5fff00****]|n")
         
         def step4():
-            caller.msg("|#00af00>run.wear [|****]|n")
+            caller.msg("|#00af00>run.wear |#5fff00[|#00af00||#5fff00|||*]|n")
         
         def step5():
-            caller.msg("|#00af00>run.wear [|||**]|n")
+            caller.msg("|#00af00>run.wear |#5fff00[|#00af00||||#5fff00|*]|n")
         
         def step6():
-            caller.msg("|#00af00>run.wear [|||||]|n")
+            caller.msg("|#00af00>run.wear |#5fff00[|#00af00|||||#5fff00]|n")
         
         def step7():
             caller.msg("|#5fd700>>>ATTACK COMPLETE|n")
@@ -1216,8 +1216,6 @@ class CmdSafetyNet(Command):
                 caller.msg("|#00af00>Benefits:|n")
                 caller.msg("|#5fd700>  +25 ICE rating when defending|n")
                 caller.msg("|#5fd700>  Cloak status: ACTIVE|n")
-                caller.msg("|#00af00>Drawbacks:|n")
-                caller.msg("|#5fff00>  Slower connection speed (1.5x delay)|n")
                 caller.msg("|#00ff00>>>END TRANSMISSION<<<|n")
             else:
                 caller.msg("|#00ff00>>>PROXY INACTIVE<<<|n")

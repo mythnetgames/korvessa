@@ -875,7 +875,7 @@ class SafetyNetManager(DefaultScript):
             # Success - raise ICE as requested
             new_ice = min(current_ice + amount, MAX_ICE_RATING)
             self.db.handles[handle_key]["ice_rating"] = new_ice
-            return (True, f"|g[SUCCESS]|n Raised ICE on {handle_name} by {amount}.", new_ice, 'success')
+            return (True, f"|#00af00[SUCCESS]|n |#00ff00Raised ICE on {handle_name} by {amount}.|n", new_ice, 'success')
         else:
             # Failure - no change to ICE (prevents exploitation)
             return (True, f"|y[FAILED]|n The enhancement failed. ICE remains unchanged.", current_ice, 'failure')
