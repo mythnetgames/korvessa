@@ -25,6 +25,8 @@ class RoomTagEffectHandler(DefaultScript):
         self.key = "room_tag_effects"
         self.desc = "Handles active effects from room tags"
         self.interval = 5  # Run every 5 seconds
+        self.start_delay = 0  # Start immediately
+        self.repeats = 0  # Repeat forever
         
     def at_repeat(self):
         """Called every interval to process room effects"""
@@ -33,9 +35,9 @@ class RoomTagEffectHandler(DefaultScript):
             self.stop()
             return
         
-        # Get characters in room
+        # Get characters in room (include all Character subclasses)
         characters = [obj for obj in room.contents 
-                     if obj.is_typeclass("typeclasses.characters.Character")]
+                     if hasattr(obj, 'has_account') or obj.is_typeclass("typeclasses.characters.Character", exact=False)]
         
         if not characters:
             return
@@ -171,7 +173,11 @@ def attach_effect_handler(room):
     # Check if already attached
     existing = ScriptDB.objects.filter(db_obj=room, db_key="room_tag_effects")
     if existing.exists():
-        return existing[0]
+        handler = existing[0]
+        # Make sure it's running
+        if not handler.is_active:
+            handler.start()
+        return handler
     
     # Create new handler
     from evennia.utils.create import create_script
