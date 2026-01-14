@@ -45,9 +45,9 @@ class CmdSafetyNet(Command):
     
     Usage:
         sn                          - Show status and help
-        sn/read [feed]              - Read recent posts (default: public)
+        sn/read                     - Read recent posts
         sn/read/next                - Show next page of posts
-        sn/post <feed>=<message>    - Post to a feed
+        sn/post <message>           - Post to SafetyNet
         sn/login <handle> <pass>    - Log into a handle
         sn/logout                   - Log out of current handle
         sn/dm <handle>=<message>    - Send a direct message
@@ -63,8 +63,6 @@ class CmdSafetyNet(Command):
         sn/hack <handle>            - Attempt to hack a handle
         sn/upgrade <handle>=<level> - Upgrade your ICE (1-10)
         sn/whois <handle>           - Look up handle info
-    
-    Feeds: public, market, rumors, jobs
     
     Requires a Wristpad or Computer to access.
     """
@@ -221,15 +219,11 @@ class CmdSafetyNet(Command):
         delayed_output(caller, "\n".join(output), delay_time)
     
     def do_read(self, device_type, args):
-        """Read posts from a feed."""
+        """Read posts from SafetyNet."""
         caller = self.caller
         manager = get_safetynet_manager()
         
-        feed = args.strip().lower() if args else DEFAULT_FEED
-        
-        if feed not in AVAILABLE_FEEDS:
-            caller.msg(f"|rInvalid feed.|n Available: {', '.join(AVAILABLE_FEEDS)}")
-            return
+        feed = DEFAULT_FEED
         
         # Store pagination state
         caller.ndb.sn_feed = feed
@@ -265,10 +259,10 @@ class CmdSafetyNet(Command):
     def _format_posts(self, posts, feed, manager):
         """Format posts for display."""
         lines = []
-        lines.append(f"|w===== SafetyNet: #{feed} =====|n")
+        lines.append(f"|w===== SafetyNet Feed =====|n")
         
         if not posts:
-            lines.append("|yNo posts in this feed.|n")
+            lines.append("|yNo posts.|n")
         else:
             for post in posts:
                 handle = post.get("handle", "Unknown")
@@ -283,12 +277,12 @@ class CmdSafetyNet(Command):
                 lines.append("")
         
         lines.append("|wUse sn/read/next for more posts.|n")
-        lines.append("|w================================|n")
+        lines.append("|w===========================|n")
         
         return "\n".join(lines)
     
     def do_post(self, device_type, args):
-        """Post to a feed."""
+        """Post to SafetyNet."""
         caller = self.caller
         manager = get_safetynet_manager()
         
@@ -298,27 +292,20 @@ class CmdSafetyNet(Command):
             caller.msg(MSG_NOT_LOGGED_IN)
             return
         
-        if "=" not in args:
-            caller.msg("|rUsage: sn/post <feed>=<message>|n")
-            caller.msg(f"|wFeeds:|n {', '.join(AVAILABLE_FEEDS)}")
-            return
-        
-        feed, message = args.split("=", 1)
-        feed = feed.strip().lower()
-        message = message.strip()
+        message = args.strip()
         
         if not message:
-            caller.msg("|rMessage cannot be empty.|n")
+            caller.msg("|rUsage: sn/post <message>|n")
             return
         
         def do_post_delayed():
             success, result_msg = manager.create_post(
                 handle_data["display_name"],
-                feed,
+                DEFAULT_FEED,
                 message
             )
             if success:
-                caller.msg(MSG_POST_SUCCESS.format(feed=feed))
+                caller.msg("|gSafetyNet: Post submitted.|n")
             else:
                 caller.msg(f"|r{result_msg}|n")
         

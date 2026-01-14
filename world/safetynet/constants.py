@@ -90,10 +90,7 @@ DEFAULT_FEED = "public"
 
 # Available feeds
 AVAILABLE_FEEDS = [
-    "public",      # Main public feed
-    "market",      # Buy/sell listings
-    "rumors",      # Gossip and hearsay
-    "jobs",        # Work opportunities
+    "public",      # Main SafetyNet feed
 ]
 
 # =============================================================================
