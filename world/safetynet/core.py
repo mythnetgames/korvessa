@@ -971,6 +971,7 @@ class SafetyNetManager(DefaultScript):
             "online": online,
             "roll": roll,
             "target_number": target_number,
+            "decking_skill": getattr(attacker.db, 'skills', {}).get('Decking', 0) if hasattr(attacker.db, 'skills') else 0,
         }
         
         if success:

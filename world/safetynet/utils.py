@@ -176,10 +176,23 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
                roll: int (1-100)
                target_number: int (the target number for the roll)
     """
-    # Get attacker's Decking skill
+    # Get attacker's Decking skill - try multiple possible storage formats
     decking_skill = 0
     if hasattr(attacker.db, 'skills') and attacker.db.skills:
+        # Try various possible key names
         decking_skill = attacker.db.skills.get('Decking', 0)
+        if decking_skill == 0:
+            decking_skill = attacker.db.skills.get('decking', 0)
+        if decking_skill == 0:
+            decking_skill = attacker.db.skills.get('Hacking', 0)
+        if decking_skill == 0:
+            decking_skill = attacker.db.skills.get('hacking', 0)
+    
+    # Also try direct character attributes
+    if decking_skill == 0:
+        decking_skill = getattr(attacker.db, 'decking', 0)
+    if decking_skill == 0:
+        decking_skill = getattr(attacker.db, 'Decking', 0)
     
     # Low skill check - need at least 20 skill to have a chance
     if decking_skill < 20:

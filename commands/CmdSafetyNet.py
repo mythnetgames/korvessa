@@ -829,7 +829,7 @@ class CmdSafetyNet(Command):
                 caller.msg(f"|#00af00>ICE COUNTERMEASURES ACTIVE|n")
                 caller.msg(f"|#00af00>LOCKOUT: |r30 seconds|#00af00|n")
                 # Debug info
-                caller.msg(f"|#5fff00>DEBUG: roll={result.get('roll', '?')} target={result.get('target_number', '?')}|n")
+                caller.msg(f"|#5fff00>DEBUG: roll={result.get('roll', '?')} target={result.get('target_number', '?')} skill={result.get('decking_skill', '?')}|n")
                 caller.msg("|#00af00>>>CONNECTION TERMINATED<<<|n")
                 
                 # Alert the target if online
