@@ -1384,8 +1384,18 @@ class CmdSafetyNetAdmin(Command):
             caller.msg("|rUsage: snadmin nuke <handle>|n")
             return
         
-        # Confirm deletion
-        if not self.args.endswith("!"):
+        # Check for confirmation marker (!)
+        confirmed = False
+        if handle_name.endswith("!"):
+            confirmed = True
+            handle_name = handle_name[:-1].strip()  # Remove the ! and trim
+        
+        if not handle_name:
+            caller.msg("|rUsage: snadmin nuke <handle>|n")
+            return
+        
+        # Confirm deletion if not already confirmed
+        if not confirmed:
             caller.msg(f"|rThis will PERMANENTLY delete {handle_name} and all its data.|n")
             caller.msg(f"|rRe-run with an exclamation mark to confirm: snadmin nuke {handle_name}!|n")
             return
