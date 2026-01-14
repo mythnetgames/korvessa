@@ -644,9 +644,43 @@ class Exit(DefaultExit):
                 splattercast.msg(f"{traversing_object.key} tried to move via exit '{self.key}' while in combat. Drag conditions not met (grappling: {bool(grappled_victim_obj)}, yielding: {is_yielding}, targeted_by_others_not_victim: {is_targeted_by_others_not_victim}).")
                 return  # Block movement
 
-        # For now, just call parent at_traverse to ensure movement works
-        # TODO: Re-enable delayed/sprint messaging after confirming exit commands are recognized
-        super().at_traverse(traversing_object, target_location)
+        # Not in combat, use custom movement tier messaging
+        direction = self.key.lower()
+        
+        # Get movement verb based on tier
+        ingress_verb = "enters"
+        egress_verb = "leaves"
+        
+        try:
+            if traversing_object.has_account and hasattr(traversing_object.ndb, "stamina"):
+                from world.stamina import TIER_NAMES
+                tier_name = TIER_NAMES.get(traversing_object.ndb.stamina.current_tier, "WALK").lower()
+                verbs = self._get_movement_verb(tier_name)
+                ingress_verb = verbs["ingress"]
+                egress_verb = verbs["egress"]
+        except Exception:
+            pass  # Fall back to defaults
+        
+        # Send exit message to source room
+        if traversing_object.location:
+            traversing_object.location.msg_contents(
+                f"{traversing_object.key} {egress_verb} to the {direction}.",
+                exclude=[traversing_object]
+            )
+        
+        # Move the character directly
+        traversing_object.move_to(target_location, quiet=True)
+        
+        # Send entry message to destination room
+        if traversing_object.location == target_location:
+            reverse_dir = self._reverse_direction(direction)
+            target_location.msg_contents(
+                f"{traversing_object.key} {ingress_verb} from the {reverse_dir}.",
+                exclude=[traversing_object]
+            )
+            
+            # Show room to character
+            traversing_object.msg(traversing_object.at_look(target_location))
         
         # Clear temporary character placement on room change
         if hasattr(traversing_object, 'temp_place'):
