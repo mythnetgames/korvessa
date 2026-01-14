@@ -1040,7 +1040,7 @@ class SafetyNetManager(DefaultScript):
             result["traced"] = True
             
             # Trace attacker's location
-            trace_location = self._trace_location(attacker.id)
+            trace_location = self._trace_location(attacker.pk)
             
             # Alert the target with trace info
             target_display = target_data.get("display_name", target_handle_name)
