@@ -239,10 +239,10 @@ class CmdSafetyNet(Command):
     def _format_posts(self, posts, feed, manager):
         """Format posts for display."""
         lines = []
-        lines.append(f"|w===== SafetyNet Feed =====|n")
+        lines.append(f"|#00ff00===== SafetyNet Feed =====|n")
         
         if not posts:
-            lines.append("|yNo posts.|n")
+            lines.append("|#5fff00No posts.|n")
         else:
             for post in posts:
                 handle = post.get("handle", "Unknown")
@@ -253,11 +253,11 @@ class CmdSafetyNet(Command):
                 time_str = format_timestamp(timestamp) if timestamp else "?"
                 
                 lines.append(f"|c{handle}|n {indicator} |#ffff87({time_str})|n")
-                lines.append(f"  {message}")
+                lines.append(f"|#00af00  {message}|n")
                 lines.append("")
         
-        lines.append("|wUse 'sn read next' for more posts.|n")
-        lines.append("|w===========================|n")
+        lines.append("|#5fff00Use 'sn read next' for more posts.|n")
+        lines.append("|#00ff00===========================|n")
         
         return "\n".join(lines)
     
