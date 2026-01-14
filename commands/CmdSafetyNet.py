@@ -45,23 +45,21 @@ class CmdSafetyNet(Command):
     
     Usage:
         sn                          - Show status and help
-        sn/read                     - Read recent posts
-        sn/read/next                - Show next page of posts
-        sn/post <message>           - Post to SafetyNet
-        sn/login <handle> <pass>    - Log into a handle
-        sn/logout                   - Log out of current handle
-        sn/dm <handle>=<message>    - Send a direct message
-        sn/inbox                    - View your DM inbox
-        sn/inbox/next               - Next page of inbox
-        sn/thread <handle>          - View DM thread with handle
-        sn/search <query>           - Search posts
-        sn/register <handle>        - Create a new handle
-        sn/delete <handle>=<pass>   - Delete a handle
-        sn/passchange <handle>=<old>- Change password (generates new)
-        sn/ice <handle>             - Scan a handle's ICE profile
-        sn/hack <handle>            - Attempt to hack a handle
-        sn/upgrade <handle>=<level> - Upgrade your ICE (1-100)
-        sn/whois <handle>           - Look up handle info
+        sn read                     - Read recent posts
+        sn post <message>           - Post to SafetyNet
+        sn login <handle> <pass>    - Log into a handle
+        sn logout                   - Log out of current handle
+        sn dm <handle>=<message>    - Send a direct message
+        sn inbox                    - View your DM inbox
+        sn thread <handle>          - View DM thread with handle
+        sn search <query>           - Search posts
+        sn register <handle>        - Create a new handle
+        sn delete <handle>=<pass>   - Delete a handle
+        sn passchange <handle>=<old>- Change password (generates new)
+        sn ice <handle>             - Scan a handle's ICE profile
+        sn hack <handle>            - Attempt to hack a handle
+        sn upgrade <handle>=<level> - Upgrade your ICE (1-100)
+        sn whois <handle>           - Look up handle info
     
     Requires a Wristpad or Computer to access.
     """
@@ -80,81 +78,58 @@ class CmdSafetyNet(Command):
             caller.msg(MSG_NO_DEVICE)
             return
         
-        # Parse switches - try both getattr and lhs syntax
-        switches = getattr(self, 'switches', []) or []
-        # Ensure switches is a list
-        if not isinstance(switches, list):
-            switches = [switches] if switches else []
+        # Parse args - first word is subcommand, rest is arguments
         args = self.args.strip() if self.args else ""
         
-        # If we have lhs (left-hand side from = syntax), try to use it as a subcommand
-        lhs = getattr(self, 'lhs', None) or ""
+        if not args:
+            # No subcommand, show status
+            self.do_status(device_type)
+            return
         
-        # Parse cmdstring for /subcommand pattern (e.g., "sn/register")
-        cmdstring = getattr(self, 'cmdstring', '') or ''
-        
-        # Determine the primary command
-        primary_cmd = None
-        
-        # First check if cmdstring contains a slash (e.g., "sn/register")
-        if '/' in cmdstring:
-            parts = cmdstring.split('/', 1)
-            if len(parts) > 1:
-                primary_cmd = parts[1].lower()
-        # Then check switches
-        elif switches:
-            raw_switch = switches[0] if switches else ""
-            primary_cmd = str(raw_switch).lower().lstrip('/')
-        # Then check lhs
-        elif lhs:
-            primary_cmd = lhs.lower().strip()
-        # Finally try to parse first word of args as command
-        elif args:
-            parts = args.split(None, 1)
-            primary_cmd = parts[0].lower() if parts else None
-            args = parts[1] if len(parts) > 1 else ""
+        # Split into subcommand and remaining args
+        parts = args.split(None, 1)
+        primary_cmd = parts[0].lower()
+        subargs = parts[1] if len(parts) > 1 else ""
         
         # Route to appropriate handler
-        if not primary_cmd:
-            self.do_status(device_type)
-        elif primary_cmd == "read":
-            if "next" in switches:
+        if primary_cmd == "read":
+            if subargs == "next":
                 self.do_read_next(device_type)
             else:
-                self.do_read(device_type, args)
+                self.do_read(device_type, subargs)
         elif primary_cmd == "post":
-            self.do_post(device_type, args)
+            self.do_post(device_type, subargs)
         elif primary_cmd == "login":
-            self.do_login(device_type, args)
+            self.do_login(device_type, subargs)
         elif primary_cmd == "logout":
             self.do_logout(device_type)
         elif primary_cmd == "dm":
-            self.do_dm(device_type, args)
+            self.do_dm(device_type, subargs)
         elif primary_cmd == "inbox":
-            if "next" in switches:
+            if subargs == "next":
                 self.do_inbox_next(device_type)
             else:
                 self.do_inbox(device_type)
         elif primary_cmd == "thread":
-            self.do_thread(device_type, args)
+            self.do_thread(device_type, subargs)
         elif primary_cmd == "search":
-            self.do_search(device_type, args)
+            self.do_search(device_type, subargs)
         elif primary_cmd == "register":
-            self.do_register(device_type, args)
+            self.do_register(device_type, subargs)
         elif primary_cmd == "delete":
-            self.do_delete(device_type, args)
+            self.do_delete(device_type, subargs)
         elif primary_cmd == "passchange":
-            self.do_passchange(device_type, args)
+            self.do_passchange(device_type, subargs)
         elif primary_cmd == "passadd":
-            self.do_passadd(device_type, args)
+            self.do_passadd(device_type, subargs)
         elif primary_cmd == "ice":
-            self.do_ice(device_type, args)
+            self.do_ice(device_type, subargs)
         elif primary_cmd == "hack":
-            self.do_hack(device_type, args)
+            self.do_hack(device_type, subargs)
         elif primary_cmd == "upgrade":
-            self.do_upgrade(device_type, args)
+            self.do_upgrade(device_type, subargs)
         elif primary_cmd == "whois":
-            self.do_whois(device_type, args)
+            self.do_whois(device_type, subargs)
         else:
             caller.msg(f"|rUnknown SafetyNet command: {primary_cmd}|n Use |wsn|n for help.")
     
@@ -185,15 +160,15 @@ class CmdSafetyNet(Command):
         
         output.append("")
         output.append("|wCommands:|n")
-        output.append("  |wsn/read|n [feed]          - Read posts")
-        output.append("  |wsn/post|n <feed>=<msg>    - Post message")
-        output.append("  |wsn/login|n <handle> <pass>- Log in")
-        output.append("  |wsn/logout|n               - Log out")
-        output.append("  |wsn/dm|n <handle>=<msg>    - Send DM")
-        output.append("  |wsn/inbox|n                - View DMs")
-        output.append("  |wsn/register|n <handle>    - Create handle")
-        output.append("  |wsn/ice|n <handle>         - Scan ICE profile")
-        output.append("  |wsn/hack|n <handle>        - Attempt hack")
+        output.append("  |wsn read|n               - Read posts")
+        output.append("  |wsn post|n <msg>         - Post message")
+        output.append("  |wsn login|n <h> <pass>   - Log in")
+        output.append("  |wsn logout|n             - Log out")
+        output.append("  |wsn dm|n <h>=<msg>       - Send DM")
+        output.append("  |wsn inbox|n              - View DMs")
+        output.append("  |wsn register|n <handle>  - Create handle")
+        output.append("  |wsn ice|n <handle>       - Scan ICE profile")
+        output.append("  |wsn hack|n <handle>      - Attempt hack")
         output.append("")
         output.append(f"|wFeeds:|n {', '.join(AVAILABLE_FEEDS)}")
         output.append("|w=====================================|n")
@@ -259,7 +234,7 @@ class CmdSafetyNet(Command):
                 lines.append(f"  {message}")
                 lines.append("")
         
-        lines.append("|wUse sn/read/next for more posts.|n")
+        lines.append("|wUse 'sn read next' for more posts.|n")
         lines.append("|w===========================|n")
         
         return "\n".join(lines)
@@ -278,7 +253,7 @@ class CmdSafetyNet(Command):
         message = args.strip()
         
         if not message:
-            caller.msg("|rUsage: sn/post <message>|n")
+            caller.msg("|rUsage: sn post <message>|n")
             return
         
         def do_post_delayed():
@@ -304,7 +279,7 @@ class CmdSafetyNet(Command):
         
         parts = args.split(None, 1)
         if len(parts) < 2:
-            caller.msg("|rUsage: sn/login <handle> <password>|n")
+            caller.msg("|rUsage: sn login <handle> <password>|n")
             caller.msg("|yNote: Password is two words, e.g., 'chrome runner'|n")
             return
         
@@ -346,7 +321,7 @@ class CmdSafetyNet(Command):
             return
         
         if "=" not in args:
-            caller.msg("|rUsage: sn/dm <handle>=<message>|n")
+            caller.msg("|rUsage: sn dm <handle>=<message>|n")
             return
         
         to_handle, message = args.split("=", 1)
@@ -447,7 +422,7 @@ class CmdSafetyNet(Command):
                 lines.append(f"  {preview}")
                 lines.append("")
         
-        lines.append("|wUse sn/inbox/next for more. sn/thread <handle> for conversation.|n")
+        lines.append("|wUse 'sn inbox next' for more. 'sn thread <handle>' for conversation.|n")
         lines.append("|w==========================================|n")
         
         return "\n".join(lines)
@@ -463,7 +438,7 @@ class CmdSafetyNet(Command):
             return
         
         if not args:
-            caller.msg("|rUsage: sn/thread <handle>|n")
+            caller.msg("|rUsage: sn thread <handle>|n")
             return
         
         other_handle = args.strip()
@@ -500,7 +475,7 @@ class CmdSafetyNet(Command):
         manager = get_safetynet_manager()
         
         if not args:
-            caller.msg("|rUsage: sn/search <query>|n")
+            caller.msg("|rUsage: sn search <query>|n")
             return
         
         query = args.strip()
@@ -544,7 +519,7 @@ class CmdSafetyNet(Command):
         manager = get_safetynet_manager()
         
         if not args:
-            caller.msg("|rUsage: sn/register <handle>|n")
+            caller.msg("|rUsage: sn register <handle>|n")
             return
         
         handle_name = args.strip()
@@ -570,7 +545,7 @@ class CmdSafetyNet(Command):
         manager = get_safetynet_manager()
         
         if "=" not in args:
-            caller.msg("|rUsage: sn/delete <handle>=<password>|n")
+            caller.msg("|rUsage: sn delete <handle>=<password>|n")
             return
         
         handle, password = args.split("=", 1)
@@ -590,7 +565,7 @@ class CmdSafetyNet(Command):
         manager = get_safetynet_manager()
         
         if "=" not in args:
-            caller.msg("|rUsage: sn/passchange <handle>=<old_password>|n")
+            caller.msg("|rUsage: sn passchange <handle>=<old_password>|n")
             return
         
         handle, old_pass = args.split("=", 1)
@@ -610,7 +585,7 @@ class CmdSafetyNet(Command):
         """Inform user that each handle can only have one password."""
         caller = self.caller
         caller.msg("|yNote:|n Each SafetyNet handle can only have one password.")
-        caller.msg("Use |w'sn/passchange <handle> <old_password>'|n to rotate your password instead.")
+        caller.msg("Use |w'sn passchange <handle> <old_password>'|n to rotate your password instead.")
     
     def do_ice(self, device_type, args):
         """Scan a handle's ICE profile."""
@@ -618,7 +593,7 @@ class CmdSafetyNet(Command):
         manager = get_safetynet_manager()
         
         if not args:
-            caller.msg("|rUsage: sn/ice <handle>|n")
+            caller.msg("|rUsage: sn ice <handle>|n")
             return
         
         handle = args.strip()
@@ -643,7 +618,7 @@ class CmdSafetyNet(Command):
         manager = get_safetynet_manager()
         
         if not args:
-            caller.msg("|rUsage: sn/hack <handle>|n")
+            caller.msg("|rUsage: sn hack <handle>|n")
             return
         
         handle = args.strip()
@@ -695,7 +670,7 @@ class CmdSafetyNet(Command):
         manager = get_safetynet_manager()
         
         if "=" not in args:
-            caller.msg("|rUsage: sn/upgrade <handle>=<level>|n")
+            caller.msg("|rUsage: sn upgrade <handle>=<level>|n")
             caller.msg("|yICE levels: 1-100 (higher = more secure)|n")
             return
         
@@ -721,7 +696,7 @@ class CmdSafetyNet(Command):
         manager = get_safetynet_manager()
         
         if not args:
-            caller.msg("|rUsage: sn/whois <handle>|n")
+            caller.msg("|rUsage: sn whois <handle>|n")
             return
         
         handle = args.strip()
@@ -773,11 +748,11 @@ class CmdSafetyNetAdmin(Command):
     Admin SafetyNet management commands.
     
     Usage:
-        snadmin/ice <handle>=<level>        - Set ICE rating (1-100)
-        snadmin/reset <handle>              - Reset password
-        snadmin/info <handle>               - Show detailed handle info
-        snadmin/nuke <handle>               - Delete handle and data
-        snadmin/stats                       - Show SafetyNet statistics
+        snadmin ice <handle>=<level>    - Set ICE rating (1-100)
+        snadmin reset <handle>          - Reset password
+        snadmin info <handle>           - Show detailed handle info
+        snadmin nuke <handle>           - Delete handle and data
+        snadmin stats                   - Show SafetyNet statistics
     
     Builders and higher only.
     """
@@ -789,26 +764,31 @@ class CmdSafetyNetAdmin(Command):
     
     def func(self):
         caller = self.caller
-        switches = getattr(self, 'switches', []) or []
         args = self.args.strip() if self.args else ""
         
         manager = get_safetynet_manager()
         
-        if not switches:
+        if not args:
             self.show_admin_help()
             return
         
-        if "ice" in switches:
-            self.do_admin_ice(manager, args)
-        elif "reset" in switches:
-            self.do_admin_reset(manager, args)
-        elif "info" in switches:
-            self.do_admin_info(manager, args)
-        elif "nuke" in switches:
-            self.do_admin_nuke(manager, args)
-        elif "stats" in switches:
-            self.do_admin_stats(manager, args)
+        # Split into subcommand and remaining args
+        parts = args.split(None, 1)
+        primary_cmd = parts[0].lower()
+        subargs = parts[1] if len(parts) > 1 else ""
+        
+        if primary_cmd == "ice":
+            self.do_admin_ice(manager, subargs)
+        elif primary_cmd == "reset":
+            self.do_admin_reset(manager, subargs)
+        elif primary_cmd == "info":
+            self.do_admin_info(manager, subargs)
+        elif primary_cmd == "nuke":
+            self.do_admin_nuke(manager, subargs)
+        elif primary_cmd == "stats":
+            self.do_admin_stats(manager, subargs)
         else:
+            caller.msg(f"|rUnknown admin command: {primary_cmd}|n")
             self.show_admin_help()
     
     def show_admin_help(self):
@@ -816,19 +796,19 @@ class CmdSafetyNetAdmin(Command):
         caller = self.caller
         output = ["|w=== SafetyNet Admin Commands ===|n"]
         output.append("")
-        output.append("|wsnadmin/ice|n <handle>=<level>")
+        output.append("|wsnadmin ice|n <handle>=<level>")
         output.append("  Set ICE rating for a handle (1-100)")
         output.append("")
-        output.append("|wsnadmin/reset|n <handle>")
+        output.append("|wsnadmin reset|n <handle>")
         output.append("  Force password reset for a handle")
         output.append("")
-        output.append("|wsnadmin/info|n <handle>")
+        output.append("|wsnadmin info|n <handle>")
         output.append("  Show detailed information about a handle")
         output.append("")
-        output.append("|wsnadmin/nuke|n <handle>")
+        output.append("|wsnadmin nuke|n <handle>")
         output.append("  Permanently delete a handle and all data")
         output.append("")
-        output.append("|wsnadmin/stats|n")
+        output.append("|wsnadmin stats|n")
         output.append("  Show SafetyNet system statistics")
         output.append("")
         caller.msg("\n".join(output))
@@ -838,7 +818,7 @@ class CmdSafetyNetAdmin(Command):
         caller = self.caller
         
         if "=" not in args:
-            caller.msg("|rUsage: snadmin/ice <handle>=<level>|n")
+            caller.msg("|rUsage: snadmin ice <handle>=<level>|n")
             return
         
         handle_name, level_str = args.split("=", 1)
@@ -877,7 +857,7 @@ class CmdSafetyNetAdmin(Command):
         
         handle_name = args.strip()
         if not handle_name:
-            caller.msg("|rUsage: snadmin/reset <handle>|n")
+            caller.msg("|rUsage: snadmin reset <handle>|n")
             return
         
         # Find and reset handle
@@ -905,7 +885,7 @@ class CmdSafetyNetAdmin(Command):
         
         handle_name = args.strip()
         if not handle_name:
-            caller.msg("|rUsage: snadmin/info <handle>|n")
+            caller.msg("|rUsage: snadmin info <handle>|n")
             return
         
         # Find handle and display info
@@ -930,13 +910,13 @@ class CmdSafetyNetAdmin(Command):
         
         handle_name = args.strip()
         if not handle_name:
-            caller.msg("|rUsage: snadmin/nuke <handle>|n")
+            caller.msg("|rUsage: snadmin nuke <handle>|n")
             return
         
         # Confirm deletion
         if not self.args.endswith("!"):
             caller.msg(f"|rThis will PERMANENTLY delete {handle_name} and all its data.|n")
-            caller.msg(f"|rRe-run with an exclamation mark to confirm: snadmin/nuke {handle_name}!|n")
+            caller.msg(f"|rRe-run with an exclamation mark to confirm: snadmin nuke {handle_name}!|n")
             return
         
         # Find and delete handle
