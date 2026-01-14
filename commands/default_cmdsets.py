@@ -58,6 +58,7 @@ from commands.debugsensors import CmdDebugSensors
 from commands.mapper import CmdMapColor
 from commands.adminkill import CmdAdminKill
 from commands.CmdTogglePickup import CmdTogglePickup
+from commands.stamina_admin import CmdStaminaStart, CmdStaminaStatus
 from commands.CmdFollow import CmdFollow, CmdUnfollow, CmdLose
 
 
@@ -390,6 +391,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add movement speed commands (stroll, walk, jog, run, sprint, pace)
         from commands.movement import MovementCmdSet
         self.add(MovementCmdSet())
+        # Add stamina system admin commands
+        self.add(CmdStaminaStart())      # Admin: start stamina ticker
+        self.add(CmdStaminaStatus())     # Admin: check stamina system status
         # Add admin design menus for NPCs, furniture, weapons, armor/clothes
         from commands.admin_design_menus import (
             CmdNPCDesignMenu, CmdFurnitureDesignMenu, CmdWeaponDesignMenu, CmdArmorDesignMenu, CmdSpawnNPCDesign, CmdSpawnClothingDesign
