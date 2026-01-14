@@ -67,31 +67,49 @@ class CmdChromeInstall(Command):
         chrome_list.append(chrome_entry)
         target.db.installed_chrome_list = chrome_list
         
-        # Debug output
-        self.caller.msg(f"|yDEBUG: Stored chrome entry: {chrome_entry}|n")
-        self.caller.msg(f"|yDEBUG: Chrome list now: {target.db.installed_chrome_list}|n")
+        # Stat name mapping (long name -> short name used by character)
+        stat_map = {
+            "smarts": "smrt",
+            "willpower": "will",
+            "edge": "edge",
+            "reflexes": "ref",
+            "body": "body",
+            "dexterity": "dex",
+            "empathy": "emp",
+            "technique": "tech",
+        }
         
         # Apply chrome stat bonuses from prototype
         if chrome_proto.get("buffs") and isinstance(chrome_proto["buffs"], dict):
             for stat, bonus in chrome_proto["buffs"].items():
-                current = getattr(target.db, stat, None)
-                if current is None:
-                    current = 0
-                setattr(target.db, stat, current + bonus)
-                self.caller.msg(f"|yDEBUG: Applied +{bonus} to {stat}|n")
+                # Map to short stat name
+                short_stat = stat_map.get(stat.lower(), stat)
+                max_stat = f"max_{short_stat}"
+                # Get current max value from character
+                current_max = getattr(target, max_stat, None)
+                if current_max is None:
+                    current_max = 5
+                # Increase max stat
+                setattr(target.db, max_stat, current_max + bonus)
+                # Also increase current stat
+                current_val = getattr(target, short_stat, None)
+                if current_val is None:
+                    current_val = current_max
+                setattr(target.db, short_stat, current_val + bonus)
+                self.caller.msg(f"|yDEBUG: Applied +{bonus} to {short_stat} (now {current_val + bonus}/{current_max + bonus})|n")
         
         # Apply empathy cost (reduce max empathy)
         empathy_cost = chrome_proto.get("empathy_cost", 0)
         self.caller.msg(f"|yDEBUG: Empathy cost from proto: {empathy_cost}|n")
         if empathy_cost:
-            current_max_emp = target.db.max_emp
+            current_max_emp = getattr(target, "max_emp", None)
             self.caller.msg(f"|yDEBUG: Current max_emp before: {current_max_emp}|n")
             if current_max_emp is None:
                 current_max_emp = 10
             target.db.max_emp = current_max_emp - empathy_cost
             self.caller.msg(f"|yDEBUG: New max_emp after: {target.db.max_emp}|n")
             # Also reduce current empathy if it exceeds new max
-            current_emp = target.db.emp
+            current_emp = getattr(target, "emp", None)
             if current_emp is None:
                 current_emp = target.db.max_emp
             if current_emp > target.db.max_emp:
@@ -170,18 +188,37 @@ class CmdChromeUninstall(Command):
         if chrome_list_db and isinstance(chrome_list_db, list):
             target.db.installed_chrome_list = [c for c in chrome_list_db if c.get("shortname", "").lower() != shortname.lower()]
         
+        # Stat name mapping (long name -> short name used by character)
+        stat_map = {
+            "smarts": "smrt",
+            "willpower": "will",
+            "edge": "edge",
+            "reflexes": "ref",
+            "body": "body",
+            "dexterity": "dex",
+            "empathy": "emp",
+            "technique": "tech",
+        }
+        
         # Remove chrome stat bonuses
         if chrome_proto.get("buffs") and isinstance(chrome_proto["buffs"], dict):
             for stat, bonus in chrome_proto["buffs"].items():
-                current = getattr(target.db, stat, None)
-                if current is None:
-                    current = 0
-                setattr(target.db, stat, current - bonus)
+                # Map to short stat name
+                short_stat = stat_map.get(stat.lower(), stat)
+                max_stat = f"max_{short_stat}"
+                # Get current max value from character
+                current_max = getattr(target, max_stat, None)
+                if current_max is not None:
+                    setattr(target.db, max_stat, current_max - bonus)
+                # Also decrease current stat
+                current_val = getattr(target, short_stat, None)
+                if current_val is not None:
+                    setattr(target.db, short_stat, current_val - bonus)
         
         # Restore empathy cost (increase max empathy)
         empathy_cost = chrome_proto.get("empathy_cost", 0)
         if empathy_cost:
-            current_max_emp = target.db.max_emp
+            current_max_emp = getattr(target, "max_emp", None)
             if current_max_emp is None:
                 current_max_emp = 10
             target.db.max_emp = current_max_emp + empathy_cost
