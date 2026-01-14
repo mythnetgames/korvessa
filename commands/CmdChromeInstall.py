@@ -154,20 +154,20 @@ class CmdChromeUninstall(Command):
             self.caller.msg(f"Target '{person}' not found.")
             return
         
-        # Find chrome in target's installed chrome list (handle NoneType and match by shortname)
-        chrome_list = getattr(target.ndb, "installed_chrome", None)
-        if not chrome_list or not isinstance(chrome_list, list):
+        # Find chrome in target's db installed chrome list
+        chrome_list_db = target.db.installed_chrome_list
+        if not chrome_list_db:
             self.caller.msg(f"{target.key} does not have any chrome installed.")
             return
         
-        chrome = None
-        for obj in chrome_list:
-            obj_shortname = getattr(obj.db, "shortname", None)
-            if obj_shortname and obj_shortname.lower() == shortname.lower():
-                chrome = obj
+        # Find the chrome entry in the list
+        chrome_entry = None
+        for entry in chrome_list_db:
+            if entry.get("shortname", "").lower() == shortname.lower():
+                chrome_entry = entry
                 break
         
-        if not chrome:
+        if not chrome_entry:
             self.caller.msg(f"{target.key} does not have '{shortname}' installed.")
             return
         
@@ -180,13 +180,18 @@ class CmdChromeUninstall(Command):
         # Get chrome long name
         chrome_name = chrome_proto.get("key", shortname)
         
-        # Remove chrome from target's installed chrome list
-        chrome_list.remove(chrome)
+        # Remove from db list
+        chrome_list_db.remove(chrome_entry)
+        target.db.installed_chrome_list = chrome_list_db
         
-        # Remove chrome from stats display list
-        chrome_list_db = target.db.installed_chrome_list
-        if chrome_list_db:
-            target.db.installed_chrome_list = [c for c in chrome_list_db if c.get("shortname", "").lower() != shortname.lower()]
+        # Also try to remove from ndb list if it exists
+        chrome_list_ndb = getattr(target.ndb, "installed_chrome", None)
+        if chrome_list_ndb:
+            for obj in chrome_list_ndb[:]:  # Copy to avoid modification during iteration
+                obj_shortname = getattr(obj.db, "shortname", None)
+                if obj_shortname and obj_shortname.lower() == shortname.lower():
+                    chrome_list_ndb.remove(obj)
+                    break
         
         # Stat name mapping (long name -> short name used by character)
         stat_map = {
@@ -222,9 +227,6 @@ class CmdChromeUninstall(Command):
             if current_max_emp is None:
                 current_max_emp = 10
             target.db.max_emp = current_max_emp + empathy_cost
-        
-        # Move chrome to installer's inventory
-        chrome.location = self.caller
         
         self.caller.msg(f"You uninstall '{chrome_name}' from {target.key}. Surgery auto-succeeds for builders.")
         target.msg(f"{self.caller.key} uninstalls '{chrome_name}' from you. You feel different.")
