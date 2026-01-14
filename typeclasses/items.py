@@ -1480,3 +1480,35 @@ class PortableComputer(Item):
         # Moderate weight
         self.weight = 3.5
 
+
+class ProxyModule(Item):
+    """
+    A SafetyNet proxy module that can be slotted into wristpads or computers.
+    When slotted and activated via 'sn proxy', it provides +25 ICE bonus and
+    evades ICE detection.
+    """
+    
+    # Proxy module flag - identifies this as a proxy module
+    is_proxy = AttributeProperty(True, autocreate=True)
+    
+    # Proxy type for SafetyNet integration
+    proxy_type = AttributeProperty("safetynet", autocreate=True)
+    
+    # Active state - toggled via 'sn proxy' command
+    is_active = AttributeProperty(False, autocreate=True)
+    
+    def at_object_creation(self):
+        """Initialize proxy module attributes."""
+        super().at_object_creation()
+        
+        self.db.is_proxy = True
+        self.db.proxy_type = "safetynet"
+        self.db.is_active = False
+        
+        # Default description
+        if not self.db.desc:
+            self.db.desc = "A sleek black module, roughly the size of a deck of cards. Its surface is studded with tiny LED indicators that cycle through amber and green. Circuit patterns are etched into the casing, and a connector port on one end allows it to interface with compatible devices. When powered up, a faint hum emanates from its core."
+        
+        # Light weight - just a module
+        self.weight = 0.3
+

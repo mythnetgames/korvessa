@@ -423,13 +423,14 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdManageFactions())     # Builder+: manage factions
         # Add new builder spawn commands
         from commands.builder_spawners import (
-            CmdSpawnFurniture, CmdSpawnNPC, CmdSpawnWeapon, CmdSpawnClothing, CmdSpawnArmor, CmdFixWeaponNames
+            CmdSpawnFurniture, CmdSpawnNPC, CmdSpawnWeapon, CmdSpawnClothing, CmdSpawnArmor, CmdFixWeaponNames, CmdSpawnProxyModule
         )
         self.add(CmdSpawnFurniture())     # Builder+: spawn furniture
         self.add(CmdSpawnNPC())           # Builder+: spawn NPCs
         self.add(CmdSpawnWeapon())        # Builder+: spawn weapons
         self.add(CmdSpawnClothing())      # Builder+: spawn clothing
         self.add(CmdSpawnArmor())         # Builder+: spawn armor
+        self.add(CmdSpawnProxyModule())   # Builder+: spawn proxy modules
         self.add(CmdFixWeaponNames())     # Builder+: fix weapon names
         # Add NPC wandering management command (admin+)
         from commands.cmd_npc_wander import CmdNPCWander

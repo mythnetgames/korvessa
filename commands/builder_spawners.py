@@ -620,6 +620,40 @@ class CmdSpawnArmor(Command):
                 delattr(caller.ndb, attr)
 
 
+class CmdSpawnProxyModule(Command):
+    """
+    Spawn a SafetyNet proxy module.
+    
+    Usage:
+        spawnproxy [<name>]
+    
+    Creates a new proxy module that can be slotted into wristpads or computers.
+    The module provides +25 ICE bonus when slotted and activated via 'sn proxy'.
+    
+    Examples:
+        spawnproxy
+        spawnproxy Cloak-1
+    """
+    key = "spawnproxy"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    
+    def func(self):
+        caller = self.caller
+        
+        # Create proxy module
+        proxy = create_object("typeclasses.items.ProxyModule",
+                             key=self.args.strip() if self.args else "proxy module",
+                             location=caller.location)
+        
+        if not proxy:
+            caller.msg("|rFailed to create proxy module.|n")
+            return
+        
+        caller.msg(f"|g[SafetyNet] Proxy module spawned: |y{proxy.name}|g (ID: {proxy.id})|n")
+        caller.location.msg_contents(f"|g[SafetyNet] {caller.name} spawns a proxy module.|n", exclude=[caller])
+
+
 class CmdFixWeaponNames(Command):
     """
     Fix weapon names by stripping 'designweapon' prefix from all weapons.
