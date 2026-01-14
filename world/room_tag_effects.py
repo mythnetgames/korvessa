@@ -193,6 +193,6 @@ def remove_effect_handler(room):
     """
     from evennia.scripts.models import ScriptDB
     
-    scripts = ScriptDB.objects.filter(obj=room, db_key="room_tag_effects")
+    scripts = ScriptDB.objects.filter(db_obj=room, db_key="room_tag_effects")
     for script in scripts:
         script.delete()
