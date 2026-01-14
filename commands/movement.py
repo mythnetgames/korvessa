@@ -1,0 +1,262 @@
+"""
+Movement Speed Commands
+
+Commands for setting character movement tiers: stroll, walk, jog, run, sprint.
+Integrates with the stamina system in world/stamina.py.
+"""
+
+from evennia import Command, CmdSet
+from world.stamina import MovementTier, CharacterMovementStamina, TIER_NAMES
+
+
+class CmdStroll(Command):
+    """
+    Move at a leisurely stroll - fastest stamina recovery.
+
+    Usage:
+        stroll
+
+    Strolling is the slowest movement speed but provides the best
+    stamina regeneration (+3.0/sec).
+    """
+    key = "stroll"
+    locks = "cmd:all()"
+    help_category = "Movement"
+
+    def func(self):
+        caller = self.caller
+        _set_movement_tier(caller, MovementTier.STROLL)
+
+
+class CmdWalk(Command):
+    """
+    Move at a normal walking pace - moderate stamina recovery.
+
+    Usage:
+        walk
+
+    Walking is a comfortable pace that still allows stamina
+    regeneration (+1.0/sec).
+    """
+    key = "walk"
+    locks = "cmd:all()"
+    help_category = "Movement"
+
+    def func(self):
+        caller = self.caller
+        _set_movement_tier(caller, MovementTier.WALK)
+
+
+class CmdJog(Command):
+    """
+    Move at a jogging pace - slight stamina drain.
+
+    Usage:
+        jog
+
+    Jogging is a moderate speed that causes minor stamina
+    drain (-0.2/sec). Sustainable for long periods.
+    """
+    key = "jog"
+    locks = "cmd:all()"
+    help_category = "Movement"
+
+    def func(self):
+        caller = self.caller
+        _set_movement_tier(caller, MovementTier.JOG)
+
+
+class CmdRun(Command):
+    """
+    Move at a running pace - moderate stamina drain.
+
+    Usage:
+        run
+
+    Running is fast but drains stamina steadily (-2.0/sec).
+    You cannot run when stamina falls below 10%.
+    """
+    key = "run"
+    locks = "cmd:all()"
+    help_category = "Movement"
+
+    def func(self):
+        caller = self.caller
+        _set_movement_tier(caller, MovementTier.RUN)
+
+
+class CmdSprint(Command):
+    """
+    Move at maximum speed - heavy stamina drain.
+
+    Usage:
+        sprint
+
+    Sprinting is the fastest movement but drains stamina rapidly
+    (-5.0/sec). Entering sprint costs burst stamina. After sprinting,
+    you will be fatigued for several seconds with reduced recovery.
+    You cannot sprint when stamina falls below 20%.
+    """
+    key = "sprint"
+    locks = "cmd:all()"
+    help_category = "Movement"
+
+    def func(self):
+        caller = self.caller
+        _set_movement_tier(caller, MovementTier.SPRINT)
+
+
+class CmdPace(Command):
+    """
+    Check your current movement pace and stamina.
+
+    Usage:
+        pace
+
+    Shows your current movement tier, stamina level, and any
+    active effects like fatigue.
+    """
+    key = "pace"
+    aliases = ["speed", "stamina"]
+    locks = "cmd:all()"
+    help_category = "Movement"
+
+    def func(self):
+        caller = self.caller
+        stamina = _get_or_create_stamina(caller)
+        status = stamina.get_debug_status()
+
+        # Build status message
+        tier_name = status["current_tier"].lower()
+        current = status["stamina_current"]
+        maximum = status["stamina_max"]
+        ratio = status["stamina_ratio"] * 100
+
+        msg = f"|wMovement:|n {tier_name.capitalize()}\n"
+        msg += f"|wStamina:|n {current:.0f}/{maximum} ({ratio:.0f}%)"
+
+        # Show status effects
+        if status["is_fatigued"]:
+            msg += f"\n|yFatigued:|n {status['fatigue_timer']:.1f}s remaining (reduced recovery)"
+
+        if status["is_regen_delayed"]:
+            msg += f"\n|yRecovering:|n {status['regen_delay']:.1f}s until stamina regenerates"
+
+        # Show stamina bar
+        bar_width = 20
+        filled = int(bar_width * status["stamina_ratio"])
+        empty = bar_width - filled
+
+        # Color based on stamina level
+        if ratio > 50:
+            bar_color = "|g"
+        elif ratio > 20:
+            bar_color = "|y"
+        else:
+            bar_color = "|r"
+
+        bar = f"{bar_color}{'|' * filled}|n{'.' * empty}"
+        msg += f"\n[{bar}]"
+
+        caller.msg(msg)
+
+
+# =============================================================================
+# HELPER FUNCTIONS
+# =============================================================================
+
+def _get_or_create_stamina(character):
+    """
+    Get the character's stamina component, creating it if needed.
+
+    The stamina component is stored in character.ndb.stamina for the session.
+    Stats are pulled from the character's attributes.
+    """
+    if not hasattr(character.ndb, "stamina") or character.ndb.stamina is None:
+        # Get stats from character - default to 50 if not set
+        body = getattr(character, "body", None) or character.db.body or 50
+        dex = getattr(character, "dexterity", None) or character.db.dexterity or 50
+        will = getattr(character, "willpower", None) or character.db.willpower or 50
+
+        # Create stamina component
+        character.ndb.stamina = CharacterMovementStamina(
+            body=body,
+            dex=dex,
+            will=will
+        )
+
+    return character.ndb.stamina
+
+
+def _set_movement_tier(character, desired_tier):
+    """
+    Set a character's movement tier and send appropriate feedback.
+
+    Args:
+        character: The character changing tiers
+        desired_tier: The MovementTier they want to enter
+    """
+    stamina = _get_or_create_stamina(character)
+    old_tier = stamina.current_tier
+    actual_tier = stamina.set_tier(desired_tier)
+
+    desired_name = TIER_NAMES[desired_tier].lower()
+    actual_name = TIER_NAMES[actual_tier].lower()
+    old_name = TIER_NAMES[old_tier].lower()
+
+    # Check if already at this tier
+    if old_tier == actual_tier and old_tier == desired_tier:
+        character.msg(f"You are already {_tier_verb(actual_name)}.")
+        return
+
+    # Build response message
+    if actual_tier == desired_tier:
+        # Successfully changed to desired tier
+        msg = f"You begin {_tier_verb(actual_name)}."
+
+        # Special messages for sprint
+        if actual_tier == MovementTier.SPRINT:
+            burst_cost = stamina._get_sprint_burst_cost()
+            msg += f" |y(-{burst_cost} stamina)|n"
+
+    else:
+        # Forced to a lower tier due to stamina
+        msg = f"|yYou try to {desired_name} but you are too exhausted.|n "
+        msg += f"You {_tier_verb(actual_name)} instead."
+
+    character.msg(msg)
+
+    # Room message for others
+    if actual_tier != old_tier:
+        room_msg = f"{character.key} begins {_tier_verb(actual_name)}."
+        character.location.msg_contents(room_msg, exclude=[character])
+
+
+def _tier_verb(tier_name):
+    """Convert tier name to present participle verb form."""
+    verbs = {
+        "stroll": "strolling",
+        "walk": "walking",
+        "jog": "jogging",
+        "run": "running",
+        "sprint": "sprinting",
+    }
+    return verbs.get(tier_name, f"moving at {tier_name} pace")
+
+
+# =============================================================================
+# COMMAND SET
+# =============================================================================
+
+class MovementCmdSet(CmdSet):
+    """Command set for movement speed commands."""
+
+    key = "movement_cmdset"
+
+    def at_cmdset_creation(self):
+        self.add(CmdStroll())
+        self.add(CmdWalk())
+        self.add(CmdJog())
+        self.add(CmdRun())
+        self.add(CmdSprint())
+        self.add(CmdPace())

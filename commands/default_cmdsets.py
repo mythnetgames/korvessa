@@ -387,6 +387,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdFollow())            # Player: follow another character
         self.add(CmdUnfollow())          # Player: stop following
         self.add(CmdLose())              # Player: shake off followers
+        # Add movement speed commands (stroll, walk, jog, run, sprint, pace)
+        from commands.movement import MovementCmdSet
+        self.add(MovementCmdSet())
         # Add admin design menus for NPCs, furniture, weapons, armor/clothes
         from commands.admin_design_menus import (
             CmdNPCDesignMenu, CmdFurnitureDesignMenu, CmdWeaponDesignMenu, CmdArmorDesignMenu, CmdSpawnNPCDesign, CmdSpawnClothingDesign
