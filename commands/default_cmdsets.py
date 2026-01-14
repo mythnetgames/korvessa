@@ -394,6 +394,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add movement speed commands (stroll, walk, jog, run, sprint, pace)
         from commands.movement import MovementCmdSet
         self.add(MovementCmdSet())
+        # Add pathing/auto-walk commands
+        from commands.pathing import CmdPath
+        self.add(CmdPath())              # Player: auto-walk to saved locations
         # Add stamina system admin commands
         self.add(CmdStaminaStart())      # Admin: start stamina ticker
         self.add(CmdStaminaStatus())     # Admin: check stamina system status

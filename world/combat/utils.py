@@ -967,6 +967,14 @@ def add_combatant(handler, char, target=None, initial_grappling=None, initial_gr
     
     splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
     
+    # Cancel auto-walk if character is auto-walking
+    try:
+        from scripts.auto_walk import cancel_auto_walk
+        if cancel_auto_walk(char, silent=True):
+            char.msg("|y[Auto-walk interrupted by combat!]|n")
+    except ImportError:
+        pass  # Auto-walk module not available
+    
     # Debug: Show what parameters were passed
     splattercast.msg(f"ADD_COMBATANT_PARAMS: char={char.key if char else None}, target={target.key if target else None}")
     

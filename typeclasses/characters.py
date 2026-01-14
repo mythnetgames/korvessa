@@ -271,11 +271,21 @@ class Character(ObjectParent, DefaultCharacter):
         Called before the character moves to a new location.
         Notifies windows that observe the character's current room about departure.
         Blocks movement if character is in a TerraGroup Cloning Division pod procedure.
+        Cancels auto-walk if this is a manual movement.
         """
         # Block movement if in TerraGroup Cloning Division pod
         if getattr(self.ndb, '_movement_locked', False):
             self.msg("|yYou cannot move during the TerraGroup Cloning Division procedure.|n")
             return False
+        
+        # Cancel auto-walk if this is a MANUAL movement (not auto-walk's own moves)
+        if not getattr(self.ndb, '_is_auto_walk_move', False):
+            try:
+                from scripts.auto_walk import cancel_auto_walk
+                if cancel_auto_walk(self, silent=True):
+                    self.msg("|y[Auto-walk cancelled - manual movement detected.]|n")
+            except ImportError:
+                pass  # Auto-walk module not available
         
         # Notify windows that observe this current room about the character leaving
         if self.location:
