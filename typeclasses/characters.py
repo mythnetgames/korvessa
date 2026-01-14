@@ -593,8 +593,8 @@ class Character(ObjectParent, DefaultCharacter):
         Returns:
             str: Text with status prompt appended if enabled, otherwise original text
         """
-        # Check if prompt is disabled (default is on)
-        if getattr(self.db, 'combat_prompt', True) is False:
+        # Check if prompt is disabled (default is off to avoid spamming new players)
+        if getattr(self.db, 'combat_prompt', False) is False:
             return text
         
         # Don't show during death, cloning, or revival sequences

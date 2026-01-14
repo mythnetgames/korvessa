@@ -1002,7 +1002,7 @@ class CmdCombatPrompt(Command):
     def func(self):
         caller = self.caller
         
-        # Toggle the combat prompt setting
+        # Toggle the combat prompt setting (default is off)
         current = getattr(caller.db, "combat_prompt", False)
         caller.db.combat_prompt = not current
         
