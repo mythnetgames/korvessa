@@ -54,14 +54,17 @@ class CmdChromeInstall(Command):
         target.ndb.installed_chrome.append(chrome)
         
         # Store chrome info in character's db for stats display
-        if not hasattr(target.db, "installed_chrome_list") or target.db.installed_chrome_list is None:
-            target.db.installed_chrome_list = []
-        target.db.installed_chrome_list.append({
+        chrome_list = target.db.installed_chrome_list
+        if chrome_list is None:
+            chrome_list = []
+        chrome_list.append({
             "name": chrome_name,
             "shortname": shortname,
             "slot": chrome_proto.get("chrome_slot"),
-            "type": chrome_proto.get("chrome_type")
+            "type": chrome_proto.get("chrome_type"),
+            "empathy_cost": chrome_proto.get("empathy_cost", 0)
         })
+        target.db.installed_chrome_list = chrome_list
         
         # Apply chrome stat bonuses from prototype
         if chrome_proto.get("buffs") and isinstance(chrome_proto["buffs"], dict):
@@ -70,6 +73,20 @@ class CmdChromeInstall(Command):
                 if current is None:
                     current = 0
                 setattr(target.db, stat, current + bonus)
+        
+        # Apply empathy cost (reduce max empathy)
+        empathy_cost = chrome_proto.get("empathy_cost", 0)
+        if empathy_cost:
+            current_max_emp = target.db.max_emp
+            if current_max_emp is None:
+                current_max_emp = 10
+            target.db.max_emp = current_max_emp - empathy_cost
+            # Also reduce current empathy if it exceeds new max
+            current_emp = target.db.emp
+            if current_emp is None:
+                current_emp = target.db.max_emp
+            if current_emp > target.db.max_emp:
+                target.db.emp = target.db.max_emp
         
         self.caller.msg(f"You install '{chrome_name}' into {target.key}. Surgery auto-succeeds for builders.")
         target.msg(f"{self.caller.key} installs '{chrome_name}' into you. You feel different.")
@@ -140,7 +157,7 @@ class CmdChromeUninstall(Command):
         chrome_list.remove(chrome)
         
         # Remove chrome from stats display list
-        chrome_list_db = getattr(target.db, "installed_chrome_list", None)
+        chrome_list_db = target.db.installed_chrome_list
         if chrome_list_db and isinstance(chrome_list_db, list):
             target.db.installed_chrome_list = [c for c in chrome_list_db if c.get("shortname", "").lower() != shortname.lower()]
         
@@ -151,6 +168,14 @@ class CmdChromeUninstall(Command):
                 if current is None:
                     current = 0
                 setattr(target.db, stat, current - bonus)
+        
+        # Restore empathy cost (increase max empathy)
+        empathy_cost = chrome_proto.get("empathy_cost", 0)
+        if empathy_cost:
+            current_max_emp = target.db.max_emp
+            if current_max_emp is None:
+                current_max_emp = 10
+            target.db.max_emp = current_max_emp + empathy_cost
         
         # Move chrome to installer's inventory
         chrome.location = self.caller
@@ -168,12 +193,3 @@ class CmdChromeUninstall(Command):
             if isinstance(obj, dict) and obj.get("shortname", "").lower() == shortname.lower():
                 return obj
         return None
-        if hasattr(chrome, "db") and hasattr(chrome.db, "stat") and hasattr(chrome.db, "bonus"):
-            stat = chrome.db.stat
-            bonus = chrome.db.bonus
-            current = getattr(target, stat, 0)
-            setattr(target, stat, current - bonus)
-        # Place chrome in uninstalling character's inventory
-        chrome.location = self.caller
-        self.caller.msg(f"You uninstall '{shortname}' from {target.key}. Surgery auto-succeeds for builders.")
-        target.msg(f"{self.caller.key} uninstalls '{shortname}' from you. You feel different.")
