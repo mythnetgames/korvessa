@@ -186,11 +186,10 @@ class CmdSafetyNet(Command):
         output.append("  |#5fd700sn ice|n <handle>         - Scan ICE profile")
         output.append("  |#5fd700sn hack|n <handle>        - Attempt hack")
         output.append("  |#5fd700sn wear|n <handle>        - Wear down ICE")
-        output.append("  |#5fd700sn raise|n <h>=<amt>      - Raise ICE (Decker)")
+        output.append("  |#5fd700sn raise|n <h>=<amt>      - Raise ICE")
         output.append("  |#5fd700sn upgrade|n <h>=<lvl>    - Set ICE level")
         
         output.append("")
-        output.append(f"|#00d700Feeds:|n {', '.join(AVAILABLE_FEEDS)}")
         output.append("|#00ff00==========================================|n")
         
         delay_time = get_connection_delay(device_type, "read")
