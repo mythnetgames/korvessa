@@ -2,11 +2,68 @@
 Custom Say command that integrates voice descriptions and language garbling.
 """
 
+import re
 from evennia.commands.default.general import CmdSay as DefaultCmdSay
 from world.language.utils import (
     get_primary_language,
     apply_language_garbling_to_observers,
 )
+
+
+def fix_speech_grammar(text):
+    """
+    Fix common speech grammar issues:
+    - Fix common contractions (Ive -> I've, Thats -> That's, etc.)
+    - Capitalize standalone "i" to "I"
+    
+    Args:
+        text (str): Speech text to fix
+        
+    Returns:
+        str: Grammar-fixed text
+    """
+    # Fix contractions - map common bad spellings to correct contractions
+    contractions = {
+        r'\bIve\b': "I've",
+        r'\bive\b': "I've",
+        r'\bHes\b': "He's",
+        r'\bShe?s\b': "She's",
+        r'\bIts\b': "It's",
+        r'\bThats\b': "That's",
+        r'\bWhats\b': "What's",
+        r'\bWhos\b': "Who's",
+        r'\bWheres\b': "Where's",
+        r'\bWhens\b': "When's",
+        r'\bHows\b': "How's",
+        r'\bIsnt\b': "Isn't",
+        r'\bArent\b': "Aren't",
+        r'\bWasnt\b': "Wasn't",
+        r'\bWerent\b': "Weren't",
+        r'\bHasnt\b': "Hasn't",
+        r'\bHavent\b': "Haven't",
+        r'\bDidnt\b': "Didn't",
+        r'\bDont\b': "Don't",
+        r'\bCant\b': "Can't",
+        r'\bWont\b': "Won't",
+        r'\bCouldnt\b': "Couldn't",
+        r'\bShouldnt\b': "Shouldn't",
+        r'\bWouldnt\b': "Wouldn't",
+        r'\bYoure\b': "You're",
+        r'\bTheyre\b': "They're",
+        r'\bWeve\b': "We've",
+        r'\bTheyve\b': "They've",
+    }
+    
+    for bad, good in contractions.items():
+        text = re.sub(bad, good, text)
+    
+    # Capitalize standalone "i" to "I"
+    # Match 'i' that is either:
+    # - at the start of string, or after space/punctuation
+    # - followed by space, punctuation, or end of string
+    text = re.sub(r'(?<![a-zA-Z])i(?![a-zA-Z])', 'I', text)
+    
+    return text
 
 
 class CmdSay(DefaultCmdSay):
@@ -37,6 +94,9 @@ class CmdSay(DefaultCmdSay):
             return
         
         speech = self.args.strip()
+        
+        # Fix grammar - contractions and capitalize standalone "i"
+        speech = fix_speech_grammar(speech)
         
         # Capitalize first letter
         if speech:
