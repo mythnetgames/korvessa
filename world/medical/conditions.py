@@ -562,12 +562,6 @@ class BurnCondition(MedicalCondition):
         
         medical_state = character.medical_state
         
-        # Severe burns cause ongoing pain
-        if self.severity >= 3:
-            character.msg("|r[!] Searing pain from your burns.|n")
-        elif self.severity >= 1:
-            character.msg("|r[!] You feel burning pain.|n")
-        
         # Check for infection development (burns are very prone to infection)
         import random
         if random.random() < (self.infection_risk / 60):  # Per-second rate
@@ -585,7 +579,6 @@ class BurnCondition(MedicalCondition):
         # Severe burns can cause tissue damage (reduce max severity gradually)
         if self.severity >= 4 and random.random() < 0.05:
             self.max_severity = max(1, self.max_severity - 1)
-            character.msg("|r[!] Your burns are worsening despite your body's attempts to heal.|n")
     
     def get_pain_contribution(self):
         """Burn conditions contribute significant pain."""

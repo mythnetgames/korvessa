@@ -86,14 +86,51 @@ class CmdNakeds(Command):
         """Display all naked descriptions for the character."""
         nakeds = caller.db.nakeds or {}
         
-        if not nakeds:
-            caller.msg("|CYou have no naked body part descriptions set.|n")
-            return
-        
         msg = "|C=== Naked Body Parts ===|n\n"
-        for bodypart in sorted(nakeds.keys()):
-            desc = nakeds[bodypart]
-            msg += f"|G{bodypart}:|n {desc}\n"
+        
+        if nakeds:
+            for bodypart in sorted(nakeds.keys()):
+                desc = nakeds[bodypart]
+                msg += f"|G{bodypart}:|n {desc}\n"
+        else:
+            msg += "|xNo custom descriptions set.|n\n"
+        
+        # Show medical conditions by body part
+        if hasattr(caller, 'medical_state') and caller.medical_state:
+            medical_state = caller.medical_state
+            if medical_state.conditions:
+                msg += "\n|R=== Wounds & Injuries ===|n\n"
+                
+                # Group conditions by location
+                conditions_by_location = {}
+                for condition in medical_state.conditions:
+                    location = getattr(condition, 'location', 'unknown')
+                    if location not in conditions_by_location:
+                        conditions_by_location[location] = []
+                    conditions_by_location[location].append(condition)
+                
+                # Display each location's conditions
+                for location in sorted(conditions_by_location.keys()):
+                    conditions = conditions_by_location[location]
+                    msg += f"|R{location}:|n "
+                    
+                    condition_strs = []
+                    for cond in conditions:
+                        cond_type = getattr(cond, 'condition_type', 'unknown')
+                        severity = getattr(cond, 'severity', 1)
+                        
+                        if cond_type == "burn":
+                            condition_strs.append(f"|r{severity}st burn|n")
+                        elif cond_type == "wound":
+                            condition_strs.append(f"|r{severity}st wound|n")
+                        elif cond_type == "bleeding":
+                            condition_strs.append(f"|r{severity}st bleeding|n")
+                        elif cond_type == "infection":
+                            condition_strs.append(f"|r{severity}st infection|n")
+                        elif cond_type == "pain":
+                            condition_strs.append(f"|y{severity}st pain|n")
+                    
+                    msg += ", ".join(condition_strs) + "\n"
         
         caller.msg(msg)
 

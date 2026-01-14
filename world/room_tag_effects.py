@@ -155,7 +155,7 @@ class RoomTagEffectHandler(DefaultScript):
         # Just remind characters
         for char in characters:
             if not getattr(char.ndb, "crowded_notified", False):
-                char.msg("|y[!] The crowd is bustling - easier to blend in or take advantage.|n")
+                char.msg("|yThe crowd is bustling - easier to blend in or take advantage.|n")
                 char.ndb.crowded_notified = True
 
 

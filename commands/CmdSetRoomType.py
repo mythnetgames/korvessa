@@ -69,7 +69,6 @@ class CmdSetRoomType(Command):
             has_active = any(tag in ACTIVE_TAGS for tag in applied)
             if has_active:
                 handler = attach_effect_handler(room)
-                caller.msg("|y[!] Effect handler activated for this room.|n")
     
     def _show_help(self, caller):
         """Show help text"""
