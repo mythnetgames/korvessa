@@ -644,10 +644,26 @@ class CmdSafetyNet(Command):
             caller.msg("|rUsage: sn hack <handle>|n")
             return
         
+        # Check for cooldown
+        import time
+        if hasattr(caller.ndb, 'hack_cooldown'):
+            cooldown_until = caller.ndb.hack_cooldown
+            current_time = time.time()
+            if current_time < cooldown_until:
+                remaining = int(cooldown_until - current_time)
+                caller.msg(f"|r[ICE LOCKOUT]|n ICE countermeasures active. Try again in {remaining} seconds.|n")
+                return
+        
         handle = args.strip()
         
         def do_hack_delayed():
             result = manager.attempt_hack(caller, handle)
+            
+            # Set cooldown on failure
+            if not result.get("success"):
+                import time
+                cooldown_duration = 30  # 30 second cooldown on failed hacks
+                caller.ndb.hack_cooldown = time.time() + cooldown_duration
             
             lines = []
             lines.append("|w===== INTRUSION ATTEMPT =====|n")
@@ -683,6 +699,7 @@ class CmdSafetyNet(Command):
             else:
                 lines.append("")
                 lines.append(MSG_HACK_FAILED)
+                lines.append(f"|r[ICE TRIGGERED]|n 30 second lockout initiated.|n")
             
             lines.append("|w=============================|n")
             caller.msg("\n".join(lines))

@@ -179,12 +179,34 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
     if hasattr(attacker.db, 'skills') and attacker.db.skills:
         decking_skill = attacker.db.skills.get('Decking', 0)
     
-    # Skill check: roll d100 vs (skill + modifiers - difficulty)
-    # Hacking is harder than ICE raising - no base bonus
-    online_bonus = 10 if online_status else -10  # Online targets easier
-    ice_difficulty = ice_rating  # Full ICE rating as difficulty (harder than raising)
+    # Low skill check - need at least 20 skill to have a chance
+    if decking_skill < 20:
+        # Unskilled hackers have essentially no chance
+        roll = random.randint(1, 100)
+        if roll == 1:
+            # 1% critical success even with no skill
+            margin = 5
+            message = "Access granted. Narrowly avoided detection."
+            return (True, margin, message)
+        else:
+            # Always fail
+            margin = -50
+            if roll >= 90:
+                message = "Critical failure. ICE counterattack triggered."
+            else:
+                message = "Access denied. Insufficient skill to breach ICE."
+            return (False, margin, message)
     
-    target_number = min(95, decking_skill + online_bonus - ice_difficulty)
+    # Skill check: roll d100 vs (skill - ICE difficulty + modifiers)
+    # Hacking is hard - no base bonus for unskilled players
+    online_bonus = 15 if online_status else 0  # Online targets easier
+    
+    # ICE is 1.5x harder for hacking, and offline targets have MUCH stronger ICE
+    # (no active session to exploit)
+    ice_modifier = 2.5 if not online_status else 1.5  # Offline ICE is 2.5x harder
+    ice_difficulty = ice_rating * ice_modifier
+    
+    target_number = max(5, min(95, decking_skill + online_bonus - ice_difficulty))
     roll = random.randint(1, 100)
     
     margin = target_number - roll
