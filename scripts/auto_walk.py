@@ -530,19 +530,15 @@ def start_auto_walk(character, path, mode="walk", destination_alias="destination
     """
     pathing_channel = get_or_create_channel("Pathing")
     
-    character.msg(f"|y[START_AUTO_WALK] Called with path length: {len(path) if path else 0}|n")
-    
     if pathing_channel:
         pathing_channel.msg(f"START_WALK: {character.key if character else 'None'} - path length: {len(path) if path else 0}, mode: {mode}")
     
     if not character or not path:
-        character.msg(f"|r[START_AUTO_WALK] Failed: char={bool(character)}, path={bool(path)}|n")
         if pathing_channel:
             pathing_channel.msg(f"START_WALK_ERROR: char={bool(character)}, path={bool(path)}")
         return False
     
     # Cancel any existing auto-walk
-    character.msg(f"|y[START_AUTO_WALK] Cancelling any existing auto-walk|n")
     cancel_auto_walk(character, silent=True)
     
     # Validate mode
@@ -552,13 +548,10 @@ def start_auto_walk(character, path, mode="walk", destination_alias="destination
             pathing_channel.msg(f"START_WALK_MODE: {character.key} - invalid mode, using {DEFAULT_MODE}")
     
     # Store path data on character
-    character.msg(f"|y[START_AUTO_WALK] Storing path data in NDB|n")
     character.ndb.auto_walk_path = path
     character.ndb.auto_walk_mode = mode
     character.ndb.auto_walk_destination = destination_alias
     character.ndb.auto_walk_cancelled = False
-    
-    character.msg(f"|y[START_AUTO_WALK] Path stored: {len(path)} steps, mode={mode}|n")
     
     if pathing_channel:
         pathing_channel.msg(f"START_WALK_STORED: {character.key} - NDB state set, path length: {len(path)}, mode={mode}")
@@ -569,18 +562,14 @@ def start_auto_walk(character, path, mode="walk", destination_alias="destination
         character.msg(f"|gAuto-walk started.|n Mode: |w{mode}|n, {len(path)} steps to {destination_alias}.")
         character.msg("|yType any movement command or |wpath stop|y to cancel.|n")
         
-        character.msg(f"|y[START_AUTO_WALK] Scheduling first step in 0.5s|n")
-        
         # Schedule first step directly using delay, not through script
         delay(0.5, _execute_auto_walk_step, character)
         
         if pathing_channel:
             pathing_channel.msg(f"START_WALK_STARTED: {character.key} - first step scheduled")
         
-        character.msg(f"|g[START_AUTO_WALK] Auto-walk scheduled!|n")
         return True
     except Exception as e:
-        character.msg(f"|r[START_AUTO_WALK] Exception: {e}|n")
         if pathing_channel:
             pathing_channel.msg(f"START_WALK_ERROR: {character.key} - failed: {e}")
         return False
