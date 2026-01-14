@@ -852,7 +852,7 @@ class CmdSafetyNet(Command):
         delay(base_delay * 7, step8)
         delay(base_delay * 8, step9)
         delay(base_delay * 9, step10)
-        delay(base_delay * 10, final_result)
+        delay(base_delay * 10, final_result, persistent=False)
     
     def do_wear(self, device_type, device, args):
         """Attempt to wear down a handle's ICE with hacker cutscene."""
