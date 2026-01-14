@@ -2200,7 +2200,7 @@ class Character(ObjectParent, DefaultCharacter):
 
     def _get_visible_body_descriptions(self, looker=None):
         """
-        Get all visible descriptions, integrating clothing with existing longdesc system.
+        Get all visible descriptions, integrating clothing and chrome with existing longdesc system.
         
         Args:
             looker: Character looking (for future permission checks)
@@ -2214,11 +2214,32 @@ class Character(ObjectParent, DefaultCharacter):
         coverage_map = self._build_clothing_coverage_map()
         nakeds = self.db.nakeds or {}
         
+        # Get installed chrome
+        installed_chrome = getattr(self.db, 'installed_chrome_list', None) or []
+        chrome_map = {}  # Map slot -> chrome data
+        for chrome in installed_chrome:
+            slot = chrome.get('slot')
+            if slot and chrome.get('type') == 'external':
+                chrome_map[slot] = chrome
+        
         # Track which clothing items we've already added to avoid duplicates
         added_clothing_items = set()
         
         # Process in anatomical order
         for location in ANATOMICAL_DISPLAY_ORDER:
+            # Priority: chrome > clothing > nakeds
+            if location in chrome_map:
+                # Location covered by chrome - get the worn_desc from proto
+                chrome_data = chrome_map[location]
+                chrome_shortname = chrome_data.get('shortname')
+                
+                # Get prototype to find worn_desc
+                if chrome_shortname:
+                    proto = self._get_chrome_prototype(chrome_shortname)
+                    if proto and proto.get('worn_desc'):
+                        descriptions.append((location, proto['worn_desc']))
+                        continue
+            
             if location in coverage_map:
                 # Location covered by clothing - use outermost item's current worn_desc
                 clothing_item = coverage_map[location]
@@ -2751,3 +2772,14 @@ class Character(ObjectParent, DefaultCharacter):
                 result = result.replace(f'%{code.upper()}', pronoun.capitalize())
         
         return result
+
+    def _get_chrome_prototype(self, shortname):
+        """Get chrome prototype definition by shortname."""
+        from world import chrome_prototypes
+        
+        # Get all prototype dictionaries from the module
+        for name in dir(chrome_prototypes):
+            obj = getattr(chrome_prototypes, name)
+            if isinstance(obj, dict) and obj.get("shortname", "").lower() == shortname.lower():
+                return obj
+        return None
