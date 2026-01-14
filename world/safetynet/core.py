@@ -785,10 +785,11 @@ class SafetyNetManager(DefaultScript):
         if hasattr(decker.db, 'skills') and decker.db.skills:
             decking_skill = decker.db.skills.get('Decking', 0)
         
-        # Skill check: roll d100 vs skill
-        # Higher current ICE adds difficulty modifier
-        ice_modifier = current_ice // 5  # Every 5 ICE adds 1% difficulty
-        target_number = decking_skill - ice_modifier
+        # Skill check: roll d100 vs (skill + base bonus - difficulty)
+        # Base bonus helps skilled deckers
+        base_bonus = 30  # Makes low-level ICE raising easier
+        ice_difficulty = current_ice // 2  # Every 2 ICE adds 1% difficulty
+        target_number = min(95, decking_skill + base_bonus - ice_difficulty)  # Cap at 95%
         roll = random.randint(1, 100)
         
         # Determine result
