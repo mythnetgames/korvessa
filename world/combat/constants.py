@@ -208,6 +208,7 @@ VALID_SKINTONES = set(SKINTONE_PALETTE.keys())
 
 # Channel names
 SPLATTERCAST_CHANNEL = "Splattercast"
+PATHING_CHANNEL = "Pathing"
 
 # Debug message prefixes
 DEBUG_PREFIX_HANDLER = "HANDLER"

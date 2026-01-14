@@ -58,13 +58,20 @@ class AutoWalkScript(DefaultScript):
             self.stop()
             return
         
+        pathing_channel = get_or_create_channel("Pathing")
+        
         # Get path data from character NDB
         self.path = getattr(char.ndb, 'auto_walk_path', [])
         self.mode = getattr(char.ndb, 'auto_walk_mode', DEFAULT_MODE)
         self.destination_alias = getattr(char.ndb, 'auto_walk_destination', 'destination')
         
+        if pathing_channel:
+            pathing_channel.msg(f"START: {char.key} starting auto-walk to {self.destination_alias} (mode: {self.mode}, path length: {len(self.path)})")
+        
         if not self.path:
             char.msg("|yNo path to follow.|n")
+            if pathing_channel:
+                pathing_channel.msg(f"START_ERROR: {char.key} - empty path")
             self.stop()
             return
         
@@ -74,45 +81,71 @@ class AutoWalkScript(DefaultScript):
         char.msg(f"|gAuto-walk started.|n Mode: |w{self.mode}|n, {len(self.path)} steps to {self.destination_alias}.")
         char.msg("|yType any movement command or |wpath stop|y to cancel.|n")
         
+        if pathing_channel:
+            pathing_channel.msg(f"START_INFO: {char.key} mode={self.mode}, stamina_cost={stamina_cost}, step_delay={step_delay}")
+        
         # Schedule first step
         delay(0.5, self._take_step)
     
     def _take_step(self):
         """Take one step along the path."""
         char = self.obj
+        pathing_channel = get_or_create_channel("Pathing")
+        
         if not char:
+            if pathing_channel:
+                pathing_channel.msg("STEP_ERROR: Character object is None")
             self.stop()
             return
         
+        if pathing_channel:
+            pathing_channel.msg(f"STEP: {char.key} taking step")
+        
         # Check if script was cancelled
         if not self.is_active:
+            if pathing_channel:
+                pathing_channel.msg(f"STEP_ERROR: {char.key} - script not active")
             return
         
         # Check interruption conditions
         interrupt_reason = self._check_interrupts()
         if interrupt_reason:
+            if pathing_channel:
+                pathing_channel.msg(f"STEP_INTERRUPT: {char.key} - {interrupt_reason}")
             char.msg(f"|rAuto-walk stopped:|n {interrupt_reason}")
             self._cleanup()
             return
         
         # Get current path
         path = getattr(char.ndb, 'auto_walk_path', [])
+        if pathing_channel:
+            pathing_channel.msg(f"STEP_PATH: {char.key} - {len(path)} steps remaining")
+        
         if not path:
             char.msg(f"|gArrived at {self.destination_alias}.|n")
+            if pathing_channel:
+                pathing_channel.msg(f"STEP_COMPLETE: {char.key} arrived at destination")
             self._cleanup()
             return
         
         # Get next step
         exit_obj, dest_room = path[0]
         
+        if pathing_channel:
+            pathing_channel.msg(f"STEP_NEXT: {char.key} - exit={exit_obj.key if exit_obj else 'None'}, dest={dest_room.dbref if dest_room else 'None'}")
+        
         # Check exit still exists and is passable
         from world.pathfinding import is_exit_passable_for_player
         if not exit_obj or not hasattr(exit_obj, 'destination'):
+            if pathing_channel:
+                pathing_channel.msg(f"STEP_ERROR: {char.key} - exit missing or invalid")
             char.msg("|rAuto-walk stopped:|n Path no longer valid (exit missing).")
             self._cleanup()
             return
         
         if not is_exit_passable_for_player(exit_obj, char):
+            if pathing_channel:
+                pathing_channel.msg(f"STEP_ERROR: {char.key} - exit not passable ({exit_obj.key})")
             char.msg(f"|rAuto-walk stopped:|n Cannot pass through {exit_obj.key} (blocked or locked).")
             self._cleanup()
             return
@@ -121,23 +154,36 @@ class AutoWalkScript(DefaultScript):
         stamina_cost, step_delay = MOVEMENT_MODES.get(self.mode, MOVEMENT_MODES[DEFAULT_MODE])
         stamina = getattr(char.ndb, 'stamina', None)
         
+        if pathing_channel:
+            current_stamina = stamina.stamina_current if stamina else 0
+            pathing_channel.msg(f"STEP_STAMINA: {char.key} - current={current_stamina}, cost={stamina_cost}")
+        
         if stamina:
             if stamina.stamina_current < stamina_cost:
+                if pathing_channel:
+                    pathing_channel.msg(f"STEP_ERROR: {char.key} - insufficient stamina")
                 char.msg(f"|rAuto-walk stopped:|n Too exhausted to continue. Rest to recover stamina.")
                 self._cleanup()
                 return
             
             if stamina.stamina_current < MIN_STAMINA_THRESHOLD:
+                if pathing_channel:
+                    pathing_channel.msg(f"STEP_ERROR: {char.key} - stamina critically low")
                 char.msg(f"|rAuto-walk stopped:|n Stamina critically low. Rest to recover.")
                 self._cleanup()
                 return
             
             # Drain stamina
             stamina.stamina_current = max(0, stamina.stamina_current - stamina_cost)
+            if pathing_channel:
+                pathing_channel.msg(f"STEP_DRAIN: {char.key} - stamina now {stamina.stamina_current}")
         
         # Execute movement
         original_location = char.location
         direction = exit_obj.key
+        
+        if pathing_channel:
+            pathing_channel.msg(f"STEP_MOVE: {char.key} moving {direction} from {original_location.dbref if original_location else 'None'} to {dest_room.dbref if dest_room else 'None'}")
         
         try:
             # Set flag to indicate this is an auto-walk move (not manual)
@@ -150,25 +196,39 @@ class AutoWalkScript(DefaultScript):
             if hasattr(char.ndb, '_is_auto_walk_move'):
                 del char.ndb._is_auto_walk_move
             
+            if pathing_channel:
+                pathing_channel.msg(f"STEP_MOVE_RESULT: {char.key} - result={result}, new_location={char.location.dbref if char.location else 'None'}")
+            
             if result and char.location != original_location:
                 # Success - remove this step from path
                 char.ndb.auto_walk_path = path[1:]
+                
+                if pathing_channel:
+                    pathing_channel.msg(f"STEP_SUCCESS: {char.key} - {len(char.ndb.auto_walk_path)} steps remaining")
                 
                 # Check if more steps remain
                 remaining = len(char.ndb.auto_walk_path)
                 if remaining > 0:
                     # Schedule next step
+                    if pathing_channel:
+                        pathing_channel.msg(f"STEP_SCHEDULE: {char.key} - next step in {step_delay}s")
                     delay(step_delay, self._take_step)
                 else:
                     # Arrived!
                     char.msg(f"|gArrived at {self.destination_alias}.|n")
+                    if pathing_channel:
+                        pathing_channel.msg(f"STEP_ARRIVED: {char.key} at destination")
                     self._cleanup()
             else:
                 # Movement failed
+                if pathing_channel:
+                    pathing_channel.msg(f"STEP_FAIL: {char.key} - movement returned {result}")
                 char.msg(f"|rAuto-walk stopped:|n Could not move {direction}.")
                 self._cleanup()
                 
         except Exception as e:
+            if pathing_channel:
+                pathing_channel.msg(f"STEP_ERROR: {char.key} - movement exception: {e}")
             char.msg(f"|rAuto-walk stopped:|n Movement error: {e}")
             self._cleanup()
     
@@ -248,15 +308,24 @@ def start_auto_walk(character, path, mode="walk", destination_alias="destination
     Returns:
         bool: True if auto-walk started, False if failed
     """
+    pathing_channel = get_or_create_channel("Pathing")
+    
+    if pathing_channel:
+        pathing_channel.msg(f"START_WALK: {character.key if character else 'None'} - path length: {len(path) if path else 0}, mode: {mode}")
+    
     if not character or not path:
+        if pathing_channel:
+            pathing_channel.msg(f"START_WALK_ERROR: char={bool(character)}, path={bool(path)}")
         return False
     
     # Cancel any existing auto-walk
-    cancel_auto_walk(character)
+    cancel_auto_walk(character, silent=True)
     
     # Validate mode
     if mode not in MOVEMENT_MODES:
         mode = DEFAULT_MODE
+        if pathing_channel:
+            pathing_channel.msg(f"START_WALK_MODE: {character.key} - invalid mode, using {DEFAULT_MODE}")
     
     # Store path data on character
     character.ndb.auto_walk_path = path
@@ -264,10 +333,19 @@ def start_auto_walk(character, path, mode="walk", destination_alias="destination
     character.ndb.auto_walk_destination = destination_alias
     character.ndb.auto_walk_cancelled = False
     
-    # Create and start the script
-    script = character.scripts.add(AutoWalkScript, key="auto_walk_script")
+    if pathing_channel:
+        pathing_channel.msg(f"START_WALK_STORED: {character.key} - NDB state set, path length: {len(path)}")
     
-    return True
+    # Create and start the script
+    try:
+        script = character.scripts.add(AutoWalkScript, key="auto_walk_script")
+        if pathing_channel:
+            pathing_channel.msg(f"START_WALK_SCRIPT: {character.key} - script created: {script}")
+        return True
+    except Exception as e:
+        if pathing_channel:
+            pathing_channel.msg(f"START_WALK_ERROR: {character.key} - failed to create script: {e}")
+        return False
 
 
 def cancel_auto_walk(character, silent=False):
@@ -281,7 +359,11 @@ def cancel_auto_walk(character, silent=False):
     Returns:
         bool: True if auto-walk was active and cancelled
     """
+    pathing_channel = get_or_create_channel("Pathing")
+    
     if not character:
+        if pathing_channel:
+            pathing_channel.msg("CANCEL_WALK_ERROR: character is None")
         return False
     
     was_active = False
@@ -290,10 +372,14 @@ def cancel_auto_walk(character, silent=False):
     if hasattr(character.ndb, 'auto_walk_path') and character.ndb.auto_walk_path:
         character.ndb.auto_walk_cancelled = True
         was_active = True
+        if pathing_channel:
+            pathing_channel.msg(f"CANCEL_WALK: {character.key} - flag set")
     
     # Stop any auto-walk scripts
     for script in character.scripts.all():
         if script.key == "auto_walk_script":
+            if pathing_channel:
+                pathing_channel.msg(f"CANCEL_WALK: {character.key} - stopping script")
             script.stop()
             was_active = True
     
@@ -304,6 +390,9 @@ def cancel_auto_walk(character, silent=False):
     
     if was_active and not silent:
         character.msg("|yAuto-walk cancelled.|n")
+    
+    if pathing_channel and was_active:
+        pathing_channel.msg(f"CANCEL_WALK_DONE: {character.key} - active={was_active}")
     
     return was_active
 

@@ -197,10 +197,23 @@ class CmdPath(Command):
         alias = args[0].lower()
         mode = args[1].lower() if len(args) > 1 else "walk"
         
+        # Get debug channel
+        from evennia.comms.models import ChannelDB
+        pathing_channel = None
+        try:
+            pathing_channel = ChannelDB.objects.get_channel("Pathing")
+        except:
+            pass
+        
+        if pathing_channel:
+            pathing_channel.msg(f"GO_START: {caller.key} requesting path to '{alias}' (mode: {mode})")
+        
         # Validate mode
         valid_modes = ["walk", "jog", "run", "sprint"]
         if mode not in valid_modes:
             caller.msg(f"|rInvalid mode '{mode}'.|n Valid modes: {', '.join(valid_modes)}")
+            if pathing_channel:
+                pathing_channel.msg(f"GO_ERROR: {caller.key} - invalid mode '{mode}'")
             return
         
         # Check for combat
@@ -208,6 +221,8 @@ class CmdPath(Command):
             handler = caller.ndb.combat_handler
             if handler and getattr(handler, 'is_active', False):
                 caller.msg("|rCannot auto-walk while in combat!|n")
+                if pathing_channel:
+                    pathing_channel.msg(f"GO_ERROR: {caller.key} - in combat")
                 return
         
         # Validate saved location
@@ -216,19 +231,35 @@ class CmdPath(Command):
         valid, result = validate_saved_location(caller, alias)
         if not valid:
             caller.msg(f"|r{result}|n")
+            if pathing_channel:
+                pathing_channel.msg(f"GO_ERROR: {caller.key} - invalid location '{alias}': {result}")
             return
         
         dest_room = result
         
+        if pathing_channel:
+            pathing_channel.msg(f"GO_VALIDATED: {caller.key} -> {dest_room.key} ({dest_room.dbref})")
+        
         # Check if already there
         if caller.location == dest_room:
             caller.msg(f"|yYou are already at '{alias}'.|n")
+            if pathing_channel:
+                pathing_channel.msg(f"GO_ALREADY_HERE: {caller.key} - already at destination")
             return
         
         # Find path
         caller.msg(f"|yCalculating route to '{alias}'...|n")
         
+        if pathing_channel:
+            pathing_channel.msg(f"GO_PATHFIND: {caller.key} finding path from {caller.location.dbref} to {dest_room.dbref}")
+        
         path = find_path(caller.location, dest_room, caller)
+        
+        if pathing_channel:
+            if path:
+                pathing_channel.msg(f"GO_PATH_FOUND: {caller.key} - {len(path)} steps")
+            else:
+                pathing_channel.msg(f"GO_PATH_FAILED: {caller.key} - no path found")
         
         if path is None:
             caller.msg(f"|rNo path found to '{alias}'.|n The destination may be unreachable.")
@@ -251,11 +282,17 @@ class CmdPath(Command):
         # Start auto-walk
         from scripts.auto_walk import start_auto_walk
         
+        if pathing_channel:
+            pathing_channel.msg(f"GO_STARTING: {caller.key} - starting auto-walk with {len(path)} steps")
+        
         if start_auto_walk(caller, path, mode, alias):
             # Message is sent by the script
-            pass
+            if pathing_channel:
+                pathing_channel.msg(f"GO_STARTED: {caller.key} - auto-walk initiated")
         else:
             caller.msg("|rFailed to start auto-walk.|n")
+            if pathing_channel:
+                pathing_channel.msg(f"GO_FAILED: {caller.key} - failed to start auto-walk")
     
     def do_go_dbref(self, args):
         """Auto-walk to a specific room by dbref (admin command)."""
