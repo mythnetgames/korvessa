@@ -689,13 +689,13 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>scanning ice.profile|n")
         
         def step3():
-            caller.msg("|#00af00>run.scan |#5fff00[|#00af00*|#5fff00****]|n")
+            caller.msg("|#00af00>run.scan |#5fff00[|#00af00*|#5fff00]|n")
         
         def step4():
-            caller.msg("|#00af00>run.scan |#5fff00[|#00af00||#5fff00|||*]|n")
+            caller.msg("|#00af00>run.scan |#5fff00[|#00af00**|#5fff00]|n")
         
         def step5():
-            caller.msg("|#00af00>run.scan |#5fff00[|#00af00||||#5fff00|*]|n")
+            caller.msg("|#00af00>run.scan |#5fff00[|#00af00***|#5fff00]|n")
         
         def step6():
             caller.msg("|#00af00>run.scan |#5fff00[|#00af00|||||#5fff00]|n")
