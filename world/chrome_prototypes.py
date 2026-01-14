@@ -22,6 +22,24 @@ CHROME_BASE = {
 # HEAD CHROME
 # =============================================================================
 
+# Mind's Eye Chrome Implant
+MINDSEYE = {
+    "prototype_parent": "CHROME_BASE",
+    "prototype_key": "mindseye",
+    "key": "Mind's Eye Chrome Implant",
+    "aliases": ["mindseye", "mind's eye", "minds eye", "mind eye"],
+    "desc": "A small neural implant designed to rest behind the ear. This chrome grants the wearer the ability to perceive and hear the surface thoughts of those nearby, allowing for a unique form of extrasensory awareness. The implant is delicate and refined, featuring neural pathways that interface directly with the auditory cortex. Those who wear this implant often report a strange humming sensation, as if they're tuning into a frequency just below conscious hearing.",
+    "chrome_slot": "head",
+    "chrome_type": "internal",
+    "shortname": "mindseye",
+    "empathy_cost": -0.25,
+    "buffs": None,
+    "buff_description": "No buffs",
+    "abilities": "Hear thoughts of nearby individuals",
+    "can_customize": False,
+    "worn_desc": None,
+}
+
 # NanoTrace Probability Calculator
 NT_PROBCAL = {
     "prototype_parent": "CHROME_BASE",
