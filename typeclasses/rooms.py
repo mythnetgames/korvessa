@@ -133,28 +133,6 @@ class Room(ObjectParent, DefaultRoom):
         # Zone-aware coordinate assignment: only consider exits to rooms in the same zone
         self._assign_coordinates_from_exits()
     
-    def at_init(self):
-        """Called when the room is first initialized in the game engine."""
-        super().at_init()
-        # Restart any room_tag_effects scripts that were stopped on server restart
-        self._ensure_tag_effects_running()
-    
-    def _ensure_tag_effects_running(self):
-        """Ensure room tag effect script is running if room has active tags."""
-        from evennia.scripts.models import ScriptDB
-        
-        # Check if this room has any active tags
-        if not hasattr(self, 'tags') or not self.tags:
-            return
-        
-        # Find existing script
-        existing = ScriptDB.objects.filter(db_obj=self, db_key="room_tag_effects")
-        
-        for script in existing:
-            # If script exists but not active, restart it
-            if not script.is_active:
-                script.start()
-    
     def at_object_receive(self, moved_obj, source_location, **kwargs):
         """
         Called when an object enters this room.
