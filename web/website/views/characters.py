@@ -49,6 +49,12 @@ class CharacterCreateView(EvenniaCharacterCreateView):
     def get(self, request, *args, **kwargs):
         """Determine which character creation flow to show."""
         account = request.user
+        from django.http import HttpResponseRedirect
+        from django.urls import reverse_lazy
+        
+        # Staff/admins should NEVER be in chargen - redirect to character management
+        if account.is_staff or account.is_superuser:
+            return HttpResponseRedirect(reverse_lazy('character-manage-list'))
         
         # Check for respawn scenario FIRST (before max character check)
         # This allows respawn even when at 0 active characters
