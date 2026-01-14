@@ -528,7 +528,6 @@ class CmdSafetyNet(Command):
             caller.msg(MSG_CONNECTING)
         delay(delay_time, do_search_delayed)
     
-    def do_handles(self, device_type):
     def do_register(self, device_type, args):
         """Register a new handle."""
         caller = self.caller
