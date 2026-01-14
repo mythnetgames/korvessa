@@ -984,7 +984,7 @@ class SafetyNetManager(DefaultScript):
             result["password"] = target_data.get("password", "")
             
             # Grant access to DMs based on margin
-            dm_count = HACK_DM_ACCESS_BASE + (max(0, margin) * HACK_DM_ACCESS_PER_MARGIN)
+            dm_count = int(HACK_DM_ACCESS_BASE + (max(0, margin) * HACK_DM_ACCESS_PER_MARGIN))
             result["dms"] = self.get_dms(target_handle_name, limit=dm_count)
             
             # If online, trace location
