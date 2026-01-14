@@ -36,6 +36,7 @@ NT_PROBCAL = {
     "buffs": {"smarts": 2},
     "buff_description": "+2 Smarts",
     "abilities": None,
+    "can_customize": False,
 }
 
 # NanoTrace Parietal Amplifier
@@ -52,6 +53,7 @@ NT_PARAMP = {
     "buffs": {"smarts": 1},
     "buff_description": "+1 Smarts",
     "abilities": None,
+    "can_customize": False,
 }
 
 # BaoSteel Subdermal Skull Plating
@@ -69,6 +71,7 @@ BS_SKULL_PLATING = {
     "armor_bonus": {"head": 1},
     "buff_description": "+1 Armor to Head",
     "abilities": None,
+    "can_customize": False,
     "incompatible_with": ["morikawa_kabuto"],
 }
 
@@ -86,6 +89,7 @@ NT_NERVES = {
     "buffs": {"edge": 1},
     "buff_description": "+1 Edge",
     "abilities": None,
+    "can_customize": False,
 }
 
 # Nerves Of BaoSteel
@@ -102,6 +106,7 @@ BS_NERVES = {
     "buffs": {"edge": 2},
     "buff_description": "+2 Edge",
     "abilities": None,
+    "can_customize": False,
 }
 
 # MadGenTek Electroconvulsive Motor Cortex Stimulator
@@ -118,6 +123,7 @@ MGT_NRVZAP = {
     "buffs": {"reflexes": 2},
     "buff_description": "+2 Reflexes",
     "abilities": None,
+    "can_customize": False,
 }
 
 # NanoTrace Axon Enhancer
@@ -134,6 +140,7 @@ NT_AXON = {
     "buffs": {"reflexes": 1},
     "buff_description": "+1 Reflexes",
     "abilities": None,
+    "can_customize": False,
 }
 
 # Morikawa Kabuto
@@ -143,6 +150,7 @@ MORIKAWA_KABUTO = {
     "key": "Morikawa Kabuto",
     "aliases": ["kabuto", "morikawa kabuto", "mk-kabuto", "dragon helm"],
     "desc": "A Morikawa Kabuto - external cranial armor designed for Yakuza muscle who believe that a dragon does not hide from a mouse. The distinctive helmet integrates traditional Japanese aesthetic with modern ballistic protection. Elaborate dragon scale patterns are etched into the chrome surface, marking the wearer as someone who fears nothing and hides from no one. This piece comes already customized and cannot be further modified.",
+    "worn_desc": "Their head is encased in an ornate Morikawa Kabuto, an elaborate chrome helmet with dragon scale patterns etched into its surface.",
     "chrome_slot": "head",
     "chrome_type": "external",
     "shortname": "MK-KABUTO",
@@ -151,6 +159,7 @@ MORIKAWA_KABUTO = {
     "armor_bonus": {"head": 3},
     "buff_description": "+3 Armor to Head",
     "abilities": None,
+    "replaces_slot": "head",
     "can_customize": False,
     "incompatible_with": ["bs_skull_plating"],
 }
@@ -166,6 +175,7 @@ NT_SURFACE_WIRING = {
     "key": "NanoTrace Surface Wiring",
     "aliases": ["surface wiring", "nt-sw", "fashionware", "face wiring"],
     "desc": "NanoTrace Surface Wiring - fashionware that makes a statement. Delicate circuitry traces visible paths across the skin, the wiring for other implants worn externally as an aesthetic choice. The patterns pulse with soft bioluminescence, marking the wearer as someone who embraces their chrome rather than hiding it. Purely cosmetic, but cosmetics matter.",
+    "worn_desc": "Delicate circuitry traces are visible across their face, pulsing with soft bioluminescence in intricate patterns.",
     "chrome_slot": "face",
     "chrome_type": "external",
     "shortname": "NT-SW",
@@ -191,6 +201,7 @@ BS_FACE_PLATING = {
     "armor_bonus": {"face": 1},
     "buff_description": "+1 Armor to Face",
     "abilities": None,
+    "can_customize": False,
     "incompatible_with": ["morikawa_menpo"],
 }
 
@@ -201,6 +212,7 @@ MORIKAWA_MENPO = {
     "key": "Morikawa Menpo",
     "aliases": ["menpo", "morikawa menpo", "mk-menpo", "dragon mask"],
     "desc": "A Morikawa Menpo - external facial armor designed for Yakuza muscle who believe that a dragon does not hide from a mouse. The distinctive face plate integrates traditional Japanese aesthetic with modern ballistic protection. Fearsome demon or dragon features are etched into the chrome surface, marking the wearer as someone who embraces intimidation as a tool. This piece comes already customized and cannot be further modified.",
+    "worn_desc": "Their face is covered by an ornate chrome faceplate, etched with fearsome demon or dragon features that project an intimidating visage.",
     "chrome_slot": "face",
     "chrome_type": "external",
     "shortname": "MK-MENPO",
@@ -209,6 +221,7 @@ MORIKAWA_MENPO = {
     "armor_bonus": {"face": 3},
     "buff_description": "+3 Armor to Face",
     "abilities": None,
+    "replaces_slot": "face",
     "can_customize": False,
     "incompatible_with": ["bs_face_plating"],
 }
@@ -224,6 +237,7 @@ MGT_BUG_EYES = {
     "key": "MadGenTek Bug Eyes",
     "aliases": ["bug eyes", "bug-i", "madgentek eyes", "borgware eyes"],
     "desc": "MadGenTek Bug Eyes - oversized cybereyes that resemble the optical organs of an insect. Multiple faceted lenses capture light from impossible angles, feeding visual data through parallel processing channels. The effect is unsettling to observers but provides unparalleled optical versatility. Five optical module slots allow extensive customization. MadGenTek: Because seeing is believing, and you should believe in more.",
+    "worn_desc": "Their eyes have been replaced with oversized cybereyes resembling insect optical organs, with multiple faceted lenses that catch light unnervingly.",
     "chrome_slot": "eyes",
     "chrome_type": "external",
     "shortname": "BUG-I",
@@ -243,6 +257,7 @@ BS_CYBEREYE_SET = {
     "key": "BaoSteel Cybereye Set",
     "aliases": ["cybereyes", "bs-3ye5", "baosteel eyes", "cyber eyes"],
     "desc": "A BaoSteel Cybereye Set - stock standard replacement eyes with the distinctive BaoSteel optical design. The hexagonal iris pattern marks them as genuine BaoSteel product. Two optical module slots per eye allow for basic customization. Some say the BaoSteel design captures light differently, giving wearers a subtle glow in dim conditions.",
+    "worn_desc": "Their eyes have been replaced with sleek chrome cybereyes bearing the distinctive BaoSteel hexagonal iris pattern.",
     "chrome_slot": "eyes",
     "chrome_type": "external",
     "shortname": "BS-3YE5",
@@ -262,6 +277,7 @@ AS_CYBEREYE_SET = {
     "key": "AnSteel Cybereye Set",
     "aliases": ["cybereyes", "as-3ye5", "ansteel eyes", "cyber eyes"],
     "desc": "An AnSteel Cybereye Set - stock standard replacement eyes with the distinctive AnSteel optical design. The angular iris pattern marks them as genuine AnSteel product. Two optical module slots per eye allow for basic customization. Some say the AnSteel design processes light more efficiently, though brand loyalists will argue the point endlessly.",
+    "worn_desc": "Their eyes have been replaced with efficient chrome cybereyes bearing the distinctive AnSteel angular iris pattern.",
     "chrome_slot": "eyes",
     "chrome_type": "external",
     "shortname": "AS-3YE5",
@@ -281,6 +297,7 @@ BS_CYBEREYE = {
     "key": "BaoSteel Cybereye",
     "aliases": ["cybereye", "bs-3ye", "baosteel eye", "cyber eye"],
     "desc": "A single BaoSteel Cybereye - a stock standard replacement eye with the distinctive BaoSteel optical design. The hexagonal iris pattern marks it as genuine BaoSteel product. One optical module slot allows for basic customization. Perfect for those who only need to replace one eye.",
+    "worn_desc": "Their eye has been replaced with a sleek chrome cybereye bearing the distinctive BaoSteel hexagonal iris pattern.",
     "chrome_slot": "eye",
     "chrome_type": "external",
     "shortname": "BS-3YE",
@@ -300,6 +317,7 @@ AS_CYBEREYE = {
     "key": "AnSteel Cybereye",
     "aliases": ["cybereye", "as-3ye", "ansteel eye", "cyber eye"],
     "desc": "A single AnSteel Cybereye - a stock standard replacement eye with the distinctive AnSteel optical design. The angular iris pattern marks it as genuine AnSteel product. One optical module slot allows for basic customization. Perfect for those who only need to replace one eye.",
+    "worn_desc": "Their eye has been replaced with an efficient chrome cybereye bearing the distinctive AnSteel angular iris pattern.",
     "chrome_slot": "eye",
     "chrome_type": "external",
     "shortname": "AS-3YE",
@@ -319,6 +337,7 @@ BS_REINFORCED_CYBEREYE_SET = {
     "key": "BaoSteel Reinforced Cybereye Set",
     "aliases": ["reinforced cybereyes", "bs-r3ye5", "armored eyes", "reinforced eyes"],
     "desc": "A BaoSteel Reinforced Cybereye Set - armored replacement eyes with enhanced ballistic protection. The patent is held exclusively by BaoSteel. The reinforced housing reduces optical slot capacity but provides meaningful protection against ocular trauma. The distinctive hexagonal reinforcement pattern is visible in the iris.",
+    "worn_desc": "Their eyes have been replaced with heavily armored chrome cybereyes with reinforced hexagonal patterning, designed for serious combat.",
     "chrome_slot": "eyes",
     "chrome_type": "external",
     "shortname": "BS-R3YE5",
@@ -339,6 +358,7 @@ BS_REINFORCED_CYBEREYE = {
     "key": "BaoSteel Reinforced Cybereye",
     "aliases": ["reinforced cybereye", "bs-r3ye", "armored eye", "reinforced eye"],
     "desc": "A single BaoSteel Reinforced Cybereye - an armored replacement eye with enhanced ballistic protection. The patent is held exclusively by BaoSteel. The reinforced housing provides protection against ocular trauma while maintaining basic optical functionality. One module slot available.",
+    "worn_desc": "Their eye has been replaced with an armored chrome cybereye, heavily reinforced for combat protection.",
     "chrome_slot": "eye",
     "chrome_type": "external",
     "shortname": "BS-R3YE",
@@ -359,6 +379,7 @@ MORIKAWA_GAZE = {
     "key": "Morikawa Gaze",
     "aliases": ["gaze", "morikawa gaze", "mk-gaze", "dragon eyes"],
     "desc": "Morikawa Gaze - external eye armor designed for Yakuza muscle who believe that a dragon does not hide from a mouse. Heavy chrome plating surrounds the optical organs, providing substantial protection while projecting an intimidating visage. The distinctive dragon-scale pattern marks the wearer as someone who has chosen to see the world through armored eyes. Incompatible with cybereyes. This piece comes already customized.",
+    "worn_desc": "Their eyes are shielded behind heavy chrome armor, with distinctive dragon-scale patterns etched into the plating.",
     "chrome_slot": "eyes",
     "chrome_type": "external",
     "shortname": "MK-GAZE",
@@ -367,6 +388,7 @@ MORIKAWA_GAZE = {
     "armor_bonus": {"eyes": 3},
     "buff_description": "+3 Armor to Eyes",
     "abilities": None,
+    "replaces_slot": "eyes",
     "can_customize": False,
     "incompatible_with": ["cybereyes"],
 }
@@ -382,6 +404,7 @@ BS_CYBEREAR_SET_EXT = {
     "key": "BaoSteel Cyberear Set (External)",
     "aliases": ["cyberears", "bs-e4r5", "baosteel ears", "cyber ears external"],
     "desc": "A BaoSteel Cyberear Set (External) - stock standard replacement ears with the distinctive BaoSteel internal design, worn externally. The hexagonal pattern in the chrome housing marks them as genuine BaoSteel product. Four audio module slots allow for extensive customization. External models replace ear nakeds but can be customized aesthetically.",
+    "worn_desc": "Their ears have been replaced with external chrome cyberears bearing the distinctive BaoSteel hexagonal patterning.",
     "chrome_slot": "ears",
     "chrome_type": "external",
     "shortname": "BS-E4R5-EXT",
@@ -409,7 +432,6 @@ BS_CYBEREAR_SET_INT = {
     "buff_description": "4 ear slots",
     "abilities": "4 audio module slots",
     "audio_slots": 4,
-    "replaces_slot": "ears",
     "can_customize": False,
 }
 
@@ -420,6 +442,7 @@ AS_CYBEREAR_SET_EXT = {
     "key": "AnSteel Cyberear Set (External)",
     "aliases": ["cyberears", "as-e4r5", "ansteel ears", "cyber ears external"],
     "desc": "An AnSteel Cyberear Set (External) - stock standard replacement ears with the distinctive AnSteel internal design, worn externally. The angular pattern in the chrome housing marks them as genuine AnSteel product. Four audio module slots allow for extensive customization. External models replace ear nakeds but can be customized aesthetically.",
+    "worn_desc": "Their ears have been replaced with external chrome cyberears bearing the distinctive AnSteel angular patterning.",
     "chrome_slot": "ears",
     "chrome_type": "external",
     "shortname": "AS-E4R5-EXT",
@@ -447,7 +470,6 @@ AS_CYBEREAR_SET_INT = {
     "buff_description": "4 ear slots",
     "abilities": "4 audio module slots",
     "audio_slots": 4,
-    "replaces_slot": "ears",
     "can_customize": False,
 }
 
@@ -462,6 +484,7 @@ BS_CYBERARM_SET = {
     "key": "BaoSteel Cyberarm Set",
     "aliases": ["cyberarms", "bs-4rm5", "baosteel arms", "cyber arms"],
     "desc": "A BaoSteel Cyberarm Set - a matched pair of stock standard full cyberarm replacements with the distinctive BaoSteel muscle design. The hexagonal myomer bundles and chrome plating mark them as genuine BaoSteel product. Replaces lost or damaged limbs with enhanced mechanical alternatives. Four module slots allow for extensive customization. The artificial muscles provide significant strength and dexterity improvements.",
+    "worn_desc": "Their arms have been replaced with sleek chrome cyberarms, the hexagonal myomer bundles of BaoSteel engineering clearly visible beneath polished chrome plating.",
     "chrome_slot": "arms",
     "chrome_type": "external",
     "shortname": "BS-4RM5",
@@ -482,6 +505,7 @@ AS_CYBERARM_SET = {
     "key": "AnSteel Cyberarm Set",
     "aliases": ["cyberarms", "as-4rm5", "ansteel arms", "cyber arms"],
     "desc": "An AnSteel Cyberarm Set - a matched pair of stock standard full cyberarm replacements with the distinctive AnSteel muscle design. The angular myomer bundles and sleek chrome plating mark them as genuine AnSteel product. Replaces lost or damaged limbs with enhanced mechanical alternatives. Four module slots allow for extensive customization. The artificial muscles provide significant strength and dexterity improvements.",
+    "worn_desc": "Their arms have been replaced with sleek chrome cyberarms, the angular myomer bundles of AnSteel engineering clearly visible beneath polished chrome.",
     "chrome_slot": "arms",
     "chrome_type": "external",
     "shortname": "AS-4RM5",
@@ -502,6 +526,7 @@ BS_CYBERARM = {
     "key": "BaoSteel Cyberarm",
     "aliases": ["cyberarm", "bs-4rm", "baosteel arm", "cyber arm"],
     "desc": "A single BaoSteel Cyberarm - a stock standard full cyberarm replacement with the distinctive BaoSteel muscle design. The hexagonal myomer bundles and chrome plating mark it as genuine BaoSteel product. Replaces a lost or damaged limb with an enhanced mechanical alternative. Two module slots allow for customization.",
+    "worn_desc": "Their arm has been replaced with a sleek chrome cyberarm, the hexagonal BaoSteel myomer bundles visible beneath the plating.",
     "chrome_slot": "arm",
     "chrome_type": "external",
     "shortname": "BS-4RM",
@@ -521,6 +546,7 @@ AS_CYBERARM = {
     "key": "AnSteel Cyberarm",
     "aliases": ["cyberarm", "as-4rm", "ansteel arm", "cyber arm"],
     "desc": "A single AnSteel Cyberarm - a stock standard full cyberarm replacement with the distinctive AnSteel muscle design. The angular myomer bundles and sleek chrome plating mark it as genuine AnSteel product. Replaces a lost or damaged limb with an enhanced mechanical alternative. Two module slots allow for customization.",
+    "worn_desc": "Their arm has been replaced with a sleek chrome cyberarm, the angular AnSteel myomer bundles visible beneath the plating.",
     "chrome_slot": "arm",
     "chrome_type": "external",
     "shortname": "AS-4RM",
@@ -544,6 +570,7 @@ BS_CYBERLEG_SET = {
     "key": "BaoSteel Cyberleg Set",
     "aliases": ["cyberlegs", "bs-l3g5", "baosteel legs", "cyber legs"],
     "desc": "A BaoSteel Cyberleg Set - a matched pair of stock standard full cyberleg replacements complete with thighs, lower legs, and feet. The distinctive BaoSteel muscle design features hexagonal myomer bundles and chrome plating. Replaces lost or damaged limbs with enhanced mechanical alternatives. Four module slots allow for extensive customization. The artificial muscles provide significant strength, dexterity, and reflex improvements.",
+    "worn_desc": "Their legs have been replaced with powerful chrome cyberlegs, the hexagonal BaoSteel myomer bundles clearly visible through the polished chrome.",
     "chrome_slot": "legs",
     "chrome_type": "external",
     "shortname": "BS-L3G5",
@@ -564,6 +591,7 @@ AS_CYBERLEG_SET = {
     "key": "AnSteel Cyberleg Set",
     "aliases": ["cyberlegs", "as-l3g5", "ansteel legs", "cyber legs"],
     "desc": "An AnSteel Cyberleg Set - a matched pair of stock standard full cyberleg replacements complete with thighs, lower legs, and feet. The distinctive AnSteel muscle design features angular myomer bundles and sleek chrome plating. Replaces lost or damaged limbs with enhanced mechanical alternatives. Four module slots allow for extensive customization. The artificial muscles provide significant strength, dexterity, and reflex improvements.",
+    "worn_desc": "Their legs have been replaced with powerful chrome cyberlegs, the angular AnSteel myomer bundles clearly visible through the polished chrome.",
     "chrome_slot": "legs",
     "chrome_type": "external",
     "shortname": "AS-L3G5",
@@ -584,6 +612,7 @@ BS_CYBERLEG = {
     "key": "BaoSteel Cyberleg",
     "aliases": ["cyberleg", "bs-l3g", "baosteel leg", "cyber leg"],
     "desc": "A single BaoSteel Cyberleg - a stock standard full cyberleg replacement complete with thigh, lower leg, and foot. The distinctive BaoSteel muscle design features hexagonal myomer bundles and chrome plating. Replaces a lost or damaged limb with an enhanced mechanical alternative. Two module slots allow for customization.",
+    "worn_desc": "Their leg has been replaced with a powerful chrome cyberleg, the hexagonal BaoSteel myomer bundles visible through the plating.",
     "chrome_slot": "leg",
     "chrome_type": "external",
     "shortname": "BS-L3G",
@@ -603,6 +632,7 @@ AS_CYBERLEG = {
     "key": "AnSteel Cyberleg",
     "aliases": ["cyberleg", "as-l3g", "ansteel leg", "cyber leg"],
     "desc": "A single AnSteel Cyberleg - a stock standard full cyberleg replacement complete with thigh, lower leg, and foot. The distinctive AnSteel muscle design features angular myomer bundles and sleek chrome plating. Replaces a lost or damaged limb with an enhanced mechanical alternative. Two module slots allow for customization.",
+    "worn_desc": "Their leg has been replaced with a powerful chrome cyberleg, the angular AnSteel myomer bundles visible through the plating.",
     "chrome_slot": "leg",
     "chrome_type": "external",
     "shortname": "AS-L3G",
@@ -622,6 +652,7 @@ BS_CYBERFEET_SET = {
     "key": "BaoSteel Cyberfeet Set",
     "aliases": ["cyberfeet", "bs-f33t", "baosteel feet", "cyber feet"],
     "desc": "A BaoSteel Cyberfeet Set - a matched pair of stock standard cyberfoot replacements. The distinctive BaoSteel design features hexagonal joint articulation and chrome plating. Replaces lost or damaged feet with enhanced mechanical alternatives. The artificial joints provide improved dexterity and reflex response.",
+    "worn_desc": "Their feet have been replaced with sleek chrome cyberfeet, the hexagonal joint articulation of BaoSteel engineering visible.",
     "chrome_slot": "feet",
     "chrome_type": "external",
     "shortname": "BS-F33T",
@@ -640,6 +671,7 @@ AS_CYBERFEET_SET = {
     "key": "AnSteel Cyberfeet Set",
     "aliases": ["cyberfeet", "as-f33t", "ansteel feet", "cyber feet"],
     "desc": "An AnSteel Cyberfeet Set - a matched pair of stock standard cyberfoot replacements. The distinctive AnSteel design features angular joint articulation and sleek chrome plating. Replaces lost or damaged feet with enhanced mechanical alternatives. The artificial joints provide improved dexterity and reflex response.",
+    "worn_desc": "Their feet have been replaced with sleek chrome cyberfeet, the angular joint articulation of AnSteel engineering visible.",
     "chrome_slot": "feet",
     "chrome_type": "external",
     "shortname": "AS-F33T",
@@ -658,6 +690,7 @@ BS_CYBERFOOT = {
     "key": "BaoSteel Cyberfoot",
     "aliases": ["cyberfoot", "bs-f00t", "baosteel foot", "cyber foot"],
     "desc": "A single BaoSteel Cyberfoot - a stock standard cyberfoot replacement. The distinctive BaoSteel design features hexagonal joint articulation and chrome plating. Replaces a lost or damaged foot with an enhanced mechanical alternative.",
+    "worn_desc": "Their foot has been replaced with a sleek chrome cyberfoot, the hexagonal BaoSteel joint articulation visible.",
     "chrome_slot": "foot",
     "chrome_type": "external",
     "shortname": "BS-F00T",
@@ -676,6 +709,7 @@ AS_CYBERFOOT = {
     "key": "AnSteel Cyberfoot",
     "aliases": ["cyberfoot", "as-f00t", "ansteel foot", "cyber foot"],
     "desc": "A single AnSteel Cyberfoot - a stock standard cyberfoot replacement. The distinctive AnSteel design features angular joint articulation and sleek chrome plating. Replaces a lost or damaged foot with an enhanced mechanical alternative.",
+    "worn_desc": "Their foot has been replaced with a sleek chrome cyberfoot, the angular AnSteel joint articulation visible.",
     "chrome_slot": "foot",
     "chrome_type": "external",
     "shortname": "AS-F00T",
