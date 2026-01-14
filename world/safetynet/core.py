@@ -69,7 +69,7 @@ class SafetyNetManager(DefaultScript):
             "display_name": str,  # Original case handle name
             "owner_id": int,      # Character ID who created it
             "password": str,      # Single password for this handle
-            "ice_rating": int,    # Security level 1-10
+            "ice_rating": int,    # Security level 1-100
             "created": datetime,  # When created
             "session_char_id": int or None,  # Currently logged in character ID
         }

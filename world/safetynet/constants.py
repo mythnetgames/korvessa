@@ -51,7 +51,7 @@ COMPUTER_DELAY_LOGIN = 0.3
 DEFAULT_ICE_RATING = 1
 
 # Maximum ICE rating
-MAX_ICE_RATING = 10
+MAX_ICE_RATING = 100
 
 # ICE difficulty modifiers
 ICE_ONLINE_MODIFIER = -2  # Easier to hack when online

@@ -61,7 +61,7 @@ class CmdSafetyNet(Command):
         sn/passchange <handle>=<old>- Change password (generates new)
         sn/ice <handle>             - Scan a handle's ICE profile
         sn/hack <handle>            - Attempt to hack a handle
-        sn/upgrade <handle>=<level> - Upgrade your ICE (1-10)
+        sn/upgrade <handle>=<level> - Upgrade your ICE (1-100)
         sn/whois <handle>           - Look up handle info
     
     Requires a Wristpad or Computer to access.
@@ -82,7 +82,7 @@ class CmdSafetyNet(Command):
             return
         
         # Parse switches
-        switches = self.switches
+        switches = getattr(self, 'switches', []) or []
         args = self.args.strip() if self.args else ""
         
         # Route to appropriate handler
@@ -576,7 +576,7 @@ class CmdSafetyNet(Command):
                 is_current = current and current.get("display_name") == name
                 marker = " |g[ACTIVE]|n" if is_current else ""
                 
-                lines.append(f"  |c{name}|n{marker} - ICE: {ice}/10")
+lines.append(f"  |c{name}|n{marker} - ICE: {ice}/100")
         
         lines.append("|w==================================|n")
         
@@ -741,7 +741,7 @@ class CmdSafetyNet(Command):
         
         if "=" not in args:
             caller.msg("|rUsage: sn/upgrade <handle>=<level>|n")
-            caller.msg("|yICE levels: 1-10 (higher = more secure)|n")
+            caller.msg("|yICE levels: 1-100 (higher = more secure)|n")
             return
         
         handle, level = args.split("=", 1)
@@ -750,7 +750,7 @@ class CmdSafetyNet(Command):
         try:
             level = int(level.strip())
         except ValueError:
-            caller.msg("|rICE level must be a number 1-10.|n")
+            caller.msg("|rICE level must be a number 1-100.|n")
             return
         
         success, message = manager.set_ice_rating(caller, handle, level)
@@ -818,7 +818,7 @@ class CmdSafetyNetAdmin(Command):
     Admin SafetyNet management commands.
     
     Usage:
-        snadmin/ice <handle>=<level>        - Set ICE rating (0-10)
+        snadmin/ice <handle>=<level>        - Set ICE rating (1-100)
         snadmin/reset <handle>              - Reset password
         snadmin/info <handle>               - Show detailed handle info
         snadmin/nuke <handle>               - Delete handle and data
@@ -834,7 +834,7 @@ class CmdSafetyNetAdmin(Command):
     
     def func(self):
         caller = self.caller
-        switches = self.switches
+        switches = getattr(self, 'switches', []) or []
         args = self.args.strip() if self.args else ""
         
         manager = get_safetynet_manager()
@@ -862,7 +862,7 @@ class CmdSafetyNetAdmin(Command):
         output = ["|w=== SafetyNet Admin Commands ===|n"]
         output.append("")
         output.append("|wsnadmin/ice|n <handle>=<level>")
-        output.append("  Set ICE rating for a handle (0-10)")
+        output.append("  Set ICE rating for a handle (1-100)")
         output.append("")
         output.append("|wsnadmin/reset|n <handle>")
         output.append("  Force password reset for a handle")
@@ -892,8 +892,8 @@ class CmdSafetyNetAdmin(Command):
         
         try:
             level = int(level_str)
-            if level < 0 or level > 10:
-                caller.msg("|rICE level must be between 0 and 10.|n")
+            if level < 1 or level > 100:
+                caller.msg("|rICE level must be between 1 and 100.|n")
                 return
         except ValueError:
             caller.msg("|rICE level must be a number.|n")
