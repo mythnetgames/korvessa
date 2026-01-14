@@ -646,7 +646,7 @@ class SafetyNetManager(DefaultScript):
     
     def delete_dm_thread(self, handle_name, other_handle):
         """
-        Delete entire DM thread between two handles.
+        Delete entire DM thread for the requesting handle only (inbox-based).
         
         Args:
             handle_name: The requesting handle
@@ -658,23 +658,16 @@ class SafetyNetManager(DefaultScript):
         handle_key = handle_name.lower()
         other_key = other_handle.lower()
         
-        # Remove DMs received from other
+        # Remove only DMs involving the other party from this handle's inbox
         if handle_key in self.db.dms:
             self.db.dms[handle_key] = [d for d in self.db.dms[handle_key]
                                        if d.get("from_handle", "").lower() != other_key]
         
-        # Remove DMs sent to other (from other's inbox)
-        if other_key in self.db.dms:
-            self.db.dms[other_key] = [d for d in self.db.dms[other_key]
-                                      if d.get("from_handle", "").lower() != handle_key]
-        
-        # Clean up empty entries
+        # Clean up empty entry
         if handle_key in self.db.dms and not self.db.dms[handle_key]:
             del self.db.dms[handle_key]
-        if other_key in self.db.dms and not self.db.dms[other_key]:
-            del self.db.dms[other_key]
         
-        return (True, f"Deleted conversation with {other_handle}.")
+        return (True, f"Deleted conversation with {other_handle} from your inbox.")
     
     # =========================================================================
     # ICE MANAGEMENT
