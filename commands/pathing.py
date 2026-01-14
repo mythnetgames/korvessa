@@ -195,7 +195,16 @@ class CmdPath(Command):
             return
         
         alias = args[0].lower()
-        mode = args[1].lower() if len(args) > 1 else "walk"
+        mode = args[1].lower() if len(args) > 1 else None
+        
+        # If no mode specified, use character's current movement mode
+        if not mode or mode not in ["walk", "jog", "run", "sprint"]:
+            # Try to get character's current movement mode
+            current_mode = getattr(caller.ndb, 'movement_mode', None)
+            if current_mode and current_mode in ["walk", "jog", "run", "sprint"]:
+                mode = current_mode
+            else:
+                mode = "walk"  # Default to walk
         
         # Get debug channel
         from evennia.comms.models import ChannelDB
@@ -208,7 +217,7 @@ class CmdPath(Command):
         if pathing_channel:
             pathing_channel.msg(f"GO_START: {caller.key} requesting path to '{alias}' (mode: {mode})")
         
-        # Validate mode
+        # Validate mode (should always be valid now)
         valid_modes = ["walk", "jog", "run", "sprint"]
         if mode not in valid_modes:
             caller.msg(f"|rInvalid mode '{mode}'.|n Valid modes: {', '.join(valid_modes)}")
