@@ -38,27 +38,25 @@ class RoomTagEffectHandler(DefaultScript):
             self.stop()
             return
         
-        # Get characters in room (include all Character subclasses)
-        characters = [obj for obj in room.contents 
-                     if hasattr(obj, 'has_account') or obj.is_typeclass("typeclasses.characters.Character", exact=False)]
-        
-        from evennia.comms.models import ChannelDB
-        try:
-            splattercast = ChannelDB.objects.get_channel("Splattercast")
-        except:
-            splattercast = None
-        
-        # Debug output
-        if splattercast:
-            splattercast.msg(f"FIRE_DEBUG: at_repeat called, room={room.key}, chars={len(characters)}")
+        # Get only characters (PCs and NPCs), not exits or objects
+        characters = []
+        for obj in room.contents:
+            # Skip non-characters
+            if not hasattr(obj, 'is_typeclass'):
+                continue
+            # Must be a Character typeclass
+            if not obj.is_typeclass("typeclasses.characters.Character", exact=False):
+                continue
+            # Skip dead characters
+            if hasattr(obj, 'is_dead') and obj.is_dead():
+                continue
+            characters.append(obj)
         
         if not characters:
             return
         
         # Process each active tag
         if has_tag(room, "FIRE"):
-            if splattercast:
-                splattercast.msg(f"FIRE_DEBUG: FIRE tag found, calling _handle_on_fire")
             self._handle_on_fire(room, characters)
         
         if has_tag(room, "UNDERWATER"):
@@ -85,15 +83,15 @@ class RoomTagEffectHandler(DefaultScript):
             try:
                 # Random damage message variety
                 messages = [
-                    "|r[!] You're burned by the intense heat!|n",
-                    "|r[!] Flames scorch your skin!|n",
-                    "|r[!] The fire sears you with unbearable pain!|n",
+                    "|rYou are burned by the intense heat!|n",
+                    "|rFlames scorch your skin!|n",
+                    "|rThe fire sears you with unbearable pain!|n",
                 ]
                 char.msg(random.choice(messages))
                 room_messages = [
-                    f"|r[!] {char.key} is burned by the intense heat!|n",
-                    f"|r[!] Flames scorch {char.key}'s skin!|n",
-                    f"|r[!] {char.key} screams as fire sears them!|n",
+                    f"|r{char.key} is burned by the intense heat!|n",
+                    f"|rFlames scorch {char.key}!|n",
+                    f"|r{char.key} screams as fire sears them!|n",
                 ]
                 room.msg_contents(random.choice(room_messages), exclude=[char])
                 
