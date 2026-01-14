@@ -55,7 +55,6 @@ class CmdSafetyNet(Command):
         sn/inbox/next               - Next page of inbox
         sn/thread <handle>          - View DM thread with handle
         sn/search <query>           - Search posts
-        sn/handles                  - List your handles
         sn/register <handle>        - Create a new handle
         sn/delete <handle>=<pass>   - Delete a handle
         sn/passchange <handle>=<old>- Change password (generates new)
@@ -91,7 +90,8 @@ class CmdSafetyNet(Command):
         # Determine the primary command
         if switches:
             # We have switches from /syntax (e.g., sn/register <args>)
-            primary_cmd = switches[0].lower() if switches else None
+            # Strip leading slash if present
+            primary_cmd = switches[0].lower().lstrip('/') if switches else None
         elif lhs:
             # We have lhs from =syntax (e.g., sn register=args)
             primary_cmd = lhs.lower().strip()
@@ -129,8 +129,6 @@ class CmdSafetyNet(Command):
             self.do_thread(device_type, args)
         elif primary_cmd == "search":
             self.do_search(device_type, args)
-        elif primary_cmd == "handles":
-            self.do_handles(device_type)
         elif primary_cmd == "register":
             self.do_register(device_type, args)
         elif primary_cmd == "delete":
@@ -184,7 +182,6 @@ class CmdSafetyNet(Command):
         output.append("  |wsn/dm|n <handle>=<msg>    - Send DM")
         output.append("  |wsn/inbox|n                - View DMs")
         output.append("  |wsn/register|n <handle>    - Create handle")
-        output.append("  |wsn/handles|n              - List your handles")
         output.append("  |wsn/ice|n <handle>         - Scan ICE profile")
         output.append("  |wsn/hack|n <handle>        - Attempt hack")
         output.append("")
@@ -532,32 +529,6 @@ class CmdSafetyNet(Command):
         delay(delay_time, do_search_delayed)
     
     def do_handles(self, device_type):
-        """List character's handles."""
-        caller = self.caller
-        manager = get_safetynet_manager()
-        
-        handles = manager.get_character_handles(caller)
-        
-        lines = []
-        lines.append("|w===== Your SafetyNet Handles =====|n")
-        
-        if not handles:
-            lines.append("|yNo handles. Use sn/register <name> to create one.|n")
-        else:
-            current = manager.get_logged_in_handle(caller)
-            for h in handles:
-                name = h["name"]
-                data = h["data"]
-                ice = data.get("ice_rating", 1)
-                is_current = current and current.get("display_name") == name
-                marker = " |g[ACTIVE]|n" if is_current else ""
-                lines.append(f"  |c{name}|n{marker} - ICE: {ice}/100")
-        
-        lines.append("|w==================================|n")
-        
-        delay_time = get_connection_delay(device_type, "read")
-        delayed_output(caller, "\n".join(lines), delay_time)
-    
     def do_register(self, device_type, args):
         """Register a new handle."""
         caller = self.caller
