@@ -133,23 +133,27 @@ class RoomTagEffectHandler(DefaultScript):
                 char.msg("|cYou are underwater - holding your breath costs stamina.|n")
                 char.ndb.underwater_warned = True
             
-            # Drain stamina
+            # Drain stamina every tick
             if hasattr(char.ndb, 'stamina') and char.ndb.stamina:
                 stamina = char.ndb.stamina
-                old_stamina = stamina.stamina_current
+                old_percent = stamina.stamina_current / stamina.stamina_max if stamina.stamina_max > 0 else 0
+                
+                # Drain stamina
                 stamina.stamina_current = max(0, stamina.stamina_current - UNDERWATER_STAMINA_DRAIN)
+                new_percent = stamina.stamina_current / stamina.stamina_max if stamina.stamina_max > 0 else 0
                 
                 # Warn if stamina is getting low
-                percent = stamina.stamina_current / stamina.stamina_max if stamina.stamina_max > 0 else 0
-                if percent < 0.2 and old_stamina / stamina.stamina_max >= 0.2:
+                if new_percent < 0.2 and old_percent >= 0.2:
                     char.msg("|rYou are running out of air!|n")
-                elif percent <= 0:
-                    # Out of stamina - start drowning damage
-                    char.msg("|rYou are drowning!|n")
-                    room.msg_contents(f"|r{char.key} is drowning!|n", exclude=[char])
-                    # Apply damage (could integrate with medical system)
-                    if hasattr(char, 'db') and hasattr(char.db, 'hp'):
-                        char.db.hp = max(0, (char.db.hp or 0) - 5)
+                
+                # Out of stamina - character dies from drowning
+                if stamina.stamina_current <= 0:
+                    char.msg("|rYou drown!|n")
+                    room.msg_contents(f"|r{char.key} drowns!|n", exclude=[char])
+                    
+                    # Kill the character
+                    if hasattr(char, 'at_death'):
+                        char.at_death(death_cause="drowning")
     
     def _handle_unstable(self, room, characters):
         """Random chance for characters to fall to room below"""
