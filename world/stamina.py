@@ -40,11 +40,11 @@ MOVE_COST = {
 
 # --- Movement Delay (seconds per room move) ---
 MOVE_DELAY = {
-    "STROLL": 4.0,      # Very slow
-    "WALK": 2.5,        # Slow
-    "JOG": 1.5,         # Moderate
-    "RUN": 0.5,         # Fast
-    "SPRINT": 0.0,      # Instant (current speed)
+    "STROLL": 2.0,      # Slow
+    "WALK": 1.0,        # Normal
+    "JOG": 0.5,         # Quick
+    "RUN": 0.25,        # Fast
+    "SPRINT": 0.0,      # Instant
 }
 
 # --- DEX Modifiers ---

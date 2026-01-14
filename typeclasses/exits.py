@@ -81,9 +81,11 @@ class Exit(DefaultExit):
         return verbs.get(tier_name.lower(), {"present": "move", "ingress": "enters", "egress": "leaves"})
     
     def _traverse_with_stamina_messages(self, traversing_object, target_location):
-        """Traverse with custom exit/enter messages based on movement tier."""
+        """Traverse with custom exit/enter messages based on movement tier.
+        
+        Used for non-player characters or when stamina system is not active.
+        """
         # Get movement tier for messaging
-        movement_verb = "moves"
         ingress_verb = "enters"
         egress_verb = "leaves"
         direction = self.key.lower()
@@ -99,7 +101,6 @@ class Exit(DefaultExit):
                     from world.stamina import TIER_NAMES
                     tier_name = TIER_NAMES.get(traversing_object.ndb.stamina.current_tier, "WALK").lower()
                     verbs = self._get_movement_verb(tier_name)
-                    movement_verb = verbs["present"]
                     ingress_verb = verbs["ingress"]
                     egress_verb = verbs["egress"]
         except Exception:
@@ -111,13 +112,16 @@ class Exit(DefaultExit):
             exit_message = f"{traversing_object.key} {egress_verb} to the {direction}."
             source_room.msg_contents(exit_message, exclude=[traversing_object])
         
-        # Actually traverse
-        super(Exit, self).at_traverse(traversing_object, target_location)
+        # Move the character directly (bypasses at_traverse recursion)
+        traversing_object.move_to(target_location, quiet=True)
         
         # Send entry message to destination room
         if traversing_object.location == target_location:
             entry_message = f"{traversing_object.key} {ingress_verb} from the {self._reverse_direction(direction)}."
             target_location.msg_contents(entry_message, exclude=[traversing_object])
+            
+            # Show room to character
+            traversing_object.msg(traversing_object.at_look(target_location))
     
     def _reverse_direction(self, direction):
         """Get the reverse of a direction."""
@@ -149,12 +153,9 @@ class Exit(DefaultExit):
 
     def at_traverse(self, traversing_object, target_location):
         # --- STAMINA MOVEMENT SYSTEM ---
-        # Only apply to characters (not objects/NPCs)
-        # Skip stamina checks if this is a completing delayed move
-        is_completing_delayed_move = getattr(traversing_object.ndb, "completing_delayed_move", False)
-        
+        # Only apply to characters with accounts
         try:
-            if traversing_object.has_account and not is_completing_delayed_move:
+            if traversing_object.has_account:
                 # Get or create stamina component
                 if not hasattr(traversing_object.ndb, "stamina"):
                     from commands.movement import _get_or_create_stamina
@@ -162,10 +163,7 @@ class Exit(DefaultExit):
                 else:
                     stamina = traversing_object.ndb.stamina
                 
-                move_cost = stamina.get_move_cost()
-                move_delay = stamina.get_move_delay()
-                
-                # Check if enough stamina
+                # Check if enough stamina for current tier
                 if not stamina.can_afford_move():
                     # Auto-downgrade to affordable tier
                     from world.stamina import MovementTier, TIER_NAMES
@@ -180,74 +178,96 @@ class Exit(DefaultExit):
                             break
                     
                     if not downgraded:
-                        # Can't afford any movement
                         traversing_object.msg("|rYou are too tired to move! Rest to recover stamina.|n")
                         return
                 
-                # Apply movement delay if needed
+                move_delay = stamina.get_move_delay()
+                
+                # Handle delayed movement
                 if move_delay > 0:
-                    # Store the pending move
-                    if not hasattr(traversing_object.ndb, "pending_move"):
-                        from evennia.utils import delay
-                        from world.stamina import TIER_NAMES
-                        
-                        tier_name = TIER_NAMES[stamina.current_tier].lower()
-                        
-                        # Show movement initiation message
-                        verb = {
-                            "stroll": "strolling",
-                            "walk": "walking", 
-                            "jog": "jogging",
-                            "run": "running"
-                        }.get(tier_name, "moving")
-                        
-                        traversing_object.msg(f"|yYou begin {verb} {self.key}...|n")
+                    # Check if already moving
+                    if getattr(traversing_object.ndb, "moving", False):
+                        return  # Already in transit
+                    
+                    from evennia.utils import delay
+                    from world.stamina import TIER_NAMES
+                    
+                    tier_name = TIER_NAMES[stamina.current_tier].lower()
+                    direction = self.key.lower()
+                    
+                    # Get movement verb
+                    verbs = self._get_movement_verb(tier_name)
+                    
+                    # Send departure message
+                    traversing_object.msg(f"You head {direction}...")
+                    if traversing_object.location:
                         traversing_object.location.msg_contents(
-                            f"{traversing_object.key} begins {verb} {self.key}...",
+                            f"{traversing_object.key} {verbs['egress']} to the {direction}.",
                             exclude=[traversing_object]
                         )
+                    
+                    # Mark as moving
+                    traversing_object.ndb.moving = True
+                    
+                    # Store references for callback
+                    char = traversing_object
+                    dest = target_location
+                    exit_key = self.key
+                    source = traversing_object.location
+                    
+                    def do_move():
+                        # Clear moving flag
+                        if hasattr(char.ndb, "moving"):
+                            del char.ndb.moving
                         
-                        # Mark as having a pending move
-                        traversing_object.ndb.pending_move = True
+                        # Pay stamina
+                        if hasattr(char.ndb, "stamina"):
+                            char.ndb.stamina.pay_move_cost()
                         
-                        # Store references for the callback
-                        exit_obj = self
-                        char_obj = traversing_object
-                        dest = target_location
+                        # Get verbs for arrival message
+                        tier = "walk"
+                        if hasattr(char.ndb, "stamina"):
+                            from world.stamina import TIER_NAMES
+                            tier = TIER_NAMES.get(char.ndb.stamina.current_tier, "WALK").lower()
+                        arrive_verbs = {
+                            "stroll": "strolls in",
+                            "walk": "walks in", 
+                            "jog": "jogs in",
+                            "run": "runs in",
+                            "sprint": "sprints in"
+                        }
+                        arrive_verb = arrive_verbs.get(tier, "arrives")
                         
-                        # Schedule the actual move using the custom message traversal
-                        def complete_move():
-                            # Pay the stamina cost
-                            if hasattr(char_obj.ndb, "stamina"):
-                                char_obj.ndb.stamina.pay_move_cost()
-                            
-                            # Clear pending flag
-                            if hasattr(char_obj.ndb, "pending_move"):
-                                del char_obj.ndb.pending_move
-                            
-                            # Mark as completing delayed move to skip stamina checks
-                            char_obj.ndb.completing_delayed_move = True
-                            
-                            # Execute the traversal with custom movement messages
-                            exit_obj._traverse_with_stamina_messages(char_obj, dest)
-                            
-                            # Clear the flag
-                            if hasattr(char_obj.ndb, "completing_delayed_move"):
-                                del char_obj.ndb.completing_delayed_move
+                        # Move the character directly
+                        char.move_to(dest, quiet=True)
                         
-                        delay(move_delay, complete_move)
-                        return  # Block immediate traversal
-                    else:
-                        # Already have a pending move, ignore this attempt
-                        return
+                        # Send arrival messages
+                        char.msg(char.at_look(dest))
+                        reverse_dir = {
+                            "north": "south", "south": "north", "east": "west", "west": "east",
+                            "northeast": "southwest", "northwest": "southeast", 
+                            "southeast": "northwest", "southwest": "northeast",
+                            "up": "below", "down": "above", "in": "outside", "out": "inside",
+                            "n": "south", "s": "north", "e": "west", "w": "east"
+                        }.get(exit_key.lower(), exit_key)
+                        
+                        dest.msg_contents(
+                            f"{char.key} {arrive_verb} from the {reverse_dir}.",
+                            exclude=[char]
+                        )
+                    
+                    delay(move_delay, do_move)
+                    return  # Block normal traversal
                 
-                # Sprint (instant movement) - pay cost and proceed
-                actual_cost = stamina.pay_move_cost()
+                # Sprint - instant movement with custom messages
+                stamina.pay_move_cost()
+                
+                # Store sprint flag for custom messaging at end
+                traversing_object.ndb.sprint_movement = True
+                
         except Exception as e:
-            # Log stamina system errors but don't block movement
             splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
             splattercast.msg(f"STAMINA_ERROR: {traversing_object.key} traversing {self.key}: {e}")
-            # Continue with normal traversal
         
         # --- DOOR BLOCKING CHECK ---
         direction = self.key.lower()
@@ -616,7 +636,36 @@ class Exit(DefaultExit):
                 return  # Block movement
 
         # Not in combat, standard traversal with movement tier messaging
-        self._traverse_with_stamina_messages(traversing_object, target_location)
+        # Check if this is a sprint that needs custom handling
+        is_sprint = getattr(traversing_object.ndb, "sprint_movement", False)
+        if is_sprint:
+            # Clear the flag
+            del traversing_object.ndb.sprint_movement
+            
+            # Send sprint-specific messages
+            direction = self.key.lower()
+            if traversing_object.location:
+                traversing_object.location.msg_contents(
+                    f"{traversing_object.key} sprints away to the {direction}.",
+                    exclude=[traversing_object]
+                )
+            
+            # Move directly
+            source = traversing_object.location
+            traversing_object.move_to(target_location, quiet=True)
+            
+            # Show room to character
+            traversing_object.msg(traversing_object.at_look(target_location))
+            
+            # Send arrival message
+            reverse_dir = self._reverse_direction(direction)
+            target_location.msg_contents(
+                f"{traversing_object.key} sprints in from the {reverse_dir}.",
+                exclude=[traversing_object]
+            )
+        else:
+            # Non-player or no stamina system - use regular traversal
+            self._traverse_with_stamina_messages(traversing_object, target_location)
         
         # Clear temporary character placement on room change
         if hasattr(traversing_object, 'temp_place'):
