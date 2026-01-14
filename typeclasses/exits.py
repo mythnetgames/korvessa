@@ -16,18 +16,19 @@ from world.combat.constants import SPLATTERCAST_CHANNEL, DB_CHAR, NDB_PROXIMITY_
 from .objects import ObjectParent
 
 class Exit(DefaultExit):
-        def announce_move_from(self, traversing_object, destination):
-            """Suppress default Evennia exit departure message."""
-            return ""
-
-        def announce_move_to(self, traversing_object, source_location):
-            """Suppress default Evennia exit arrival message."""
-            return ""
     """
     Exits are connectors between rooms. Exits are normal Objects except
     they define the `destination` property and override some hooks
     and methods to represent the exits.
     """
+
+    def announce_move_from(self, traversing_object, destination):
+        """Suppress default Evennia exit departure message."""
+        return ""
+
+    def announce_move_to(self, traversing_object, source_location):
+        """Suppress default Evennia exit arrival message."""
+        return ""
 
     def at_object_creation(self):
         super().at_object_creation()
@@ -272,10 +273,10 @@ class Exit(DefaultExit):
                 
                 # Store sprint flag for custom messaging at end
                 traversing_object.ndb.sprint_movement = True
-                
         except Exception as e:
             splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
             splattercast.msg(f"STAMINA_ERROR: {traversing_object.key} traversing {self.key}: {e}")
+            # Fall through to normal traversal on error
         
         # --- DOOR BLOCKING CHECK ---
         direction = self.key.lower()
@@ -643,37 +644,9 @@ class Exit(DefaultExit):
                 splattercast.msg(f"{traversing_object.key} tried to move via exit '{self.key}' while in combat. Drag conditions not met (grappling: {bool(grappled_victim_obj)}, yielding: {is_yielding}, targeted_by_others_not_victim: {is_targeted_by_others_not_victim}).")
                 return  # Block movement
 
-        # Not in combat, standard traversal with movement tier messaging
-        # Check if this is a sprint that needs custom handling
-        is_sprint = getattr(traversing_object.ndb, "sprint_movement", False)
-        if is_sprint:
-            # Clear the flag
-            del traversing_object.ndb.sprint_movement
-            
-            # Send sprint-specific messages
-            direction = self.key.lower()
-            if traversing_object.location:
-                traversing_object.location.msg_contents(
-                    f"{traversing_object.key} sprints away to the {direction}.",
-                    exclude=[traversing_object]
-                )
-            
-            # Move directly
-            traversing_object.move_to(target_location, quiet=True)
-            
-            # Show room to character
-            traversing_object.msg(traversing_object.at_look(target_location))
-            
-            # Send arrival message
-            reverse_dir = self._reverse_direction(direction)
-            target_location.msg_contents(
-                f"{traversing_object.key} sprints in from the {reverse_dir}.",
-                exclude=[traversing_object]
-            )
-            return  # Don't continue to other traversal code
-        else:
-            # Non-player or no stamina system - use regular traversal
-            self._traverse_with_stamina_messages(traversing_object, target_location)
+        # For now, just call parent at_traverse to ensure movement works
+        # TODO: Re-enable delayed/sprint messaging after confirming exit commands are recognized
+        super().at_traverse(traversing_object, target_location)
         
         # Clear temporary character placement on room change
         if hasattr(traversing_object, 'temp_place'):
