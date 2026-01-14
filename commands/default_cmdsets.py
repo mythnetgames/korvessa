@@ -441,8 +441,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         from commands.diagnose_loop import CmdDiagnoseLoop
         self.add(CmdDiagnoseLoop())       # Admin+: diagnose infinite loops/runaway scripts
         # Add SafetyNet intranet social system commands
-        from commands.CmdSafetyNet import CmdSafetyNet
+        from commands.CmdSafetyNet import CmdSafetyNet, CmdSafetyNetAdmin
         self.add(CmdSafetyNet())          # Player: SafetyNet social system
+        self.add(CmdSafetyNetAdmin())     # Builder+: SafetyNet admin commands
         # Add SafetyNet device spawning commands
         from commands.CmdSpawnSafetyNet import (
             CmdSpawnSafetyNetDevice, CmdSpawnWristpad, CmdSpawnComputer, CmdSpawnPortableComputer
