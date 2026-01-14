@@ -188,7 +188,7 @@ class Account(DefaultAccount):
             # Staff/admins bypass character creation - just give them a shell
             if self.is_staff or self.is_superuser:
                 # Don't show menus to staff - they use admin commands
-                self.msg("|gWelcome, staff member. Use |w@charcreate|g to create test characters.|n")
+                self.msg("|gWelcome, staff member. Use |wIC <adminshell>|g to log into your admin character.|n")
                 return
             
             # No active characters - start character creation
