@@ -173,6 +173,36 @@ class Account(DefaultAccount):
         # Use Evennia's account.characters (the _playable_characters list) - this is the authoritative source
         all_characters = self.characters.all()
         
+        # Clean up any incomplete character creation attempts
+        # Delete characters without proper initialization (no stats set)
+        for char in list(all_characters):
+            # Check if character has basic stats initialized
+            has_stats = (
+                hasattr(char, 'body') and char.body is not None and
+                hasattr(char, 'ref') and char.ref is not None and
+                hasattr(char, 'edge') and char.edge is not None
+            )
+            
+            # If no stats, this is an incomplete creation - delete it
+            if not has_stats:
+                char_name = char.key if char else "Unknown"
+                try:
+                    char.delete()
+                    self.msg(f"|yIncomplete character '{char_name}' removed.|n")
+                except Exception:
+                    pass  # Silently ignore deletion errors
+        
+        # Clear any lingering chargen NDB data
+        if hasattr(self.ndb, 'charcreate_is_respawn'):
+            del self.ndb.charcreate_is_respawn
+        if hasattr(self.ndb, 'charcreate_old_character'):
+            del self.ndb.charcreate_old_character
+        if hasattr(self.ndb, 'charcreate_data'):
+            del self.ndb.charcreate_data
+        
+        # Re-fetch characters after cleanup
+        all_characters = self.characters.all()
+        
         # Filter for active (non-archived) characters
         # Be defensive: only treat explicitly archived=True as archived
         active_chars = []
