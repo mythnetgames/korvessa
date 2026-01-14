@@ -66,7 +66,9 @@ class CmdChromeInstall(Command):
         # Apply chrome stat bonuses from prototype
         if chrome_proto.get("buffs") and isinstance(chrome_proto["buffs"], dict):
             for stat, bonus in chrome_proto["buffs"].items():
-                current = getattr(target.db, stat, 0) if hasattr(target.db, stat) else 0
+                current = getattr(target.db, stat, None)
+                if current is None:
+                    current = 0
                 setattr(target.db, stat, current + bonus)
         
         self.caller.msg(f"You install '{chrome_name}' into {target.key}. Surgery auto-succeeds for builders.")
@@ -145,7 +147,9 @@ class CmdChromeUninstall(Command):
         # Remove chrome stat bonuses
         if chrome_proto.get("buffs") and isinstance(chrome_proto["buffs"], dict):
             for stat, bonus in chrome_proto["buffs"].items():
-                current = getattr(target.db, stat, 0) if hasattr(target.db, stat) else 0
+                current = getattr(target.db, stat, None)
+                if current is None:
+                    current = 0
                 setattr(target.db, stat, current - bonus)
         
         # Move chrome to installer's inventory
