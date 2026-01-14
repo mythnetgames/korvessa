@@ -29,6 +29,11 @@ class RoomTagEffectHandler(DefaultScript):
     def at_start(self):
         """Called when the script starts running."""
         pass  # Script is now running
+    
+    def at_server_start(self):
+        """Called when server starts - ensure script is running."""
+        if not self.is_active:
+            self.start()
         
     def at_repeat(self):
         """Called every interval to process room effects"""
