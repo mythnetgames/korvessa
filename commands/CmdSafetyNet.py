@@ -769,26 +769,26 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>initiating ice.bypass|n")
         
         def step3():
-            caller.msg("|#00af00>run.crack |#5fff00[|#00af00*****|#5fff00]|n")
+            caller.msg("|#00af00>run.crack |#5fff00[|#00af00***|#5fff00]|n")
         
         def step4():
-            caller.msg("|#00af00>run.crack |#5fff00[|#00af00||||*|#5fff00]|n")
+            caller.msg("|#00af00>run.crack |#5fff00[|#00af00****|#5fff00]|n")
         
         def step5():
-            caller.msg("|#00af00>run.crack |#5fff00[|#00af00|||||#5fff00]|n")
+            caller.msg("|#00af00>run.crack |#5fff00[|#00af00*****|#5fff00]|n")
         
         def step7():
             caller.msg("|#5fd700>>>ICE BREACHED|n")
             caller.msg("|#00d700>>running trace.protocol|n")
         
         def step8():
-            caller.msg("|#00af00>run.trace |#5fff00[|#00af00*****|#5fff00]|n")
+            caller.msg("|#00af00>run.trace |#5fff00[|#00af00***|#5fff00]|n")
         
         def step9():
-            caller.msg("|#00af00>run.trace |#5fff00[|#00af00||||*|#5fff00]|n")
+            caller.msg("|#00af00>run.trace |#5fff00[|#00af00****|#5fff00]|n")
         
         def step10():
-            caller.msg("|#00af00>run.trace |#5fff00[|#00af00|||||#5fff00]|n")
+            caller.msg("|#00af00>run.trace |#5fff00[|#00af00*****|#5fff00]|n")
         
         def final_result():
             result = manager.attempt_hack(caller, handle)
@@ -846,13 +846,11 @@ class CmdSafetyNet(Command):
         delay(base_delay * 3, step3)
         delay(base_delay * 4, step4)
         delay(base_delay * 5, step5)
-        delay(base_delay * 6, step6)
-        delay(base_delay * 7, step7)
-        delay(base_delay * 8, step8)
-        delay(base_delay * 9, step9)
-        delay(base_delay * 10, step10)
-        delay(base_delay * 11, step11)
-        delay(base_delay * 12, final_result)
+        delay(base_delay * 6, step7)
+        delay(base_delay * 7, step8)
+        delay(base_delay * 8, step9)
+        delay(base_delay * 9, step10)
+        delay(base_delay * 10, final_result)
     
     def do_wear(self, device_type, device, args):
         """Attempt to wear down a handle's ICE with hacker cutscene."""
@@ -886,13 +884,13 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>initiating ice.degrade|n")
         
         def step3():
-            caller.msg("|#00af00>run.wear |#5fff00[|#00af00*****|#5fff00]|n")
+            caller.msg("|#00af00>run.wear |#5fff00[|#00af00***|#5fff00]|n")
         
         def step4():
-            caller.msg("|#00af00>run.wear |#5fff00[|#00af00||||*|#5fff00]|n")
+            caller.msg("|#00af00>run.wear |#5fff00[|#00af00****|#5fff00]|n")
         
         def step5():
-            caller.msg("|#00af00>run.wear |#5fff00[|#00af00|||||#5fff00]|n")
+            caller.msg("|#00af00>run.wear |#5fff00[|#00af00*****|#5fff00]|n")
         
         def step6():
             caller.msg("|#5fd700>>>ATTACK COMPLETE|n")
@@ -1049,16 +1047,16 @@ class CmdSafetyNet(Command):
             caller.msg("|#00d700>>initiating ice.upgrade|n")
         
         def step3():
-            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00*|#5fff00****]|#00af00|n")
+            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00***|#5fff00]|n")
         
         def step4():
-            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00||#5fff00|||*]|#00af00|n")
+            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00****|#5fff00]|n")
         
         def step5():
-            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00||||#5fff00|*]|#00af00|n")
+            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00*****|#5fff00]|n")
         
         def step6():
-            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00|||||#5fff00]|#00af00|n")
+            caller.msg("|#00af00>run.enhance |#5fff00[|#00af00*****|#5fff00]|n")
         
         def step7():
             caller.msg("|#5fd700>>>ENHANCEMENT COMPLETE|n")
