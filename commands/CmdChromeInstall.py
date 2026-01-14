@@ -89,13 +89,13 @@ class CmdChromeInstall(Command):
                 current_max = getattr(target, max_stat, None)
                 if current_max is None:
                     current_max = 5
-                # Increase max stat
-                setattr(target.db, max_stat, current_max + bonus)
+                # Increase max stat (use target directly, not target.db for AttributeProperty)
+                setattr(target, max_stat, current_max + bonus)
                 # Also increase current stat
                 current_val = getattr(target, short_stat, None)
                 if current_val is None:
                     current_val = current_max
-                setattr(target.db, short_stat, current_val + bonus)
+                setattr(target, short_stat, current_val + bonus)
                 self.caller.msg(f"|yDEBUG: Applied +{bonus} to {short_stat} (now {current_val + bonus}/{current_max + bonus})|n")
         
         # Apply empathy cost (reduce max empathy)
@@ -106,14 +106,14 @@ class CmdChromeInstall(Command):
             self.caller.msg(f"|yDEBUG: Current max_emp before: {current_max_emp}|n")
             if current_max_emp is None:
                 current_max_emp = 10
-            target.db.max_emp = current_max_emp - empathy_cost
-            self.caller.msg(f"|yDEBUG: New max_emp after: {target.db.max_emp}|n")
+            target.max_emp = current_max_emp - empathy_cost
+            self.caller.msg(f"|yDEBUG: New max_emp after: {target.max_emp}|n")
             # Also reduce current empathy if it exceeds new max
             current_emp = getattr(target, "emp", None)
             if current_emp is None:
-                current_emp = target.db.max_emp
-            if current_emp > target.db.max_emp:
-                target.db.emp = target.db.max_emp
+                current_emp = target.max_emp
+            if current_emp > target.max_emp:
+                target.emp = target.max_emp
         
         self.caller.msg(f"You install '{chrome_name}' into {target.key}. Surgery auto-succeeds for builders.")
         target.msg(f"{self.caller.key} installs '{chrome_name}' into you. You feel different.")
@@ -214,11 +214,11 @@ class CmdChromeUninstall(Command):
                 # Get current max value from character
                 current_max = getattr(target, max_stat, None)
                 if current_max is not None:
-                    setattr(target.db, max_stat, current_max - bonus)
+                    setattr(target, max_stat, current_max - bonus)
                 # Also decrease current stat
                 current_val = getattr(target, short_stat, None)
                 if current_val is not None:
-                    setattr(target.db, short_stat, current_val - bonus)
+                    setattr(target, short_stat, current_val - bonus)
         
         # Restore empathy cost (increase max empathy)
         empathy_cost = chrome_proto.get("empathy_cost", 0)
@@ -226,7 +226,7 @@ class CmdChromeUninstall(Command):
             current_max_emp = getattr(target, "max_emp", None)
             if current_max_emp is None:
                 current_max_emp = 10
-            target.db.max_emp = current_max_emp + empathy_cost
+            target.max_emp = current_max_emp + empathy_cost
         
         self.caller.msg(f"You uninstall '{chrome_name}' from {target.key}. Surgery auto-succeeds for builders.")
         target.msg(f"{self.caller.key} uninstalls '{chrome_name}' from you. You feel different.")
