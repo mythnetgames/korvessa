@@ -59,6 +59,7 @@ class CmdSafetyNet(Command):
         sn passchange <handle>=<old>- Change password (generates new)
         sn ice <handle>             - Scan a handle's ICE profile
         sn hack <handle>            - Attempt to hack a handle
+        sn wear <handle>            - Brute force wear down ICE (risky)
         sn upgrade <handle>=<level> - Upgrade your ICE (1-100)
         sn raise <handle>=<amount>  - Decker: Raise ICE by amount (1-20)
         sn whois <handle>           - Look up handle info
@@ -128,6 +129,8 @@ class CmdSafetyNet(Command):
             self.do_ice(device_type, subargs)
         elif primary_cmd == "hack":
             self.do_hack(device_type, subargs)
+        elif primary_cmd == "wear":
+            self.do_wear(device_type, subargs)
         elif primary_cmd == "upgrade":
             self.do_upgrade(device_type, subargs)
         elif primary_cmd == "raise":
@@ -707,6 +710,44 @@ class CmdSafetyNet(Command):
         delay_time = get_connection_delay(device_type, "hack")
         caller.msg("|y[SafetyNet] Initiating intrusion sequence...|n")
         delay(delay_time, do_hack_delayed)
+    
+    def do_wear(self, device_type, args):
+        """Attempt to wear down a handle's ICE through brute force attack."""
+        caller = self.caller
+        manager = get_safetynet_manager()
+        
+        if not args:
+            caller.msg("|rUsage: sn wear <handle>|n")
+            caller.msg("|y[WARNING]|n Wear attacks are based on your Decking skill.|n")
+            caller.msg("|y[RISK]|n Failure traces your location to the target owner!|n")
+            return
+        
+        handle = args.strip()
+        
+        def do_wear_delayed():
+            result = manager.attempt_wear_ice(caller, handle)
+            
+            lines = []
+            lines.append("|w===== BRUTE FORCE WEAR =====|n")
+            lines.append(f"|yTarget:|n {handle}")
+            
+            if result.get("success"):
+                lines.append(f"|gResult:|n {result['message']}|n")
+                new_rating = result.get("new_rating", "?")
+                lines.append(f"|gNew Rating:|n {new_rating}/100")
+            else:
+                roll = result.get("roll", "?")
+                target = result.get("target_number", "?")
+                lines.append(f"|rResult:|n {result['message']}|n")
+                if result.get("traced"):
+                    lines.append("|r[TRACED]|n Target owner has been alerted to your location!|n")
+            
+            lines.append("|w=============================|n")
+            caller.msg("\n".join(lines))
+        
+        delay_time = get_connection_delay(device_type, "write")
+        caller.msg("|y[SafetyNet] Initiating wear attack...|n")
+        delay(delay_time, do_wear_delayed)
     
     def do_upgrade(self, device_type, args):
         """Upgrade ICE rating for a handle."""

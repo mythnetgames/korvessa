@@ -971,6 +971,84 @@ class SafetyNetManager(DefaultScript):
             pass
         return None
     
+    def attempt_wear_ice(self, attacker, target_handle_name):
+        """
+        Attempt to wear down a handle's ICE through brute force.
+        
+        Skill-based check: higher Decking = easier success.
+        Failure results in 24-hour lockout and traces attacker's location to target owner.
+        
+        Args:
+            attacker: The character attempting the wear
+            target_handle_name: The handle to target
+            
+        Returns:
+            dict with wear results
+        """
+        from world.safetynet.utils import get_character_stat
+        from world.safetynet.constants import MSG_HACK_ALERT
+        
+        target_key = target_handle_name.lower()
+        target_data = self.db.handles.get(target_key)
+        
+        if not target_data:
+            return {
+                "success": False,
+                "message": "Handle not found.",
+                "traced": False,
+            }
+        
+        # Cannot wear down System
+        if target_key == SYSTEM_HANDLE.lower():
+            return {
+                "success": False,
+                "message": "Cannot wear System account.",
+                "traced": False,
+            }
+        
+        # Skill-based check: d100 vs (Decking skill - ice_rating)
+        decking_skill = get_character_stat(attacker, "decking", default=1)
+        ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
+        
+        # Roll d100
+        import random
+        roll = random.randint(1, 100)
+        
+        # Calculate target number: skill - ice (lower ICE = easier to wear down)
+        target_number = decking_skill - ice
+        
+        # Success if roll <= target number
+        success = roll <= target_number
+        
+        result = {
+            "success": success,
+            "traced": False,
+            "roll": roll,
+            "target_number": target_number,
+        }
+        
+        if success:
+            # Reduce ICE by 1 point
+            current_ice = target_data.get("ice_rating", DEFAULT_ICE_RATING)
+            new_ice = max(1, current_ice - 1)
+            target_data["ice_rating"] = new_ice
+            result["message"] = f"Brute force successful (rolled {roll} vs {target_number}). ICE worn down."
+            result["new_rating"] = new_ice
+        else:
+            # Failure: trace attacker and alert target owner
+            result["message"] = f"Brute force failed (rolled {roll} vs {target_number}). ICE countermeasures traced you."
+            result["traced"] = True
+            
+            # Trace attacker's location
+            trace_location = self._trace_location(attacker.id)
+            
+            # Alert the target with trace info
+            target_display = target_data.get("display_name", target_handle_name)
+            trace_msg = f"Wear-down attack from: {trace_location}" if trace_location else "Wear-down attack detected (location unknown)"
+            self.send_dm(SYSTEM_HANDLE, target_display, trace_msg)
+        
+        return result
+    
     # =========================================================================
     # SEARCH
     # =========================================================================
