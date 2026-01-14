@@ -651,7 +651,6 @@ class Exit(DefaultExit):
                 )
             
             # Move directly
-            source = traversing_object.location
             traversing_object.move_to(target_location, quiet=True)
             
             # Show room to character
@@ -663,6 +662,7 @@ class Exit(DefaultExit):
                 f"{traversing_object.key} sprints in from the {reverse_dir}.",
                 exclude=[traversing_object]
             )
+            return  # Don't continue to other traversal code
         else:
             # Non-player or no stamina system - use regular traversal
             self._traverse_with_stamina_messages(traversing_object, target_location)
