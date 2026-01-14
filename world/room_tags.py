@@ -6,7 +6,7 @@ Room tags are settable attributes that affect character interactions and create 
 
 # Active tags - have game effects that occur while in the room
 ACTIVE_TAGS = {
-    "ON FIRE": {
+    "FIRE": {
         "desc": "Burning damage every 5 seconds",
         "icon": "x",
         "color": "|#ff0000",

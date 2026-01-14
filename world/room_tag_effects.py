@@ -41,7 +41,7 @@ class RoomTagEffectHandler(DefaultScript):
             return
         
         # Process each active tag
-        if has_tag(room, "ON FIRE"):
+        if has_tag(room, "FIRE"):
             self._handle_on_fire(room, characters)
         
         if has_tag(room, "UNDERWATER"):

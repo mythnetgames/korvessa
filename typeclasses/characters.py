@@ -314,11 +314,14 @@ class Character(ObjectParent, DefaultCharacter):
         Clears @temp_place when moving to a new room.
         Sends consistent movement messages for other players to see.
         """
-        # Check if exit system already handled messages
+        # Check if exit system already handled messages AND display
         exit_handled = getattr(self.ndb, "_exit_handled_messages", False)
+        if exit_handled:
+            # Exit system handled everything including room display, skip all at_post_move logic
+            return
         
-        # Send custom movement messages to maintain consistency (unless exit handled them)
-        if not exit_handled and source_location and self.location != source_location:
+        # Send custom movement messages to maintain consistency
+        if source_location and self.location != source_location:
             # Try to find the actual exit that was used
             direction = None
             exit_used = None
@@ -358,7 +361,7 @@ class Character(ObjectParent, DefaultCharacter):
         self.ndb.show_room_desc = not mapper_enabled
         
         if mapper_enabled:
-            # Show map view
+            # Show map view (which includes room description)
             from commands.mapper import CmdMap
             cmd = CmdMap()
             cmd.caller = self
