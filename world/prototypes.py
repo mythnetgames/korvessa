@@ -3698,10 +3698,10 @@ WRISTPAD = {
     "desc": "A compact wristpad with a flexible display screen. The device wraps around the forearm, its matte surface dotted with status LEDs and a small speaker grille. When activated, holographic displays project interface elements just above the screen. Standard municipal issue, but the firmware has clearly been modified - the SafetyNet access protocols have been unlocked.",
     "attrs": [
         ("is_wristpad", True),
-        ("coverage", ["left_wrist"]),
-        ("worn_desc", "a compact wristpad with a flickering display"),
+        ("coverage", ["left_arm", "right_arm"]),
+        ("worn_desc", "%N is wearing a compact wristpad with a flickering display"),
         ("weight", 0.3),
-        ("layer", 5),
+        ("layer", 10),
     ],
 }
 
@@ -3714,10 +3714,10 @@ WRISTPAD_DELUXE = {
     "desc": "A sleek Kiroshi TechBand Pro - the premium wristpad favored by corporate executives and high-end fixers. The flexible OLED display wraps seamlessly around the forearm, with haptic feedback so refined you can feel every notification. The brushed titanium frame houses top-of-the-line processing power and an encrypted quantum chip for secure communications. Despite its corporate origins, this unit has been jailbroken to access the open SafetyNet protocols.",
     "attrs": [
         ("is_wristpad", True),
-        ("coverage", ["left_wrist"]),
-        ("worn_desc", "a sleek Kiroshi TechBand with a holographic display"),
+        ("coverage", ["left_arm", "right_arm"]),
+        ("worn_desc", "%N is wearing a sleek Kiroshi TechBand with a holographic display"),
         ("weight", 0.2),
-        ("layer", 5),
+        ("layer", 10),
     ],
 }
 

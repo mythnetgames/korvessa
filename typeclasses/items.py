@@ -1424,7 +1424,7 @@ class Wristpad(Item):
         
         # Wearable on left or right arm as an accessory (thin layer, doesn't block arm)
         self.coverage = ["left_arm", "right_arm"]
-        self.worn_desc = "a compact wristpad with a flickering holographic display"
+        self.worn_desc = "%N is wearing a compact wristpad with a flickering display"
         
         # Light weight
         self.weight = 0.3
