@@ -49,6 +49,10 @@ class AutoWalkScript(DefaultScript):
         # Script does not repeat on its own - we use delay() for variable timing
         self.interval = 0
         self.repeats = 0
+        
+        pathing_channel = get_or_create_channel("Pathing")
+        if pathing_channel:
+            pathing_channel.msg(f"CREATION: AutoWalkScript created")
     
     def at_start(self):
         """Called when script starts."""
@@ -65,10 +69,12 @@ class AutoWalkScript(DefaultScript):
         self.mode = getattr(char.ndb, 'auto_walk_mode', DEFAULT_MODE)
         self.destination_alias = getattr(char.ndb, 'auto_walk_destination', 'destination')
         
+        char.msg("|y[AUTOWALK DEBUG] at_start() called|n")
         if pathing_channel:
             pathing_channel.msg(f"START: {char.key} starting auto-walk to {self.destination_alias} (mode: {self.mode}, path length: {len(self.path)})")
         
         if not self.path:
+            char.msg("|r[AUTOWALK DEBUG] at_start() - empty path!|n")
             char.msg("|yNo path to follow.|n")
             if pathing_channel:
                 pathing_channel.msg(f"START_ERROR: {char.key} - empty path")
@@ -80,6 +86,7 @@ class AutoWalkScript(DefaultScript):
         
         char.msg(f"|gAuto-walk started.|n Mode: |w{self.mode}|n, {len(self.path)} steps to {self.destination_alias}.")
         char.msg("|yType any movement command or |wpath stop|y to cancel.|n")
+        char.msg(f"|y[AUTOWALK DEBUG] Scheduling first step in 0.5s|n")
         
         if pathing_channel:
             pathing_channel.msg(f"START_INFO: {char.key} mode={self.mode}, stamina_cost={stamina_cost}, step_delay={step_delay}")
@@ -310,15 +317,19 @@ def start_auto_walk(character, path, mode="walk", destination_alias="destination
     """
     pathing_channel = get_or_create_channel("Pathing")
     
+    character.msg(f"|y[START_AUTO_WALK] Called with path length: {len(path) if path else 0}|n")
+    
     if pathing_channel:
         pathing_channel.msg(f"START_WALK: {character.key if character else 'None'} - path length: {len(path) if path else 0}, mode: {mode}")
     
     if not character or not path:
+        character.msg(f"|r[START_AUTO_WALK] Failed: char={bool(character)}, path={bool(path)}|n")
         if pathing_channel:
             pathing_channel.msg(f"START_WALK_ERROR: char={bool(character)}, path={bool(path)}")
         return False
     
     # Cancel any existing auto-walk
+    character.msg(f"|y[START_AUTO_WALK] Cancelling any existing auto-walk|n")
     cancel_auto_walk(character, silent=True)
     
     # Validate mode
@@ -328,21 +339,34 @@ def start_auto_walk(character, path, mode="walk", destination_alias="destination
             pathing_channel.msg(f"START_WALK_MODE: {character.key} - invalid mode, using {DEFAULT_MODE}")
     
     # Store path data on character
+    character.msg(f"|y[START_AUTO_WALK] Storing path data in NDB|n")
     character.ndb.auto_walk_path = path
     character.ndb.auto_walk_mode = mode
     character.ndb.auto_walk_destination = destination_alias
     character.ndb.auto_walk_cancelled = False
+    
+    character.msg(f"|y[START_AUTO_WALK] Path stored: {len(path)} steps|n")
     
     if pathing_channel:
         pathing_channel.msg(f"START_WALK_STORED: {character.key} - NDB state set, path length: {len(path)}")
     
     # Create and start the script
     try:
+        character.msg(f"|y[START_AUTO_WALK] Creating AutoWalkScript|n")
         script = character.scripts.add(AutoWalkScript, key="auto_walk_script")
         if pathing_channel:
             pathing_channel.msg(f"START_WALK_SCRIPT: {character.key} - script created: {script}")
+        
+        character.msg(f"|y[START_AUTO_WALK] Script created, calling start()|n")
+        # Actually start the script
+        script.start()
+        if pathing_channel:
+            pathing_channel.msg(f"START_WALK_STARTED: {character.key} - script.start() called")
+        
+        character.msg(f"|g[START_AUTO_WALK] Script started successfully!|n")
         return True
     except Exception as e:
+        character.msg(f"|r[START_AUTO_WALK] Exception: {e}|n")
         if pathing_channel:
             pathing_channel.msg(f"START_WALK_ERROR: {character.key} - failed to create script: {e}")
         return False
