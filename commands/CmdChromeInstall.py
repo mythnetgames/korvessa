@@ -57,14 +57,19 @@ class CmdChromeInstall(Command):
         chrome_list = target.db.installed_chrome_list
         if chrome_list is None:
             chrome_list = []
-        chrome_list.append({
+        chrome_entry = {
             "name": chrome_name,
             "shortname": shortname,
             "slot": chrome_proto.get("chrome_slot"),
             "type": chrome_proto.get("chrome_type"),
             "empathy_cost": chrome_proto.get("empathy_cost", 0)
-        })
+        }
+        chrome_list.append(chrome_entry)
         target.db.installed_chrome_list = chrome_list
+        
+        # Debug output
+        self.caller.msg(f"|yDEBUG: Stored chrome entry: {chrome_entry}|n")
+        self.caller.msg(f"|yDEBUG: Chrome list now: {target.db.installed_chrome_list}|n")
         
         # Apply chrome stat bonuses from prototype
         if chrome_proto.get("buffs") and isinstance(chrome_proto["buffs"], dict):
@@ -73,14 +78,18 @@ class CmdChromeInstall(Command):
                 if current is None:
                     current = 0
                 setattr(target.db, stat, current + bonus)
+                self.caller.msg(f"|yDEBUG: Applied +{bonus} to {stat}|n")
         
         # Apply empathy cost (reduce max empathy)
         empathy_cost = chrome_proto.get("empathy_cost", 0)
+        self.caller.msg(f"|yDEBUG: Empathy cost from proto: {empathy_cost}|n")
         if empathy_cost:
             current_max_emp = target.db.max_emp
+            self.caller.msg(f"|yDEBUG: Current max_emp before: {current_max_emp}|n")
             if current_max_emp is None:
                 current_max_emp = 10
             target.db.max_emp = current_max_emp - empathy_cost
+            self.caller.msg(f"|yDEBUG: New max_emp after: {target.db.max_emp}|n")
             # Also reduce current empathy if it exceeds new max
             current_emp = target.db.emp
             if current_emp is None:
