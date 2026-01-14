@@ -224,10 +224,14 @@ class CmdMap(Command):
                 else:
                     other_lines.append(line)
             wrapped_lines = []
-            for line in other_lines:
-                # Wrap to column width
-                wrapped = textwrap.fill(line.strip(), width=column_width)
-                wrapped_lines.extend(wrapped.split('\n'))
+            for i, line in enumerate(other_lines):
+                # Don't wrap the first line (room name with tags) - let it overflow
+                if i == 0 and line.startswith('|c'):
+                    wrapped_lines.append(line)
+                else:
+                    # Wrap to column width
+                    wrapped = textwrap.fill(line.strip(), width=column_width)
+                    wrapped_lines.extend(wrapped.split('\n'))
             desc_lines = wrapped_lines
             if exit_line:
                 wrapped = textwrap.fill(exit_line.strip(), width=column_width)
