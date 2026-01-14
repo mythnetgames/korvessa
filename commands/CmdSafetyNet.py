@@ -739,10 +739,20 @@ class CmdSafetyNet(Command):
         caller = self.caller
         manager = get_safetynet_manager()
         
+        # Check for cooldown from critical failure
+        import time
+        raise_cooldown = getattr(caller.ndb, 'raise_cooldown', None)
+        if raise_cooldown is not None and isinstance(raise_cooldown, (int, float)):
+            current_time = time.time()
+            if current_time < raise_cooldown:
+                remaining = int(raise_cooldown - current_time)
+                caller.msg(f"|r[SYSTEM LOCKED]|n Systems still recovering. Try again in {remaining} seconds.|n")
+                return
+        
         if "=" not in args:
             caller.msg("|rUsage: sn raise <handle>=<amount>|n")
             caller.msg("|yAmount: 1-20 per action|n")
-            caller.msg("|yRisk: Failure lowers ICE, critical failure sets to 1|n")
+            caller.msg("|yRisk: Failure locks you out, critical failure locks you out for 30 seconds|n")
             return
         
         handle, amount_str = args.split("=", 1)
@@ -756,6 +766,12 @@ class CmdSafetyNet(Command):
         
         def do_raise_delayed():
             success, message, new_rating, result_type = manager.raise_ice(caller, handle, amount)
+            
+            # Set cooldown on critical failure
+            if result_type == 'critfail':
+                import time
+                cooldown_duration = 30  # 30 second cooldown on critical failure
+                caller.ndb.raise_cooldown = time.time() + cooldown_duration
             
             if success:
                 caller.msg(f"{message}")

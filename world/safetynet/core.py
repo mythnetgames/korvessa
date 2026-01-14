@@ -799,11 +799,8 @@ class SafetyNetManager(DefaultScript):
             self.db.handles[handle_key]["ice_rating"] = new_ice
             return (True, f"|G[CRITICAL SUCCESS]|n Perfectly raised ICE on {handle_name} by {amount}!", new_ice, 'critsuccess')
         elif roll == 100:
-            # Always critical failure on 100
-            self.db.handles[handle_key]["ice_rating"] = 1
-            # Alert the account owner
-            self._alert_ice_collapse(handle_key, decker)
-            return (True, f"|r[CRITICAL FAILURE]|n ICE on {handle_name} collapsed to 1!", 1, 'critfail')
+            # Always critical failure on 100 - just lock out without changing anything
+            return (True, f"|r[CRITICAL FAILURE]|n System locked out. Try again later.", current_ice, 'critfail')
         elif roll <= target_number:
             # Success - raise ICE as requested
             new_ice = min(current_ice + amount, MAX_ICE_RATING)
