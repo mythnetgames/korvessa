@@ -596,6 +596,9 @@ class SafetyNetManager(DefaultScript):
         handle_key = handle_name.lower()
         dms = self.db.dms.get(handle_key, [])
         
+        # Filter out hidden messages
+        dms = [d for d in dms if handle_key not in d.get("hidden_for", [])]
+        
         if unread_only:
             dms = [d for d in dms if not d.get("read", False)]
         
@@ -630,13 +633,15 @@ class SafetyNetManager(DefaultScript):
         handle_key = handle_name.lower()
         other_key = other_handle.lower()
         
-        # Get DMs received from other
+        # Get DMs received from other (excluding hidden ones)
         received = [d for d in self.db.dms.get(handle_key, []) 
-                    if d.get("from_handle", "").lower() == other_key]
+                    if d.get("from_handle", "").lower() == other_key
+                    and handle_key not in d.get("hidden_for", [])]
         
-        # Get DMs sent to other
+        # Get DMs sent to other (excluding hidden ones)
         sent = [d for d in self.db.dms.get(other_key, [])
-                if d.get("from_handle", "").lower() == handle_key]
+                if d.get("from_handle", "").lower() == handle_key
+                and handle_key not in d.get("hidden_for", [])]
         
         # Combine and sort
         all_dms = received + sent
@@ -647,6 +652,7 @@ class SafetyNetManager(DefaultScript):
     def delete_dm_thread(self, handle_name, other_handle):
         """
         Delete entire DM thread for the requesting handle only (inbox-based).
+        Marks messages as hidden for this user without affecting other party.
         
         Args:
             handle_name: The requesting handle
@@ -658,14 +664,23 @@ class SafetyNetManager(DefaultScript):
         handle_key = handle_name.lower()
         other_key = other_handle.lower()
         
-        # Remove only DMs involving the other party from this handle's inbox
+        # Mark DMs received from other as hidden for this user
         if handle_key in self.db.dms:
-            self.db.dms[handle_key] = [d for d in self.db.dms[handle_key]
-                                       if d.get("from_handle", "").lower() != other_key]
+            for dm in self.db.dms[handle_key]:
+                if dm.get("from_handle", "").lower() == other_key:
+                    if "hidden_for" not in dm:
+                        dm["hidden_for"] = []
+                    if handle_key not in dm["hidden_for"]:
+                        dm["hidden_for"].append(handle_key)
         
-        # Clean up empty entry
-        if handle_key in self.db.dms and not self.db.dms[handle_key]:
-            del self.db.dms[handle_key]
+        # Mark DMs sent to other as hidden for this user
+        if other_key in self.db.dms:
+            for dm in self.db.dms[other_key]:
+                if dm.get("from_handle", "").lower() == handle_key:
+                    if "hidden_for" not in dm:
+                        dm["hidden_for"] = []
+                    if handle_key not in dm["hidden_for"]:
+                        dm["hidden_for"].append(handle_key)
         
         return (True, f"Deleted conversation with {other_handle} from your inbox.")
     
