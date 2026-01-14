@@ -810,11 +810,8 @@ class SafetyNetManager(DefaultScript):
             self.db.handles[handle_key]["ice_rating"] = new_ice
             return (True, f"|g[SUCCESS]|n Raised ICE on {handle_name} by {amount}.", new_ice, 'success')
         else:
-            # Failure - reduce ICE
-            reduction = random.randint(1, amount)
-            new_ice = max(1, current_ice - reduction)
-            self.db.handles[handle_key]["ice_rating"] = new_ice
-            return (True, f"|y[FAILED]|n ICE on {handle_name} degraded by {reduction}.", new_ice, 'failure')
+            # Failure - no change to ICE (prevents exploitation)
+            return (True, f"|y[FAILED]|n The enhancement failed. ICE remains unchanged.", current_ice, 'failure')
     
     def _alert_ice_collapse(self, handle_key, decker):
         """Alert account owner when ICE catastrophically fails."""
