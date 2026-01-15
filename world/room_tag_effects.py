@@ -128,8 +128,9 @@ class RoomTagEffectHandler(DefaultScript):
                     splattercast.msg(f"FIRE_ERROR on {char.key}: {e}")
     
     def _handle_underwater(self, room, characters):
-        """Handle underwater stamina/breath drain"""
+        """Handle underwater stamina/breath drain and lung water accumulation"""
         UNDERWATER_STAMINA_DRAIN = 25  # Stamina points per tick (every 2 seconds) - harsh drain
+        UNDERWATER_LUNG_DAMAGE = 15  # Water accumulation damage per tick
         
         for char in characters:
             # Notify on first tick
@@ -150,14 +151,35 @@ class RoomTagEffectHandler(DefaultScript):
                 if new_percent < 0.2 and old_percent >= 0.2:
                     char.msg("|rYou are running out of air!|n")
                 
-                # Out of stamina - character dies from drowning
+                # Damage lungs when stamina runs out (water seeping into lungs)
                 if stamina.stamina_current <= 0:
-                    char.msg("|rYou drown!|n")
-                    room.msg_contents(f"|r{char.key} drowns!|n", exclude=[char])
+                    char.msg("|rWater fills your lungs as you can no longer hold your breath!|n")
                     
-                    # Kill the character
-                    if hasattr(char, 'at_death'):
-                        char.at_death(death_cause="drowning")
+                    # Apply damage to lungs via medical system
+                    try:
+                        medical_state = getattr(char, 'medical_state', None)
+                        if medical_state:
+                            left_lung = medical_state.get_organ("left_lung")
+                            right_lung = medical_state.get_organ("right_lung")
+                            
+                            if left_lung:
+                                left_lung.take_damage(UNDERWATER_LUNG_DAMAGE, "drowning")
+                            if right_lung:
+                                right_lung.take_damage(UNDERWATER_LUNG_DAMAGE, "drowning")
+                            
+                            # Check if both lungs destroyed
+                            if left_lung and right_lung and left_lung.current_hp <= 0 and right_lung.current_hp <= 0:
+                                char.msg("|rYou drown!|n")
+                                room.msg_contents(f"|r{char.key} drowns!|n", exclude=[char])
+                                if hasattr(char, 'at_death'):
+                                    char.at_death(death_cause="drowning")
+                    except Exception as e:
+                        from evennia.comms.models import ChannelDB
+                        try:
+                            splattercast = ChannelDB.objects.get_channel("Splattercast")
+                            splattercast.msg(f"DROWNING_ERROR on {char.key}: {e}")
+                        except:
+                            pass
     
     def _handle_unstable(self, room, characters):
         """Random chance for characters to fall to room below"""
