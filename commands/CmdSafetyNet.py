@@ -1275,6 +1275,8 @@ class CmdSafetyNetAdmin(Command):
             self.do_admin_nuke(manager, subargs)
         elif primary_cmd == "stats":
             self.do_admin_stats(manager, subargs)
+        elif primary_cmd == "list":
+            self.do_admin_list(manager, subargs)
         else:
             caller.msg(f"|rUnknown admin command: {primary_cmd}|n")
             self.show_admin_help()
@@ -1298,6 +1300,9 @@ class CmdSafetyNetAdmin(Command):
         output.append("")
         output.append("|wsnadmin stats|n")
         output.append("  Show SafetyNet system statistics")
+        output.append("")
+        output.append("|wsnadmin list|n")
+        output.append("  List all handles sorted by most recent")
         output.append("")
         caller.msg("\n".join(output))
     
@@ -1431,6 +1436,47 @@ class CmdSafetyNetAdmin(Command):
         lines.append(f"|wOnline Handles:|n {online_handles}")
         lines.append(f"|wTotal Posts:|n {total_posts}")
         lines.append(f"|wTotal DMs:|n {total_dms}")
+        
+        caller.msg("\n".join(lines))
+    
+    def do_admin_list(self, manager, args):
+        """List all handles sorted by creation date (most recent first)."""
+        caller = self.caller
+        
+        if not manager.db.handles:
+            caller.msg("|yNo handles exist in the system.|n")
+            return
+        
+        # Get all handles and sort by creation date (most recent first)
+        from datetime import datetime, timezone
+        handles_list = []
+        for handle_key, handle_data in manager.db.handles.items():
+            created = handle_data.get('created', datetime.now(timezone.utc))
+            display_name = handle_data.get('display_name', handle_key)
+            ice_rating = handle_data.get('ice_rating', 0)
+            owner_id = handle_data.get('owner_id')
+            is_online = bool(handle_data.get('session_char_id'))
+            handles_list.append({
+                'key': handle_key,
+                'display_name': display_name,
+                'created': created,
+                'ice_rating': ice_rating,
+                'owner_id': owner_id,
+                'is_online': is_online
+            })
+        
+        # Sort by creation date (most recent first)
+        handles_list.sort(key=lambda h: h['created'], reverse=True)
+        
+        # Format output
+        lines = ["|w=== All SafetyNet Handles ===|n"]
+        lines.append(f"|w{'Handle':<20} {'Created':<20} {'ICE':<5} {'Online':<10}|n")
+        lines.append("-" * 60)
+        
+        for h in handles_list:
+            created_str = h['created'].strftime("%Y-%m-%d %H:%M")
+            online_str = "|gON|n" if h['is_online'] else "OFF"
+            lines.append(f"|c{h['display_name']:<20}|n {created_str:<20} {h['ice_rating']:<5} {online_str:<10}")
         
         caller.msg("\n".join(lines))
 
