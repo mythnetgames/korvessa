@@ -1554,7 +1554,11 @@ class OkamaGamebud(Item):
         # User alias for messaging (max 10 chars)
         # Generate random alias by default - can be changed with 'gamebud alias='
         from world.gamebud.core import generate_random_alias
+        from world.gamebud.constants import DEFAULT_ALIAS_COLOR
         self.db.alias = generate_random_alias()
+        
+        # User's chosen alias color - defaults to white
+        self.db.alias_color = DEFAULT_ALIAS_COLOR
         
         # Mute state for notifications
         self.db.muted = False

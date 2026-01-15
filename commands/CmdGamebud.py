@@ -27,6 +27,10 @@ from world.gamebud.constants import (
     MSG_UNMUTED,
     MSG_ALREADY_MUTED,
     MSG_ALREADY_UNMUTED,
+    MSG_COLOR_SET,
+    MSG_INVALID_COLOR,
+    ALIAS_COLOR_NAMES,
+    DEFAULT_ALIAS_COLOR,
     GAMEBUD_HELP,
 )
 
@@ -71,7 +75,7 @@ class CmdGamebud(Command):
             self.do_view(gamebud)
             return
         
-        # Check for = sign (post=msg or alias=name)
+        # Check for = sign (post=msg or alias=name or color=colorname)
         if "=" in args:
             cmd_part, value_part = args.split("=", 1)
             cmd_part = cmd_part.strip().lower()
@@ -81,6 +85,8 @@ class CmdGamebud(Command):
                 self.do_post(gamebud, value_part)
             elif cmd_part == "alias":
                 self.do_alias(gamebud, value_part)
+            elif cmd_part == "color":
+                self.do_color(gamebud, value_part)
             else:
                 caller.msg(f"|rUnknown Gamebud command: {cmd_part}|n")
                 caller.msg(GAMEBUD_HELP)
@@ -156,6 +162,9 @@ class CmdGamebud(Command):
         from world.gamebud.core import generate_random_alias
         alias = gamebud.db.alias or generate_random_alias()
         
+        # Get alias color from device (defaults to white)
+        alias_color = gamebud.db.alias_color or DEFAULT_ALIAS_COLOR
+        
         # Validate message
         if not message:
             caller.msg(MSG_NO_MESSAGE)
@@ -166,9 +175,9 @@ class CmdGamebud(Command):
             caller.msg(f"|yYour message is {len(message)} characters. Max is {MAX_MESSAGE_LENGTH}.|n")
             return
         
-        # Post message
+        # Post message with alias color
         manager = get_gamebud_manager()
-        manager.add_message(alias, message, caller)
+        manager.add_message(alias, message, caller, alias_color)
         
         caller.msg(MSG_POST_SUCCESS)
     
@@ -186,8 +195,9 @@ class CmdGamebud(Command):
             caller.msg(MSG_ALIAS_INVALID)
             return
         
-        # Set alias
+        # Set alias and reset color to white (sockpuppeting anonymity)
         gamebud.db.alias = alias
+        gamebud.db.alias_color = DEFAULT_ALIAS_COLOR
         caller.msg(MSG_ALIAS_SET.format(alias=alias))
     
     def do_mute(self, gamebud):
@@ -211,6 +221,30 @@ class CmdGamebud(Command):
         
         gamebud.db.muted = False
         caller.msg(MSG_UNMUTED)
+    
+    def do_color(self, gamebud, color_name):
+        """Set the color of your alias on the Gamebud."""
+        caller = self.caller
+        
+        if not color_name:
+            caller.msg(MSG_INVALID_COLOR)
+            return
+        
+        # Check if color name is valid
+        color_key = color_name.lower()
+        if color_key not in ALIAS_COLOR_NAMES:
+            caller.msg(MSG_INVALID_COLOR)
+            # Show available colors
+            color_list = ", ".join(sorted(ALIAS_COLOR_NAMES.keys()))
+            caller.msg(f"|yAvailable colors: {color_list}|n")
+            return
+        
+        # Set the alias color
+        alias_color = ALIAS_COLOR_NAMES[color_key]
+        gamebud.db.alias_color = alias_color
+        
+        # Show confirmation with the color applied (use |[ for RGB hex)
+        caller.msg(MSG_COLOR_SET.format(color=f"|[{alias_color}m{color_name}|n"))
 
 
 class GamebudCmdSet(CmdSet):

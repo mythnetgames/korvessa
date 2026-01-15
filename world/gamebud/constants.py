@@ -25,32 +25,65 @@ GAMEBUD_PORT = "80"
 GAMEBUD_IP = "67.420.69.kwc"
 
 # =============================================================================
+# COLOR DEFINITIONS
+# =============================================================================
+
+# Default shell color - always bright white
+DEFAULT_SHELL_COLOR = "W"
+
+# Friendly names for alias colors (IC)
+ALIAS_COLOR_NAMES = {
+    "red": "r",
+    "green": "g",
+    "yellow": "y",
+    "blue": "b",
+    "purple": "m",
+    "cyan": "c",
+    "white": "w",
+    "bright red": "R",
+    "bright green": "G",
+    "bright yellow": "Y",
+    "bright blue": "B",
+    "bright purple": "M",
+    "bright cyan": "C",
+    "bright white": "W",
+}
+
+# Reverse lookup for displaying current color
+ALIAS_COLOR_DISPLAY = {v: k for k, v in ALIAS_COLOR_NAMES.items()}
+
+# Default alias color
+DEFAULT_ALIAS_COLOR = "w"
+
+# =============================================================================
 # DISPLAY STRINGS
 # =============================================================================
 
 # UI Template - the main display
 # Note: || is escaped pipe character in Evennia ANSI
-UI_TEMPLATE = """,_________________________________________________________________,
-( OKAMA(c) 1969 .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
-( .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
-(                         OKAMA GAMEBUD                           )
-())====PORT:{port}====CPU:{cpu}%====PROXY:  NULL====IP:{ip}===(()
-( Alias: {alias:<10} ||>Lobbies|| GameBuds({msg_count} Messages)|| Settings     )
-(      ,-------------------------------------------------------,  )
-(      ||________________Recent Lobbies_________________________||  )
-{messages}(      '-------------------------------------------------------'  )
-(                    [Q W E R T Y U I O P]                        )
-(       /\\           [A S D F G H J K L .]                        )
-(     <-()->         [Z X C V B N M , : ;]                        )
-(       \\/           [1 2 3 4 5 6 7 8 9 0]                        )
-\\_________________________________________________________________/"""
+# {shell} is replaced with shell color code (|W for bright white)
+UI_TEMPLATE = """|[#585858m,_________________________________________________________________,
+|[#8a8a8am{shell}( |[#bcbcbcmOKAMA(c) 1969 |[#585858m.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. |[#8a8a8am{shell})
+|[#8a8a8am{shell}( |[#585858m.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. |[#8a8a8am{shell})
+|[#8a8a8am{shell}(|[#bcbcbcm                         |[#00ffffmOKAMA GAMEBUD|[#bcbcbcm                           |[#8a8a8am{shell})
+|[#8a8a8am{shell}(|[#585858m)|[#bcbcbcm====|[#00ffffmPORT|[#bcbcbcm:|[#ffff00m{port}|[#bcbcbcm====|[#00ffffmCPU|[#bcbcbcm:|[#ffff00m{cpu}%|[#bcbcbcm====|[#00ffffmPROXY|[#bcbcbcm:  |[#ff0000mNULL|[#bcbcbcm====|[#00ffffmIP|[#bcbcbcm:|[#ffff00m{ip}|[#bcbcbcm===|[#585858m(|[#8a8a8am{shell}(
+|[#8a8a8am{shell}( |[#bcbcbcmAlias: |[#ffff00m{alias:<10}|[#bcbcbcm ||>|[#00ffffmLobbies|[#bcbcbcm|| |[#00ffffmGameBuds|[#bcbcbcm(|[#ffff00m{msg_count}|[#bcbcbcm Messages)|| |[#00ffffmSettings|[#bcbcbcm     |[#8a8a8am{shell})
+|[#8a8a8am{shell}(|[#585858m      ,-------------------------------------------------------,  |[#8a8a8am{shell})
+|[#8a8a8am{shell}(|[#585858m      ||________________|[#00ffffmRecent Lobbies|[#585858m_________________________||  |[#8a8a8am{shell})
+{messages}|[#8a8a8am{shell}(|[#585858m      '-------------------------------------------------------'  |[#8a8a8am{shell})
+|[#8a8a8am{shell}(|[#585858m                    [Q W E R T Y U I O P]                        |[#8a8a8am{shell})
+|[#8a8a8am{shell}(|[#585858m       /\\           [A S D F G H J K L .]                        |[#8a8a8am{shell})
+|[#8a8a8am{shell}(|[#585858m     <-()->         [Z X C V B N M , : ;]                        |[#8a8a8am{shell})
+|[#8a8a8am{shell}(|[#585858m       \\/           [1 2 3 4 5 6 7 8 9 0]                        |[#8a8a8am{shell})
+|[#585858m\\_________________________________________________________________/|n"""
 
 # Message line template - name (10 chars) : message (40 chars max)
 # Note: || is escaped pipe character in Evennia ANSI
-MESSAGE_LINE_TEMPLATE = "(      ||C||{name}: {message} ||  )\n"
+# {shell} is shell color, {alias_color} is user's chosen alias color
+MESSAGE_LINE_TEMPLATE = "|[#8a8a8am{shell}(|[#585858m      |||[#00ffffmC|||{alias_color}{name}|[#bcbcbcm: {message} |[#585858m||  |[#8a8a8am{shell})\n"
 
 # Empty message line (matches message line width)
-EMPTY_MESSAGE_LINE = "(      ||                                                     || )\n"
+EMPTY_MESSAGE_LINE = "|[#8a8a8am{shell}(|[#585858m      ||                                                     || |[#8a8a8am{shell})\n"
 
 # =============================================================================
 # MESSAGES
@@ -72,6 +105,10 @@ MSG_MUTED = "|yGamebud notifications muted.|n"
 MSG_UNMUTED = "|gGamebud notifications unmuted.|n"
 MSG_ALREADY_MUTED = "|yGamebud is already muted.|n"
 MSG_ALREADY_UNMUTED = "|yGamebud is already unmuted.|n"
+MSG_COLOR_SET = "|gAlias color set to: |{color}{color_name}|n"
+MSG_INVALID_COLOR = "|rInvalid color. Choose from: {colors}|n"
+MSG_COLOR_SET = "|gAlias color set to: |{color}{color_name}|n"
+MSG_INVALID_COLOR = "|rInvalid color. Choose from: {colors}|n"
 
 # Notification message (beep)
 MSG_NEW_MESSAGE = "|c*beep*|n Your Gamebud chirps - new message from |w{sender}|n!"
@@ -88,6 +125,7 @@ GAMEBUD_HELP = """
   |wgamebud next|n         - View next page of messages
   |wgamebud post=|n<msg>   - Post a message to the lobby
   |wgamebud alias=|n<name> - Set your display alias (max 10 chars)
+  |wgamebud color=|n<col>  - Set your alias color (red, blue, cyan, etc.)
   |wgamebud mute|n         - Turn off new message notifications
   |wgamebud unmute|n       - Turn on new message notifications
 """

@@ -20,6 +20,8 @@ from world.gamebud.constants import (
     MESSAGE_LINE_TEMPLATE,
     EMPTY_MESSAGE_LINE,
     MSG_NEW_MESSAGE,
+    DEFAULT_SHELL_COLOR,
+    DEFAULT_ALIAS_COLOR,
 )
 import random
 import string
@@ -83,6 +85,7 @@ class GamebudManager(DefaultScript):
         {
             "id": int,
             "alias": str,           # Sender display name
+            "alias_color": str,     # ANSI color code for alias
             "message": str,         # The message content
             "timestamp": datetime,  # When posted
             "sender_id": int,       # Character ID who sent it
@@ -97,7 +100,7 @@ class GamebudManager(DefaultScript):
         self.db.messages = []
         self.db.next_id = 1
     
-    def add_message(self, alias, message, sender):
+    def add_message(self, alias, message, sender, alias_color=None):
         """
         Add a new message to the lobby.
         
@@ -105,14 +108,19 @@ class GamebudManager(DefaultScript):
             alias (str): The sender's display alias
             message (str): The message content
             sender: The character object who sent it
+            alias_color (str): ANSI color code for the alias
             
         Returns:
             dict: The created message entry
         """
+        if alias_color is None:
+            alias_color = DEFAULT_ALIAS_COLOR
+            
         # Create message entry
         entry = {
             "id": self.db.next_id,
             "alias": alias[:MAX_ALIAS_LENGTH],
+            "alias_color": alias_color,
             "message": message[:MAX_MESSAGE_LENGTH],
             "timestamp": datetime.now(timezone.utc),
             "sender_id": sender.id if sender else None,
@@ -237,6 +245,9 @@ def format_gamebud_display(gamebud, page=0):
     # Get alias - should always have one (either set or random)
     alias = gamebud.db.alias or generate_random_alias()
     
+    # Shell color is always bright white
+    shell_color = DEFAULT_SHELL_COLOR
+    
     # Get message count
     msg_count = manager.get_message_count()
     
@@ -251,12 +262,19 @@ def format_gamebud_display(gamebud, page=0):
         name = msg["alias"][:10].ljust(10)
         # Message is max 40 chars (to fit display width)
         content = msg["message"][:40].ljust(40)
-        message_lines += MESSAGE_LINE_TEMPLATE.format(name=name, message=content)
+        # Get alias color from message
+        alias_color = msg.get("alias_color", DEFAULT_ALIAS_COLOR)
+        message_lines += MESSAGE_LINE_TEMPLATE.format(
+            name=name, 
+            message=content,
+            shell=f"|{shell_color}",
+            alias_color=f"|[{alias_color}m"
+        )
         messages_shown += 1
     
     # Fill remaining lines if less than 3 messages
     while messages_shown < MESSAGES_PER_PAGE:
-        message_lines += EMPTY_MESSAGE_LINE
+        message_lines += EMPTY_MESSAGE_LINE.format(shell=f"|{shell_color}")
         messages_shown += 1
     
     # Build display
@@ -275,6 +293,7 @@ def format_gamebud_display(gamebud, page=0):
         msg_count=str(msg_count),
         messages=message_lines,
         bar=loading_bar,
+        shell=f"|{shell_color}",
     )
     
     return display
