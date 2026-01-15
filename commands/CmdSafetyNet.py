@@ -1403,12 +1403,19 @@ class CmdSafetyNetAdmin(Command):
         # Find and delete handle
         handle_key = handle_name.lower()
         if handle_key in manager.db.handles:
+            display_name = manager.db.handles[handle_key].get("display_name", handle_name)
             del manager.db.handles[handle_key]
             if handle_key in manager.db.dms:
                 del manager.db.dms[handle_key]
-            caller.msg(f"|rDeleted handle '{handle_name}' and all associated data.|n")
+            caller.msg(f"|rDeleted handle '{display_name}' and all associated data.|n")
         else:
-            caller.msg(f"|rHandle '{handle_name}' not found.|n")
+            # Show available handles for debugging
+            available = list(manager.db.handles.keys())
+            caller.msg(f"|rHandle '{handle_name}' (key: '{handle_key}') not found.|n")
+            if available:
+                caller.msg(f"|yAvailable handles: {', '.join(available[:10])}|n")
+            else:
+                caller.msg("|yNo handles exist in the system.|n")
     
     def do_admin_stats(self, manager, args):
         """Show SafetyNet statistics."""

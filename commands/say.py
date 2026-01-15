@@ -22,46 +22,75 @@ def fix_speech_grammar(text):
     Returns:
         str: Grammar-fixed text
     """
-    # Fix contractions - map common bad spellings to correct contractions
-    contractions = {
-        r'\bIve\b': "I've",
-        r'\bive\b': "I've",
-        r'\bHes\b': "He's",
-        r'\bShe?s\b': "She's",
-        r'\bIts\b': "It's",
-        r'\bThats\b': "That's",
-        r'\bWhats\b': "What's",
-        r'\bWhos\b': "Who's",
-        r'\bWheres\b': "Where's",
-        r'\bWhens\b': "When's",
-        r'\bHows\b': "How's",
-        r'\bIsnt\b': "Isn't",
-        r'\bArent\b': "Aren't",
-        r'\bWasnt\b': "Wasn't",
-        r'\bWerent\b': "Weren't",
-        r'\bHasnt\b': "Hasn't",
-        r'\bHavent\b': "Haven't",
-        r'\bDidnt\b': "Didn't",
-        r'\bDont\b': "Don't",
-        r'\bCant\b': "Can't",
-        r'\bWont\b': "Won't",
-        r'\bCouldnt\b': "Couldn't",
-        r'\bShouldnt\b': "Shouldn't",
-        r'\bWouldnt\b': "Wouldn't",
-        r'\bYoure\b': "You're",
-        r'\bTheyre\b': "They're",
-        r'\bWeve\b': "We've",
-        r'\bTheyve\b': "They've",
-    }
-    
-    for bad, good in contractions.items():
-        text = re.sub(bad, good, text)
-    
-    # Capitalize standalone "i" to "I"
-    # Match 'i' that is either:
-    # - at the start of string, or after space/punctuation
-    # - followed by space, punctuation, or end of string
+    # Capitalize standalone "i" to "I" first
+    # Match 'i' that is not surrounded by letters
     text = re.sub(r'(?<![a-zA-Z])i(?![a-zA-Z])', 'I', text)
+    
+    # Fix contractions - case-insensitive matching
+    # Format: (pattern, replacement)
+    contractions = [
+        (r'\bim\b', "I'm"),
+        (r'\bIm\b', "I'm"),
+        (r'\bive\b', "I've"),
+        (r'\bIve\b', "I've"),
+        (r'\bhes\b', "he's"),
+        (r'\bHes\b', "He's"),
+        (r'\bshes\b', "she's"),
+        (r'\bShes\b', "She's"),
+        (r'\bits\b', "it's"),
+        (r'\bIts\b', "It's"),
+        (r'\bthats\b', "that's"),
+        (r'\bThats\b', "That's"),
+        (r'\bwhats\b', "what's"),
+        (r'\bWhats\b', "What's"),
+        (r'\bwhos\b', "who's"),
+        (r'\bWhos\b', "Who's"),
+        (r'\bwheres\b', "where's"),
+        (r'\bWheres\b', "Where's"),
+        (r'\bwhens\b', "when's"),
+        (r'\bWhens\b', "When's"),
+        (r'\bhows\b', "how's"),
+        (r'\bHows\b', "How's"),
+        (r'\bisnt\b', "isn't"),
+        (r'\bIsnt\b', "Isn't"),
+        (r'\barent\b', "aren't"),
+        (r'\bArent\b', "Aren't"),
+        (r'\bwasnt\b', "wasn't"),
+        (r'\bWasnt\b', "Wasn't"),
+        (r'\bwerent\b', "weren't"),
+        (r'\bWerent\b', "Weren't"),
+        (r'\bhasnt\b', "hasn't"),
+        (r'\bHasnt\b', "Hasn't"),
+        (r'\bhavent\b', "haven't"),
+        (r'\bHavent\b', "Haven't"),
+        (r'\bdidnt\b', "didn't"),
+        (r'\bDidnt\b', "Didn't"),
+        (r'\bdont\b', "don't"),
+        (r'\bDont\b', "Don't"),
+        (r'\bcant\b', "can't"),
+        (r'\bCant\b', "Can't"),
+        (r'\bwont\b', "won't"),
+        (r'\bWont\b', "Won't"),
+        (r'\bcouldnt\b', "couldn't"),
+        (r'\bCouldnt\b', "Couldn't"),
+        (r'\bshouldnt\b', "shouldn't"),
+        (r'\bShouldnt\b', "Shouldn't"),
+        (r'\bwouldnt\b', "wouldn't"),
+        (r'\bWouldnt\b', "Wouldn't"),
+        (r'\byoure\b', "you're"),
+        (r'\bYoure\b', "You're"),
+        (r'\byouve\b', "you've"),
+        (r'\bYouve\b', "You've"),
+        (r'\btheyre\b', "they're"),
+        (r'\bTheyre\b', "They're"),
+        (r'\bweve\b', "we've"),
+        (r'\bWeve\b', "We've"),
+        (r'\btheyve\b', "they've"),
+        (r'\bTheyve\b', "They've"),
+    ]
+    
+    for pattern, replacement in contractions:
+        text = re.sub(pattern, replacement, text)
     
     return text
 
