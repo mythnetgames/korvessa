@@ -475,7 +475,20 @@ def check_disguise_slip(character, trigger_type, **kwargs):
         # Item anonymity has no resistance roll - just chance
         roll = random.randint(1, 100)
         if roll <= base_chance:
-            return (True, "item")
+            # Use a slip counter for combat so it takes multiple hits to fully reveal
+            if trigger_type == "combat":
+                slip_count = getattr(character.ndb, "combat_slip_count", 0) + 1
+                character.ndb.combat_slip_count = slip_count
+                SLIP_THRESHOLD = 2  # Number of slips before full item reveal
+                if slip_count < SLIP_THRESHOLD:
+                    # Warn but do not fully reveal yet
+                    return (True, "item_warning")
+                else:
+                    # Reset counter and actually slip
+                    character.ndb.combat_slip_count = 0
+                    return (True, "item")
+            else:
+                return (True, "item")
     
     # Check skill-based disguise
     disguise = get_active_disguise(character)
@@ -483,22 +496,35 @@ def check_disguise_slip(character, trigger_type, **kwargs):
         # Get disguise skill for resistance
         disguise_skill = getattr(character.db, "disguise", 0)
         edge_stat = getattr(character.db, "edge", 1)
-        
         # Skill reduces slip chance
         skill_reduction = (disguise_skill // 10) * DISGUISE_SKILL_MODIFIER
         adjusted_chance = max(1, base_chance - skill_reduction)
-        
         roll = random.randint(1, 100)
         if roll <= adjusted_chance:
-            # Determine severity based on stability
-            stability = disguise.get("stability", DISGUISE_STABILITY_MAX)
-            if stability < DISGUISE_STABILITY_UNSTABLE:
-                # Already unstable - more likely to fully break
-                if random.randint(1, 100) <= 50:
+            # Use a partial slip counter for combat
+            if trigger_type == "combat":
+                partial_count = getattr(character.ndb, "combat_partial_slip_count", 0) + 1
+                character.ndb.combat_partial_slip_count = partial_count
+                PARTIAL_THRESHOLD = 2  # Number of partials before full slip
+                stability = disguise.get("stability", DISGUISE_STABILITY_MAX)
+                if partial_count < PARTIAL_THRESHOLD:
+                    return (True, "partial")
+                else:
+                    character.ndb.combat_partial_slip_count = 0
+                    # If already unstable, more likely to fully break
+                    if stability < DISGUISE_STABILITY_UNSTABLE:
+                        if random.randint(1, 100) <= 50:
+                            return (True, "full")
+                        return (True, "partial")
                     return (True, "full")
+            else:
+                # Non-combat triggers use original logic
+                stability = disguise.get("stability", DISGUISE_STABILITY_MAX)
+                if stability < DISGUISE_STABILITY_UNSTABLE:
+                    if random.randint(1, 100) <= 50:
+                        return (True, "full")
+                    return (True, "partial")
                 return (True, "partial")
-            return (True, "partial")
-    
     return (False, None)
 
 
@@ -514,10 +540,21 @@ def trigger_slip_event(character, slip_type, item=None):
     Returns:
         bool: True if slip occurred
     """
-    if slip_type == "item":
+    if slip_type == "item_warning":
+        # Warning slip: item is jostled but not fully revealed
+        item_name = item.key if item else "hood"
+        character.msg(f"|yYour {item_name} is jostled in the chaos, but you manage to keep it in place... for now.|n")
+        if character.location:
+            _, descriptor = get_anonymity_item(character)
+            name_to_use = descriptor if descriptor else character.key
+            character.location.msg_contents(
+                f"|y{name_to_use}'s {item_name} is nearly knocked loose, but they keep it in place... for now.|n",
+                exclude=[character]
+            )
+        return True
+    elif slip_type == "item":
         # Item-based slip - simple reveal
         character.ndb.identity_slipped = True
-        
         item_name = item.key if item else "hood"
         character.msg(MSG_ITEM_SLIP_SELF.format(item=item_name))
         if character.location:
@@ -528,17 +565,14 @@ def trigger_slip_event(character, slip_type, item=None):
                 MSG_ITEM_SLIP_ROOM.format(name=name_to_use, item=item_name),
                 exclude=[character]
             )
-        
         # Deactivate the anonymity
         if item:
             item.db.anonymity_active = False
-        
         # Mark observers as knowing identity
         if character.location:
             for observer in character.location.contents:
                 if observer != character and hasattr(observer, "db"):
                     mark_identity_known(observer, character)
-        
         return True
     
     elif slip_type == "partial":
@@ -630,19 +664,24 @@ def adjust_anonymity_item(character, item=None):
     if hasattr(character.ndb, NDB_IDENTITY_SLIPPED):
         delattr(character.ndb, NDB_IDENTITY_SLIPPED)
     
-    # Reset emote counter
+    # Reset emote and combat slip counters
     character.ndb.emote_count_since_adjust = 0
+    character.ndb.combat_slip_count = 0
+    character.ndb.combat_partial_slip_count = 0
     
     # Send messages
     character.msg(MSG_ITEM_ADJUSTED.format(item=item.key))
     if character.location:
-        # Show disguised name to each observer
+        # Show disguised name to each observer, plain text only
         for observer in character.location.contents:
             if observer != character:
                 display_name, _ = get_display_identity(character, observer)
-                observer.msg(
-                    MSG_ITEM_ADJUSTED_ROOM.format(name=display_name, item=item.key)
-                )
+                # Remove any color codes from the message
+                msg = MSG_ITEM_ADJUSTED_ROOM.format(name=display_name, item=item.key)
+                # Strip Evennia color codes (|y, |n, etc.) if present
+                import re
+                msg_plain = re.sub(r'\|[a-zA-Z]', '', msg)
+                observer.msg(msg_plain)
     
     return True
 
