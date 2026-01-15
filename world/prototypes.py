@@ -3762,6 +3762,22 @@ PORTABLE_COMPUTER = {
     ],
 }
 
+# Okama Gamebud - retro handheld communication device
+# Note: Each device gets a random alias on creation. If you steal someone's Gamebud, you can post as them!
+OKAMA_GAMEBUD = {
+    "prototype_key": "okama_gamebud",
+    "key": "Okama Gamebud",
+    "typeclass": "typeclasses.items.OkamaGamebud",
+    "aliases": ["gamebud", "okama", "game", "bud"],
+    "desc": "Created in 1971 as a companion to the Okama Gamesphere, the Gamebud took on a life of its own in the Walled City due to its revolutionary ability to communicate with other Gamebuds within 0.002 square miles - roughly twice the size of Kowloon. Easy to jailbreak and hack, they have become the best way for the right kinds of people to communicate with others within the city, without ATT or Tri-Net breathing down their neck. It is a bubbly, hard plastic little thing with a transparent shell that fits in the palm of the hand.",
+    "attrs": [
+        ("is_gamebud", True),
+        ("muted", False),
+        ("current_page", 0),
+        ("weight", 0.2),
+    ],
+}
+
 
 # =============================================================================
 # DISGUISE SYSTEM TEST PROTOTYPES

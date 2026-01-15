@@ -468,6 +468,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         from commands.CmdSafetyNet import CmdSafetyNet, CmdSafetyNetAdmin
         self.add(CmdSafetyNet())          # Player: SafetyNet social system
         self.add(CmdSafetyNetAdmin())     # Builder+: SafetyNet admin commands
+        # Add Okama Gamebud communication system commands
+        from commands.CmdGamebud import CmdGamebud
+        self.add(CmdGamebud())            # Player: Gamebud peer-to-peer messaging
         # Add slotting system commands
         from commands.slotting import CmdSlot, CmdUnslot
         self.add(CmdSlot())               # Player: slot items into devices
