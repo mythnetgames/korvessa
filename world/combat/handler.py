@@ -783,6 +783,10 @@ class CombatHandler(DefaultScript):
                 # Grappler uses BODY + grappling skill to hold on
                 escaper_body = getattr(char.db, "body", 1) or 1
                 escaper_dex = getattr(char.db, "dexterity", 1) or 1
+                escaper_dodge = getattr(char.db, "dodge", 0) or 0
+                if escaper_dodge == 0:
+                    # Fallback: treat 0 dodge as skill level 1
+                    escaper_dodge = 1
                 
                 grappler_grappling = getattr(grappler.db, "grappling", 0) or 0
                 using_brawling_fallback = False
