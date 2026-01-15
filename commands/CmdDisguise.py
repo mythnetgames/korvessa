@@ -98,18 +98,40 @@ class CmdDisguise(Command):
             msg += f"  Descriptor: {descriptor}\n"
         else:
             # Check if they have an anonymity item that is not active
-            for obj in caller.contents:
-                if hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
-                    item_name_lower = obj.key.lower()
-                    for keyword in ANONYMITY_KEYWORDS:
-                        if keyword in item_name_lower:
-                            msg += f"|wItem Anonymity:|n |yInactive|n (use 'adjust' to activate)\n"
-                            msg += f"  Item: {obj.key}\n"
+            found_inactive = False
+            
+            # Check worn_items database
+            if hasattr(caller.db, "worn_items") and caller.db.worn_items:
+                for location, items_at_location in caller.db.worn_items.items():
+                    for obj in items_at_location:
+                        if obj:
+                            item_name_lower = obj.key.lower()
+                            for keyword in ANONYMITY_KEYWORDS:
+                                if keyword in item_name_lower:
+                                    msg += f"|wItem Anonymity:|n |yInactive|n (use 'adjust' to activate)\n"
+                                    msg += f"  Item: {obj.key}\n"
+                                    found_inactive = True
+                                    break
+                        if found_inactive:
                             break
-                    else:
-                        continue
-                    break
-            else:
+                    if found_inactive:
+                        break
+            
+            # Fallback to currently_worn attribute
+            if not found_inactive:
+                for obj in caller.contents:
+                    if hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
+                        item_name_lower = obj.key.lower()
+                        for keyword in ANONYMITY_KEYWORDS:
+                            if keyword in item_name_lower:
+                                msg += f"|wItem Anonymity:|n |yInactive|n (use 'adjust' to activate)\n"
+                                msg += f"  Item: {obj.key}\n"
+                                found_inactive = True
+                                break
+                        if found_inactive:
+                            break
+            
+            if not found_inactive:
                 msg += "|wItem Anonymity:|n None\n"
         
         # Check skill disguise
@@ -387,22 +409,49 @@ class CmdPullUp(Command):
         
         if self.args:
             item_name = self.args.strip().lower()
-            for obj in caller.contents:
-                if hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
-                    if item_name in obj.key.lower():
-                        target_item = obj
-                        break
-        else:
-            # Auto-find first anonymity-capable worn item
-            for obj in caller.contents:
-                if hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
-                    item_name_lower = obj.key.lower()
-                    for keyword in ANONYMITY_KEYWORDS:
-                        if keyword in item_name_lower:
+            # Check worn items first
+            if hasattr(caller.db, "worn_items") and caller.db.worn_items:
+                for location, items_at_location in caller.db.worn_items.items():
+                    for obj in items_at_location:
+                        if obj and item_name in obj.key.lower():
                             target_item = obj
                             break
                     if target_item:
                         break
+            # Fallback to contents with currently_worn flag
+            if not target_item:
+                for obj in caller.contents:
+                    if hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
+                        if item_name in obj.key.lower():
+                            target_item = obj
+                            break
+        else:
+            # Auto-find first anonymity-capable worn item
+            if hasattr(caller.db, "worn_items") and caller.db.worn_items:
+                for location, items_at_location in caller.db.worn_items.items():
+                    for obj in items_at_location:
+                        if obj:
+                            item_name_lower = obj.key.lower()
+                            for keyword in ANONYMITY_KEYWORDS:
+                                if keyword in item_name_lower:
+                                    target_item = obj
+                                    break
+                        if target_item:
+                            break
+                    if target_item:
+                        break
+            
+            # Fallback to currently_worn attribute
+            if not target_item:
+                for obj in caller.contents:
+                    if hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
+                        item_name_lower = obj.key.lower()
+                        for keyword in ANONYMITY_KEYWORDS:
+                            if keyword in item_name_lower:
+                                target_item = obj
+                                break
+                        if target_item:
+                            break
         
         if not target_item:
             caller.msg("|yYou have nothing that can provide anonymity.|n")
@@ -453,11 +502,22 @@ class CmdPullDown(Command):
         
         if self.args:
             item_name = self.args.strip().lower()
-            for obj in caller.contents:
-                if hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
-                    if item_name in obj.key.lower():
-                        target_item = obj
+            # Check worn items first
+            if hasattr(caller.db, "worn_items") and caller.db.worn_items:
+                for location, items_at_location in caller.db.worn_items.items():
+                    for obj in items_at_location:
+                        if obj and item_name in obj.key.lower():
+                            target_item = obj
+                            break
+                    if target_item:
                         break
+            # Fallback to currently_worn attribute
+            if not target_item:
+                for obj in caller.contents:
+                    if hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
+                        if item_name in obj.key.lower():
+                            target_item = obj
+                            break
         else:
             # Find currently active anonymity item
             target_item, _ = get_anonymity_item(caller)

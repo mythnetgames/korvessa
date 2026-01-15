@@ -67,10 +67,19 @@ def get_anonymity_item(character):
     Returns:
         tuple: (item, descriptor) or (None, None) if no anonymity active
     """
-    # Get all worn items
+    # Get all worn items from character's worn_items tracking
     worn_items = []
+    
+    # Method 1: Check character's worn_items database tracking (primary)
+    if hasattr(character.db, "worn_items") and character.db.worn_items:
+        for location, items_at_location in character.db.worn_items.items():
+            for item in items_at_location:
+                if item and item not in worn_items:
+                    worn_items.append(item)
+    
+    # Method 2: Fallback to checking currently_worn attribute (legacy support)
     for obj in character.contents:
-        if hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
+        if obj not in worn_items and hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
             worn_items.append(obj)
     
     # Check each item for anonymity capability
@@ -542,16 +551,30 @@ def adjust_anonymity_item(character, item=None):
         # Find the anonymity item
         item, _ = get_anonymity_item(character)
         if not item:
-            # Try to find any item that could provide anonymity
+            # Try to find any worn item that could provide anonymity
+            worn_items = []
+            
+            # Get worn items from character tracking
+            if hasattr(character.db, "worn_items") and character.db.worn_items:
+                for location, items_at_location in character.db.worn_items.items():
+                    for worn_obj in items_at_location:
+                        if worn_obj and worn_obj not in worn_items:
+                            worn_items.append(worn_obj)
+            
+            # Fallback to currently_worn attribute
             for obj in character.contents:
-                if hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
-                    item_name_lower = obj.key.lower()
-                    for keyword in ANONYMITY_KEYWORDS:
-                        if keyword in item_name_lower:
-                            item = obj
-                            break
-                    if item:
+                if obj not in worn_items and hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
+                    worn_items.append(obj)
+            
+            # Find anonymity-capable item
+            for obj in worn_items:
+                item_name_lower = obj.key.lower()
+                for keyword in ANONYMITY_KEYWORDS:
+                    if keyword in item_name_lower:
+                        item = obj
                         break
+                if item:
+                    break
     
     if not item:
         return False
