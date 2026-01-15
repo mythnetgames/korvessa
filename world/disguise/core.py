@@ -422,18 +422,50 @@ def get_display_identity(character, looker):
     
     # Priority 1: Check if identity has slipped
     if getattr(character.ndb, NDB_IDENTITY_SLIPPED, False):
+        try:
+            from evennia.comms.models import ChannelDB
+            splat = ChannelDB.objects.get_channel("Splattercast")
+            splat.msg(f"DEBUG get_display_identity: {character.key} returning true_name (slipped)")
+        except:
+            pass
         return (true_name, True)
     
     # Check if looker knows this character's true identity
-    if looker and knows_identity(looker, character):
+    knows = looker and knows_identity(looker, character)
+    try:
+        from evennia.comms.models import ChannelDB
+        splat = ChannelDB.objects.get_channel("Splattercast")
+        splat.msg(f"DEBUG get_display_identity: {character.key} looker={looker.key if looker else None} knows_identity={knows}")
+    except:
+        pass
+    
+    if knows:
+        try:
+            from evennia.comms.models import ChannelDB
+            splat = ChannelDB.objects.get_channel("Splattercast")
+            splat.msg(f"DEBUG get_display_identity: {character.key} returning true_name (knows_identity)")
+        except:
+            pass
         return (true_name, True)
     
     # Priority 2 & 3: Check skill-based disguise
     disguise = get_active_disguise(character)
     if disguise:
         stability = disguise.get("stability", DISGUISE_STABILITY_MAX)
+        try:
+            from evennia.comms.models import ChannelDB
+            splat = ChannelDB.objects.get_channel("Splattercast")
+            splat.msg(f"DEBUG get_display_identity: {character.key} disguise found, stability={stability}")
+        except:
+            pass
         if stability > DISGUISE_STABILITY_BROKEN:
             display_name = disguise.get("display_name")
+            try:
+                from evennia.comms.models import ChannelDB
+                splat = ChannelDB.objects.get_channel("Splattercast")
+                splat.msg(f"DEBUG get_display_identity: {character.key} display_name={display_name}")
+            except:
+                pass
             if display_name:
                 # Debug log
                 try:
@@ -454,6 +486,12 @@ def get_display_identity(character, looker):
         return (descriptor, False)
     
     # Priority 5: True name fallback
+    try:
+        from evennia.comms.models import ChannelDB
+        splat = ChannelDB.objects.get_channel("Splattercast")
+        splat.msg(f"DEBUG get_display_identity: {character.key} returning true_name (fallback)")
+    except:
+        pass
     return (true_name, True)
 
 
