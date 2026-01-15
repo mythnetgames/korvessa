@@ -280,16 +280,12 @@ class CmdMap(Command):
             right = desc_lines[i] if i < len(desc_lines) else ""
             output.append(f"{left}{right}")
         
-        # Row 5: coordinates paired with description line (padded to column 25)
-        coord_line = pad_to_visual_width(coord_str, left_column_width)
-        coord_right = desc_lines[map_grid_height] if map_grid_height < len(desc_lines) else ""
-        output.append(f"{coord_line}{coord_right}")
+        # Row 5: coordinates (no description on this line)
+        output.append(coord_str)
         
-        # Remaining description lines (row 6+) indented to column 25
-        for i in range(map_grid_height + 1, len(desc_lines)):
-            left = " " * left_column_width
-            right = desc_lines[i]
-            output.append(f"{left}{right}")
+        # Remaining description lines (row 6+) - full width, no indent
+        for i in range(map_grid_height, len(desc_lines)):
+            output.append(desc_lines[i])
         
         self.caller.msg("\n".join(output), parse=True)
 
