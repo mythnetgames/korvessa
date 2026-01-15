@@ -12,14 +12,14 @@ class CmdNakeds(Command):
     Manage naked body part descriptions for your character.
     
     Usage:
-        @nakeds                           - View all your naked descriptions
-        @naked <bodypart> is <description> - Set a description for a body part
-        @naked <bodypart>/clear           - Clear a description for a body part
+        nakeds                           - View all your naked descriptions
+        naked <bodypart> is <description> - Set a description for a body part
+        naked <bodypart>/clear           - Clear a description for a body part
     
     Examples:
-        @naked reye is "%p right eye bulges as if it is about to fall out of %p head at any moment."
-        @naked face is "%p face is weathered and scarred from years of battle."
-        @naked face/clear
+        naked reye is "%p right eye bulges as if it is about to fall out of %p head at any moment."
+        naked face is "%p face is weathered and scarred from years of battle."
+        naked face/clear
     
     Available body parts:
         leye, reye, lear, rear, head, face, neck, lshoulder, rshoulder, 

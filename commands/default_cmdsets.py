@@ -192,6 +192,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add stats command
         from commands.CmdStats import CmdStats
         self.add(CmdStats())
+        # Add character appearance commands (longdesc, skintone, nakeds)
+        self.add(CmdLongdesc())
+        self.add(CmdSkintone())
         # Add stat adjust command (admin)
         self.add(CmdStatAdjust())
         # Add setstat command (builder and up)
