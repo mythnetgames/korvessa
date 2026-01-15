@@ -57,7 +57,9 @@ class CmdDisguise(Command):
     
     def func(self):
         caller = self.caller
-        args = self.args.strip().lower()
+        # Preserve original args for commands that need capitalization
+        original_args = self.args.strip()
+        args = original_args.lower()
         
         if not args:
             self.show_status()
@@ -72,7 +74,7 @@ class CmdDisguise(Command):
             return
         
         if args.startswith("create "):
-            self.create_profile(args[7:])
+            self.create_profile(original_args[7:])
             return
         
         if args.startswith("select "):
