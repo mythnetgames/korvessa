@@ -914,8 +914,8 @@ def first_char_display_name(caller, raw_string, **kwargs):
             # Return None to re-display current node
             return None
         
-        if not re.match(r"^[a-zA-Z]+$", name):
-            caller.msg(f"|rInvalid name: Only letters allowed.|n")
+        if not re.match(r"^[a-zA-Z\s]+$", name):
+            caller.msg(f"|rInvalid name: Only letters and spaces allowed.|n")
             # Return None to re-display current node
             return None
         
