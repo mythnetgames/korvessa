@@ -858,11 +858,11 @@ class SafetyNetManager(DefaultScript):
         
         # SMARTS MODIFIER - Intelligence is CRITICAL for decking
         # SMARTS 7 is baseline (0 modifier)
-        # Above 7: +7 per point / Below 7: -10 per point
+        # Above 7: +7 per point / Below 7: -20 per point
         if smarts >= 7:
             smarts_bonus = (smarts - 7) * 7
         else:
-            smarts_bonus = (smarts - 7) * 10
+            smarts_bonus = (smarts - 7) * 20
         
         # Get decker's skill - try multiple storage formats
         decking_skill = getattr(decker.db, 'decking', 0) or 0
