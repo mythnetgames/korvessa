@@ -242,8 +242,8 @@ class CmdReleaseGrapple(Command):
     help_category = "Combat"
 
     def func(self):
-        from world.combat.grappling import break_grapple
         from world.combat.constants import DB_CHAR, DB_GRAPPLING_DBREF, DB_GRAPPLED_BY_DBREF, DB_IS_YIELDING
+        from world.combat.utils import get_character_by_dbref
         
         caller = self.caller
         handler = getattr(caller.ndb, "combat_handler", None)
@@ -258,24 +258,47 @@ class CmdReleaseGrapple(Command):
             caller.msg("You are not properly registered in combat.")
             return
 
-        # Check if grappling someone
-        victim_obj = handler.get_grappling_obj(caller_entry)
-        if not victim_obj:
+        # Check if grappling someone - get the dbref
+        grappling_dbref = caller_entry.get(DB_GRAPPLING_DBREF)
+        if not grappling_dbref:
             caller.msg("You are not grappling anyone.")
             return
 
-        # Immediately release the grapple
-        break_grapple(handler, caller, victim_obj)
-        caller.msg(f"You release your grapple on {victim_obj.key}.")
-        victim_obj.msg(f"{caller.key} releases their grapple on you.")
+        # Get victim for messaging
+        victim_obj = get_character_by_dbref(grappling_dbref)
         
-        # Both parties become non-aggressive after releasing
-        caller_entry[DB_IS_YIELDING] = True
-        victim_entry = next((e for e in handler.db.combatants if e["char"] == victim_obj), None)
-        if victim_entry:
-            victim_entry[DB_IS_YIELDING] = True
+        # Clear caller's grappling
+        caller_entry[DB_GRAPPLING_DBREF] = None
         
-        log_combat_action(caller, "release_action", victim_obj, details="released grapple and ceased aggression")
+        # Clear victim's grappled_by (find by matching their grappled_by_dbref to caller's ID)
+        caller_dbref = None
+        try:
+            # Get caller's dbref for comparison
+            if hasattr(caller, 'dbref'):
+                caller_dbref = int(caller.dbref.replace('#', ''))
+            elif hasattr(caller, 'id'):
+                caller_dbref = caller.id
+        except:
+            pass
+        
+        if caller_dbref:
+            for entry in handler.db.combatants:
+                if entry.get(DB_GRAPPLED_BY_DBREF) == caller_dbref:
+                    entry[DB_GRAPPLED_BY_DBREF] = None
+                    break
+        
+        # Both parties become non-aggressive (make all yielding to end combat)
+        for entry in handler.db.combatants:
+            entry[DB_IS_YIELDING] = True
+        
+        # Send messages
+        if victim_obj:
+            caller.msg(f"You release your grapple on {victim_obj.key}.")
+            victim_obj.msg(f"{caller.key} releases their grapple on you.")
+        else:
+            caller.msg("You release your grapple.")
+        
+        log_combat_action(caller, "release_action", victim_obj, details="released grapple and ended aggression")
 
 
 class CmdDisarm(Command):

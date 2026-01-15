@@ -653,11 +653,11 @@ class CombatHandler(DefaultScript):
             for entry in combatants_list:
                 char = entry.get(DB_CHAR)
                 if char and char.location:
-                    char.msg("|gWith all hostilities ceased, the confrontation comes to a peaceful end.|n")
+                    char.msg("With all hostilities ceased, the confrontation comes to a peaceful end.")
             # Notify observers in all managed rooms
             for room in managed_rooms:
                 if room:
-                    room.msg_contents("|gThe confrontation ends peacefully as all participants stand down.|n", 
+                    room.msg_contents("The confrontation ends peacefully as all participants stand down.", 
                                     exclude=[entry.get(DB_CHAR) for entry in combatants_list if entry.get(DB_CHAR)])
             self._active_combatants_list = None  # Clear active list tracking
             self.stop_combat_logic()
@@ -735,12 +735,12 @@ class CombatHandler(DefaultScript):
                         splattercast.msg(f"{char.key} is yielding but maintains restraining hold on {grappling_target.key}.")
                         char.msg(f"You maintain a restraining hold on {get_display_name_safe(grappling_target, char)} without violence.")
                         grappling_target.msg(f"{get_display_name_safe(char, grappling_target)} maintains a gentle but firm restraining hold on you.")
-                        msg_contents_disguised(char.location, "|g{char0_name} maintains a restraining hold on {char1_name}.|n", [char, grappling_target], exclude=[char, grappling_target])
+                        msg_contents_disguised(char.location, "{char0_name} maintains a restraining hold on {char1_name}.", [char, grappling_target], exclude=[char, grappling_target])
                     else:
                         # Regular yielding behavior
                         splattercast.msg(f"{char.key} is yielding and takes no hostile action this turn.")
-                        msg_contents_disguised(char.location, "|y{char_name} holds their action, appearing non-hostile.|n", char, exclude=[char])
-                        char.msg("|yYou hold your action, appearing non-hostile.|n")
+                        msg_contents_disguised(char.location, "{char_name} holds their action, appearing non-hostile.", char, exclude=[char])
+                        char.msg("You hold your action, appearing non-hostile.")
                     continue
                 
             # Handle being grappled (auto resist unless yielding)
@@ -762,7 +762,7 @@ class CombatHandler(DefaultScript):
                     # Victim is yielding/accepting restraint - no automatic escape attempt
                     splattercast.msg(f"{char.key} is being grappled by {grappler.key} but is yielding (accepting restraint).")
                     char.msg(f"You remain still in {get_display_name_safe(grappler, char)}'s hold, not resisting.")
-                    msg_contents_disguised(char.location, "|g{char0_name} does not resist {char1_name}'s hold.|n", [char, grappler], exclude=[char])
+                    msg_contents_disguised(char.location, "{char0_name} does not resist {char1_name}'s hold.", [char, grappler], exclude=[char])
                     continue
                     
                 # Victim is not yielding - automatically attempt to escape
@@ -1925,7 +1925,7 @@ class CombatHandler(DefaultScript):
                     establish_proximity(char, grappled_victim)
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RETREAT: Maintained proximity with grappled victim {grappled_victim.key} during retreat.")
             
-            char.msg("|gYou successfully retreat from melee combat.|n")
+            char.msg("You successfully retreat from melee combat.")
             msg_contents_disguised(char.location, "|y{char_name} retreats from melee combat.|n", char, exclude=[char])
             splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RETREAT: {char.key} successfully retreated from melee.")
         else:

@@ -386,27 +386,25 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
         char_entry[DB_IS_YIELDING] = True
         # target_entry[DB_IS_YIELDING] = False  # Keep victim non-yielding for auto-resistance
         
-        char.msg(f"You successfully grapple {target.key}!")
-        target.msg(f"{char.key} grapples you!")
+        char.msg(f"You successfully grapple {get_display_name_safe(target, char)}!")
+        target.msg(f"{get_display_name_safe(char, target)} grapples you!")
         # Note: No auto-yield message for victim since they remain non-yielding to auto-resist
         
         if char.location:
-            char.location.msg_contents(
-                f"{char.key} grapples {target.key}!",
-                exclude=[char, target]
-            )
+            from .handler import msg_contents_disguised
+            msg_contents_disguised(char.location, "{char0_name} grapples {char1_name}!", [char, target], exclude=[char, target])
         
         splattercast.msg(f"GRAPPLE_SUCCESS: {char.key} grappled {target.key}.")
     else:
         # Failure
-        char.msg(f"|yYou fail to grapple {target.key}.|n")
-        target.msg(f"|y{char.key} fails to grapple you.|n")
+        char.msg(f"You fail to grapple {get_display_name_safe(target, char)}.")
+        target.msg(f"{get_display_name_safe(char, target)} fails to grapple you.")
         
         # Check if grappler initiated combat - if so, they should become yielding on failure
         grappler_initiated_combat = char_entry.get("initiated_combat_this_action", False)
         if grappler_initiated_combat:
             char_entry[DB_IS_YIELDING] = True
-            char.msg("|gYour failed grapple attempt leaves you non-aggressive.|n")
+            char.msg("Your failed grapple attempt leaves you non-aggressive.")
             splattercast.msg(f"GRAPPLE_FAIL_YIELD: {char.key} initiated combat with grapple but failed, setting to yielding.")
             
             # Check if target also initiated combat (wasn't already fighting)
@@ -418,20 +416,18 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
                 # Target initiated combat this round AND has no existing combat target
                 # This means they were pulled into combat by the grapple attempt - both should yield
                 target_entry[DB_IS_YIELDING] = True
-                target.msg("|gAfter the failed grapple attempt, you also stand down from aggression.|n")
+                target.msg("After the failed grapple attempt, you also stand down from aggression.")
                 splattercast.msg(f"GRAPPLE_FAIL_YIELD: {target.key} also set to yielding after failed grapple initiation.")
             else:
                 # Target was already in combat with someone else, or didn't initiate combat
                 # They should continue their existing fight
-                target.msg("|rThe failed grapple attempt doesn't deter you from your current fight!|n")
+                target.msg("The failed grapple attempt doesn't deter you from your current fight!")
                 splattercast.msg(f"GRAPPLE_FAIL_CONTINUE: {target.key} continues fighting (already engaged or was already in combat).")
                 # Target should potentially get a bonus or opportunity attack here in future implementation
         
         if char.location:
-            char.location.msg_contents(
-                f"|y{char.key} fails to grapple {target.key}.|n",
-                exclude=[char, target]
-            )
+            from .handler import msg_contents_disguised
+            msg_contents_disguised(char.location, "{char0_name} fails to grapple {char1_name}.", [char, target], exclude=[char, target])
         
         splattercast.msg(f"GRAPPLE_FAIL: {char.key} failed to grapple {target.key}.")
 
@@ -531,29 +527,25 @@ def resolve_grapple_join(char_entry, combatants_list, handler):
         target_entry[DB_GRAPPLED_BY_DBREF] = get_character_dbref(char)
         
         # Success messages
-        char.msg(f"|gYou successfully wrestle {target.key} away from {current_grappler.key}!|n")
-        current_grappler.msg(f"|r{char.key} wrestles {target.key} away from your grasp!|n")
-        target.msg(f"|y{char.key} takes over grappling you from {current_grappler.key}!|n")
+        char.msg(f"You successfully wrestle {get_display_name_safe(target, char)} away from {get_display_name_safe(current_grappler, char)}!")
+        current_grappler.msg(f"{get_display_name_safe(char, current_grappler)} wrestles {get_display_name_safe(target, current_grappler)} away from your grasp!")
+        target.msg(f"{get_display_name_safe(char, target)} takes over grappling you from {get_display_name_safe(current_grappler, target)}!")
         
         if char.location:
-            char.location.msg_contents(
-                f"|g{char.key} wrestles {target.key} away from {current_grappler.key}!|n",
-                exclude=[char, target, current_grappler]
-            )
+            from .handler import msg_contents_disguised
+            msg_contents_disguised(char.location, "{char0_name} wrestles {char1_name} away from {char2_name}!", [char, target, current_grappler], exclude=[char, target, current_grappler])
         
         splattercast.msg(f"GRAPPLE_TAKEOVER: {char.key} took {target.key} from {current_grappler.key}.")
         
     else:
         # Current grappler maintains control
-        char.msg(f"|yYou fail to wrestle {target.key} away from {current_grappler.key}!|n")
-        current_grappler.msg(f"You maintain your grip on {target.key} despite {char.key}'s attempt!")
-        target.msg(f"|y{char.key} tries to take you from {current_grappler.key} but fails!|n")
+        char.msg(f"You fail to wrestle {get_display_name_safe(target, char)} away from {get_display_name_safe(current_grappler, char)}!")
+        current_grappler.msg(f"You maintain your grip on {get_display_name_safe(target, current_grappler)} despite {get_display_name_safe(char, current_grappler)}'s attempt!")
+        target.msg(f"{get_display_name_safe(char, target)} tries to take you from {get_display_name_safe(current_grappler, target)} but fails!")
         
         if char.location:
-            char.location.msg_contents(
-                f"|y{char.key} fails to wrestle {target.key} away from {current_grappler.key}!|n",
-                exclude=[char, target, current_grappler]
-            )
+            from .handler import msg_contents_disguised
+            msg_contents_disguised(char.location, "{char0_name} fails to wrestle {char1_name} away from {char2_name}!", [char, target, current_grappler], exclude=[char, target, current_grappler])
         
         splattercast.msg(f"GRAPPLE_CONTEST_FAIL: {char.key} failed to take {target.key} from {current_grappler.key}.")
         
@@ -561,7 +553,7 @@ def resolve_grapple_join(char_entry, combatants_list, handler):
         initiated_combat = char_entry.get("initiated_combat_this_action", False)
         if initiated_combat:
             char_entry[DB_IS_YIELDING] = True
-            char.msg("|gYour failed grapple attempt leaves you non-aggressive.|n")
+            char.msg("Your failed grapple attempt leaves you non-aggressive.")
             splattercast.msg(f"GRAPPLE_CONTEST_FAIL_YIELD: {char.key} initiated combat but failed contest, setting to yielding.")
 
 
@@ -679,29 +671,25 @@ def resolve_grapple_takeover(char_entry, combatants_list, handler):
         # target remains non-yielding for auto-resistance
         
         # Success messages
-        char.msg(f"|gYou successfully grapple {target.key}, forcing them to release {victim.key}!|n")
-        target.msg(f"|r{char.key} grapples you, forcing you to release {victim.key}!|n")
-        victim.msg(f"|g{target.key} is forced to release you as {char.key} grapples them!|n")
+        char.msg(f"You successfully grapple {get_display_name_safe(target, char)}, forcing them to release {get_display_name_safe(victim, char)}!")
+        target.msg(f"{get_display_name_safe(char, target)} grapples you, forcing you to release {get_display_name_safe(victim, target)}!")
+        victim.msg(f"{get_display_name_safe(target, victim)} is forced to release you as {get_display_name_safe(char, victim)} grapples them!")
         
         if char.location:
-            char.location.msg_contents(
-                f"|g{char.key} grapples {target.key}, forcing them to release {victim.key}!|n",
-                exclude=[char, target, victim]
-            )
+            from .handler import msg_contents_disguised
+            msg_contents_disguised(char.location, "{char0_name} grapples {char1_name}, forcing them to release {char2_name}!", [char, target, victim], exclude=[char, target, victim])
         
         splattercast.msg(f"GRAPPLE_TAKEOVER_SUCCESS: {char.key} grappled {target.key}, forcing release of {victim.key}")
         
     else:
         # Failure: Target maintains their grapple, new grappler fails
-        char.msg(f"|yYou fail to grapple {target.key}, who maintains their hold on {victim.key}!|n")
-        target.msg(f"You resist {char.key}'s grapple attempt and maintain your grip on {victim.key}!")
-        victim.msg(f"|y{char.key} tries to grapple {target.key} but fails - you remain grappled!|n")
+        char.msg(f"You fail to grapple {get_display_name_safe(target, char)}, who maintains their hold on {get_display_name_safe(victim, char)}!")
+        target.msg(f"You resist {get_display_name_safe(char, target)}'s grapple attempt and maintain your grip on {get_display_name_safe(victim, target)}!")
+        victim.msg(f"{get_display_name_safe(char, victim)} tries to grapple {get_display_name_safe(target, victim)} but fails - you remain grappled!")
         
         if char.location:
-            char.location.msg_contents(
-                f"|y{char.key} fails to grapple {target.key}, who maintains their hold on {victim.key}!|n",
-                exclude=[char, target, victim]
-            )
+            from .handler import msg_contents_disguised
+            msg_contents_disguised(char.location, "{char0_name} fails to grapple {char1_name}, who maintains their hold on {char2_name}!", [char, target, victim], exclude=[char, target, victim])
         
         splattercast.msg(f"GRAPPLE_TAKEOVER_FAIL: {char.key} failed to grapple {target.key}, who keeps {victim.key}")
         
@@ -709,7 +697,7 @@ def resolve_grapple_takeover(char_entry, combatants_list, handler):
         initiated_combat = char_entry.get("initiated_combat_this_action", False)
         if initiated_combat:
             char_entry[DB_IS_YIELDING] = True
-            char.msg("|gYour failed grapple attempt leaves you non-aggressive.|n")
+            char.msg("Your failed grapple attempt leaves you non-aggressive.")
             splattercast.msg(f"GRAPPLE_TAKEOVER_FAIL_YIELD: {char.key} initiated combat but failed takeover, setting to yielding.")
 
 
