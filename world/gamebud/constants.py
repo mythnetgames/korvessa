@@ -64,15 +64,15 @@ DEFAULT_ALIAS_COLOR = "w"
 UI_TEMPLATE = """,_________________________________________________________________,
 ( |#5faf00OKAMA|W(c)|n 1969 .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
 ( .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
-(                         |COKAMA GAMEBUD|n                           )
+(                         |#5f8700OKAMA GAMEBUD|n                           )
 ()====PORT:|Y{port}|n====CPU:|Y{cpu}%|n====PROXY:  |rNULL|n====IP:|Y{ip}|n=====()
-( Alias: |Y{alias:<10}|n ||>|#0087ffLobbies|| GameBuds(|Y{msg_count}|n Messages)|| Settings     )
+( Alias: |Y{alias:<10}|n ||>|#0087ffLobbies|n|| |#5f8700GameBuds|n(|Y{msg_count}|n Messages)|| Settings     )
 (      ,-------------------------------------------------------,  )
 (      ||________________Recent Lobbies_________________________||  )
 {messages}(      '-------------------------------------------------------'  )
 (                    [Q W E R T Y U I O P]                        )
 (       /\\           [A S D F G H J K L .]                        )
-(     <-|#ffffdf()|N->         [Z X C V B N M , : ;]                        )
+(     <-|#ffffdf()|n->         [Z X C V B N M , : ;]                        )
 (       \\/           [1 2 3 4 5 6 7 8 9 0]                        )
 \\_________________________________________________________________/|n"""
 
