@@ -458,6 +458,13 @@ def check_disguise_slip(character, trigger_type, **kwargs):
     Returns:
         tuple: (slipped, slip_type) where slip_type is 'item', 'partial', or 'full'
     """
+    # Debug logging
+    try:
+        from evennia.comms.models import ChannelDB
+        splattercast = ChannelDB.objects.get_channel("Splattercast")
+    except Exception:
+        splattercast = None
+    
     # Get character's disguise skill to reduce slip chance
     disguise_skill = getattr(character.db, "disguise", 0) or 0
     
@@ -505,6 +512,8 @@ def check_disguise_slip(character, trigger_type, **kwargs):
     
     # Check item-based anonymity first
     item, descriptor = get_anonymity_item(character)
+    if splattercast:
+        splattercast.msg(f"DISGUISE_CHECK: {character.key} trigger={trigger_type}, has_item={item is not None}, base_chance={base_chance}")
     if item:
         # Item anonymity has no resistance roll - just chance
         roll = random.randint(1, 100)
@@ -559,6 +568,9 @@ def check_disguise_slip(character, trigger_type, **kwargs):
                         return (True, "full")
                     return (True, "partial")
                 return (True, "partial")
+    # No item or skill disguise found
+    if splattercast:
+        splattercast.msg(f"DISGUISE_CHECK: {character.key} has no active disguise or anonymity item - skipping slip check")
     return (False, None)
 
 

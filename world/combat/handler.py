@@ -860,6 +860,7 @@ class CombatHandler(DefaultScript):
             # Process combat action intent
             if combat_action:
                 splattercast.msg(f"AT_REPEAT: {char.key} has action_intent: {combat_action}")
+                splattercast.msg(f"AT_REPEAT_DEBUG: combat_action type={type(combat_action)}, isinstance_str={isinstance(combat_action, str)}")
                 
                 if isinstance(combat_action, str):
                     if combat_action == "grapple_initiate":
@@ -888,6 +889,7 @@ class CombatHandler(DefaultScript):
                         continue
                     elif combat_action == "adjust_anonymity":
                         # Adjust concealment during combat
+                        splattercast.msg(f"AT_REPEAT: Processing adjust_anonymity for {char.key}")
                         from world.disguise.core import adjust_anonymity
                         try:
                             adjust_anonymity(char)
@@ -895,6 +897,7 @@ class CombatHandler(DefaultScript):
                         except Exception as e:
                             splattercast.msg(f"AT_REPEAT_ERROR: Failed to adjust anonymity for {char.key}: {e}")
                         current_char_combat_entry["combat_action"] = None
+                        splattercast.msg(f"AT_REPEAT: Cleared adjust_anonymity action for {char.key}")
                         continue
                     elif combat_action == COMBAT_ACTION_RETREAT:
                         self._resolve_retreat(char, current_char_combat_entry)
@@ -920,6 +923,9 @@ class CombatHandler(DefaultScript):
                         self._resolve_reload(char, current_char_combat_entry)
                         current_char_combat_entry["combat_action"] = None
                         continue
+                    else:
+                        # Unknown string combat action
+                        splattercast.msg(f"AT_REPEAT_WARNING: Unknown string combat_action '{combat_action}' for {char.key}")
                 elif isinstance(combat_action, dict):
                     intent_type = combat_action.get("type")
                     action_target_char = combat_action.get("target")
