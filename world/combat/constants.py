@@ -698,8 +698,8 @@ THROW_FLIGHT_TIME = 2  # seconds
 
 # Round timing
 COMBAT_ROUND_INTERVAL = 6  # seconds - base combat round duration
-STAGGER_DELAY_INTERVAL = 2.5  # seconds - delay between staggered attacks
-MAX_STAGGER_DELAY = 5.0  # seconds - maximum delay to ensure completion before next round
+STAGGER_DELAY_INTERVAL = 2.8  # seconds - delay between staggered attacks
+MAX_STAGGER_DELAY = 5.6  # seconds - maximum delay to ensure completion before next round
 
 # ===================================================================
 # COMBAT STAMINA DRAIN CONSTANTS

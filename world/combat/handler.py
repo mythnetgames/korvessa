@@ -675,7 +675,9 @@ class CombatHandler(DefaultScript):
             splattercast.msg(f"AT_REPEAT: Handler {self.key}. All combatants yielding but active grapples present. Combat continues in restraint mode.")
 
         # Sort combatants by initiative for processing
-        initiative_order = sorted(combatants_list, key=lambda e: e.get("initiative", 0), reverse=True)
+        # Lower initiative attacks first (has stagger delay), higher initiative attacks second
+        # This creates a natural alternation over multiple rounds
+        initiative_order = sorted(combatants_list, key=lambda e: e.get("initiative", 0))
         
         for combat_entry in initiative_order:
             char = combat_entry.get(DB_CHAR)
