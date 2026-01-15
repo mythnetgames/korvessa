@@ -47,32 +47,32 @@ class CmdWho(default_cmds.CmdWho):
         total_players = 0
         invisible_count = 0
         for account in accounts:
-            characters = account.characters
-            if not characters:
+            # Get currently puppeted character (not all characters)
+            character = account.puppet
+            if not character:
                 continue
-            for character in characters:
-                total_players += 1
-                if self.is_invisible(character):
-                    invisible_count += 1
-                    continue
-                location_name = "Hidden"
-                if not self.has_hidden_location(character):
-                    loc = character.location
-                    if loc:
-                        location_name = loc.get_display_name(caller)
-                entry = {
-                    'name': character.get_display_name(caller),
-                    'location': location_name
-                }
-                # Check staff/admin status via account permissions
-                account = getattr(character, 'account', None)
-                is_admin = False
-                if account:
-                    is_admin = account.is_superuser or account.is_staff or account.check_permstring('builders')
-                if is_admin:
-                    admin_players.append(entry)
-                else:
-                    visible_players.append(entry)
+            total_players += 1
+            if self.is_invisible(character):
+                invisible_count += 1
+                continue
+            location_name = "Hidden"
+            if not self.has_hidden_location(character):
+                loc = character.location
+                if loc:
+                    location_name = loc.get_display_name(caller)
+            entry = {
+                'name': character.get_display_name(caller),
+                'location': location_name
+            }
+            # Check staff/admin status via account permissions
+            account = getattr(character, 'account', None)
+            is_admin = False
+            if account:
+                is_admin = account.is_superuser or account.is_staff or account.check_permstring('builders')
+            if is_admin:
+                admin_players.append(entry)
+            else:
+                visible_players.append(entry)
         # Format output
         output = f"|C{'='*70}|n\n"
         if invisible_count:
@@ -104,31 +104,30 @@ class CmdWho(default_cmds.CmdWho):
         invisible_count = 0
         
         for account in accounts:
-            # Get character(s) for this account
-            characters = account.characters
-            if not characters:
+            # Get currently puppeted character (not all characters)
+            character = account.puppet
+            if not character:
                 continue
             
-            for character in characters:
-                is_invis = self.is_invisible(character)
-                if is_invis:
-                    invisible_count += 1
-                
-                # Get location
-                loc = character.location
-                location_name = f"{loc.get_display_name(caller)} #{loc.dbref}" if loc else "None"
-                
-                # Build entry
-                invis_marker = " (invisible)" if is_invis else ""
-                hidden_marker = " (hidden location)" if self.has_hidden_location(character) else ""
-                
-                all_players.append({
-                    'account': account.name,
-                    'character': character.get_display_name(caller),
-                    'location': location_name,
-                    'invisible': is_invis,
-                    'markers': invis_marker + hidden_marker
-                })
+            is_invis = self.is_invisible(character)
+            if is_invis:
+                invisible_count += 1
+            
+            # Get location
+            loc = character.location
+            location_name = f"{loc.get_display_name(caller)} #{loc.dbref}" if loc else "None"
+            
+            # Build entry
+            invis_marker = " (invisible)" if is_invis else ""
+            hidden_marker = " (hidden location)" if self.has_hidden_location(character) else ""
+            
+            all_players.append({
+                'account': account.name,
+                'character': character.get_display_name(caller),
+                'location': location_name,
+                'invisible': is_invis,
+                'markers': invis_marker + hidden_marker
+            })
         
         # Format output
         output = f"|C{'='*80}|n\n"
