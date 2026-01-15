@@ -890,10 +890,13 @@ class CombatHandler(DefaultScript):
                     elif combat_action == "adjust_anonymity":
                         # Adjust concealment during combat
                         splattercast.msg(f"AT_REPEAT: Processing adjust_anonymity for {char.key}")
-                        from world.disguise.core import adjust_anonymity
+                        from world.disguise.core import adjust_anonymity_item
                         try:
-                            adjust_anonymity(char)
-                            splattercast.msg(f"AT_REPEAT: {char.key} successfully adjusted their concealment.")
+                            success = adjust_anonymity_item(char)
+                            if success:
+                                splattercast.msg(f"AT_REPEAT: {char.key} successfully adjusted their concealment.")
+                            else:
+                                splattercast.msg(f"AT_REPEAT: {char.key} has nothing to adjust.")
                         except Exception as e:
                             splattercast.msg(f"AT_REPEAT_ERROR: Failed to adjust anonymity for {char.key}: {e}")
                         current_char_combat_entry["combat_action"] = None
