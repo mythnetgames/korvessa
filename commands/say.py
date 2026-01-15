@@ -22,9 +22,8 @@ def fix_speech_grammar(text):
     Returns:
         str: Grammar-fixed text
     """
-    # Capitalize standalone "i" to "I" first
-    # Match 'i' that is not surrounded by letters
-    text = re.sub(r'(?<![a-zA-Z])i(?![a-zA-Z])', 'I', text)
+    # Capitalize standalone "i" to "I" - match 'i' surrounded by spaces or punctuation
+    text = re.sub(r'(?<![a-zA-Z])\bi\b(?![a-zA-Z])', 'I', text)
     
     # Fix contractions - case-insensitive matching
     # Format: (pattern, replacement)
@@ -77,7 +76,18 @@ def fix_speech_grammar(text):
         (r'\bShouldnt\b', "Shouldn't"),
         (r'\bwouldnt\b', "wouldn't"),
         (r'\bWouldnt\b', "Wouldn't"),
-        (r'\byoure\b', "you're"),
+        (r'\bwouldve\b', "would've"),
+        (r'\bWouldve\b', "Would've"),
+        (r'\bwoulda\b', "would'a"),
+        (r'\bWoulda\b', "Would'a"),
+        (r'\bcouldve\b', "could've"),
+        (r'\bCouldve\b', "Could've"),
+        (r'\bcouldda\b', "could'a"),
+        (r'\bCouldda\b', "Could'a"),
+        (r'\bshouldve\b', "should've"),
+        (r'\bShouldve\b', "Should've"),
+        (r'\bshouldda\b', "should'a"),
+        (r'\bShouldda\b', "Should'a"),
         (r'\bYoure\b', "You're"),
         (r'\byouve\b', "you've"),
         (r'\bYouve\b', "You've"),
