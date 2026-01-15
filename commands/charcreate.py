@@ -919,8 +919,8 @@ def first_char_display_name(caller, raw_string, **kwargs):
             # Return None to re-display current node
             return None
         
-        # Capitalize first letter
-        name = name.capitalize()
+        # Use title case: capitalize first letter of each word
+        name = name.title()
         
         # Check display name uniqueness
         is_valid, error = validate_name(name, account=caller)
