@@ -32,9 +32,9 @@ GAMEBUD_IP = "67.420.69.kwc"
 UI_TEMPLATE = """,_________________________________________________________________,
 ( OKAMA(c) 1971 .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
 ( .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
-(                         OKAMA GAMEBUD                          )
+(                         OKAMA GAMEBUD                           )
 ())====PORT:{port}====CPU:{cpu}%====PROXY:  NULL====IP:{ip}===(()
-( Alias: {alias:<10}   |  Lobbies | GameBuds({msg_count} Messages) | Settings )
+( Alias: {alias:<10}   |  Lobbies | GameBuds({msg_count} Messages) | Settings)
 (      ,______________________________________________________,   )
 (     |_____________________Recent Lobbies_____________________|   )
 {messages}(                    [Q W E R T Y U I O P]                     )
