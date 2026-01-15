@@ -267,14 +267,13 @@ def format_gamebud_display(gamebud, page=0):
         message_lines += MESSAGE_LINE_TEMPLATE.format(
             name=name, 
             message=content,
-            shell=shell_color,
             alias_color=alias_color
         )
         messages_shown += 1
     
     # Fill remaining lines if less than 3 messages
     while messages_shown < MESSAGES_PER_PAGE:
-        message_lines += EMPTY_MESSAGE_LINE.format(shell=shell_color)
+        message_lines += EMPTY_MESSAGE_LINE
         messages_shown += 1
     
     # Build display
@@ -293,7 +292,6 @@ def format_gamebud_display(gamebud, page=0):
         msg_count=str(msg_count),
         messages=message_lines,
         bar=loading_bar,
-        shell=shell_color,
     )
     
     return display
