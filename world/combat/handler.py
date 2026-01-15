@@ -628,7 +628,8 @@ class CombatHandler(DefaultScript):
                     damage_disguise_stability(char, STABILITY_DAMAGE_COMBAT, reason="combat")
                     
                     # Check for slip (only applies if character is disguised)
-                    slipped, slip_type = check_disguise_slip(char, "combat")
+                    # Pass round number so slip chance escalates as combat goes on
+                    slipped, slip_type = check_disguise_slip(char, "combat", round_num=self.db.round)
                     if slipped:
                         item, _ = get_anonymity_item(char)
                         trigger_slip_event(char, slip_type, item=item)
@@ -1583,9 +1584,15 @@ class CombatHandler(DefaultScript):
         from world.combat.constants import get_weapon_skill, SKILL_BRAWLING
         weapon_skill_name = get_weapon_skill(weapon_type)
         
-        # Get attacker's weapon skill level (stored as db attribute, 0-100 scale)
-        # Convert skill name to db attribute format (e.g., "blades" -> character.db.blades)
-        attacker_weapon_skill = getattr(attacker.db, weapon_skill_name, 0) or 0
+        # For unarmed combat, prefer the higher skill between brawling and martial arts
+        if weapon_type == "unarmed":
+            brawling = getattr(attacker.db, "brawling", 0) or 0
+            martial_arts = getattr(attacker.db, "martial_arts", 0) or 0
+            attacker_weapon_skill = max(brawling, martial_arts)
+        else:
+            # Get attacker's weapon skill level (stored as db attribute, 0-100 scale)
+            # Convert skill name to db attribute format (e.g., "blades" -> character.db.blades)
+            attacker_weapon_skill = getattr(attacker.db, weapon_skill_name, 0) or 0
         
         # Get target's dodge skill (0-100 scale)
         target_dodge_skill = getattr(target.db, "dodge", 0) or 0

@@ -453,7 +453,7 @@ def check_disguise_slip(character, trigger_type, **kwargs):
     Args:
         character: The character to check
         trigger_type: Type of trigger ('combat', 'shove', 'run', 'scrutiny', 'emote')
-        **kwargs: Additional context (attacker, damage, etc.)
+        **kwargs: Additional context (round_num for combat escalation, etc.)
         
     Returns:
         tuple: (slipped, slip_type) where slip_type is 'item', 'partial', or 'full'
@@ -461,6 +461,10 @@ def check_disguise_slip(character, trigger_type, **kwargs):
     # Determine base slip chance based on trigger
     if trigger_type == "combat":
         base_chance = SLIP_CHANCE_COMBAT
+        # Escalate chance as combat rounds progress (0.5% increase per round after round 5)
+        round_num = kwargs.get('round_num', 0) or 0
+        if round_num > 5:
+            base_chance = base_chance + ((round_num - 5) * 0.5)
     elif trigger_type == "shove":
         base_chance = SLIP_CHANCE_SHOVE
     elif trigger_type == "run":
@@ -469,8 +473,9 @@ def check_disguise_slip(character, trigger_type, **kwargs):
         base_chance = SLIP_CHANCE_SCRUTINY
     elif trigger_type == "emote":
         # Escalating chance based on emotes since last adjust
-        emote_count = getattr(character.ndb, NDB_EMOTE_COUNT_SINCE_ADJUST, 0)
-        base_chance = SLIP_CHANCE_EMOTE_BASE + (emote_count * SLIP_CHANCE_EMOTE_INCREMENT)
+        emote_count = getattr(character.ndb, NDB_EMOTE_COUNT_SINCE_ADJUST, 0) or 0
+        emote_increment = SLIP_CHANCE_EMOTE_INCREMENT or 1
+        base_chance = (SLIP_CHANCE_EMOTE_BASE or 5) + (emote_count * emote_increment)
         character.ndb.emote_count_since_adjust = emote_count + 1
     else:
         base_chance = 5  # Default small chance
