@@ -547,10 +547,9 @@ def trigger_slip_event(character, slip_type, item=None):
         if character.location:
             _, descriptor = get_anonymity_item(character)
             name_to_use = descriptor if descriptor else character.key
-            character.location.msg_contents(
-                f"|y{name_to_use}'s {item_name} is nearly knocked loose, but they keep it in place... for now.|n",
-                exclude=[character]
-            )
+            # Plain text only for observers
+            msg = f"{name_to_use}'s {item_name} is nearly knocked loose, but they keep it in place... for now."
+            character.location.msg_contents(msg, exclude=[character])
         return True
     elif slip_type == "item":
         # Item-based slip - simple reveal
