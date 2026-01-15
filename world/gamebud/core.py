@@ -249,8 +249,8 @@ def format_gamebud_display(gamebud, page=0):
     for msg in messages:
         # Name is max 10 chars, left aligned
         name = msg["alias"][:10].ljust(10)
-        # Message is max 45 chars (to fit display width)
-        content = msg["message"][:45].ljust(45)
+        # Message is max 40 chars (to fit display width)
+        content = msg["message"][:40].ljust(40)
         message_lines += MESSAGE_LINE_TEMPLATE.format(name=name, message=content)
         messages_shown += 1
     
@@ -260,8 +260,12 @@ def format_gamebud_display(gamebud, page=0):
         messages_shown += 1
     
     # Build display
-    import random
-    cpu = random.randint(85, 99)
+    cpu = random.randint(65, 99)
+    
+    # Generate loading bar based on CPU percentage
+    bar_filled = int(cpu / 10)
+    bar_empty = 10 - bar_filled
+    loading_bar = "|" * bar_filled + "\\*" * min(bar_empty, 3)
     
     display = UI_TEMPLATE.format(
         port=GAMEBUD_PORT.ljust(2),
@@ -270,6 +274,7 @@ def format_gamebud_display(gamebud, page=0):
         alias=alias,
         msg_count=str(msg_count),
         messages=message_lines,
+        bar=loading_bar,
     )
     
     return display

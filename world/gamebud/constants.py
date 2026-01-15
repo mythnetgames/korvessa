@@ -11,8 +11,8 @@ All constants for the Okama Gamebud communication system.
 # Maximum alias length
 MAX_ALIAS_LENGTH = 10
 
-# Maximum message length that fits in the display (45 chars to fit with name)
-MAX_MESSAGE_LENGTH = 45
+# Maximum message length that fits in the display (40 chars to fit with name)
+MAX_MESSAGE_LENGTH = 40
 
 # Number of messages shown at a time
 MESSAGES_PER_PAGE = 3
