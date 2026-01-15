@@ -28,26 +28,26 @@ GAMEBUD_IP = "67.420.69.kwc"
 # DISPLAY STRINGS
 # =============================================================================
 
-# UI Template - the main display
+# UI Template - the main display (all lines 65 chars wide)
 UI_TEMPLATE = """,_________________________________________________________________,
 ( OKAMA(c) 1971 .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
 ( .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
-(                         OKAMA GAMEBUD                           )
+(                         OKAMA GAMEBUD                          )
 ())====PORT:{port}====CPU:{cpu}%====PROXY:  NULL====IP:{ip}===(()
-( Alias: {alias:<10} |>Lobbies| GameBuds({msg_count} Messages)| Settings     )
-(      ,__________________________________________________,       )
-(     |_________________Recent Lobbies____________________|       )
-{messages}(                    [Q W E R T Y U I O P]                        )
-(       /\\           [A S D F G H J K L .]                        )
-(     <-()->         [Z X C V B N M , : ;]                        )
-(       \\/           [1 2 3 4 5 6 7 8 9 O]                        )
-\\________________________________________________________________/"""
+( Alias: {alias:<10}   |  Lobbies | GameBuds({msg_count} Messages) | Settings )
+(      ,______________________________________________________,   )
+(     |_____________________Recent Lobbies_____________________|   )
+{messages}(                    [Q W E R T Y U I O P]                     )
+(       /\\           [A S D F G H J K L .]                     )
+(     <-()->         [Z X C V B N M , : ;]                     )
+(       \\/           [1 2 3 4 5 6 7 8 9 0]                     )
+\_________________________________________________________________/"""
 
 # Message line template - name (10 chars) : message (38 chars max)
-MESSAGE_LINE_TEMPLATE = "(     |C|{name}: {message}|       )\n"
+MESSAGE_LINE_TEMPLATE = "(     |C|{name}: {message}|     )\n"
 
-# Empty message line
-EMPTY_MESSAGE_LINE = "(     |                                                   |       )\n"
+# Empty message line (matches message line width)
+EMPTY_MESSAGE_LINE = "(     |                                         |     )\n"
 
 # =============================================================================
 # MESSAGES
