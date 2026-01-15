@@ -52,6 +52,68 @@ from world.combat.constants import (
 
 
 # ===================================================================
+# DISGUISE CLOTHING DETECTION
+# ===================================================================
+
+DISGUISE_CLOTHING_KEYWORDS = {
+    # Face masks and coverings
+    "mask", "masks", "blindfold", "veil", "patch",
+    
+    # Eye wear
+    "glasses", "shades", "sunglasses", "goggles", "contacts", "contact",
+    
+    # Head coverings
+    "hood", "hoodie", "hoodies", "cowl", "cowls", "wig", "wigs", "hat",
+    "helmet", "beret", "cap", "turban", "headwrap", "headscarf", "wimple",
+    "bonnet", "fascinator", "snood", "coif", "pillbox", "fedora", "bowler",
+    "tophat", "sombrero", "balaclava", "ski mask",
+    
+    # Face wrappings
+    "bandage", "bandages", "wrap", "wraps", "scarf", "kerchief"
+}
+
+
+def count_disguise_clothing(character):
+    """
+    Count valid disguise clothing items worn by character.
+    
+    Disguise clothing includes items like hoods, masks, glasses, scarves, etc.
+    Max 2 items per body location (head nakeds, torso nakeds, etc).
+    
+    Args:
+        character: The character to check
+        
+    Returns:
+        int: Number of valid disguise clothing items (capped at 2 per location)
+    """
+    if not hasattr(character, "db") or not hasattr(character.db, "worn_items"):
+        return 0
+    
+    worn_items = character.db.worn_items or {}
+    clothing_count_by_location = {}
+    total_count = 0
+    
+    for location, items_at_location in worn_items.items():
+        location_count = 0
+        for item in items_at_location:
+            if not item:
+                continue
+            
+            # Check if item name contains disguise clothing keywords
+            item_key_lower = item.key.lower()
+            is_disguise_clothing = any(keyword in item_key_lower for keyword in DISGUISE_CLOTHING_KEYWORDS)
+            
+            if is_disguise_clothing and location_count < 2:
+                location_count += 1
+                total_count += 1
+        
+        if location_count > 0:
+            clothing_count_by_location[location] = location_count
+    
+    return total_count
+
+
+# ===================================================================
 # ITEM-BASED ANONYMITY
 # ===================================================================
 
@@ -264,6 +326,9 @@ def apply_disguise(character, profile_id):
     
     When a disguise is applied, clear this character's identity from all observers'
     known_identities so they see the new disguise, not the true name.
+    
+    Also applies stability boost based on disguise clothing worn (max 2 items per body part).
+    Each valid clothing item adds +10 stability (e.g., hoodie + mask = +20).
 
     Args:
         character: The character to disguise
@@ -279,6 +344,11 @@ def apply_disguise(character, profile_id):
     profile = dict(profiles[profile_id])
     profile["stability"] = DISGUISE_STABILITY_MAX
     profile["profile_id"] = profile_id
+    
+    # Add stability boost from disguise clothing
+    clothing_count = count_disguise_clothing(character)
+    clothing_bonus = clothing_count * 10
+    profile["stability"] = min(100, profile["stability"] + clothing_bonus)
     
     character.db.active_disguise = profile
     
@@ -821,9 +891,12 @@ def recognition_check(observer, target):
     
     This is a DIFFICULT SMARTS check. The observer's own Disguise skill helps
     them understand and pick apart disguise work (takes one to know one).
-    
+
     Observer Roll: SMRT * d10 + snooping + (disguise_skill / 2) + bonuses
-    Target Roll: EDGE * d10 + disguise_skill + stability_bonus
+    Target Roll: EDGE * d10 + disguise_skill + stability_bonus + clothing_bonus
+    
+    Target receives +5 defense per disguise clothing item worn (e.g., hoodie + mask = +10).
+    Max 2 items per body location.
     
     Base difficulty is HIGH - disguises are meant to work most of the time.
     
@@ -877,6 +950,11 @@ def recognition_check(observer, target):
         # Lower stability means worse defense (penalty scales with instability)
         stability_penalty = ((DISGUISE_STABILITY_MAX - stability) * 2) // 10
         target_roll -= stability_penalty
+    
+    # Add disguise clothing bonus to target defense
+    clothing_count = count_disguise_clothing(target)
+    clothing_bonus = clothing_count * 5  # +5 per item, max 2 per location = +10 max
+    target_roll += clothing_bonus
     
     margin = observer_roll - target_roll
     recognized = margin > 0
