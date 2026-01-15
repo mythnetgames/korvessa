@@ -249,8 +249,8 @@ def format_gamebud_display(gamebud, page=0):
     for msg in messages:
         # Name is max 10 chars, left aligned
         name = msg["alias"][:10].ljust(10)
-        # Message is max 38 chars (to fit display width)
-        content = msg["message"][:38].ljust(38)
+        # Message is max 45 chars (to fit display width)
+        content = msg["message"][:45].ljust(45)
         message_lines += MESSAGE_LINE_TEMPLATE.format(name=name, message=content)
         messages_shown += 1
     

@@ -11,8 +11,8 @@ All constants for the Okama Gamebud communication system.
 # Maximum alias length
 MAX_ALIAS_LENGTH = 10
 
-# Maximum message length that fits in the display (38 chars to fit with name)
-MAX_MESSAGE_LENGTH = 38
+# Maximum message length that fits in the display (45 chars to fit with name)
+MAX_MESSAGE_LENGTH = 45
 
 # Number of messages shown at a time
 MESSAGES_PER_PAGE = 3
@@ -28,26 +28,28 @@ GAMEBUD_IP = "67.420.69.kwc"
 # DISPLAY STRINGS
 # =============================================================================
 
-# UI Template - the main display (all lines 65 chars wide)
+# UI Template - the main display (all lines 66 chars wide)
+# Note: || is escaped pipe character in Evennia ANSI
 UI_TEMPLATE = """,_________________________________________________________________,
 ( OKAMA(c) 1971 .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
 ( .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
 (                         OKAMA GAMEBUD                           )
 ())====PORT:{port}====CPU:{cpu}%====PROXY:  NULL====IP:{ip}===(()
-( Alias: {alias:<10}   |  Lobbies | GameBuds({msg_count} Messages) | Settings)
+( Alias: {alias:<10}  || Lobbies || GameBuds({msg_count} Messages) || Settings )
 (      ,______________________________________________________,   )
-(     |_____________________Recent Lobbies_____________________|   )
-{messages}(                    [Q W E R T Y U I O P]                     )
+(     ||_____________________Recent Lobbies_____________________||  )
+{messages}(                    [Q W E R T Y U I O P]                       )
 (       /\\           [A S D F G H J K L .]                        )
 (     <-()->         [Z X C V B N M , : ;]                        )
 (       \\/           [1 2 3 4 5 6 7 8 9 0]                        )
 \_________________________________________________________________/"""
 
-# Message line template - name (10 chars) : message (38 chars max)
-MESSAGE_LINE_TEMPLATE = "(     |C|{name}: {message}|     )\n"
+# Message line template - name (10 chars) : message (28 chars max)
+# Note: || is escaped pipe character in Evennia ANSI
+MESSAGE_LINE_TEMPLATE = "(     ||C||{name}: {message}||  )\n"
 
 # Empty message line (matches message line width)
-EMPTY_MESSAGE_LINE = "(     |                                         |     )\n"
+EMPTY_MESSAGE_LINE = "(     ||                                                    ||  )\n"
 
 # =============================================================================
 # MESSAGES
