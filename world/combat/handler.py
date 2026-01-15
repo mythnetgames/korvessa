@@ -52,6 +52,57 @@ from .grappling import (
 )
 
 
+def msg_contents_disguised(location, msg_template, chars_in_template, exclude=None):
+    """
+    Send a message to all observers in a location, using disguised names.
+    
+    This function handles sending messages where character names need to be
+    replaced with their disguised identities for each observer.
+    
+    Args:
+        location: The room to send the message to
+        msg_template: Message template with {char_name} placeholders
+                     Use {char0_name}, {char1_name}, etc. for multiple chars
+        chars_in_template: List of characters in order matching template placeholders
+                          For single char, can be just the character object
+        exclude: List of characters to exclude from receiving the message
+    """
+    if not location:
+        return
+    
+    exclude = exclude or []
+    
+    # Normalize chars_in_template to a list
+    if not isinstance(chars_in_template, (list, tuple)):
+        chars_in_template = [chars_in_template]
+    
+    for observer in location.contents:
+        if observer in exclude:
+            continue
+        if not hasattr(observer, "msg"):
+            continue
+            
+        # Build name substitutions for this observer
+        format_kwargs = {}
+        for i, char in enumerate(chars_in_template):
+            if char:
+                display_name = get_display_name_safe(char, observer)
+            else:
+                display_name = "someone"
+            
+            # Support both {char0_name} style and {char_name} for single char
+            format_kwargs[f"char{i}_name"] = display_name
+            if i == 0:
+                format_kwargs["char_name"] = display_name
+        
+        try:
+            formatted_msg = msg_template.format(**format_kwargs)
+            observer.msg(formatted_msg)
+        except (KeyError, ValueError):
+            # Fallback if template format fails
+            observer.msg(msg_template)
+
+
 def get_or_create_combat(location):
     """
     Get an existing combat handler for a location or create a new one.
@@ -680,13 +731,13 @@ class CombatHandler(DefaultScript):
                     if grappling_target:
                         # Grappler in restraint mode - maintain hold without violence
                         splattercast.msg(f"{char.key} is yielding but maintains restraining hold on {grappling_target.key}.")
-                        char.msg(f"|gYou maintain a restraining hold on {grappling_target.key} without violence.|n")
-                        grappling_target.msg(f"|g{char.key} maintains a gentle but firm restraining hold on you.|n")
-                        char.location.msg_contents(f"|g{char.key} maintains a restraining hold on {grappling_target.key}.|n", exclude=[char, grappling_target])
+                        char.msg(f"|gYou maintain a restraining hold on {get_display_name_safe(grappling_target, char)} without violence.|n")
+                        grappling_target.msg(f"|g{get_display_name_safe(char, grappling_target)} maintains a gentle but firm restraining hold on you.|n")
+                        msg_contents_disguised(char.location, "|g{char0_name} maintains a restraining hold on {char1_name}.|n", [char, grappling_target], exclude=[char, grappling_target])
                     else:
                         # Regular yielding behavior
                         splattercast.msg(f"{char.key} is yielding and takes no hostile action this turn.")
-                        char.location.msg_contents(f"|y{char.key} holds their action, appearing non-hostile.|n", exclude=[char])
+                        msg_contents_disguised(char.location, "|y{char_name} holds their action, appearing non-hostile.|n", char, exclude=[char])
                         char.msg("|yYou hold your action, appearing non-hostile.|n")
                     continue
                 
@@ -708,8 +759,8 @@ class CombatHandler(DefaultScript):
                 if current_char_combat_entry.get(DB_IS_YIELDING, False):
                     # Victim is yielding/accepting restraint - no automatic escape attempt
                     splattercast.msg(f"{char.key} is being grappled by {grappler.key} but is yielding (accepting restraint).")
-                    char.msg(f"|gYou remain still in {grappler.key}'s hold, not resisting.|n")
-                    char.location.msg_contents(f"|g{char.key} does not resist {grappler.key}'s hold.|n", exclude=[char])
+                    char.msg(f"|gYou remain still in {get_display_name_safe(grappler, char)}'s hold, not resisting.|n")
+                    msg_contents_disguised(char.location, "|g{char0_name} does not resist {char1_name}'s hold.|n", [char, grappler], exclude=[char])
                     continue
                     
                 # Victim is not yielding - automatically attempt to escape
@@ -1792,12 +1843,12 @@ class CombatHandler(DefaultScript):
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RETREAT: Maintained proximity with grappled victim {grappled_victim.key} during retreat.")
             
             char.msg("|gYou successfully retreat from melee combat.|n")
-            char.location.msg_contents(f"|y{char.key} retreats from melee combat.|n", exclude=[char])
+            msg_contents_disguised(char.location, "|y{char_name} retreats from melee combat.|n", char, exclude=[char])
             splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RETREAT: {char.key} successfully retreated from melee.")
         else:
             # Failure - remain in proximity
             char.msg("|rYour retreat fails! You remain locked in melee.|n")
-            char.location.msg_contents(f"|y{char.key} tries to retreat but remains engaged.|n", exclude=[char])
+            msg_contents_disguised(char.location, "|y{char_name} tries to retreat but remains engaged.|n", char, exclude=[char])
             splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RETREAT: {char.key} failed to retreat from melee.")
 
     def _resolve_advance(self, char, entry):
@@ -1855,15 +1906,15 @@ class CombatHandler(DefaultScript):
                 # Success - establish proximity
                 establish_proximity(char, target)
                 
-                char.msg(f"|gYou successfully advance to melee range with {target.key}.|n")
-                target.msg(f"|y{char.key} advances to melee range with you.|n")
-                char.location.msg_contents(f"|y{char.key} advances to melee range with {target.key}.|n", exclude=[char, target])
+                char.msg(f"|gYou successfully advance to melee range with {get_display_name_safe(target, char)}.|n")
+                target.msg(f"|y{get_display_name_safe(char, target)} advances to melee range with you.|n")
+                msg_contents_disguised(char.location, "|y{char0_name} advances to melee range with {char1_name}.|n", [char, target], exclude=[char, target])
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE: {char.key} successfully advanced to melee with {target.key}.")
             else:
                 # Failure - no proximity established
-                char.msg(f"|rYour advance on {target.key} fails! They keep their distance.|n")
-                target.msg(f"|g{char.key} tries to advance on you but you keep your distance.|n")
-                char.location.msg_contents(f"|y{char.key} tries to advance on {target.key} but fails to close the distance.|n", exclude=[char, target])
+                char.msg(f"|rYour advance on {get_display_name_safe(target, char)} fails! They keep their distance.|n")
+                target.msg(f"|g{get_display_name_safe(char, target)} tries to advance on you but you keep your distance.|n")
+                msg_contents_disguised(char.location, "|y{char0_name} tries to advance on {char1_name} but fails to close the distance.|n", [char, target], exclude=[char, target])
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE: {char.key} failed to advance on {target.key}.")
         else:
             # Different room - check if it's a managed room and try to move there
@@ -1946,9 +1997,9 @@ class CombatHandler(DefaultScript):
                 # Handle grapple victim dragging if needed
                 if should_drag_victim and grappled_victim:
                     # Announce dragging
-                    char.msg(f"|gYou drag {grappled_victim.key} with you as you advance to {target_room.key}.|n")
-                    grappled_victim.msg(f"|r{char.key} drags you along as they advance to {target_room.key}!|n")
-                    old_location.msg_contents(f"|y{char.key} drags {grappled_victim.key} along as they advance toward {target_room.key}.|n", exclude=[char, grappled_victim])
+                    char.msg(f"|gYou drag {get_display_name_safe(grappled_victim, char)} with you as you advance to {target_room.key}.|n")
+                    grappled_victim.msg(f"|r{get_display_name_safe(char, grappled_victim)} drags you along as they advance to {target_room.key}!|n")
+                    msg_contents_disguised(old_location, "|y{char0_name} drags {char1_name} along as they advance toward " + target_room.key + ".|n", [char, grappled_victim], exclude=[char, grappled_victim])
                     splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_DRAG: {char.key} is dragging {grappled_victim.key} from {old_location.key} to {target_room.key}.")
                     
                     # Move both characters
@@ -1961,7 +2012,7 @@ class CombatHandler(DefaultScript):
                     splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_DRAG: Re-established proximity between {char.key} and dragged victim {grappled_victim.key} in {target_room.key}.")
                     
                     # Announce arrival in new location
-                    target_room.msg_contents(f"|y{char.key} arrives dragging {grappled_victim.key}.|n", exclude=[char, grappled_victim])
+                    msg_contents_disguised(target_room, "|y{char0_name} arrives dragging {char1_name}.|n", [char, grappled_victim], exclude=[char, grappled_victim])
                 else:
                     # Normal single character movement
                     char.move_to(target_room)
@@ -1978,16 +2029,16 @@ class CombatHandler(DefaultScript):
                     target.msg(f"|y{char.key} advances into the room dragging {grappled_victim.key} to engage you!|n")
                     splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_MOVE: {char.key} successfully moved to {target_room.key} with {grappled_victim.key} to engage {target.key}.")
                 else:
-                    char.msg(f"|gYou successfully advance to {target_room.key} to engage {target.key}.|n")
-                    target.msg(f"|y{char.key} advances into the room to engage you!|n")
-                    old_location.msg_contents(f"|y{char.key} advances toward {target_room.key} to engage {target.key}.|n", exclude=[char])
-                    target_room.msg_contents(f"|y{char.key} advances into the room to engage {target.key}!|n", exclude=[char, target])
+                    char.msg(f"|gYou successfully advance to {target_room.key} to engage {get_display_name_safe(target, char)}.|n")
+                    target.msg(f"|y{get_display_name_safe(char, target)} advances into the room to engage you!|n")
+                    msg_contents_disguised(old_location, "|y{char0_name} advances toward " + target_room.key + " to engage {char1_name}.|n", [char, target], exclude=[char])
+                    msg_contents_disguised(target_room, "|y{char0_name} advances into the room to engage {char1_name}!|n", [char, target], exclude=[char, target])
                     splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_MOVE: {char.key} successfully moved to {target_room.key} to engage {target.key}.")
             else:
                 # Failure - no movement
                 char.msg(f"|rYour advance toward {target.key} fails! You cannot reach their position.|n")
                 target.msg(f"|g{char.key} tries to advance toward your position but fails to reach you.|n")
-                char.location.msg_contents(f"|y{char.key} attempts to advance toward {target.key} but fails to reach them.|n", exclude=[char])
+                msg_contents_disguised(char.location, "|y{char0_name} attempts to advance toward {char1_name} but fails to reach them.|n", [char, target], exclude=[char])
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_MOVE: {char.key} failed to move to {target.key}.")
                 
                 # Check if target has ranged weapon for bonus attack
@@ -2101,15 +2152,15 @@ class CombatHandler(DefaultScript):
                 char.ndb.charge_attack_bonus_active = True
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE: {char.key} charge_attack_bonus_active set to True by successful charge.")
                 
-                char.msg(f"|gYou charge {target.key} and slam into melee range! Your next attack will have a bonus.|n")
-                target.msg(f"|r{char.key} charges at you and crashes into melee range!|n")
-                char.location.msg_contents(f"|y{char.key} charges at {target.key} with reckless abandon!|n", exclude=[char, target])
+                char.msg(f"|gYou charge {get_display_name_safe(target, char)} and slam into melee range! Your next attack will have a bonus.|n")
+                target.msg(f"|r{get_display_name_safe(char, target)} charges at you and crashes into melee range!|n")
+                msg_contents_disguised(char.location, "|y{char0_name} charges at {char1_name} with reckless abandon!|n", [char, target], exclude=[char, target])
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE: {char.key} successfully charged {target.key}.")
             else:
                 # Failure - charge penalty
-                char.msg(f"|rYour reckless charge at {target.key} fails spectacularly!|n")
-                target.msg(f"|y{char.key} charges at you but you dodge, leaving them off-balance!|n")
-                char.location.msg_contents(f"|y{char.key} charges recklessly at {target.key} but misses and stumbles!|n", exclude=[char, target])
+                char.msg(f"|rYour reckless charge at {get_display_name_safe(target, char)} fails spectacularly!|n")
+                target.msg(f"|y{get_display_name_safe(char, target)} charges at you but you dodge, leaving them off-balance!|n")
+                msg_contents_disguised(char.location, "|y{char0_name} charges recklessly at {char1_name} but misses and stumbles!|n", [char, target], exclude=[char, target])
                 
                 # Check if target has ranged weapon for bonus attack
                 if is_wielding_ranged_weapon(target):
@@ -2204,9 +2255,9 @@ class CombatHandler(DefaultScript):
                 char.ndb.charge_attack_bonus_active = True
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE: {char.key} charge_attack_bonus_active set to True by successful cross-room charge.")
                 
-                char.msg(f"|gYou charge recklessly through the {exit_to_use.key} and crash into melee with {target.key}! Your next attack will have a bonus.|n")
-                target.msg(f"|r{char.key} charges recklessly through the {exit_to_use.key} and crashes into melee with you!|n")
-                char.location.msg_contents(f"|y{char.key} charges recklessly from {exit_to_use.get_return_exit().key if exit_to_use.get_return_exit() else 'elsewhere'} and crashes into melee!|n", exclude=[char, target])
+                char.msg(f"|gYou charge recklessly through the {exit_to_use.key} and crash into melee with {get_display_name_safe(target, char)}! Your next attack will have a bonus.|n")
+                target.msg(f"|r{get_display_name_safe(char, target)} charges recklessly through the {exit_to_use.key} and crashes into melee with you!|n")
+                msg_contents_disguised(char.location, "|y{char0_name} charges recklessly from " + (exit_to_use.get_return_exit().key if exit_to_use.get_return_exit() else "elsewhere") + " and crashes into melee!|n", [char, target], exclude=[char, target])
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE: {char.key} successfully charged cross-room and engaged {target.key} in melee.")
             else:
                 # Failure - charge penalty and potential ranged attack

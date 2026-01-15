@@ -559,3 +559,56 @@ class CmdPullDown(Command):
                 f"|y{caller.key} pulls down their {target_item.key}, revealing their face.|n",
                 exclude=[caller]
             )
+
+
+class CmdExpose(Command):
+    """
+    Expose your true identity, canceling your disguise.
+    
+    Usage:
+        expose me   - Reveal your true identity to everyone
+    
+    This immediately ends any active disguise or anonymity, revealing who you
+    really are to everyone in the area. Useful if you want to drop your cover
+    or wear a mask/hood without hiding your identity.
+    """
+    key = "expose me"
+    aliases = ["expose"]
+    locks = "cmd:all()"
+    help_category = "Character"
+    
+    def func(self):
+        caller = self.caller
+        
+        # Check if they have an active disguise or anonymity
+        item, item_descriptor = get_anonymity_item(caller)
+        disguise = get_active_disguise(caller)
+        
+        if not item and not disguise:
+            caller.msg("|yYou are not disguised or wearing an anonymity item.|n")
+            return
+        
+        # Clear identity slip state (so they're no longer "slipped")
+        if hasattr(caller.ndb, "identity_slipped"):
+            delattr(caller.ndb, "identity_slipped")
+        
+        # Deactivate any anonymity item
+        if item:
+            item.db.anonymity_active = False
+        
+        # Clear any active disguise
+        if disguise:
+            disguise["stability"] = 0  # Break the disguise
+        
+        # Send confirmation message
+        if item and disguise:
+            caller.msg(f"|gYou expose your true identity, dropping both your {item.key} and your disguise.|n")
+        elif item:
+            caller.msg(f"|gYou expose your true identity, dropping your {item.key}.|n")
+        else:
+            caller.msg("|gYou expose your true identity, dropping your disguise.|n")
+        
+        # Notify observers
+        if caller.location:
+            observer_msg = f"{caller.key} reveals their true identity."
+            caller.location.msg_contents(observer_msg, exclude=[caller])

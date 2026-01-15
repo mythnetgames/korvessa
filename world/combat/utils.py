@@ -743,18 +743,28 @@ def format_combat_message(template, **kwargs):
 def get_display_name_safe(character, observer=None):
     """
     Safely get a character's display name with fallback.
+    Integrates with the disguise system to show appropriate identity.
     
     Args:
         character: The character object
-        observer: Optional observer for context
+        observer: Optional observer for context (used for disguise checks)
         
     Returns:
-        str: Character's display name or fallback
+        str: Character's display name or disguised identity
     """
     if not character:
         return "someone"
     
     try:
+        # Try to use disguise system for proper identity display
+        try:
+            from world.disguise.core import get_display_identity
+            display_name, _ = get_display_identity(character, observer)
+            return display_name
+        except ImportError:
+            pass
+        
+        # Fallback to standard display name methods
         if observer and hasattr(character, "get_display_name"):
             return character.get_display_name(observer)
         return character.key if hasattr(character, "key") else str(character)

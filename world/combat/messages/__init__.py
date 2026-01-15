@@ -10,6 +10,14 @@ from .body_parts import (
     is_vital_hit
 )
 
+# Import disguise system for proper identity display
+try:
+    from world.disguise.core import get_display_identity
+except ImportError:
+    # Fallback if disguise system not available
+    def get_display_identity(character, looker):
+        return (character.key if character else "Someone", True)
+
 
 def get_combat_message(weapon_type, phase, attacker=None, target=None, item=None, **kwargs):
     """
@@ -28,8 +36,23 @@ def get_combat_message(weapon_type, phase, attacker=None, target=None, item=None
         dict: A dictionary containing formatted "attacker_msg", "victim_msg",
               and "observer_msg" strings.
     """
-    attacker_s = attacker.key if attacker else "Someone"
-    target_s = target.key if target else "someone"
+    # Get display identities - what each party sees
+    # Attacker sees target's identity (attacker knows who they are attacking)
+    attacker_sees_target, _ = get_display_identity(target, attacker) if target and attacker else ("someone", True)
+    # Victim sees attacker's disguised identity
+    victim_sees_attacker, _ = get_display_identity(attacker, target) if attacker and target else ("Someone", True)
+    # Observers see disguised identities of both (use None as looker for generic view)
+    observer_sees_attacker, _ = get_display_identity(attacker, None) if attacker else ("Someone", True)
+    observer_sees_target, _ = get_display_identity(target, None) if target else ("someone", True)
+    
+    # For attacker_msg, we use "You" for attacker, and what attacker sees for target
+    attacker_s = attacker.key if attacker else "Someone"  # Not used in attacker_msg but kept for compatibility
+    target_s_for_attacker = attacker_sees_target
+    target_s_for_victim = target.key if target else "someone"  # Victim knows their own name
+    attacker_s_for_victim = victim_sees_attacker
+    attacker_s_for_observer = observer_sees_attacker
+    target_s_for_observer = observer_sees_target
+    
     item_s = item.key if item else "fists" # Default item name if None
 
     # Determine verb forms for fallback messages based on phase
@@ -91,14 +114,9 @@ def get_combat_message(weapon_type, phase, attacker=None, target=None, item=None
     kill_desc = get_kill_description(hit_location_raw)
     vital_hit = is_vital_hit(hit_location_raw)
 
-    # Prepare combined kwargs for formatting.
-    # These are the names templates should use, e.g., {attacker_name}, {target_name}, {item_name}, {damage}
-    format_kwargs = {
-        "attacker_name": attacker_s,
-        "target_name": target_s,
+    # Prepare base kwargs for formatting (without names - those are per-message)
+    base_format_kwargs = {
         "item_name": item_s,
-        "attacker": attacker_s,  # Alias for convenience if templates use {attacker}
-        "target": target_s,      # Alias for convenience if templates use {target}
         "item": item_s,          # Alias for convenience if templates use {item}
         "phase": phase,          # Pass phase itself if templates need it
         # Body part context
@@ -108,6 +126,29 @@ def get_combat_message(weapon_type, phase, attacker=None, target=None, item=None
         "kill_desc": kill_desc,
         "vital_hit": vital_hit,
         **{k: v for k, v in kwargs.items() if k != "hit_location"}  # Other kwargs except raw hit_location
+    }
+    
+    # Per-message format kwargs with appropriate names for each perspective
+    format_kwargs_attacker = {
+        **base_format_kwargs,
+        "attacker_name": attacker.key if attacker else "Someone",  # Attacker knows themselves
+        "target_name": target_s_for_attacker,  # What attacker sees target as
+        "attacker": attacker.key if attacker else "Someone",
+        "target": target_s_for_attacker,
+    }
+    format_kwargs_victim = {
+        **base_format_kwargs,
+        "attacker_name": attacker_s_for_victim,  # What victim sees attacker as (disguised)
+        "target_name": target.key if target else "someone",  # Victim knows themselves
+        "attacker": attacker_s_for_victim,
+        "target": target.key if target else "someone",
+    }
+    format_kwargs_observer = {
+        **base_format_kwargs,
+        "attacker_name": attacker_s_for_observer,  # Disguised name
+        "target_name": target_s_for_observer,  # Disguised name
+        "attacker": attacker_s_for_observer,
+        "target": target_s_for_observer,
     }
 
     final_messages = {}
@@ -129,6 +170,14 @@ def get_combat_message(weapon_type, phase, attacker=None, target=None, item=None
     ]
 
     for msg_key in ["attacker_msg", "victim_msg", "observer_msg"]:
+        # Select appropriate format kwargs based on message type
+        if msg_key == "attacker_msg":
+            format_kwargs = format_kwargs_attacker
+        elif msg_key == "victim_msg":
+            format_kwargs = format_kwargs_victim
+        else:
+            format_kwargs = format_kwargs_observer
+            
         # Get template string from chosen set, or from fallback_template_set if key is missing in chosen
         template_str = chosen_template_set.get(msg_key, fallback_template_set.get(msg_key, "Error: Message template key missing."))
         try:
