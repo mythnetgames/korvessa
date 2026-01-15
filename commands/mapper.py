@@ -274,17 +274,18 @@ class CmdMap(Command):
         # Build output - map on left, descriptions on right and bottom
         output = []
         
-        # Rows 0-4: map grid (padded to 25 visual chars) + description
-        for i in range(map_grid_height):
+        # Rows 0-3: map grid (padded to 25 visual chars) + description
+        for i in range(map_grid_height - 1):
             left = pad_to_visual_width(base_map_lines[i], left_column_width)
             right = desc_lines[i] if i < len(desc_lines) else ""
             output.append(f"{left}{right}")
         
-        # Row 5: coordinates (no description on this line)
-        output.append(coord_str)
+        # Row 4: last map row + coordinates
+        last_map_row = pad_to_visual_width(base_map_lines[map_grid_height - 1], left_column_width)
+        output.append(f"{last_map_row}{coord_str}")
         
-        # Remaining description lines (row 6+) - full width, no indent
-        for i in range(map_grid_height, len(desc_lines)):
+        # Remaining description lines (row 5+) - full width, no indent
+        for i in range(map_grid_height - 1, len(desc_lines)):
             output.append(desc_lines[i])
         
         self.caller.msg("\n".join(output), parse=True)
