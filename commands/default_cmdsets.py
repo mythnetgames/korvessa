@@ -22,6 +22,7 @@ from commands.CmdInventory import CmdGet, CmdInventory as CmdInv
 from commands import CmdAdmin
 from commands import CmdClothing
 from commands.CmdClothing import CmdWear, CmdRemove, CmdFreeHands
+from commands.CmdFightingStyle import CmdFightingStyle
 from commands import CmdMedical
 from commands.CmdMedical import CmdMedicalInfo
 from commands import CmdConsumption
@@ -210,6 +211,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add setstat command (builder and up)
         from commands.CmdSetStat import CmdSetStat
         self.add(CmdSetStat())
+        # Add fighting style command (character customization)
+        self.add(CmdFightingStyle())
         # Add fix baseline stats command (admin)
         self.add(CmdFixBaselineStats())
         # Add spawnchrome command (builder and up)
