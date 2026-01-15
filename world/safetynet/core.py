@@ -850,16 +850,30 @@ class SafetyNetManager(DefaultScript):
         
         current_ice = self.db.handles[handle_key].get("ice_rating", DEFAULT_ICE_RATING)
         
+        # Get decker's Smarts stat (1-10 scale) - MASSIVE factor in all decking
+        smarts = getattr(decker, 'smrt', 1)
+        if not isinstance(smarts, (int, float)) or smarts is None or smarts < 1:
+            smarts = 1
+        smarts = int(smarts)
+        
+        # SMARTS MODIFIER - Intelligence is CRITICAL for decking
+        # SMARTS 7 is baseline (0 modifier)
+        # Above 7: +7 per point / Below 7: -10 per point
+        if smarts >= 7:
+            smarts_bonus = (smarts - 7) * 7
+        else:
+            smarts_bonus = (smarts - 7) * 10
+        
         # Get decker's skill - try multiple storage formats
         decking_skill = getattr(decker.db, 'decking', 0) or 0
         if decking_skill == 0:
             decking_skill = getattr(decker.db, 'Decking', 0) or 0
         
-        # Skill check: roll d100 vs (skill + base bonus - difficulty)
-        # Base bonus helps skilled deckers - ICE raising is easier than hacking
-        base_bonus = 40  # Makes ICE raising easier than hacking
+        # Skill check: roll d100 vs (skill + smarts_mod + base bonus - difficulty)
+        # Base bonus helps skilled deckers - smarts 7 is neutral baseline
+        base_bonus = 40  # Restored since smarts 7 is now neutral
         ice_difficulty = current_ice // 2  # Every 2 ICE adds 1% difficulty
-        target_number = min(95, decking_skill + base_bonus - ice_difficulty)  # Cap at 95%
+        target_number = min(95, decking_skill + smarts_bonus + base_bonus - ice_difficulty)  # Cap at 95%
         roll = random.randint(1, 100)
         
         # Determine result

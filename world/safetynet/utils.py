@@ -160,7 +160,11 @@ def format_timestamp(timestamp):
 
 def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
     """
-    Resolve a hacking attempt using Decking skill.
+    Resolve a hacking attempt using Decking skill and Smarts stat.
+    
+    Smarts has a MASSIVE role in hacking. A genius with moderate decking skill
+    will outperform a pea-brain with maxed decking. Both are important, but
+    raw intelligence is key to understanding and exploiting system weaknesses.
     
     Args:
         attacker: The character attempting the hack
@@ -176,6 +180,12 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
                roll: int (1-100)
                target_number: int (the target number for the roll)
     """
+    # Get attacker's Smarts stat (1-10 scale) - MASSIVE factor in hacking
+    smarts = getattr(attacker, 'smrt', 1)
+    if not isinstance(smarts, (int, float)) or smarts is None or smarts < 1:
+        smarts = 1
+    smarts = int(smarts)
+    
     # Get attacker's Decking skill - try multiple possible storage formats
     decking_skill = 0
     
@@ -199,8 +209,20 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
             if decking_skill == 0:
                 decking_skill = attacker.db.skills.get('decking', 0) or 0
     
+    # SMARTS MODIFIER - Intelligence is CRITICAL for hacking
+    # SMARTS 7 is baseline (0 modifier)
+    # Above 7: +7 per point (8=+7, 9=+14, 10=+21)
+    # Below 7: -10 per point (6=-10, 5=-20, 4=-30, 3=-40, 2=-50, 1=-60)
+    # A pea-brain with maxed decking will struggle against even weak ICE
+    if smarts >= 7:
+        smarts_bonus = (smarts - 7) * 7  # 0 at 7, +7 at 8, +14 at 9, +21 at 10
+    else:
+        smarts_bonus = (smarts - 7) * 10  # -10 at 6, -20 at 5, -30 at 4, -40 at 3, -50 at 2, -60 at 1
+    
     # Low skill check - need at least 20 skill to have a chance
-    if decking_skill < 20:
+    # Smarts modifier applies but cannot fully compensate for no skill
+    effective_skill = decking_skill + max(0, smarts_bonus // 2)  # Only positive smarts helps threshold
+    if effective_skill < 20:
         # Unskilled hackers have essentially no chance
         roll = random.randint(1, 100)
         if roll == 1:
@@ -217,16 +239,20 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
                 message = "Access denied. Insufficient skill to breach ICE."
             return (False, margin, message, roll, 1)
     
-    # Skill check: roll d100 vs (skill + modifiers - ICE difficulty)
-    # Base bonus makes hacking easier - skilled deckers should succeed vs low ICE
-    base_bonus = 35  # Helps ensure skilled deckers succeed vs weak targets
+    # Skill check: roll d100 vs (skill + smarts_mod + modifiers - ICE difficulty)
+    # Base bonus for skilled deckers - smarts 7 is neutral baseline
+    base_bonus = 35  # Restored since smarts 7 is now neutral
     online_bonus = 10 if online_status else 0  # Small bonus for online targets
     
     # ICE difficulty scaling - skill-friendly for deckers:
     # ICE rating / 2 means 3 ICE = 1.5 difficulty, 50 ICE = 25, 100 ICE = 50
     ice_difficulty = ice_rating / 2
     
-    target_number = max(5, min(95, decking_skill + base_bonus + online_bonus - ice_difficulty))
+    # Final calculation: decking + smarts_mod + base + online - ice
+    # Example: 50 decking + 21 smarts(10) + 35 base + 10 online - 25 ice(50) = 91
+    # Example: 100 decking - 60 smarts(1) + 35 base + 0 offline - 50 ice(100) = 25
+    # A pea-brain with maxed decking will STRUGGLE!
+    target_number = max(5, min(95, decking_skill + smarts_bonus + base_bonus + online_bonus - ice_difficulty))
     roll = random.randint(1, 100)
     
     margin = target_number - roll
