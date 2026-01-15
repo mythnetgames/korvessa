@@ -205,6 +205,8 @@ class CmdDisguise(Command):
         
         # Check for existing profile
         profiles = getattr(caller.db, "disguise_profiles", {})
+        if profiles is None:
+            profiles = {}
         if profile_id in profiles:
             caller.msg(f"|yProfile '{profile_id}' already exists. Use a different ID or delete it first.|n")
             return
