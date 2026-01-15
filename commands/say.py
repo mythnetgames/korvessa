@@ -157,15 +157,18 @@ class CmdSay(DefaultCmdSay):
         # Check if character has a voice set
         voice = getattr(caller.db, 'voice', None)
         
+        # Get display name (respects disguises)
+        display_name = caller.get_display_name(caller)
+        
         if voice:
             # Format message with voice and language for speaker (no garbling for themselves)
-            message = f'{caller.name} says, "*speaking {language_name} in a {voice}* {speech}"|n'
+            message = f'{display_name} says, "*speaking {language_name} in a {voice}* {speech}"|n'
             
             # Send to caller (ungarbled)
             caller.msg(message)
         else:
             # No voice - format simple message with language
-            message = f'{caller.name} says, "*speaking {language_name}* {speech}"|n'
+            message = f'{display_name} says, "*speaking {language_name}* {speech}"|n'
             caller.msg(message)
         
         # Apply language garbling for observers
@@ -176,10 +179,12 @@ class CmdSay(DefaultCmdSay):
             
             # Send garbled messages to each observer
             for observer, garbled_speech in observer_messages.items():
+                # Get display name as seen by this observer (respects disguises)
+                observer_display_name = caller.get_display_name(observer)
                 if voice:
-                    observer_msg = f'{caller.name} says, "*speaking {language_name} in a {voice}* {garbled_speech}"|n'
+                    observer_msg = f'{observer_display_name} says, "*speaking {language_name} in a {voice}* {garbled_speech}"|n'
                 else:
-                    observer_msg = f'{caller.name} says, "*speaking {language_name}* {garbled_speech}"|n'
+                    observer_msg = f'{observer_display_name} says, "*speaking {language_name}* {garbled_speech}"|n'
                 observer.msg(observer_msg)
                 
                 # Send passive learning notification after the speech

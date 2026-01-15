@@ -159,8 +159,8 @@ class CmdEmote(DefaultCmdPose):
             # Replace all quoted speech instances with voice-enhanced versions
             emote_text = re.sub(quote_pattern, replace_quotes, emote_text)
         
-        # Format the pose with caller's name (ensure single space)
-        pose_text = f"{caller.name} {emote_text}"
+        # Format the pose with caller's display name (respects disguises)
+        pose_text = f"{caller.get_display_name(caller)} {emote_text}"
         
         # Send to the caller (ungarbled)
         caller.msg(pose_text)
@@ -175,9 +175,10 @@ class CmdEmote(DefaultCmdPose):
                 message = pose_text
                 
                 # Replace character's name with "you" (case-insensitive but preserve original capitalization context)
-                # Match whole word boundaries
+                # Use the name that the observer sees (respects disguises)
+                display_name = caller.get_display_name(char)
                 message = re.sub(
-                    rf'\b{re.escape(char.name)}\b',
+                    rf'\b{re.escape(display_name)}\b',
                     'you',
                     message,
                     flags=re.IGNORECASE
