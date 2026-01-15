@@ -858,23 +858,24 @@ class SafetyNetManager(DefaultScript):
         
         # SMARTS MODIFIER - Intelligence is CRITICAL for decking
         # SMARTS 7 is baseline (0 modifier)
-        # Above 7: +7 per point / Below 7: -20 per point
+        # Above 7: +28 per point / Below 7: -80 per point (scaled for d400)
         if smarts >= 7:
-            smarts_bonus = (smarts - 7) * 7
+            smarts_bonus = (smarts - 7) * 28
         else:
-            smarts_bonus = (smarts - 7) * 20
+            smarts_bonus = (smarts - 7) * 80
         
         # Get decker's skill - try multiple storage formats
         decking_skill = getattr(decker.db, 'decking', 0) or 0
         if decking_skill == 0:
             decking_skill = getattr(decker.db, 'Decking', 0) or 0
         
-        # Skill check: roll d100 vs (skill + smarts_mod + base bonus - difficulty)
+        # Skill check: roll d400 vs (skill*4 + smarts_mod + base bonus - difficulty*2)
         # Base bonus helps skilled deckers - smarts 7 is neutral baseline
-        base_bonus = 40  # Restored since smarts 7 is now neutral
-        ice_difficulty = current_ice // 2  # Every 2 ICE adds 1% difficulty
-        target_number = min(95, decking_skill + smarts_bonus + base_bonus - ice_difficulty)  # Cap at 95%
-        roll = random.randint(1, 100)
+        # Scaled for d400 system (35*4=140)
+        base_bonus = 160  # ICE raising is easier than hacking (40*4)
+        ice_difficulty = current_ice * 2  # Scaled to d400 range
+        target_number = min(395, decking_skill * 4 + smarts_bonus + base_bonus - ice_difficulty)  # Cap at 395
+        roll = random.randint(1, 400)
         
         # Determine result
         if roll == 1:

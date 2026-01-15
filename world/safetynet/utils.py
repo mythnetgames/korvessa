@@ -162,6 +162,7 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
     """
     Resolve a hacking attempt using Decking skill and Smarts stat.
     
+    Uses d400 system for precise skill resolution.
     Smarts has a MASSIVE role in hacking. A genius with moderate decking skill
     will outperform a pea-brain with maxed decking. Both are important, but
     raw intelligence is key to understanding and exploiting system weaknesses.
@@ -177,7 +178,7 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
                success: bool
                margin: int (positive = success margin, negative = failure margin)
                message: str describing the result
-               roll: int (1-100)
+               roll: int (1-400)
                target_number: int (the target number for the roll)
     """
     # Get attacker's Smarts stat (1-10 scale) - MASSIVE factor in hacking
@@ -211,76 +212,75 @@ def resolve_hack(attacker, target_handle_data, online_status, ice_rating):
     
     # SMARTS MODIFIER - Intelligence is CRITICAL for hacking
     # SMARTS 7 is baseline (0 modifier)
-    # Above 7: +7 per point (8=+7, 9=+14, 10=+21)
-    # Below 7: -20 per point (6=-20, 5=-40, 4=-60, 3=-80, 2=-100, 1=-120)
-    # No INT investment = ~1/400 chance with maxed decking
+    # Above 7: +28 per point (8=+28, 9=+56, 10=+84) - scales for d400
+    # Below 7: -80 per point (6=-80, 5=-160, 4=-240, 3=-320, 2=-400, 1=-480)
+    # No INT investment = 1/400 chance with maxed decking
     if smarts >= 7:
-        smarts_bonus = (smarts - 7) * 7  # 0 at 7, +7 at 8, +14 at 9, +21 at 10
+        smarts_bonus = (smarts - 7) * 28  # Scaled for d400 (7*4=28)
     else:
-        smarts_bonus = (smarts - 7) * 20  # -20 at 6, -40 at 5, -60 at 4, -80 at 3, -100 at 2, -120 at 1
+        smarts_bonus = (smarts - 7) * 80  # Scaled for d400 (20*4=80)
     
-    # Low skill check - need at least 20 skill to have a chance
+    # Low skill check - need at least 80 skill to have a chance (20*4 for d400)
     # Smarts modifier applies but cannot fully compensate for no skill
-    # At minimum 1%, even massive smarts can't help with zero skill
-    effective_skill = decking_skill + max(0, smarts_bonus // 2)  # Only positive smarts helps threshold
-    if effective_skill < 20:
+    effective_skill = decking_skill * 4 + max(0, smarts_bonus // 2)  # Scale skill to d400
+    if effective_skill < 80:
         # Unskilled hackers have essentially no chance
-        roll = random.randint(1, 100)
+        roll = random.randint(1, 400)
         if roll == 1:
-            # 1% critical success even with no skill
-            margin = 5
+            # 0.25% critical success even with no skill
+            margin = 200
             message = "Access granted. Narrowly avoided detection."
             return (True, margin, message, roll, 1)
         else:
             # Always fail
-            margin = -50
-            if roll >= 90:
+            margin = -200
+            if roll >= 380:
                 message = "Critical failure. ICE counterattack triggered."
             else:
                 message = "Access denied. Insufficient skill to breach ICE."
             return (False, margin, message, roll, 1)
     
-    # Skill check: roll d100 vs (skill + smarts_mod + modifiers - ICE difficulty)
+    # Skill check: roll d400 vs (skill + smarts_mod + modifiers - ICE difficulty)
     # Base bonus for skilled deckers - smarts 7 is neutral baseline
-    base_bonus = 35  # Restored since smarts 7 is now neutral
-    online_bonus = 10 if online_status else 0  # Small bonus for online targets
+    base_bonus = 140  # Restored and scaled for d400 (35*4=140)
+    online_bonus = 40 if online_status else 0  # Scaled for d400 (10*4=40)
     
     # ICE difficulty scaling - skill-friendly for deckers:
-    # ICE rating / 2 means 3 ICE = 1.5 difficulty, 50 ICE = 25, 100 ICE = 50
-    ice_difficulty = ice_rating / 2
+    # ICE rating * 2 scales difficulty to d400 range
+    ice_difficulty = ice_rating * 2
     
-    # Final calculation: decking + smarts_mod + base + online - ice (min 1%)
-    # Example: 100 decking - 120 smarts(1) + 35 base - 50 ice(100) = -35 -> capped to 1%
-    # Example: 50 decking + 21 smarts(10) + 35 base + 10 online - 25 ice(50) = 91%
+    # Final calculation: decking*4 + smarts_mod + base + online - ice*2 (min 1, max 395)
+    # Example: 100 decking(400) - 480 smarts(1) + 140 base - 200 ice(100) = -140 -> capped to 1
+    # Example: 50 decking(200) + 84 smarts(10) + 140 base + 40 online - 100 ice(50) = 364
     # Genius with moderate skill dominates pea-brain with maxed skill
-    target_number = max(1, min(95, decking_skill + smarts_bonus + base_bonus + online_bonus - ice_difficulty))
-    roll = random.randint(1, 100)
+    target_number = max(1, min(395, decking_skill * 4 + smarts_bonus + base_bonus + online_bonus - ice_difficulty))
+    roll = random.randint(1, 400)
     
     margin = target_number - roll
     success = roll <= target_number
     
     # Critical results
     if roll == 1:
-        # Critical success
-        margin = 50  # High margin for critical
+        # Critical success (0.25%)
+        margin = 200  # High margin for critical
         message = "Clean breach. Full access granted."
-    elif roll == 100:
-        # Critical failure
-        margin = -50
+    elif roll == 400:
+        # Critical failure (0.25%)
+        margin = -200
         message = "Critical failure. ICE counterattack triggered."
     elif success:
         # Regular success
-        if margin >= 30:
+        if margin >= 120:
             message = "Clean breach. Full access granted."
-        elif margin >= 15:
+        elif margin >= 60:
             message = "Access granted. Minor traces detected."
         else:
             message = "Access granted. Narrowly avoided detection."
     else:
         # Regular failure
-        if margin <= -30:
+        if margin <= -120:
             message = "Critical failure. ICE counterattack triggered."
-        elif margin <= -15:
+        elif margin <= -60:
             message = "Access denied. Intrusion logged."
         else:
             message = "Access denied. Connection terminated."
