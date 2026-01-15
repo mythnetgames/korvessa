@@ -221,7 +221,9 @@ def get_disguise_stability(character):
     """
     disguise = get_active_disguise(character)
     if disguise:
-        return disguise.get("stability", DISGUISE_STABILITY_MAX)
+        stability = disguise.get("stability", DISGUISE_STABILITY_MAX)
+        # Handle None values - treat as max stability
+        return stability if stability is not None else DISGUISE_STABILITY_MAX
     return None
 
 
@@ -242,6 +244,10 @@ def damage_disguise_stability(character, amount, reason="unknown"):
         return (None, False, False)
     
     current = disguise.get("stability", DISGUISE_STABILITY_MAX)
+    # Handle None values - treat as max stability
+    if current is None:
+        current = DISGUISE_STABILITY_MAX
+    
     new_stability = max(0, current - amount)
     disguise["stability"] = new_stability
     character.db.active_disguise = disguise

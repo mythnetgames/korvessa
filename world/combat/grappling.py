@@ -745,14 +745,12 @@ def resolve_release_grapple(char_entry, combatants_list, handler):
         if e.get(DB_CHAR) != char
     )
     
-    char.msg(f"You release your grapple on {grappling_target.key}.")
-    grappling_target.msg(f"{char.key} releases their grapple on you.")
+    char.msg(f"You release your grapple on {get_display_name_safe(grappling_target, char)}.")
+    grappling_target.msg(f"{get_display_name_safe(char, grappling_target)} releases their grapple on you.")
     
     if char.location:
-        char.location.msg_contents(
-            f"{char.key} releases their grapple on {grappling_target.key}.",
-            exclude=[char, grappling_target]
-        )
+        from .handler import msg_contents_disguised
+        msg_contents_disguised(char.location, "{char0_name} releases their grapple on {char1_name}.", [char, grappling_target], exclude=[char, grappling_target])
     
     splattercast.msg(f"GRAPPLE_RELEASE: {char.key} released {grappling_target.key}.")
 

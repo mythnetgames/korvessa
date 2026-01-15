@@ -293,8 +293,13 @@ class CmdReleaseGrapple(Command):
         
         # Send messages
         if victim_obj:
-            caller.msg(f"You release your grapple on {victim_obj.key}.")
-            victim_obj.msg(f"{caller.key} releases their grapple on you.")
+            caller.msg(f"You release your grapple on {get_display_name_safe(victim_obj, caller)}.")
+            victim_obj.msg(f"{get_display_name_safe(caller, victim_obj)} releases their grapple on you.")
+            
+            # Observer message with disguise support
+            if caller.location:
+                from world.combat.handler import msg_contents_disguised
+                msg_contents_disguised(caller.location, "{char0_name} releases their grapple on {char1_name}.", [caller, victim_obj], exclude=[caller, victim_obj])
         else:
             caller.msg("You release your grapple.")
         

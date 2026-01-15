@@ -866,7 +866,7 @@ class CombatHandler(DefaultScript):
                         continue
                     elif combat_action == "choke":
                         self._resolve_choke(current_char_combat_entry, combatants_list)
-                        current_char_combat_entry["combat_action"] = None
+                        # NOTE: Do NOT clear choke action - it persists while grappling
                         continue
                     elif combat_action == COMBAT_ACTION_RETREAT:
                         self._resolve_retreat(char, current_char_combat_entry)
@@ -1793,12 +1793,14 @@ class CombatHandler(DefaultScript):
         # Find who they're choking
         grappling_dbref = char_entry.get(DB_GRAPPLING_DBREF)
         if not grappling_dbref:
-            char.msg("You are not grappling anyone to choke.")
+            # No longer grappling - clear choke action
+            char_entry["combat_action"] = None
             return
         
         victim = get_character_by_dbref(grappling_dbref)
         if not victim:
-            char.msg("Your grapple target no longer exists.")
+            # Victim no longer exists - clear choke action
+            char_entry["combat_action"] = None
             return
         
         # Calculate damage based on attacker's BODY stat (strength of grip)
@@ -1867,6 +1869,8 @@ class CombatHandler(DefaultScript):
             char.msg(f"{get_display_name_safe(victim, char)} goes limp as their lungs fail from your chokehold. They're dead.")
             if char.location:
                 msg_contents_disguised(char.location, "{char0_name} chokes {char1_name} to death!", [char, victim], exclude=[char, victim])
+            # Clear choke action now that victim is dead
+            char_entry["combat_action"] = None
     
     def resolve_bonus_attack(self, attacker, target):
         """
@@ -2255,9 +2259,9 @@ class CombatHandler(DefaultScript):
                                 combatant_entry[DB_GRAPPLED_BY_DBREF] = None
                         
                         # Announce grapple release
-                        char.msg(f"|yYou release your grapple on {grappled_victim.get_display_name(char)} as you charge {target.key}!|n")
+                        char.msg(f"You release your grapple on {get_display_name_safe(grappled_victim, char)} as you charge {target.key}!")
                         if grappled_victim.access(char, "view"):
-                            grappled_victim.msg(f"|y{char.get_display_name(grappled_victim)} releases their grapple on you to charge {target.get_display_name(grappled_victim)}!|n")
+                            grappled_victim.msg(f"{get_display_name_safe(char, grappled_victim)} releases their grapple on you to charge {target.get_display_name(grappled_victim)}!")
                         
                         splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE_GRAPPLE_RELEASE: {char.key} released grapple on {grappled_victim.key} due to successful charge.")
                 
@@ -2353,9 +2357,9 @@ class CombatHandler(DefaultScript):
                                 combatant_entry[DB_GRAPPLED_BY_DBREF] = None
                         
                         # Announce grapple release (victim might be in different room now)
-                        char.msg(f"|yYou release your grapple on {grappled_victim.get_display_name(char)} as you charge away!|n")
+                        char.msg(f"You release your grapple on {get_display_name_safe(grappled_victim, char)} as you charge away!")
                         if grappled_victim.access(char, "view"):
-                            grappled_victim.msg(f"|y{char.get_display_name(grappled_victim)} releases their grapple on you and charges away!|n")
+                            grappled_victim.msg(f"{get_display_name_safe(char, grappled_victim)} releases their grapple on you and charges away!")
                         
                         splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE_GRAPPLE_RELEASE: {char.key} released grapple on {grappled_victim.key} due to successful cross-room charge.")
                 
