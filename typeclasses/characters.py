@@ -156,6 +156,7 @@ class Character(ObjectParent, DefaultCharacter):
             bool: True to allow move, False to prevent it
         """
         from world.combat.constants import DB_CHAR, DB_GRAPPLING_DBREF, DB_GRAPPLED_BY_DBREF
+        from world.combat.utils import get_character_by_dbref
         
         # Check if this character has an active grapple
         handler = getattr(self.ndb, "combat_handler", None)
@@ -171,8 +172,7 @@ class Character(ObjectParent, DefaultCharacter):
         grappling_dbref = char_entry.get(DB_GRAPPLING_DBREF)
         if grappling_dbref:
             # Find the grappled victim
-            from evennia.utils.dbserialize import deserialize_object
-            victim = deserialize_object(grappling_dbref)
+            victim = get_character_by_dbref(grappling_dbref)
             if victim and victim.location != destination:
                 # Drag victim to new location
                 victim.location = destination

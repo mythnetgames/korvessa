@@ -1782,6 +1782,7 @@ class CombatHandler(DefaultScript):
         """Resolve a choke action - drains target health based on attacker's BODY stat."""
         from evennia.comms.models import ChannelDB
         from .constants import SPLATTERCAST_CHANNEL, DB_CHAR, DB_GRAPPLING_DBREF
+        from .utils import get_character_by_dbref, skill_roll
         
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         char = char_entry.get(DB_CHAR)
@@ -1792,8 +1793,7 @@ class CombatHandler(DefaultScript):
             char.msg("You are not grappling anyone to choke.")
             return
         
-        from evennia.utils.dbserialize import deserialize_object
-        victim = deserialize_object(grappling_dbref)
+        victim = get_character_by_dbref(grappling_dbref)
         if not victim:
             char.msg("Your grapple target no longer exists.")
             return
@@ -1802,7 +1802,6 @@ class CombatHandler(DefaultScript):
         attacker_body = getattr(char.db, "body", 1) or 1
         
         # Base damage is 1 per BODY point, plus a small die roll
-        from .utils import skill_roll
         base_damage = attacker_body
         damage_roll, dice, bonus = skill_roll(base_damage * 5)  # Scale up for consistency
         actual_damage = max(1, damage_roll // 5)  # Convert back to reasonable damage

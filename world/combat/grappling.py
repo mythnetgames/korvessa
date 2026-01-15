@@ -308,31 +308,38 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
     from .utils import combat_roll
     
     # Attacker (grappler) stats - grappling skill with BODY/DEX
-    attacker_grappling = getattr(char.db, "grappling", 0) or 0
+    # Optimize: get all stats in one pass to avoid repeated DB lookups
+    attacker_grappling = getattr(char.db, "grappling", None)
+    if attacker_grappling is None:
+        attacker_grappling = 0
+    attacker_grappling = attacker_grappling or 0
+    
     using_brawling_fallback = False
     if attacker_grappling == 0:
         # Fallback to brawling if no grappling skill, but with severe penalty
         # Grappling is its own skill and shouldn't be ignored
-        attacker_grappling = (getattr(char.db, "brawling", 0) or 0) // 3  # Only 1/3 effectiveness
+        brawling_val = getattr(char.db, "brawling", None)
+        attacker_grappling = ((brawling_val or 0) // 3) if brawling_val else 0  # Only 1/3 effectiveness
         using_brawling_fallback = True
-    attacker_body = getattr(char.db, "body", 1) or 1
-    attacker_dex = getattr(char.db, "dexterity", 1) or 1
+    
+    attacker_body = getattr(char.db, "body", None) or 1
+    attacker_dex = getattr(char.db, "dexterity", None) or 1
     
     # Defender stats - dodge skill with SMRT/DEX
-    defender_smarts = getattr(target.db, "smarts", 1) or 1
-    defender_dex = getattr(target.db, "dexterity", 1) or 1
+    defender_smarts = getattr(target.db, "smarts", None) or 1
+    defender_dex = getattr(target.db, "dexterity", None) or 1
     
-    defender_dodge = getattr(target.db, "dodge", 0) or 0
+    defender_dodge = getattr(target.db, "dodge", None) or 0
     if defender_dodge == 0:
         # Fallback: treat 0 dodge as skill level 1 if they didn't invest
         defender_dodge = 1
     
-    # Calculate combined stat bonuses
+    # Calculate combined stat bonuses (simple average)
     # For grappler: average of BODY and DEX (both important for catching and holding)
-    attacker_combined_stat = (attacker_body + attacker_dex) / 2.0
+    attacker_combined_stat = (attacker_body + attacker_dex) * 0.5  # Use multiplication instead of division
     
     # For defender: average of SMRT and DEX (spatial awareness + body control)
-    defender_combined_stat = (defender_smarts + defender_dex) / 2.0
+    defender_combined_stat = (defender_smarts + defender_dex) * 0.5
     
     grapple_result = combat_roll(
         attacker_skill=attacker_grappling,

@@ -1034,6 +1034,7 @@ class CmdChoke(Command):
     
     def func(self):
         from world.combat.constants import DB_CHAR, DB_GRAPPLING_DBREF
+        from world.combat.utils import get_character_by_dbref, log_combat_action
         
         caller = self.caller
         handler = getattr(caller.ndb, "combat_handler", None)
@@ -1055,8 +1056,7 @@ class CmdChoke(Command):
             return
         
         # Get the victim
-        from evennia.utils.dbserialize import deserialize_object
-        victim = deserialize_object(grappling_dbref)
+        victim = get_character_by_dbref(grappling_dbref)
         if not victim:
             caller.msg("Your grapple target no longer exists.")
             return
