@@ -292,8 +292,19 @@ class CmdAdjust(Command):
     locks = "cmd:all()"
     help_category = "Character"
     
+    ADJUST_COOLDOWN = 600  # Seconds between adjusts (10 minutes)
+    
     def func(self):
+        import time
         caller = self.caller
+        
+        # Check cooldown
+        last_adjust = getattr(caller.ndb, "last_adjust_time", 0)
+        current_time = time.time()
+        if current_time - last_adjust < self.ADJUST_COOLDOWN:
+            remaining = self.ADJUST_COOLDOWN - (current_time - last_adjust)
+            caller.msg(f"|yYou must wait {remaining:.1f} more seconds before adjusting again.|n")
+            return
         
         # Check if in active combat - adjustment takes time
         if hasattr(caller.ndb, "combat_handler") and caller.ndb.combat_handler:
@@ -320,7 +331,8 @@ class CmdAdjust(Command):
                 return
         
         if adjust_anonymity_item(caller, item):
-            pass  # Messages sent by the function
+            # Set cooldown on successful adjust
+            caller.ndb.last_adjust_time = time.time()
         else:
             caller.msg("|yYou have nothing to adjust. You need a hood, mask, or similar item.|n")
 

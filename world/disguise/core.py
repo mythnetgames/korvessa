@@ -636,10 +636,13 @@ def adjust_anonymity_item(character, item=None):
     # Send messages
     character.msg(MSG_ITEM_ADJUSTED.format(item=item.key))
     if character.location:
-        character.location.msg_contents(
-            MSG_ITEM_ADJUSTED_ROOM.format(name=character.key, item=item.key),
-            exclude=[character]
-        )
+        # Show disguised name to each observer
+        for observer in character.location.contents:
+            if observer != character:
+                display_name, _ = get_display_identity(character, observer)
+                observer.msg(
+                    MSG_ITEM_ADJUSTED_ROOM.format(name=display_name, item=item.key)
+                )
     
     return True
 

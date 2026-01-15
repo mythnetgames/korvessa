@@ -993,12 +993,12 @@ SLIP_CHANCE_COMBAT = 15            # Per combat round
 SLIP_CHANCE_SHOVE = 25             # When shoved/grabbed/tackled
 SLIP_CHANCE_RUN = 10               # When running/sprinting
 SLIP_CHANCE_SCRUTINY = 20          # When directly scrutinized
-SLIP_CHANCE_EMOTE_BASE = 2         # Base chance per emote/say
+SLIP_CHANCE_EMOTE_BASE = 1         # Base chance per emote/say
 SLIP_CHANCE_EMOTE_INCREMENT = 1    # Added per emote since last adjust
 
 # Skill-based disguise modifiers (reduce slip chance)
 # Per 10 points of disguise skill, reduce slip chance by this percent
-DISGUISE_SKILL_MODIFIER = 5
+DISGUISE_SKILL_MODIFIER = 10
 
 # Stability damage from events (skill-based disguises)
 STABILITY_DAMAGE_COMBAT = 10       # Per combat round while in combat
