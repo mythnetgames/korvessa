@@ -261,6 +261,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add ammo management commands (available outside combat too)
         self.add(CmdReload())
         self.add(CmdAmmo())
+        # Add combat commands available outside combat
+        self.add(CmdAim())      # Can aim at targets or directions outside combat
+        self.add(CmdGrapple())  # Can initiate grapple outside combat
         # Add wield command
         self.add(CmdWield())
         # Add shop commands
