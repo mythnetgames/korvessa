@@ -206,7 +206,15 @@ def get_active_disguise(character):
     Returns:
         dict or None: Active disguise profile or None
     """
-    return getattr(character.db, DB_ACTIVE_DISGUISE, None)
+    result = getattr(character.db, DB_ACTIVE_DISGUISE, None)
+    # Debug log
+    try:
+        from evennia.comms.models import ChannelDB
+        splat = ChannelDB.objects.get_channel("Splattercast")
+        splat.msg(f"DEBUG get_active_disguise: {character.key} -> {result}")
+    except:
+        pass
+    return result
 
 
 def get_disguise_stability(character):
