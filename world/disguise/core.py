@@ -463,6 +463,9 @@ def check_disguise_slip(character, trigger_type, **kwargs):
     
     # Determine base slip chance based on trigger
     if trigger_type == "combat":
+        # Combat slip is much more aggressive
+        # With 0 disguise, you're almost guaranteed to slip
+        # With high disguise, you're well protected
         base_chance = SLIP_CHANCE_COMBAT
         # Escalate chance as combat rounds progress (1% increase per round starting at round 1)
         round_num = kwargs.get('round_num', 0) or 0
@@ -483,9 +486,21 @@ def check_disguise_slip(character, trigger_type, **kwargs):
     else:
         base_chance = 5  # Default small chance
     
-    # Apply disguise skill modifier - reduce slip chance by 0.5% per skill point
-    # At skill 50, reduces by 25%, at skill 80 reduces by 40%
-    skill_reduction = disguise_skill * 0.5
+    # Apply disguise skill modifier - reduce slip chance by skill points
+    # At skill 0: no reduction (30% base in combat)
+    # At skill 20: -20% reduction (10% in combat, harder to slip)
+    # At skill 50: -50% reduction (very safe in combat)
+    # At skill 80: -80% reduction (extremely safe in combat)
+    # But with combat escalation, low skill characters will eventually slip
+    if disguise_skill < 10:
+        # Very low skill is extremely risky in combat
+        # With 0 skill: base_chance stays high (30% per round)
+        # With 5 skill: 30-5 = 25%
+        skill_reduction = disguise_skill * 1.0
+    else:
+        # Normal skill scaling after 10
+        skill_reduction = disguise_skill * 0.5
+    
     base_chance = max(1, base_chance - skill_reduction)  # Never go below 1% chance
     
     # Check item-based anonymity first

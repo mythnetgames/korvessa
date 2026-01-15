@@ -886,6 +886,16 @@ class CombatHandler(DefaultScript):
                         splattercast.msg(f"AT_REPEAT: Finished processing choke for {char.key}")
                         # NOTE: Do NOT clear choke action - it persists while grappling
                         continue
+                    elif combat_action == "adjust_anonymity":
+                        # Adjust concealment during combat
+                        from world.disguise.core import adjust_anonymity
+                        try:
+                            adjust_anonymity(char)
+                            splattercast.msg(f"AT_REPEAT: {char.key} successfully adjusted their concealment.")
+                        except Exception as e:
+                            splattercast.msg(f"AT_REPEAT_ERROR: Failed to adjust anonymity for {char.key}: {e}")
+                        current_char_combat_entry["combat_action"] = None
+                        continue
                     elif combat_action == COMBAT_ACTION_RETREAT:
                         self._resolve_retreat(char, current_char_combat_entry)
                         current_char_combat_entry["combat_action"] = None
