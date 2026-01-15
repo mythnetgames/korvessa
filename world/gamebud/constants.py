@@ -47,7 +47,7 @@ UI_TEMPLATE = """,______________________________________________________________
 
 # Message line template - name (10 chars) : message (40 chars max)
 # Note: || is escaped pipe character in Evennia ANSI
-MESSAGE_LINE_TEMPLATE = "(      ||C||{name}: {message}||   )\n"
+MESSAGE_LINE_TEMPLATE = "(      ||C||{name}: {message} ||   )\n"
 
 # Empty message line (matches message line width)
 EMPTY_MESSAGE_LINE = "(      ||                                                     ||  )\n"
