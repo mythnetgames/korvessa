@@ -53,7 +53,7 @@ class CmdEyeColor(Command):
         for color_name in sorted(EYE_COLOR_PALETTE.keys()):
             color_code = EYE_COLOR_PALETTE[color_name]
             marker = " |G(current)|n" if color_name == current_color else ""
-            msg += f"  {color_code}Sample{color_name}|n {marker}\n"
+            msg += f"  {color_code}{color_name}|n {marker}\n"
         
         caller.msg(msg)
     

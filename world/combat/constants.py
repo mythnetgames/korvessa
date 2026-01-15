@@ -202,27 +202,27 @@ SKINTONE_PALETTE = {
 # Valid skintone names for validation
 VALID_SKINTONES = set(SKINTONE_PALETTE.keys())
 
-# Eye color palette mapping descriptive names to hex color codes
+# Eye color palette mapping descriptive names to hex color codes (Evennia format: |#RRGGBB)
 EYE_COLOR_PALETTE = {
     # Cool blues and grays
-    "ice blue": "#00afff",     # Bright cyan-blue
-    "steel": "#b0b0b0",        # Cool steel gray
-    "slate": "#708090",        # Dark slate gray
+    "ice blue": "|#00afff",    # Bright cyan-blue
+    "steel": "|#b0b0b0",       # Cool steel gray
+    "slate": "|#708090",       # Dark slate gray
     
     # Natural eye colors
-    "blue": "#4169e1",         # Royal blue
-    "navy": "#000080",         # Dark navy blue
-    "green": "#228b22",        # Forest green
-    "hazel": "#8b7355",        # Warm hazel brown
-    "brown": "#8b4513",        # Saddle brown
-    "amber": "#ffbf00",        # Golden amber
-    "gray": "#a9a9a9",         # Dark gray
-    "black": "#262626",        # Pure black
+    "blue": "|#4169e1",        # Royal blue
+    "navy": "|#000080",        # Dark navy blue
+    "green": "|#228b22",       # Forest green
+    "hazel": "|#8b7355",       # Warm hazel brown
+    "brown": "|#8b4513",       # Saddle brown
+    "amber": "|#ffbf00",       # Golden amber
+    "gray": "|#a9a9a9",        # Dark gray
+    "black": "|#262626",       # Pure black
     
     # Unusual/fantasy colors
-    "violet": "#ee82ee",       # Bright violet
-    "crimson": "#dc143c",      # Crimson red
-    "gold": "#ffd700",         # Bright gold
+    "violet": "|#ee82ee",      # Bright violet
+    "crimson": "|#dc143c",     # Crimson red
+    "gold": "|#ffd700",        # Bright gold
 }
 
 # Valid eye color names for validation
