@@ -350,7 +350,25 @@ def apply_disguise(character, profile_id):
     clothing_bonus = clothing_count * 10
     profile["stability"] = min(100, profile["stability"] + clothing_bonus)
     
+    # DEBUG: Log before and after
+    try:
+        from evennia.comms.models import ChannelDB
+        splat = ChannelDB.objects.get_channel("Splattercast")
+        splat.msg(f"DEBUG apply_disguise: Setting active_disguise for {character.key}")
+        splat.msg(f"  Profile: {profile}")
+    except:
+        pass
+    
     character.db.active_disguise = profile
+    
+    # DEBUG: Verify it was set
+    try:
+        from evennia.comms.models import ChannelDB
+        splat = ChannelDB.objects.get_channel("Splattercast")
+        verify = getattr(character.db, DB_ACTIVE_DISGUISE, None)
+        splat.msg(f"DEBUG apply_disguise: Verified active_disguise = {verify}")
+    except:
+        pass
     
     # Clear any slip state
     if hasattr(character.ndb, NDB_IDENTITY_SLIPPED):

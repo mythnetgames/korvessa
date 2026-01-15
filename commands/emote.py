@@ -154,10 +154,21 @@ class CmdEmote(DefaultCmdPose):
             def replace_quotes(match):
                 quote = match.group(1)  # The quote character (" or ')
                 speech = match.group(2)  # The actual speech
+                # Fix speech grammar (contractions, capitalize I, etc.)
+                speech = fix_speech_grammar(speech)
                 return f'{quote}*in a {voice}* {speech}{quote}'
             
             # Replace all quoted speech instances with voice-enhanced versions
             emote_text = re.sub(quote_pattern, replace_quotes, emote_text)
+        else:
+            # Even without voice, fix grammar in quoted speech
+            def fix_quotes(match):
+                quote = match.group(1)
+                speech = match.group(2)
+                speech = fix_speech_grammar(speech)
+                return f'{quote}{speech}{quote}'
+            
+            emote_text = re.sub(quote_pattern, fix_quotes, emote_text)
         
         # Format the pose with caller's display name (respects disguises)
         pose_text = f"{caller.get_display_name(caller)} {emote_text}"
