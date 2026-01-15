@@ -799,8 +799,9 @@ class CombatHandler(DefaultScript):
                 # Calculate stat bonuses
                 # Escaper uses whichever stat is more advantageous
                 escaper_combined_stat = max(escaper_body, escaper_dex)
-                # Grappler uses BODY to hold on
-                grappler_combined_stat = grappler_body
+                # Grappler uses BODY + GRAPPLING SKILL to hold on (grappling skill directly enhances holding strength)
+                # Grappling skill adds 0.5 points per skill level to effective body for holding
+                grappler_combined_stat = grappler_body + (grappler_grappling * 0.5)
                 
                 escape_result = combat_roll(
                     attacker_skill=escaper_dodge,
@@ -814,7 +815,7 @@ class CombatHandler(DefaultScript):
                 grp_dice, grp_bonus = escape_result['defender_details']
                 
                 fallback_note = " (brawling/3)" if using_brawling_fallback else ""
-                splattercast.msg(f"AUTO_ESCAPE_ATTEMPT: {char.key} [max(BODY:{escaper_body},DEX:{escaper_dex})*5={escaper_combined_stat*5:.1f}=d20:{esc_dice}+bonus:{esc_bonus}=roll {escaper_roll}] vs {grappler.key} [grappling{fallback_note}:{grappler_grappling}+BODY*5:{grappler_body*5}=d20:{grp_dice}+bonus:{grp_bonus}=roll {grappler_roll}].")
+                splattercast.msg(f"AUTO_ESCAPE_ATTEMPT: {char.key} [max(BODY:{escaper_body},DEX:{escaper_dex})*5={escaper_combined_stat*5:.1f}=d20:{esc_dice}+bonus:{esc_bonus}=roll {escaper_roll}] vs {grappler.key} [grappling{fallback_note}:{grappler_grappling}+BODY+skill*0.5:{grappler_combined_stat*5:.1f}=d20:{grp_dice}+bonus:{grp_bonus}=roll {grappler_roll}].")
 
                 if escaper_roll > grappler_roll:
                     # Success - clear grapple
@@ -1552,7 +1553,9 @@ class CombatHandler(DefaultScript):
         original_target = target
         if target_entry:
             grappling_victim = get_combatant_grappling_target(target_entry, self)
-            if grappling_victim:
+            # Only allow human shield if attacker is NOT the grappling victim
+            # (can't use yourself as a shield against your own attack)
+            if grappling_victim and attacker != grappling_victim:
                 # Target is grappling someone - check for human shield interception
                 shield_chance = self._calculate_shield_chance(target, grappling_victim, is_ranged_attack, combatants_list)
                 shield_roll = randint(1, 100)
