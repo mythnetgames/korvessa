@@ -300,6 +300,8 @@ class CmdAdjust(Command):
         
         # Check cooldown
         last_adjust = getattr(caller.ndb, "last_adjust_time", 0)
+        if last_adjust is None:
+            last_adjust = 0
         current_time = time.time()
         if current_time - last_adjust < self.ADJUST_COOLDOWN:
             remaining = self.ADJUST_COOLDOWN - (current_time - last_adjust)
