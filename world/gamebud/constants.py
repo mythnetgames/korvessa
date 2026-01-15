@@ -62,28 +62,28 @@ DEFAULT_ALIAS_COLOR = "w"
 # UI Template - the main display
 # Note: || is escaped pipe character in Evennia ANSI
 # {shell} is replaced with shell color code (|W for bright white)
-UI_TEMPLATE = """|[#585858m,_________________________________________________________________,
-|[#8a8a8am{shell}( |[#bcbcbcmOKAMA(c) 1969 |[#585858m.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. |[#8a8a8am{shell})
-|[#8a8a8am{shell}( |[#585858m.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. |[#8a8a8am{shell})
-|[#8a8a8am{shell}(|[#bcbcbcm                         |[#00ffffmOKAMA GAMEBUD|[#bcbcbcm                           |[#8a8a8am{shell})
-|[#8a8a8am{shell}(|[#585858m)|[#bcbcbcm====|[#00ffffmPORT|[#bcbcbcm:|[#ffff00m{port}|[#bcbcbcm====|[#00ffffmCPU|[#bcbcbcm:|[#ffff00m{cpu}%|[#bcbcbcm====|[#00ffffmPROXY|[#bcbcbcm:  |[#ff0000mNULL|[#bcbcbcm====|[#00ffffmIP|[#bcbcbcm:|[#ffff00m{ip}|[#bcbcbcm===|[#585858m(|[#8a8a8am{shell}(
-|[#8a8a8am{shell}( |[#bcbcbcmAlias: |[#ffff00m{alias:<10}|[#bcbcbcm ||>|[#00ffffmLobbies|[#bcbcbcm|| |[#00ffffmGameBuds|[#bcbcbcm(|[#ffff00m{msg_count}|[#bcbcbcm Messages)|| |[#00ffffmSettings|[#bcbcbcm     |[#8a8a8am{shell})
-|[#8a8a8am{shell}(|[#585858m      ,-------------------------------------------------------,  |[#8a8a8am{shell})
-|[#8a8a8am{shell}(|[#585858m      ||________________|[#00ffffmRecent Lobbies|[#585858m_________________________||  |[#8a8a8am{shell})
-{messages}|[#8a8a8am{shell}(|[#585858m      '-------------------------------------------------------'  |[#8a8a8am{shell})
-|[#8a8a8am{shell}(|[#585858m                    [Q W E R T Y U I O P]                        |[#8a8a8am{shell})
-|[#8a8a8am{shell}(|[#585858m       /\\           [A S D F G H J K L .]                        |[#8a8a8am{shell})
-|[#8a8a8am{shell}(|[#585858m     <-()->         [Z X C V B N M , : ;]                        |[#8a8a8am{shell})
-|[#8a8a8am{shell}(|[#585858m       \\/           [1 2 3 4 5 6 7 8 9 0]                        |[#8a8a8am{shell})
-|[#585858m\\_________________________________________________________________/|n"""
+UI_TEMPLATE = """,_________________________________________________________________,
+{shell}( OKAMA(c) 1969 .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. {shell})
+{shell}( .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. {shell})
+{shell}(                         |COKAMA GAMEBUD|n                           {shell})
+{shell}()====PORT:|Y{port}|n====CPU:|Y{cpu}%|n====PROXY:  |rNULL|n====IP:|Y{ip}|n===({shell}(
+{shell}( Alias: |Y{alias:<10}|n ||>Lobbies|| GameBuds(|Y{msg_count}|n Messages)|| Settings     {shell})
+{shell}(      ,-------------------------------------------------------,  {shell})
+{shell}(      ||________________Recent Lobbies_________________________||  {shell})
+{messages}{shell}(      '-------------------------------------------------------'  {shell})
+{shell}(                    [Q W E R T Y U I O P]                        {shell})
+{shell}(       /\\           [A S D F G H J K L .]                        {shell})
+{shell}(     <-()->         [Z X C V B N M , : ;]                        {shell})
+{shell}(       \\/           [1 2 3 4 5 6 7 8 9 0]                        {shell})
+\\_________________________________________________________________/|n"""
 
 # Message line template - name (10 chars) : message (40 chars max)
 # Note: || is escaped pipe character in Evennia ANSI
 # {shell} is shell color, {alias_color} is user's chosen alias color
-MESSAGE_LINE_TEMPLATE = "|[#8a8a8am{shell}(|[#585858m      |||[#00ffffmC|||{alias_color}{name}|[#bcbcbcm: {message} |[#585858m||  |[#8a8a8am{shell})\n"
+MESSAGE_LINE_TEMPLATE = "{shell}(      ||C||{alias_color}{name}|n: {message} ||  {shell})\n"
 
 # Empty message line (matches message line width)
-EMPTY_MESSAGE_LINE = "|[#8a8a8am{shell}(|[#585858m      ||                                                     || |[#8a8a8am{shell})\n"
+EMPTY_MESSAGE_LINE = "{shell}(      ||                                                     || {shell})\n"
 
 # =============================================================================
 # MESSAGES

@@ -243,8 +243,8 @@ class CmdGamebud(Command):
         alias_color = ALIAS_COLOR_NAMES[color_key]
         gamebud.db.alias_color = alias_color
         
-        # Show confirmation with the color applied (use |[ for RGB hex)
-        caller.msg(MSG_COLOR_SET.format(color=f"|[{alias_color}m{color_name}|n"))
+        # Show confirmation with the color applied
+        caller.msg(MSG_COLOR_SET.format(color=f"{alias_color}{color_name}|n"))
 
 
 class GamebudCmdSet(CmdSet):
