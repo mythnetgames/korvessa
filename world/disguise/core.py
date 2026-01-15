@@ -522,10 +522,10 @@ def check_disguise_slip(character, trigger_type, **kwargs):
             if trigger_type == "combat":
                 slip_count = getattr(character.ndb, "combat_slip_count", 0) + 1
                 character.ndb.combat_slip_count = slip_count
-                SLIP_THRESHOLD = 2  # Number of slips before full item reveal
+                SLIP_THRESHOLD = 3  # Number of slips before full item reveal
                 if slip_count < SLIP_THRESHOLD:
-                    # Warn but do not fully reveal yet
-                    return (True, "item_warning")
+                    # Count toward threshold but don't message
+                    return (False, None)
                 else:
                     # Reset counter and actually slip
                     character.ndb.combat_slip_count = 0
@@ -586,18 +586,7 @@ def trigger_slip_event(character, slip_type, item=None):
     Returns:
         bool: True if slip occurred
     """
-    if slip_type == "item_warning":
-        # Warning slip: item is jostled but not fully revealed
-        item_name = item.key if item else "hood"
-        character.msg(f"|yYour {item_name} is jostled in the chaos, but you manage to keep it in place... for now.|n")
-        if character.location:
-            _, descriptor = get_anonymity_item(character)
-            name_to_use = descriptor if descriptor else character.key
-            # Plain text only for observers
-            msg = f"{name_to_use}'s {item_name} is nearly knocked loose, but they keep it in place... for now."
-            character.location.msg_contents(msg, exclude=[character])
-        return True
-    elif slip_type == "item":
+    if slip_type == "item":
         # Item-based slip - simple reveal
         character.ndb.identity_slipped = True
         item_name = item.key if item else "hood"

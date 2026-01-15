@@ -194,8 +194,14 @@ class CmdEscapeGrapple(Command):
     help_category = "Combat"
 
     def func(self):
+        from world.combat.handler import get_or_create_combat
+        
         caller = self.caller
+        
+        # Try NDB reference first, fall back to location
         handler = getattr(caller.ndb, "combat_handler", None)
+        if not handler and caller.location:
+            handler = get_or_create_combat(caller.location)
 
         if not handler:
             caller.msg(MSG_ESCAPE_NOT_IN_COMBAT)
@@ -244,9 +250,14 @@ class CmdReleaseGrapple(Command):
     def func(self):
         from world.combat.constants import DB_CHAR, DB_GRAPPLING_DBREF, DB_GRAPPLED_BY_DBREF, DB_IS_YIELDING
         from world.combat.utils import get_character_by_dbref
+        from world.combat.handler import get_or_create_combat
         
         caller = self.caller
+        
+        # Try NDB reference first, fall back to location
         handler = getattr(caller.ndb, "combat_handler", None)
+        if not handler and caller.location:
+            handler = get_or_create_combat(caller.location)
 
         if not handler:
             caller.msg(MSG_RELEASE_NOT_IN_COMBAT)

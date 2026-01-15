@@ -534,6 +534,10 @@ class CmdStop(Command):
         elif args == "attacking" or args == "attack":
             handler = getattr(caller.ndb, "combat_handler", None)
             
+            # Try NDB reference first, fall back to location
+            if not handler and caller.location:
+                handler = get_or_create_combat(caller.location)
+            
             if not handler:
                 caller.msg(MSG_STOP_NOT_IN_COMBAT)
                 return
