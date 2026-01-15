@@ -989,7 +989,7 @@ DISGUISE_STABILITY_UNSTABLE = 30   # Below this, partial slips possible
 DISGUISE_STABILITY_BROKEN = 0      # At or below, disguise fully breaks
 
 # Slip chance base rates (per trigger event, out of 100)
-SLIP_CHANCE_COMBAT = 15            # Per combat round
+SLIP_CHANCE_COMBAT = 18.5            # Per combat round
 SLIP_CHANCE_SHOVE = 25             # When shoved/grabbed/tackled
 SLIP_CHANCE_RUN = 10               # When running/sprinting
 SLIP_CHANCE_SCRUTINY = 20          # When directly scrutinized
