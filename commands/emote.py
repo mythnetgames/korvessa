@@ -156,6 +156,12 @@ class CmdEmote(DefaultCmdPose):
                 speech = match.group(2)  # The actual speech
                 # Fix speech grammar (contractions, capitalize I, etc.)
                 speech = fix_speech_grammar(speech)
+                # Capitalize first letter
+                if speech:
+                    speech = speech[0].upper() + speech[1:] if len(speech) > 1 else speech.upper()
+                # Add period if no ending punctuation
+                if speech and speech[-1] not in '.!?':
+                    speech = speech + '.'
                 return f'{quote}*in a {voice}* {speech}{quote}'
             
             # Replace all quoted speech instances with voice-enhanced versions
@@ -166,6 +172,12 @@ class CmdEmote(DefaultCmdPose):
                 quote = match.group(1)
                 speech = match.group(2)
                 speech = fix_speech_grammar(speech)
+                # Capitalize first letter
+                if speech:
+                    speech = speech[0].upper() + speech[1:] if len(speech) > 1 else speech.upper()
+                # Add period if no ending punctuation
+                if speech and speech[-1] not in '.!?':
+                    speech = speech + '.'
                 return f'{quote}{speech}{quote}'
             
             emote_text = re.sub(quote_pattern, fix_quotes, emote_text)
