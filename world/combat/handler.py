@@ -865,7 +865,9 @@ class CombatHandler(DefaultScript):
                         current_char_combat_entry["combat_action"] = None
                         continue
                     elif combat_action == "choke":
+                        splattercast.msg(f"AT_REPEAT: About to process choke for {char.key}")
                         self._resolve_choke(current_char_combat_entry, combatants_list)
+                        splattercast.msg(f"AT_REPEAT: Finished processing choke for {char.key}")
                         # NOTE: Do NOT clear choke action - it persists while grappling
                         continue
                     elif combat_action == COMBAT_ACTION_RETREAT:
@@ -1790,16 +1792,20 @@ class CombatHandler(DefaultScript):
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         char = char_entry.get(DB_CHAR)
         
+        splattercast.msg(f"_RESOLVE_CHOKE: Starting choke resolution for {char.key}")
+        
         # Find who they're choking
         grappling_dbref = char_entry.get(DB_GRAPPLING_DBREF)
         if not grappling_dbref:
             # No longer grappling - clear choke action
+            splattercast.msg(f"_RESOLVE_CHOKE: {char.key} no longer grappling, clearing choke action")
             char_entry["combat_action"] = None
             return
         
         victim = get_character_by_dbref(grappling_dbref)
         if not victim:
             # Victim no longer exists - clear choke action
+            splattercast.msg(f"_RESOLVE_CHOKE: Victim doesn't exist, clearing choke action")
             char_entry["combat_action"] = None
             return
         
