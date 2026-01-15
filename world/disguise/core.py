@@ -593,7 +593,7 @@ def adjust_anonymity_item(character, item=None):
     character.msg(MSG_ITEM_ADJUSTED.format(item=item.key))
     if character.location:
         character.location.msg_contents(
-            MSG_ITEM_ADJUSTED_ROOM.format(name=character.key),
+            MSG_ITEM_ADJUSTED_ROOM.format(name=character.key, item=item.key),
             exclude=[character]
         )
     
