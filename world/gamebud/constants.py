@@ -28,23 +28,24 @@ GAMEBUD_IP = "67.420.69.kwc"
 # DISPLAY STRINGS
 # =============================================================================
 
-# UI Template - the main display (all lines 66 chars wide)
+# UI Template - the main display
 # Note: || is escaped pipe character in Evennia ANSI
 UI_TEMPLATE = """,_________________________________________________________________,
 ( OKAMA(c) 1971 .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
 ( .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
-(                         OKAMA GAMEBUD                           )
+(                         OKAMA GAMEBUD            {cpu}% [||{bar}||])
 ())====PORT:{port}====CPU:{cpu}%====PROXY:  NULL====IP:{ip}===(()
-( Alias: {alias:<10}  || Lobbies || GameBuds({msg_count} Messages) || Settings )
-(      ,______________________________________________________,   )
-(     ||_____________________Recent Lobbies_____________________||  )
-{messages}(                    [Q W E R T Y U I O P]                       )
+( Alias: {alias:<10} ||>Lobbies|| GameBuds({msg_count} Messages)|| Settings   )
+(      ,-------------------------------------------------------,   )
+(     ||________________Recent Lobbies_________________________||  )
+{messages}(     '-------------------------------------------------------'   )
+(                    [Q W E R T Y U I O P]                        )
 (       /\\           [A S D F G H J K L .]                        )
 (     <-()->         [Z X C V B N M , : ;]                        )
 (       \\/           [1 2 3 4 5 6 7 8 9 0]                        )
-\_________________________________________________________________/"""
+\\_________________________________________________________________/"""
 
-# Message line template - name (10 chars) : message (28 chars max)
+# Message line template - name (10 chars) : message (40 chars max)
 # Note: || is escaped pipe character in Evennia ANSI
 MESSAGE_LINE_TEMPLATE = "(     ||C||{name}: {message}||  )\n"
 
