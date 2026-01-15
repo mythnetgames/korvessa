@@ -421,7 +421,9 @@ def _play_permanent_death(account, character, session):
     delay(42.5, account.msg, "|W    \"Neural pattern: dissolved.\"|n")
     delay(45.0, account.msg, "|W    \"Identity file: closed.\"|n")
     delay(47.5, account.msg, "")
-    delay(49.5, account.msg, f"|W    \"{character.key if character else 'Subject'}: Deceased.\"|n")
+    # Use real name instead of display name for cloning system
+    real_name = getattr(character.db, 'real_full_name', character.key) if character else 'Subject'
+    delay(49.5, account.msg, f"|W    \"{real_name}: Deceased.\"|n")
     delay(52.0, account.msg, "")
     delay(54.0, account.msg, "|W    \"Sleeve allocation for account in progress.\"|n")
     delay(56.5, account.msg, "|W    \"Please stand by for neural imprinting.\"|n")
