@@ -28,7 +28,7 @@ from world.combat.constants import (
     MSG_STOP_NOT_AIMING, DEBUG_PREFIX_GRAPPLE, SPLATTERCAST_CHANNEL, NDB_PROXIMITY,
     NDB_COMBAT_HANDLER, COMBAT_ACTION_DISARM, MSG_DISARM_PREPARE
 )
-from world.combat.utils import log_combat_action, get_numeric_stat, roll_stat, initialize_proximity_ndb
+from world.combat.utils import log_combat_action, get_numeric_stat, roll_stat, initialize_proximity_ndb, get_display_name_safe
 
 
 class CmdGrapple(Command):
@@ -1094,14 +1094,12 @@ class CmdChoke(Command):
         # Set choke action for combat handler to process
         caller_entry["combat_action"] = "choke"
         
-        caller.msg(f"You begin choking {victim.key}!")
-        victim.msg(f"{caller.key} begins choking you!")
+        caller.msg(f"You begin choking {get_display_name_safe(victim, caller)}!")
+        victim.msg(f"{get_display_name_safe(caller, victim)} begins choking you!")
         
         if caller.location:
-            caller.location.msg_contents(
-                f"{caller.key} begins choking {victim.key}!",
-                exclude=[caller, victim]
-            )
+            from world.combat.handler import msg_contents_disguised
+            msg_contents_disguised(caller.location, "{char0_name} begins choking {char1_name}!", [caller, victim], exclude=[caller, victim])
         
         log_combat_action(caller, "choke_action", victim, details="combat action set to choke")
 

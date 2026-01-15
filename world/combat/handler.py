@@ -767,7 +767,8 @@ class CombatHandler(DefaultScript):
                     
                 # Victim is not yielding - automatically attempt to escape
                 splattercast.msg(f"{char.key} is being grappled by {grappler.key} and automatically attempts to escape.")
-                char.msg(f"|yYou struggle against {grappler.key}'s grip!|n")
+                char.msg(f"You struggle against {get_display_name_safe(grappler, char)}'s grip!")
+                msg_contents_disguised(char.location, "{char0_name} struggles against {char1_name}'s grip!", [char, grappler], exclude=[char, grappler])
                 
                 # Setup an escape attempt using new 0-100 skill system
                 # Escaper uses whichever is better: BODY or DEX (physical escape)
@@ -1781,10 +1782,10 @@ class CombatHandler(DefaultScript):
         resolve_release_grapple(char_entry, combatants_list, self)
     
     def _resolve_choke(self, char_entry, combatants_list):
-        """Resolve a choke action - drains target health based on attacker's BODY stat."""
+        """Resolve a choke action - damages victim's lungs based on attacker's BODY stat."""
         from evennia.comms.models import ChannelDB
         from .constants import SPLATTERCAST_CHANNEL, DB_CHAR, DB_GRAPPLING_DBREF
-        from .utils import get_character_by_dbref, skill_roll
+        from .utils import get_character_by_dbref, skill_roll, get_display_name_safe
         
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         char = char_entry.get(DB_CHAR)
@@ -1808,27 +1809,64 @@ class CombatHandler(DefaultScript):
         damage_roll, dice, bonus = skill_roll(base_damage * 5)  # Scale up for consistency
         actual_damage = max(1, damage_roll // 5)  # Convert back to reasonable damage
         
-        # Apply damage
-        current_hp = getattr(victim.db, "hp", 100) or 100
-        new_hp = max(0, current_hp - actual_damage)
-        victim.db.hp = new_hp
+        # Apply damage to lungs via medical system
+        victim_dead = False
+        lung_destroyed = False
+        left_lung_hp = None
+        right_lung_hp = None
+        left_lung_max = None
+        right_lung_max = None
+        
+        # Try to damage lungs if medical system is available
+        if hasattr(victim, 'medical_state') and victim.medical_state:
+            medical_state = victim.medical_state
+            
+            # Get both lungs
+            left_lung = medical_state.get_organ("left_lung")
+            right_lung = medical_state.get_organ("right_lung")
+            
+            # Store HP for messages/logging
+            left_lung_hp = left_lung.current_hp
+            right_lung_hp = right_lung.current_hp
+            left_lung_max = left_lung.max_hp
+            right_lung_max = right_lung.max_hp
+            
+            # Apply damage to both lungs
+            left_destroyed = left_lung.take_damage(actual_damage, "choke")
+            right_destroyed = right_lung.take_damage(actual_damage, "choke")
+            
+            if left_destroyed or right_destroyed:
+                lung_destroyed = True
+            
+            # Check if both lungs are destroyed (fatal)
+            if left_lung.is_destroyed() and right_lung.is_destroyed():
+                victim_dead = True
+        else:
+            # Fallback to generic HP damage if no medical system
+            current_hp = getattr(victim.db, "hp", 100) or 100
+            new_hp = max(0, current_hp - actual_damage)
+            victim.db.hp = new_hp
+            if new_hp <= 0:
+                victim_dead = True
         
         # Send messages
-        char.msg(f"You choke {victim.key}, dealing {actual_damage} damage!")
-        victim.msg(f"{char.key} chokes you, dealing {actual_damage} damage! (HP: {new_hp})")
+        char.msg(f"You choke {get_display_name_safe(victim, char)}, restricting their breathing! ({actual_damage} lung damage)")
+        victim.msg(f"{get_display_name_safe(char, victim)} chokes you, restricting your breathing! ({actual_damage} lung damage)")
         
         if char.location:
-            char.location.msg_contents(
-                f"{char.key} chokes {victim.key} for {actual_damage} damage!",
-                exclude=[char, victim]
-            )
+            msg_contents_disguised(char.location, "{char0_name} chokes {char1_name}, restricting their air!", [char, victim], exclude=[char, victim])
         
-        splattercast.msg(f"CHOKE: {char.key} choked {victim.key} for {actual_damage} damage (victim HP now: {new_hp})")
+        # Log damage
+        lung_status = f"Left: {left_lung_hp if left_lung_hp is not None else 'N/A'}/{left_lung_max if left_lung_max is not None else 'N/A'}, Right: {right_lung_hp if right_lung_hp is not None else 'N/A'}/{right_lung_max if right_lung_max is not None else 'N/A'}" if left_lung_hp is not None else "No medical system"
+        splattercast.msg(f"CHOKE: {char.key} choked {victim.key} for {actual_damage} lung damage. {lung_status}")
         
         # Check if victim died
-        if new_hp <= 0:
+        if victim_dead:
             splattercast.msg(f"CHOKE_DEATH: {victim.key} was choked to death by {char.key}!")
-            victim.msg(f"You fade away as {char.key}'s grip tightens...")
+            victim.msg(f"Your lungs burn as {get_display_name_safe(char, victim)}'s grip crushes your windpipe. Darkness closes in...")
+            char.msg(f"{get_display_name_safe(victim, char)} goes limp as their lungs fail from your chokehold. They're dead.")
+            if char.location:
+                msg_contents_disguised(char.location, "{char0_name} chokes {char1_name} to death!", [char, victim], exclude=[char, victim])
     
     def resolve_bonus_attack(self, attacker, target):
         """
