@@ -123,8 +123,11 @@ GAMEBUD_HELP = """
   |wgamebud view|n         - View recent messages
   |wgamebud next|n         - View next page of messages
   |wgamebud post=|n<msg>   - Post a message to the lobby
-  |wgamebud alias=|n<name> - Set your display alias (max 10 chars)
-  |wgamebud color=|n<col>  - Set your alias color (red, blue, cyan, etc.)
+  |wgamebud alias=|n<name> - Set your display alias (max 10 chars, resets color to white)
+  |wgamebud color=|n<col>  - Set your alias color (appears in all posts)
   |wgamebud mute|n         - Turn off new message notifications
   |wgamebud unmute|n       - Turn on new message notifications
+
+|wAvailable colors:|n red, green, yellow, blue, purple, cyan, white,
+bright red, bright green, bright yellow, bright blue, bright purple, bright cyan, bright white
 """
