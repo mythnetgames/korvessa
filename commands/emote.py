@@ -128,6 +128,14 @@ class CmdEmote(DefaultCmdPose):
         """Override emote to include voice description and language garbling."""
         caller = self.caller
         
+        # Debug: Check if func is being called multiple times
+        try:
+            from evennia.comms.models import ChannelDB
+            splattercast = ChannelDB.objects.get_channel("Splattercast")
+            splattercast.msg(f"EMOTE_FUNC_START: {caller.key} args={self.args[:30]}")
+        except Exception:
+            pass
+        
         if not self.args:
             caller.msg("Emote what?")
             return

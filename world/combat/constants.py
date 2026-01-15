@@ -1023,14 +1023,14 @@ DB_DISGUISE_PROFILES = "disguise_profiles"
 
 # Messages for disguise events
 MSG_ITEM_SLIP_SELF = "|yYour {item} slips, briefly exposing your face!|n"
-MSG_ITEM_SLIP_ROOM = "|y{name}'s {item} slips back, briefly exposing their face.|n"
+MSG_ITEM_SLIP_ROOM = "{name}'s {item} slips back, briefly exposing their face."
 MSG_ITEM_ADJUSTED = "|gYou adjust your {item}, concealing your identity again.|n"
 MSG_ITEM_ADJUSTED_ROOM = "|y{name} adjusts their {item}.|n"
 
 MSG_DISGUISE_PARTIAL_SELF = "|yYour disguise falters for a moment, revealing your face before you recover!|n"
-MSG_DISGUISE_PARTIAL_ROOM = "|y{name}'s disguise falters for a moment, revealing their face before they recover.|n"
+MSG_DISGUISE_PARTIAL_ROOM = "{name}'s disguise falters for a moment, revealing their face before they recover."
 MSG_DISGUISE_BREAK_SELF = "|RYour disguise comes apart completely, exposing who you really are!|n"
-MSG_DISGUISE_BREAK_ROOM = "|R{name}'s disguise comes apart completely, exposing who they really are.|n"
+MSG_DISGUISE_BREAK_ROOM = "{name}'s disguise comes apart completely, exposing who they really are."
 
 MSG_RECOGNIZED = "|yYou recognize {descriptor} as {true_name}!|n"
 

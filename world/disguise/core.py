@@ -557,10 +557,15 @@ def check_disguise_slip(character, trigger_type, **kwargs):
     Returns:
         tuple: (slipped, slip_type) where slip_type is 'item', 'partial', or 'full'
     """
-    # Debug logging
+    # Debug logging - include call stack to find duplicate calls
+    import traceback
     try:
         from evennia.comms.models import ChannelDB
         splattercast = ChannelDB.objects.get_channel("Splattercast")
+        # Log the call with minimal stack trace
+        stack = traceback.extract_stack()
+        caller_frame = stack[-2]  # Frame that called this function
+        splattercast.msg(f"CHECK_SLIP_CALLED: {character.key} trigger={trigger_type} from {caller_frame.filename.split('/')[-1]}:{caller_frame.lineno}")
     except Exception:
         splattercast = None
     
