@@ -616,6 +616,8 @@ def check_disguise_slip(character, trigger_type, **kwargs):
     
     # Check skill-based disguise
     disguise = get_active_disguise(character)
+    if splattercast:
+        splattercast.msg(f"DISGUISE_CHECK: active_disguise={disguise}")
     if disguise:
         # Get disguise skill for resistance
         disguise_skill = getattr(character.db, "disguise", 0)
