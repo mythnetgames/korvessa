@@ -333,6 +333,13 @@ class Character(ObjectParent, DefaultCharacter):
         try:
             from world.disguise.core import get_display_identity
             display_name, is_true = get_display_identity(self, looker)
+            # Debug log
+            try:
+                from evennia.comms.models import ChannelDB
+                splat = ChannelDB.objects.get_channel("Splattercast")
+                splat.msg(f"DEBUG get_display_name: {self.key} -> {display_name} (is_true={is_true})")
+            except:
+                pass
             return display_name
         except ImportError:
             # Disguise system not available, fall back to true name
