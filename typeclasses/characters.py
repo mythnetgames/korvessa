@@ -208,6 +208,22 @@ class Character(ObjectParent, DefaultCharacter):
     # Appearance attributes - stored in db but no auto-creation for optional features
     # skintone is set via @skintone command and stored as db.skintone
 
+    # ===================================================================
+    # DISGUISE & ANONYMITY SYSTEM ATTRIBUTES
+    # ===================================================================
+    
+    # Active skill-based disguise profile (dict with display_name, stability, etc.)
+    # Set via 'disguise' command, cleared on break or manual removal
+    active_disguise = AttributeProperty(None, category='disguise', autocreate=True)
+    
+    # Saved disguise profiles created with Disguise skill
+    # Structure: {profile_id: {display_name, description, voice_override, ...}}
+    disguise_profiles = AttributeProperty({}, category='disguise', autocreate=True)
+    
+    # Characters whose true identity this character knows (bypasses future disguises)
+    # Structure: {dbref: {true_name, witnessed_at}}
+    known_identities = AttributeProperty({}, category='disguise', autocreate=True)
+
     @property
     def gender(self):
         """
@@ -256,6 +272,33 @@ class Character(ObjectParent, DefaultCharacter):
     temp_place = AttributeProperty("", category='description', autocreate=True)
     override_place = AttributeProperty("", category='description', autocreate=True)
     
+    def get_display_name(self, looker=None, **kwargs):
+        """
+        Get the display name for this character, accounting for disguises and anonymity.
+        
+        Identity Display Priority (highest to lowest):
+        1. True name (if a slip occurred and not corrected)
+        2. Active disguise display name (if skill disguise intact)
+        3. Active disguise anonymity descriptor
+        4. Item-based anonymity descriptor (hood up, mask on, etc.)
+        5. True name (fallback)
+        
+        Args:
+            looker: The character looking at this one
+            **kwargs: Additional arguments
+            
+        Returns:
+            str: The appropriate display name
+        """
+        # Import here to avoid circular imports
+        try:
+            from world.disguise.core import get_display_identity
+            display_name, is_true = get_display_identity(self, looker)
+            return display_name
+        except ImportError:
+            # Disguise system not available, fall back to true name
+            return self.key
+
     def at_object_creation(self):
         """
         Called once, at creation, to set dynamic stats.

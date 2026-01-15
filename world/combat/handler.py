@@ -557,6 +557,26 @@ class CombatHandler(DefaultScript):
                     stamina.stamina_current = max(0, stamina.stamina_current - STAMINA_DRAIN_PER_ROUND)
                     splattercast.msg(f"STAMINA_DRAIN_ROUND: {char.key} drained {STAMINA_DRAIN_PER_ROUND} stamina, now at {stamina.stamina_current:.1f}")
                 
+                # Check for disguise slip due to combat
+                try:
+                    from world.disguise.core import (
+                        check_disguise_slip, trigger_slip_event, 
+                        get_anonymity_item, damage_disguise_stability
+                    )
+                    from world.combat.constants import STABILITY_DAMAGE_COMBAT
+                    
+                    # Damage skill-based disguise stability in combat
+                    damage_disguise_stability(char, STABILITY_DAMAGE_COMBAT, reason="combat")
+                    
+                    # Check for slip
+                    slipped, slip_type = check_disguise_slip(char, "combat")
+                    if slipped:
+                        item, _ = get_anonymity_item(char)
+                        trigger_slip_event(char, slip_type, item=item)
+                        splattercast.msg(f"DISGUISE_SLIP: {char.key} disguise slipped in combat (type: {slip_type})")
+                except ImportError:
+                    pass  # Disguise system not available
+                
                 # Combat status prompt is now automatically appended to all messages via Character.msg()
                 # No need to send it explicitly here
         

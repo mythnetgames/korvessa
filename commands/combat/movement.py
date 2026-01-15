@@ -110,6 +110,19 @@ class CmdFlee(Command):
         caller.ndb.flee_attempted_this_round = True
         splattercast.msg(f"{DEBUG_PREFIX_FLEE}_ATTEMPT: {caller.key} marked as having attempted flee this round.")
 
+        # Check for disguise slip when fleeing (running action)
+        try:
+            from world.disguise.core import (
+                check_disguise_slip, trigger_slip_event, get_anonymity_item
+            )
+            slipped, slip_type = check_disguise_slip(caller, "run")
+            if slipped:
+                item, _ = get_anonymity_item(caller)
+                trigger_slip_event(caller, slip_type, item=item)
+                splattercast.msg(f"{DEBUG_PREFIX_FLEE}_DISGUISE_SLIP: {caller.key} disguise slipped while fleeing")
+        except ImportError:
+            pass  # Disguise system not available
+
         # --- PRE-FLEE SAFETY CHECK: PINNED BY RANGED TARGETERS IN ADJACENT ROOMS ---
         # Filter out sky rooms - can't flee into the air!
         all_exits = [ex for ex in caller.location.exits if ex.access(caller, 'traverse')]

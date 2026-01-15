@@ -41,6 +41,7 @@ from commands.CmdThrow import (
 from commands.CmdGraffiti import CmdGraffiti, CmdPress
 from commands.CmdCharacter import CmdLongdesc, CmdSkintone
 from commands.CmdEyeColor import CmdEyeColor
+from commands.CmdDisguise import CmdDisguise, CmdAdjust, CmdScrutinize, CmdPullUp, CmdPullDown
 from commands.CmdArmor import CmdArmor, CmdArmorRepair, CmdSlot, CmdUnslot
 from commands.CmdStatAdjust import CmdStatAdjust
 from commands.nakeds import CmdNakeds
@@ -197,6 +198,12 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdLongdesc())
         self.add(CmdSkintone())
         self.add(CmdEyeColor())
+        # Add disguise and anonymity commands
+        self.add(CmdDisguise())
+        self.add(CmdAdjust())
+        self.add(CmdScrutinize())
+        self.add(CmdPullUp())
+        self.add(CmdPullDown())
         # Add stat adjust command (admin)
         self.add(CmdStatAdjust())
         # Add setstat command (builder and up)

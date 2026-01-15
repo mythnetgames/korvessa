@@ -3763,3 +3763,280 @@ PORTABLE_COMPUTER = {
 }
 
 
+# =============================================================================
+# DISGUISE SYSTEM TEST PROTOTYPES
+# =============================================================================
+# These items provide various levels of anonymity for testing the disguise system.
+# Item anonymity is simple - when worn and active, provides a descriptor instead of name.
+# Items with hoods/masks slip easily during combat, running, shoving, etc.
+# =============================================================================
+
+# ----- HOODIES (Simple Anonymity - Slips Easily) -----
+
+# Basic street hoodie - low-tier anonymity
+ANONYMITY_HOODIE_BASIC = {
+    "prototype_key": "anonymity_hoodie_basic",
+    "key": "plain gray hoodie",
+    "aliases": ["hoodie", "gray hoodie", "grey hoodie"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A plain gray hoodie with a deep hood. The fabric is thin and worn, the kind of garment that disappears into any crowd. When the hood is pulled up, it casts the wearer's face in shadow, making identification difficult. Nothing special - just another face in the urban sprawl.",
+    "attrs": [
+        ("coverage", ["chest", "back", "abdomen", "left_arm", "right_arm"]),
+        ("worn_desc", "A plain |xgray|n hoodie hanging loose, its worn fabric blending into the urban landscape"),
+        ("layer", 2),
+        ("color", "gray"),
+        ("material", "cotton"),
+        ("weight", 0.8),
+        # Anonymity attributes - active when hood is up
+        ("provides_anonymity", True),
+        ("anonymity_active", False),  # Hood starts down
+        ("anonymity_descriptor", "a hooded figure"),
+    ],
+}
+
+# Black tactical hoodie - mid-tier anonymity
+ANONYMITY_HOODIE_TACTICAL = {
+    "prototype_key": "anonymity_hoodie_tactical",
+    "key": "black tactical hoodie",
+    "aliases": ["tac hoodie", "tactical hoodie", "black hoodie"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A black tactical hoodie with reinforced seams and a deep, structured hood. The fabric is slightly thicker than standard, with hidden pockets and a drawstring to tighten the hood around the face. Popular with runners and anyone who needs to move fast while staying anonymous.",
+    "attrs": [
+        ("coverage", ["chest", "back", "abdomen", "left_arm", "right_arm"]),
+        ("worn_desc", "A |xblack|n tactical hoodie with clean lines and utilitarian purpose"),
+        ("layer", 2),
+        ("color", "black"),
+        ("material", "synthetic"),
+        ("weight", 1.0),
+        # Anonymity attributes
+        ("provides_anonymity", True),
+        ("anonymity_active", False),
+        ("anonymity_descriptor", "a hooded stranger in black"),
+    ],
+}
+
+# ----- MASKS (Simple Anonymity - More Secure) -----
+
+# Surgical mask - minimal anonymity
+ANONYMITY_MASK_SURGICAL = {
+    "prototype_key": "anonymity_mask_surgical",
+    "key": "surgical mask",
+    "aliases": ["mask", "medical mask", "face mask"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A disposable surgical mask in pale blue. It covers the nose and mouth, obscuring the lower half of the face. Common enough in Kowloon that no one looks twice - air quality here makes them practical as well as concealing.",
+    "attrs": [
+        ("coverage", ["face"]),
+        ("worn_desc", "A pale blue surgical mask covering the lower face"),
+        ("layer", 1),
+        ("color", "blue"),
+        ("material", "cloth"),
+        ("weight", 0.05),
+        # Anonymity attributes - always active when worn
+        ("provides_anonymity", True),
+        ("anonymity_active", True),
+        ("anonymity_descriptor", "a masked individual"),
+    ],
+}
+
+# Ballistic mask - high anonymity, intimidating
+ANONYMITY_MASK_BALLISTIC = {
+    "prototype_key": "anonymity_mask_ballistic",
+    "key": "ballistic face mask",
+    "aliases": ["ballistic mask", "tactical mask", "combat mask"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A matte black ballistic face mask that covers everything from forehead to chin. The polymer shell is rated to stop small caliber rounds, but more importantly, it transforms the wearer into something inhuman - a blank, expressionless void where a face should be. Two dark eye slits stare out from the darkness.",
+    "attrs": [
+        ("coverage", ["face", "head"]),
+        ("worn_desc", "A matte |xblack|n ballistic mask that reduces features to a featureless void"),
+        ("layer", 2),
+        ("color", "black"),
+        ("material", "polymer"),
+        ("weight", 0.5),
+        ("armor_value", 2),
+        # Anonymity attributes
+        ("provides_anonymity", True),
+        ("anonymity_active", True),
+        ("anonymity_descriptor", "a masked figure in black"),
+    ],
+}
+
+# Decorative Oni mask - distinctive but concealing
+ANONYMITY_MASK_ONI = {
+    "prototype_key": "anonymity_mask_oni",
+    "key": "red oni mask",
+    "aliases": ["oni mask", "demon mask", "red mask"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A traditional oni mask rendered in lacquered red and gold. The demon face snarls with carved fangs and wild eyes, its expression frozen in supernatural rage. Horns curl back from the forehead. Beautiful craftsmanship - and completely concealing.",
+    "attrs": [
+        ("coverage", ["face"]),
+        ("worn_desc", "A snarling |rred|n oni mask with golden accents and curved horns"),
+        ("layer", 2),
+        ("color", "red"),
+        ("material", "lacquered wood"),
+        ("weight", 0.3),
+        # Anonymity attributes
+        ("provides_anonymity", True),
+        ("anonymity_active", True),
+        ("anonymity_descriptor", "someone in an oni mask"),
+    ],
+}
+
+# ----- HELMETS (High Anonymity - Hard to Remove) -----
+
+# Motorcycle helmet - common, full coverage
+ANONYMITY_HELMET_MOTORCYCLE = {
+    "prototype_key": "anonymity_helmet_motorcycle",
+    "key": "motorcycle helmet",
+    "aliases": ["helmet", "moto helmet", "bike helmet"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A full-face motorcycle helmet with a tinted visor. The shell is scuffed and worn from use, but structurally sound. With the visor down, the wearer becomes just another rider - anonymous behind dark polymer.",
+    "attrs": [
+        ("coverage", ["head", "face"]),
+        ("worn_desc", "A scuffed motorcycle helmet with tinted visor"),
+        ("layer", 3),
+        ("color", "black"),
+        ("material", "polymer"),
+        ("weight", 1.5),
+        ("armor_value", 3),
+        # Anonymity attributes
+        ("provides_anonymity", True),
+        ("anonymity_active", True),
+        ("anonymity_descriptor", "a helmeted rider"),
+    ],
+}
+
+# Military helmet with visor
+ANONYMITY_HELMET_MILITARY = {
+    "prototype_key": "anonymity_helmet_military",
+    "key": "military helmet",
+    "aliases": ["combat helmet", "mil helmet", "tactical helmet"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A military-grade combat helmet with integrated ballistic visor. The olive drab shell is scarred from use, and the visor can drop down to completely seal the face. Rails along the sides could mount additional equipment. This is the kind of gear that sees real combat.",
+    "attrs": [
+        ("coverage", ["head", "face"]),
+        ("worn_desc", "An olive drab military helmet with ballistic visor"),
+        ("layer", 3),
+        ("color", "olive"),
+        ("material", "composite"),
+        ("weight", 2.0),
+        ("armor_value", 5),
+        # Anonymity attributes
+        ("provides_anonymity", True),
+        ("anonymity_active", True),
+        ("anonymity_descriptor", "a helmeted soldier"),
+    ],
+}
+
+# ----- DISGUISE KIT ITEMS (For Skill-Based Disguises) -----
+
+# Basic makeup kit - entry level disguise tools
+DISGUISE_KIT_BASIC = {
+    "prototype_key": "disguise_kit_basic",
+    "key": "basic makeup kit",
+    "aliases": ["makeup kit", "cosmetics kit", "makeup"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A compact makeup kit containing foundation in various skin tones, concealer, contour powder, and basic applicators. Nothing fancy, but enough to subtly alter facial features - soften jawlines, change apparent bone structure, hide distinguishing marks. The tools of minor transformation.",
+    "attrs": [
+        ("weight", 0.3),
+        ("uses", 10),  # Limited uses before replacement needed
+        ("disguise_bonus", 5),  # Small bonus to disguise skill checks
+    ],
+}
+
+# Professional disguise kit - serious tools
+DISGUISE_KIT_PROFESSIONAL = {
+    "prototype_key": "disguise_kit_professional",
+    "key": "professional disguise kit",
+    "aliases": ["pro kit", "theatrical kit", "stage makeup"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A professional-grade disguise kit in a leather case. Contains theatrical-quality makeup, prosthetic adhesive, spirit gum, skin-safe latex, color-matched foundation palettes, and precision brushes. With these tools and enough skill, a face becomes a canvas - age lines can be added or erased, features reshaped, entire identities constructed or destroyed.",
+    "attrs": [
+        ("weight", 1.0),
+        ("uses", 25),
+        ("disguise_bonus", 15),  # Significant bonus to disguise skill checks
+    ],
+}
+
+# ----- WIGS (For Disguise Profiles) -----
+
+# Basic synthetic wig
+DISGUISE_WIG_BASIC = {
+    "prototype_key": "disguise_wig_basic",
+    "key": "synthetic wig",
+    "aliases": ["wig", "fake hair", "hairpiece"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A basic synthetic wig in a nondescript brown. The fibers are obviously artificial up close, but from a distance it passes. Comes with a mesh cap to hold natural hair in place. Good enough to change apparent hair color and style - bad enough to slip if handled roughly.",
+    "attrs": [
+        ("weight", 0.2),
+        ("color", "brown"),
+        ("provides_anonymity", False),  # Wigs add to disguise, not simple anonymity
+        ("disguise_component", True),  # Used in building disguise profiles
+        ("disguise_bonus", 5),
+    ],
+}
+
+# High-quality human hair wig
+DISGUISE_WIG_QUALITY = {
+    "prototype_key": "disguise_wig_quality",
+    "key": "human hair wig",
+    "aliases": ["real wig", "quality wig", "natural wig"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A high-quality wig made from real human hair. The lace front is virtually undetectable, and the hair moves naturally. Custom-fitted with an adjustable cap and secure clips. This is the kind of hairpiece worn by actors, cancer patients, and professionals who make people disappear.",
+    "attrs": [
+        ("weight", 0.15),
+        ("color", "black"),
+        ("provides_anonymity", False),
+        ("disguise_component", True),
+        ("disguise_bonus", 15),
+    ],
+}
+
+# ----- SPECIALTY ITEMS -----
+
+# Voice modulator - changes voice patterns
+DISGUISE_VOICE_MODULATOR = {
+    "prototype_key": "disguise_voice_modulator",
+    "key": "voice modulator",
+    "aliases": ["voice changer", "modulator", "voice mod"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A small throat-mounted device that alters voice patterns in real-time. Can shift pitch, add or remove accents, and fundamentally change how a speaker sounds. Battery-powered with approximately eight hours of use. Illegal in most jurisdictions - possession implies intent to deceive.",
+    "attrs": [
+        ("weight", 0.1),
+        ("battery_life", 8),  # Hours
+        ("provides_anonymity", False),
+        ("disguise_component", True),
+        ("disguise_bonus", 10),
+    ],
+}
+
+# Colored contact lenses
+DISGUISE_CONTACTS = {
+    "prototype_key": "disguise_contacts",
+    "key": "colored contact lenses",
+    "aliases": ["contacts", "colored contacts", "eye contacts"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A sterile case containing a pair of colored contact lenses. These particular ones are a striking green, but the same manufacturer produces every natural eye color and some unnatural ones. Comfortable for extended wear, but still foreign objects sitting on your eyeballs.",
+    "attrs": [
+        ("weight", 0.01),
+        ("color", "green"),
+        ("provides_anonymity", False),
+        ("disguise_component", True),
+        ("disguise_bonus", 5),
+    ],
+}
+
+# Prosthetic face appliances
+DISGUISE_PROSTHETICS = {
+    "prototype_key": "disguise_prosthetics",
+    "key": "facial prosthetics",
+    "aliases": ["prosthetics", "face prosthetics", "appliances"],
+    "typeclass": "typeclasses.items.Item",
+    "desc": "A set of medical-grade silicone facial prosthetics. Includes pieces to alter nose shape, add or hide scars, change apparent age, and modify facial structure. Each piece is custom-blend matched to common skin tones. Application requires skill and patience, but the results are transformative.",
+    "attrs": [
+        ("weight", 0.2),
+        ("uses", 5),  # Limited applications before replacement
+        ("provides_anonymity", False),
+        ("disguise_component", True),
+        ("disguise_bonus", 20),  # Significant bonus when used properly
+    ],
+}

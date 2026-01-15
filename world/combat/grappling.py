@@ -331,6 +331,19 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
         # Set victim's target to the grappler for potential retaliation after escape/release
         target_entry[DB_TARGET_DBREF] = get_character_dbref(char)
         
+        # Check for disguise slip on grapple victim (shove trigger)
+        try:
+            from world.disguise.core import (
+                check_disguise_slip, trigger_slip_event, get_anonymity_item
+            )
+            slipped, slip_type = check_disguise_slip(target, "shove")
+            if slipped:
+                item, _ = get_anonymity_item(target)
+                trigger_slip_event(target, slip_type, item=item)
+                splattercast.msg(f"GRAPPLE_DISGUISE_SLIP: {target.key} disguise slipped when grappled")
+        except ImportError:
+            pass  # Disguise system not available
+        
         # Establish proximity now that grapple is successful
         if char.location == target.location:
             from .proximity import establish_proximity

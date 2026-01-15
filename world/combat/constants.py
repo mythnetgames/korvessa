@@ -962,3 +962,93 @@ def get_weapon_skill(weapon_type):
         str: The skill name, defaults to 'melee' if not found
     """
     return WEAPON_SKILL_MAP.get(weapon_type, SKILL_MELEE)
+
+# ===================================================================
+# DISGUISE & ANONYMITY SYSTEM CONSTANTS
+# ===================================================================
+
+# Item types that can provide anonymity when worn properly
+ANONYMITY_ITEM_TYPES = {
+    "hood",      # Hoodies with hood up
+    "mask",      # Face masks, balaclavas
+    "helmet",    # Full-face helmets
+    "scarf",     # Scarves worn over face
+    "cloak",     # Cloaks with hoods
+    "veil",      # Face veils
+}
+
+# Keywords in item names that indicate anonymity capability
+ANONYMITY_KEYWORDS = [
+    "hood", "hoodie", "mask", "helmet", "balaclava", "scarf",
+    "cloak", "veil", "bandana", "bandanna", "cowl", "shroud"
+]
+
+# Disguise stability thresholds
+DISGUISE_STABILITY_MAX = 100
+DISGUISE_STABILITY_UNSTABLE = 30   # Below this, partial slips possible
+DISGUISE_STABILITY_BROKEN = 0      # At or below, disguise fully breaks
+
+# Slip chance base rates (per trigger event, out of 100)
+SLIP_CHANCE_COMBAT = 15            # Per combat round
+SLIP_CHANCE_SHOVE = 25             # When shoved/grabbed/tackled
+SLIP_CHANCE_RUN = 10               # When running/sprinting
+SLIP_CHANCE_SCRUTINY = 20          # When directly scrutinized
+SLIP_CHANCE_EMOTE_BASE = 2         # Base chance per emote/say
+SLIP_CHANCE_EMOTE_INCREMENT = 1    # Added per emote since last adjust
+
+# Skill-based disguise modifiers (reduce slip chance)
+# Per 10 points of disguise skill, reduce slip chance by this percent
+DISGUISE_SKILL_MODIFIER = 5
+
+# Stability damage from events (skill-based disguises)
+STABILITY_DAMAGE_COMBAT = 10       # Per combat round while in combat
+STABILITY_DAMAGE_HIT = 15          # When taking damage
+STABILITY_DAMAGE_CRITICAL = 30     # Severe damage/critical hit
+STABILITY_DAMAGE_SCRUTINY = 5      # Per scrutiny attempt
+STABILITY_DAMAGE_ENVIRONMENT = 10  # Rain, fire, impact
+
+# Recognition check difficulty modifiers
+RECOGNITION_BONUS_KNOWS_IDENTITY = 50   # Already seen true identity
+RECOGNITION_BONUS_CLOSE_CONTACT = 10    # In proximity/grappling
+RECOGNITION_BONUS_VOICE = 15            # Heard voice recently
+
+# NDB fields for disguise state
+NDB_EMOTE_COUNT_SINCE_ADJUST = "emote_count_since_adjust"
+NDB_IDENTITY_SLIPPED = "identity_slipped"
+
+# DB fields for disguise state  
+DB_ACTIVE_DISGUISE = "active_disguise"
+DB_KNOWN_IDENTITIES = "known_identities"
+DB_DISGUISE_PROFILES = "disguise_profiles"
+
+# Messages for disguise events
+MSG_ITEM_SLIP_SELF = "|yYour {item} slips, briefly exposing your face!|n"
+MSG_ITEM_SLIP_ROOM = "|y{name}'s {item} slips back, briefly exposing their face.|n"
+MSG_ITEM_ADJUSTED = "|gYou adjust your {item}, concealing your identity again.|n"
+MSG_ITEM_ADJUSTED_ROOM = "|y{name} adjusts their {item}.|n"
+
+MSG_DISGUISE_PARTIAL_SELF = "|yYour disguise falters for a moment, revealing your face before you recover!|n"
+MSG_DISGUISE_PARTIAL_ROOM = "|y{name}'s disguise falters for a moment, revealing their face before they recover.|n"
+MSG_DISGUISE_BREAK_SELF = "|RYour disguise comes apart completely, exposing who you really are!|n"
+MSG_DISGUISE_BREAK_ROOM = "|R{name}'s disguise comes apart completely, exposing who they really are.|n"
+
+MSG_RECOGNIZED = "|yYou recognize {descriptor} as {true_name}!|n"
+
+# Anonymity descriptor templates (for item-based anonymity)
+ANONYMITY_DESCRIPTORS = {
+    "hood": "a hooded figure",
+    "hoodie": "a hooded figure", 
+    "mask": "a masked figure",
+    "helmet": "a helmeted figure",
+    "balaclava": "a masked figure",
+    "scarf": "a scarfed figure",
+    "cloak": "a cloaked figure",
+    "veil": "a veiled figure",
+    "bandana": "a masked figure",
+    "bandanna": "a masked figure",
+    "cowl": "a cowled figure",
+    "shroud": "a shrouded figure",
+}
+
+# Default descriptor when no specific match
+DEFAULT_ANONYMITY_DESCRIPTOR = "a concealed figure"

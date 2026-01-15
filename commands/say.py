@@ -135,6 +135,18 @@ class CmdSay(DefaultCmdSay):
         if speech and speech[-1] not in '.!?':
             speech = speech + '.'
         
+        # Check for disguise slip on speech
+        try:
+            from world.disguise.core import (
+                check_disguise_slip, trigger_slip_event, get_anonymity_item
+            )
+            slipped, slip_type = check_disguise_slip(caller, "emote")
+            if slipped:
+                item, _ = get_anonymity_item(caller)
+                trigger_slip_event(caller, slip_type, item=item)
+        except ImportError:
+            pass  # Disguise system not available
+        
         # Get speaker's primary language
         primary_language = get_primary_language(caller)
         

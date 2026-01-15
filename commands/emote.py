@@ -127,6 +127,18 @@ class CmdEmote(DefaultCmdPose):
         # Fix grammar in the emote text - contractions and capitalize standalone "i"
         emote_text = fix_speech_grammar(emote_text)
         
+        # Check for disguise slip on emote
+        try:
+            from world.disguise.core import (
+                check_disguise_slip, trigger_slip_event, get_anonymity_item
+            )
+            slipped, slip_type = check_disguise_slip(caller, "emote")
+            if slipped:
+                item, _ = get_anonymity_item(caller)
+                trigger_slip_event(caller, slip_type, item=item)
+        except ImportError:
+            pass  # Disguise system not available
+        
         # Check if character has a voice set
         voice = getattr(caller.db, 'voice', None)
         

@@ -141,6 +141,22 @@ class Item(DefaultObject):
     stuck_grenade = AttributeProperty(None, autocreate=True)
     
     # ===================================================================
+    # ANONYMITY SYSTEM ATTRIBUTES
+    # ===================================================================
+    
+    # Whether this item can provide anonymity (e.g., hoodies, masks, helmets)
+    # When True and anonymity_active is True, wearer's identity is concealed
+    provides_anonymity = AttributeProperty(False, autocreate=True)
+    
+    # Whether the anonymity feature is currently active
+    # For hoodies: hood is up; For masks: mask is on face; etc.
+    anonymity_active = AttributeProperty(False, autocreate=True)
+    
+    # Custom descriptor when anonymity is active (e.g., 'a hooded figure')
+    # If empty, system will generate based on item name keywords
+    anonymity_descriptor = AttributeProperty("", autocreate=True)
+    
+    # ===================================================================
     # CLOTHING SYSTEM METHODS
     # ===================================================================
     
