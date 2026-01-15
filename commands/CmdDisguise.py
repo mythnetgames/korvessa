@@ -233,10 +233,10 @@ class CmdDisguise(Command):
         
         if apply_disguise(caller, profile_id):
             profile = profiles[profile_id]
-            caller.msg(f"|gYou apply your disguise. You now appear as: {profile.get('display_name')}|n")
+            caller.msg(f"You apply your disguise. You now appear as: {profile.get('display_name')}")
             if caller.location:
                 caller.location.msg_contents(
-                    f"|y{caller.key} takes a moment to adjust their appearance.|n",
+                    f"{caller.key} takes a moment to adjust their appearance.",
                     exclude=[caller]
                 )
         else:
