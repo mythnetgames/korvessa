@@ -427,6 +427,13 @@ def get_display_identity(character, looker):
         if stability > DISGUISE_STABILITY_BROKEN:
             display_name = disguise.get("display_name")
             if display_name:
+                # Debug log
+                try:
+                    from evennia.comms.models import ChannelDB
+                    splat = ChannelDB.objects.get_channel("Splattercast")
+                    splat.msg(f"DEBUG: {character.key} returning disguise name: {display_name}")
+                except:
+                    pass
                 return (display_name, False)
             # Fall back to disguise anonymity descriptor
             descriptor = disguise.get("anonymity_descriptor")

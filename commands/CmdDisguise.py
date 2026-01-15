@@ -198,7 +198,7 @@ class CmdDisguise(Command):
             return
         
         profile_id, display_name = args.split("=", 1)
-        profile_id = profile_id.strip()
+        profile_id = profile_id.strip().lower()
         display_name = display_name.strip()
         
         if not profile_id or not display_name:
