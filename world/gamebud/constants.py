@@ -104,9 +104,7 @@ MSG_MUTED = "|yGamebud notifications muted.|n"
 MSG_UNMUTED = "|gGamebud notifications unmuted.|n"
 MSG_ALREADY_MUTED = "|yGamebud is already muted.|n"
 MSG_ALREADY_UNMUTED = "|yGamebud is already unmuted.|n"
-MSG_COLOR_SET = "|gAlias color set to: |{color}{color_name}|n"
-MSG_INVALID_COLOR = "|rInvalid color. Choose from: {colors}|n"
-MSG_COLOR_SET = "|gAlias color set to: |{color}{color_name}|n"
+MSG_COLOR_SET = "|gAlias color set to: {color}|n"
 MSG_INVALID_COLOR = "|rInvalid color. Choose from: {colors}|n"
 
 # Notification message (beep)
