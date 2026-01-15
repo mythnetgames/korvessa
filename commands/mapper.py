@@ -271,7 +271,7 @@ class CmdMap(Command):
             padding = max(0, target_width - vis_len)
             return s + " " * padding
         
-        # Build output - descriptions always start at column 25
+        # Build output - map on left, descriptions on right and bottom
         output = []
         
         # Rows 0-4: map grid (padded to 25 visual chars) + description
