@@ -1097,7 +1097,9 @@ class CmdChoke(Command):
             return
         
         # Set choke action for combat handler to process
+        # Choking is violent - set is_yielding to False so the action gets processed
         caller_entry["combat_action"] = "choke"
+        caller_entry["is_yielding"] = False
         
         caller.msg(f"You begin choking {get_display_name_safe(victim, caller)}!")
         victim.msg(f"{get_display_name_safe(caller, victim)} begins choking you!")
