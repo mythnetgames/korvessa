@@ -319,12 +319,13 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
     attacker_dex = getattr(char.db, "dexterity", 1) or 1
     
     # Defender stats - dodge skill with SMRT/DEX
-    defender_dodge = getattr(target.db, "dodge", 0) or 0
-    if defender_dodge == 0:
-        # Fallback to dexterity if no dodge skill
-        defender_dodge = defender_dex * 5  # Convert stat to skill equivalent
     defender_smarts = getattr(target.db, "smarts", 1) or 1
     defender_dex = getattr(target.db, "dexterity", 1) or 1
+    
+    defender_dodge = getattr(target.db, "dodge", 0) or 0
+    if defender_dodge == 0:
+        # Fallback: treat 0 dodge as skill level 1 if they didn't invest
+        defender_dodge = 1
     
     # Calculate combined stat bonuses
     # For grappler: average of BODY and DEX (both important for catching and holding)
