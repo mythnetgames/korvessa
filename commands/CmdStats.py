@@ -147,7 +147,6 @@ class CmdStats(Command):
             ("Brawling", "brawling"),
             ("Martial Arts", "martial_arts"),
             ("Grappling", "grappling"),
-            ("Athletics", "athletics"),
             ("Snooping", "snooping"),
             ("Stealing", "stealing"),
             ("Hiding", "hiding"),

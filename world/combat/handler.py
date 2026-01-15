@@ -768,24 +768,38 @@ class CombatHandler(DefaultScript):
                 char.msg(f"|yYou struggle against {grappler.key}'s grip!|n")
                 
                 # Setup an escape attempt using new 0-100 skill system
-                # Auto-escape uses athletics vs brawling
-                escaper_athletics = getattr(char.db, "athletics", 0) or 0
-                escaper_ref = getattr(char.db, "ref", 1) or 1
-                grappler_brawling = getattr(grappler.db, "brawling", 0) or 0
-                grappler_ref = getattr(grappler.db, "ref", 1) or 1
+                # Escaper uses whichever is better: BODY or DEX (physical escape)
+                # Grappler uses BODY + grappling skill to hold on
+                escaper_body = getattr(char.db, "body", 1) or 1
+                escaper_dex = getattr(char.db, "dexterity", 1) or 1
+                
+                grappler_grappling = getattr(grappler.db, "grappling", 0) or 0
+                using_brawling_fallback = False
+                if grappler_grappling == 0:
+                    # Fallback to brawling with penalty
+                    grappler_grappling = (getattr(grappler.db, "brawling", 0) or 0) // 3
+                    using_brawling_fallback = True
+                grappler_body = getattr(grappler.db, "body", 1) or 1
+                
+                # Calculate stat bonuses
+                # Escaper uses whichever stat is more advantageous
+                escaper_combined_stat = max(escaper_body, escaper_dex)
+                # Grappler uses BODY to hold on
+                grappler_combined_stat = grappler_body
                 
                 escape_result = combat_roll(
-                    attacker_skill=escaper_athletics,
-                    defender_skill=grappler_brawling,
-                    attacker_stat=escaper_ref,
-                    defender_stat=grappler_ref
+                    attacker_skill=escaper_dodge,
+                    defender_skill=grappler_grappling,
+                    attacker_stat=escaper_combined_stat,
+                    defender_stat=grappler_combined_stat
                 )
                 escaper_roll = escape_result['attacker_roll']
                 grappler_roll = escape_result['defender_roll']
                 esc_dice, esc_bonus = escape_result['attacker_details']
                 grp_dice, grp_bonus = escape_result['defender_details']
                 
-                splattercast.msg(f"AUTO_ESCAPE_ATTEMPT: {char.key} [athletics:{escaper_athletics}+REF*5:{escaper_ref*5}=d20:{esc_dice}+bonus:{esc_bonus}=roll {escaper_roll}] vs {grappler.key} [brawling:{grappler_brawling}+REF*5:{grappler_ref*5}=d20:{grp_dice}+bonus:{grp_bonus}=roll {grappler_roll}].")
+                fallback_note = " (brawling/3)" if using_brawling_fallback else ""
+                splattercast.msg(f"AUTO_ESCAPE_ATTEMPT: {char.key} [max(BODY:{escaper_body},DEX:{escaper_dex})*5={escaper_combined_stat*5:.1f}=d20:{esc_dice}+bonus:{esc_bonus}=roll {escaper_roll}] vs {grappler.key} [grappling{fallback_note}:{grappler_grappling}+BODY*5:{grappler_body*5}=d20:{grp_dice}+bonus:{grp_bonus}=roll {grappler_roll}].")
 
                 if escaper_roll > grappler_roll:
                     # Success - clear grapple
@@ -926,7 +940,8 @@ class CombatHandler(DefaultScript):
                             defender_roll = grapple_result['defender_roll']
                             atk_dice, atk_bonus = grapple_result['attacker_details']
                             def_dice, def_bonus = grapple_result['defender_details']
-                            splattercast.msg(f"GRAPPLE ATTEMPT: {char.key} [brawling:{attacker_brawling}+REF*5:{attacker_ref*5}=d20:{atk_dice}+bonus:{atk_bonus}=roll {attacker_roll}] vs {action_target_char.key} [athletics:{defender_athletics}+REF*5:{defender_ref*5}=d20:{def_dice}+bonus:{def_bonus}=roll {defender_roll}].")
+                            splattercast.msg(f"GRAPPLE ATTEMPT: {char.key} [brawling:{attacker_brawling}+REF*5:{attacker_ref*5}=d20:{atk_dice}+bonus:{atk_bonus}=roll {attacker_roll}] vs {action_target_char.key} [DEX*5:{defender_dex*5}+REF*5:{defender_ref*5}=d20:{def_dice}+bonus:{def_bonus}=roll {defender_roll}].")
+
 
                             if attacker_roll > defender_roll:
                                 # Store dbrefs for persistence
@@ -968,23 +983,35 @@ class CombatHandler(DefaultScript):
                         grappler = self.get_grappled_by_obj(current_char_combat_entry)
                         if grappler and any(e[DB_CHAR] == grappler for e in combatants_list):
                             # Escape roll: Using new 0-100 skill system
-                            # Athletics vs Brawling with REF modifier
-                            escaper_ref = getattr(char.db, "ref", 1) or 1
-                            escaper_athletics = getattr(char.db, "athletics", 0) or 0
-                            grappler_ref = getattr(grappler.db, "ref", 1) or 1
-                            grappler_brawling = getattr(grappler.db, "brawling", 0) or 0
+                            # Escaper uses whichever is better: BODY or DEX
+                            # Grappler uses BODY + grappling skill to hold on
+                            escaper_body = getattr(char.db, "body", 1) or 1
+                            escaper_dex = getattr(char.db, "dexterity", 1) or 1
+                            
+                            grappler_grappling = getattr(grappler.db, "grappling", 0) or 0
+                            using_brawling_fallback = False
+                            if grappler_grappling == 0:
+                                # Fallback to brawling with penalty
+                                grappler_grappling = (getattr(grappler.db, "brawling", 0) or 0) // 3
+                                using_brawling_fallback = True
+                            grappler_body = getattr(grappler.db, "body", 1) or 1
+                            
+                            # Calculate stat bonuses
+                            escaper_combined_stat = max(escaper_body, escaper_dex)
+                            grappler_combined_stat = grappler_body
                             
                             escape_result = combat_roll(
-                                attacker_skill=escaper_athletics,
-                                defender_skill=grappler_brawling,
-                                attacker_stat=escaper_ref,
-                                defender_stat=grappler_ref
+                                attacker_skill=escaper_dodge,
+                                defender_skill=grappler_grappling,
+                                attacker_stat=escaper_combined_stat,
+                                defender_stat=grappler_combined_stat
                             )
                             escaper_roll = escape_result['attacker_roll']
                             grappler_roll = escape_result['defender_roll']
                             esc_dice, esc_bonus = escape_result['attacker_details']
                             grp_dice, grp_bonus = escape_result['defender_details']
-                            splattercast.msg(f"ESCAPE ATTEMPT: {char.key} [athletics:{escaper_athletics}+REF*5:{escaper_ref*5}=d20:{esc_dice}+bonus:{esc_bonus}=roll {escaper_roll}] vs {grappler.key} [brawling:{grappler_brawling}+REF*5:{grappler_ref*5}=d20:{grp_dice}+bonus:{grp_bonus}=roll {grappler_roll}].")
+                            fallback_note = " (brawling/3)" if using_brawling_fallback else ""
+                            splattercast.msg(f"ESCAPE ATTEMPT: {char.key} [max(BODY:{escaper_body},DEX:{escaper_dex})*5={escaper_combined_stat*5:.1f}=d20:{esc_dice}+bonus:{esc_bonus}=roll {escaper_roll}] vs {grappler.key} [grappling{fallback_note}:{grappler_grappling}+BODY*5:{grappler_body*5}=d20:{grp_dice}+bonus:{grp_bonus}=roll {grappler_roll}].")
 
                             if escaper_roll > grappler_roll:
                                 current_char_combat_entry[DB_GRAPPLED_BY_DBREF] = None
@@ -1791,7 +1818,7 @@ class CombatHandler(DefaultScript):
         if grappled_victim_dbref:
             grappled_victim = self._get_char_by_dbref(grappled_victim_dbref)
         
-        # Get valid opponents (exclude grappled victim from athletics contest)
+        # Get valid opponents (exclude grappled victim from dexterity contest)
         opponents = []
         for entity in all_proximity:
             if (entity != char and 
@@ -1828,7 +1855,7 @@ class CombatHandler(DefaultScript):
         char_total, char_dice, char_bonus = skill_roll(char_athletics + (char_ref * 5))
         opp_total, opp_dice, opp_bonus = skill_roll(highest_opponent_skill)
         
-        splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RETREAT: {char.key} [athletics:{char_athletics}+REF*5:{char_ref*5}=d20:{char_dice}+bonus:{char_bonus}=roll {char_total}] vs highest opponent [total_skill:{highest_opponent_skill}=d20:{opp_dice}+bonus:{opp_bonus}=roll {opp_total}]")
+        splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_RETREAT: {char.key} [DEX*5:{char_dex*5}+REF*5:{char_ref*5}=d20:{char_dice}+bonus:{char_bonus}=roll {char_total}] vs highest opponent [total_skill:{highest_opponent_skill}=d20:{opp_dice}+bonus:{opp_bonus}=roll {opp_total}]")
         
         if char_total > opp_total:
             # Success - break proximity with opponents but maintain with grappled victim

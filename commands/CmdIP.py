@@ -36,7 +36,7 @@ SKILL_LIST = [
     "grappling", "snooping", "stealing", "hiding", "sneaking", "disguise",
     "tailoring", "tinkering", "manufacturing", "cooking", "forensics",
     "decking", "electronics", "mercantile", "streetwise", "paint_draw_sculpt",
-    "instrument", "athletics"
+    "instrument"
 ]
 
 # Skill name display mapping (for pretty printing)
@@ -69,8 +69,7 @@ SKILL_DISPLAY_NAMES = {
     "mercantile": "Mercantile",
     "streetwise": "Streetwise",
     "paint_draw_sculpt": "Paint/Draw/Sculpt",
-    "instrument": "Instrument",
-    "athletics": "Athletics"
+    "instrument": "Instrument"
 }
 
 

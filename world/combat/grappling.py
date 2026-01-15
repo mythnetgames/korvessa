@@ -303,25 +303,48 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
     # No proximity check needed here since grapple commands handle their own proximity logic
     
     # Roll for grapple using new 0-100 skill system
-    # Grapple uses brawling skill + body stat
+    # Grapple uses grappling skill (fallback to brawling with penalty) + BODY and DEX
+    # Defense uses dodge skill (fallback to athletics) + SMRT and DEX
     from .utils import combat_roll
-    attacker_brawling = getattr(char.db, "brawling", 0) or 0
+    
+    # Attacker (grappler) stats - grappling skill with BODY/DEX
+    attacker_grappling = getattr(char.db, "grappling", 0) or 0
+    using_brawling_fallback = False
+    if attacker_grappling == 0:
+        # Fallback to brawling if no grappling skill, but with severe penalty
+        # Grappling is its own skill and shouldn't be ignored
+        attacker_grappling = (getattr(char.db, "brawling", 0) or 0) // 3  # Only 1/3 effectiveness
+        using_brawling_fallback = True
     attacker_body = getattr(char.db, "body", 1) or 1
-    defender_athletics = getattr(target.db, "athletics", 0) or 0
-    defender_body = getattr(target.db, "body", 1) or 1
+    attacker_dex = getattr(char.db, "dexterity", 1) or 1
+    
+    # Defender stats - dodge skill with SMRT/DEX
+    defender_dodge = getattr(target.db, "dodge", 0) or 0
+    if defender_dodge == 0:
+        # Fallback to dexterity if no dodge skill
+        defender_dodge = defender_dex * 5  # Convert stat to skill equivalent
+    defender_smarts = getattr(target.db, "smarts", 1) or 1
+    defender_dex = getattr(target.db, "dexterity", 1) or 1
+    
+    # Calculate combined stat bonuses
+    # For grappler: average of BODY and DEX (both important for catching and holding)
+    attacker_combined_stat = (attacker_body + attacker_dex) / 2.0
+    
+    # For defender: average of SMRT and DEX (spatial awareness + body control)
+    defender_combined_stat = (defender_smarts + defender_dex) / 2.0
     
     grapple_result = combat_roll(
-        attacker_skill=attacker_brawling,
-        defender_skill=defender_athletics,
-        attacker_stat=attacker_body,
-        defender_stat=defender_body
+        attacker_skill=attacker_grappling,
+        defender_skill=defender_dodge,
+        attacker_stat=attacker_combined_stat,
+        defender_stat=defender_combined_stat
     )
     attacker_roll = grapple_result['attacker_roll']
     defender_roll = grapple_result['defender_roll']
     att_dice, att_bonus = grapple_result['attacker_details']
     def_dice, def_bonus = grapple_result['defender_details']
     
-    splattercast.msg(f"GRAPPLE_INITIATE: {char.key} [brawling:{attacker_brawling}+BODY*5:{attacker_body*5}=d20:{att_dice}+bonus:{att_bonus}=roll {attacker_roll}] vs {target.key} [athletics:{defender_athletics}+BODY*5:{defender_body*5}=d20:{def_dice}+bonus:{def_bonus}=roll {defender_roll}]")
+    splattercast.msg(f"GRAPPLE_INITIATE: {char.key} [grappling:{attacker_grappling}+(BODY+DEX)/2*5:{attacker_combined_stat*5:.1f}=d20:{att_dice}+bonus:{att_bonus}=roll {attacker_roll}] vs {target.key} [dodge:{defender_dodge}+(SMRT+DEX)/2*5:{defender_combined_stat*5:.1f}=d20:{def_dice}+bonus:{def_bonus}=roll {defender_roll}]")
     
     if attacker_roll > defender_roll:
         # Success
@@ -457,24 +480,36 @@ def resolve_grapple_join(char_entry, combatants_list, handler):
         return
     
     # Contest: new grappler vs current grappler using new 0-100 skill system
+    # Both use grappling skill (fallback brawling) with BODY/DEX
     from .utils import combat_roll
-    new_brawling = getattr(char.db, "brawling", 0) or 0
+    new_grappling = getattr(char.db, "grappling", 0) or 0
+    if new_grappling == 0:
+        new_grappling = getattr(char.db, "brawling", 0) or 0
     new_body = getattr(char.db, "body", 1) or 1
-    current_brawling = getattr(current_grappler.db, "brawling", 0) or 0
+    new_dex = getattr(char.db, "dexterity", 1) or 1
+    
+    current_grappling = getattr(current_grappler.db, "grappling", 0) or 0
+    if current_grappling == 0:
+        current_grappling = getattr(current_grappler.db, "brawling", 0) or 0
     current_body = getattr(current_grappler.db, "body", 1) or 1
+    current_dex = getattr(current_grappler.db, "dexterity", 1) or 1
+    
+    # Calculate combined stat bonuses
+    new_combined_stat = (new_body + new_dex) / 2.0
+    current_combined_stat = (current_body + current_dex) / 2.0
     
     contest_result = combat_roll(
-        attacker_skill=new_brawling,
-        defender_skill=current_brawling,
-        attacker_stat=new_body,
-        defender_stat=current_body
+        attacker_skill=new_grappling,
+        defender_skill=current_grappling,
+        attacker_stat=new_combined_stat,
+        defender_stat=current_combined_stat
     )
     new_grappler_roll = contest_result['attacker_roll']
     current_grappler_roll = contest_result['defender_roll']
     new_dice, new_bonus = contest_result['attacker_details']
     cur_dice, cur_bonus = contest_result['defender_details']
     
-    splattercast.msg(f"GRAPPLE_CONTEST: {char.key} [brawling:{new_brawling}+BODY*5:{new_body*5}=d20:{new_dice}+bonus:{new_bonus}=roll {new_grappler_roll}] vs {current_grappler.key} [brawling:{current_brawling}+BODY*5:{current_body*5}=d20:{cur_dice}+bonus:{cur_bonus}=roll {current_grappler_roll}] for {target.key}")
+    splattercast.msg(f"GRAPPLE_CONTEST: {char.key} [grappling:{new_grappling}+(BODY+DEX)/2*5:{new_combined_stat*5:.1f}=d20:{new_dice}+bonus:{new_bonus}=roll {new_grappler_roll}] vs {current_grappler.key} [grappling:{current_grappling}+(BODY+DEX)/2*5:{current_combined_stat*5:.1f}=d20:{cur_dice}+bonus:{cur_bonus}=roll {current_grappler_roll}] for {target.key}")
     
     if new_grappler_roll > current_grappler_roll:
         # New grappler wins - they take over the grapple
@@ -580,24 +615,36 @@ def resolve_grapple_takeover(char_entry, combatants_list, handler):
         splattercast.msg(f"GRAPPLE_TAKEOVER_RUSH: {char.key} rushing in to grapple {target.key}")
     
     # Contest: new grappler vs current grappler using new 0-100 skill system
+    # Both use grappling skill (fallback brawling) with BODY/DEX
     from .utils import combat_roll
-    new_brawling = getattr(char.db, "brawling", 0) or 0
+    new_grappling = getattr(char.db, "grappling", 0) or 0
+    if new_grappling == 0:
+        new_grappling = getattr(char.db, "brawling", 0) or 0
     new_body = getattr(char.db, "body", 1) or 1
-    current_brawling = getattr(target.db, "brawling", 0) or 0
+    new_dex = getattr(char.db, "dexterity", 1) or 1
+    
+    current_grappling = getattr(target.db, "grappling", 0) or 0
+    if current_grappling == 0:
+        current_grappling = getattr(target.db, "brawling", 0) or 0
     current_body = getattr(target.db, "body", 1) or 1
+    current_dex = getattr(target.db, "dexterity", 1) or 1
+    
+    # Calculate combined stat bonuses
+    new_combined_stat = (new_body + new_dex) / 2.0
+    current_combined_stat = (current_body + current_dex) / 2.0
     
     takeover_result = combat_roll(
-        attacker_skill=new_brawling,
-        defender_skill=current_brawling,
-        attacker_stat=new_body,
-        defender_stat=current_body
+        attacker_skill=new_grappling,
+        defender_skill=current_grappling,
+        attacker_stat=new_combined_stat,
+        defender_stat=current_combined_stat
     )
     new_grappler_roll = takeover_result['attacker_roll']
     current_grappler_roll = takeover_result['defender_roll']
     new_dice, new_bonus = takeover_result['attacker_details']
     cur_dice, cur_bonus = takeover_result['defender_details']
     
-    splattercast.msg(f"GRAPPLE_TAKEOVER_CONTEST: {char.key} [brawling:{new_brawling}+BODY*5:{new_body*5}=d20:{new_dice}+bonus:{new_bonus}=roll {new_grappler_roll}] vs {target.key} [brawling:{current_brawling}+BODY*5:{current_body*5}=d20:{cur_dice}+bonus:{cur_bonus}=roll {current_grappler_roll}] - forcing release of {victim.key}")
+    splattercast.msg(f"GRAPPLE_TAKEOVER_CONTEST: {char.key} [grappling:{new_grappling}+(BODY+DEX)/2*5:{new_combined_stat*5:.1f}=d20:{new_dice}+bonus:{new_bonus}=roll {new_grappler_roll}] vs {target.key} [grappling:{current_grappling}+(BODY+DEX)/2*5:{current_combined_stat*5:.1f}=d20:{cur_dice}+bonus:{cur_bonus}=roll {current_grappler_roll}] - forcing release of {victim.key}")
     
     if new_grappler_roll > current_grappler_roll:
         # Success: Force target to release victim, then establish new grapple
