@@ -422,7 +422,18 @@ def _play_permanent_death(account, character, session):
     delay(45.0, account.msg, "|W    \"Identity file: closed.\"|n")
     delay(47.5, account.msg, "")
     # Use real name instead of display name for cloning system
-    real_name = getattr(character.db, 'real_full_name', character.key) if character else 'Subject'
+    # Check real_full_name, then fall back to first_name + last_name, then character key
+    real_name = 'Subject'
+    if character:
+        real_name = getattr(character.db, 'real_full_name', None)
+        if not real_name:
+            # Fallback: construct from individual name fields
+            first = getattr(character.db, 'real_first_name', '')
+            last = getattr(character.db, 'real_last_name', '')
+            if first or last:
+                real_name = f"{first} {last}".strip()
+            else:
+                real_name = character.key
     delay(49.5, account.msg, f"|W    \"{real_name}: Deceased.\"|n")
     delay(52.0, account.msg, "")
     delay(54.0, account.msg, "|W    \"Sleeve allocation for account in progress.\"|n")
