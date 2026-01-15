@@ -202,13 +202,13 @@ class CmdMap(Command):
 
         import textwrap
         # Map grid: 5 rooms x 2 chars = 10 visual chars per line
-        # Total left column: 10 (grid) + 10 (padding) = 20 chars
+        # Total left column: 10 (grid) + 5 (padding) = 15 chars
         map_grid_width = 10  # Always exactly 10 visual characters
-        padding_width = 10   # 10 spaces padding
-        left_column_width = map_grid_width + padding_width  # 20 total
+        padding_width = 5    # 5 spaces padding
+        left_column_width = map_grid_width + padding_width  # 15 total
         
-        # Description column width (80 - 20 = 60)
-        column_width = 60
+        # Description column width (80 - 15 = 65)
+        column_width = 65
         
         if appearance:
             lines = appearance.split('\n')
