@@ -458,13 +458,16 @@ def check_disguise_slip(character, trigger_type, **kwargs):
     Returns:
         tuple: (slipped, slip_type) where slip_type is 'item', 'partial', or 'full'
     """
+    # Get character's disguise skill to reduce slip chance
+    disguise_skill = getattr(character.db, "disguise", 0) or 0
+    
     # Determine base slip chance based on trigger
     if trigger_type == "combat":
         base_chance = SLIP_CHANCE_COMBAT
-        # Escalate chance as combat rounds progress (0.5% increase per round after round 5)
+        # Escalate chance as combat rounds progress (1% increase per round starting at round 1)
         round_num = kwargs.get('round_num', 0) or 0
-        if round_num > 5:
-            base_chance = base_chance + ((round_num - 5) * 0.5)
+        if round_num > 0:
+            base_chance = base_chance + (round_num * 1.0)  # 1% per round
     elif trigger_type == "shove":
         base_chance = SLIP_CHANCE_SHOVE
     elif trigger_type == "run":
@@ -479,6 +482,11 @@ def check_disguise_slip(character, trigger_type, **kwargs):
         character.ndb.emote_count_since_adjust = emote_count + 1
     else:
         base_chance = 5  # Default small chance
+    
+    # Apply disguise skill modifier - reduce slip chance by 0.5% per skill point
+    # At skill 50, reduces by 25%, at skill 80 reduces by 40%
+    skill_reduction = disguise_skill * 0.5
+    base_chance = max(1, base_chance - skill_reduction)  # Never go below 1% chance
     
     # Check item-based anonymity first
     item, descriptor = get_anonymity_item(character)
