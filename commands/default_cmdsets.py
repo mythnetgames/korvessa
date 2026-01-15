@@ -33,7 +33,7 @@ from commands.CmdRevive import CmdRevive
 from commands.CmdFixCharacterOwnership import CmdFixCharacterOwnership
 from commands.fix_baseline_stats import CmdFixBaselineStats
 from commands.combat.cmdset_combat import CombatCmdSet
-from commands.combat.special_actions import CmdAim, CmdGrapple, CmdReload, CmdAmmo
+from commands.combat.special_actions import CmdAim, CmdGrapple, CmdReload, CmdAmmo, CmdChoke
 from commands.CmdThrow import (
     CmdThrow, CmdPull, CmdCatch, CmdRig, CmdDefuse,
     CmdScan, CmdDetonate, CmdDetonateList, CmdClearDetonator
@@ -264,6 +264,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add combat commands available outside combat
         self.add(CmdAim())      # Can aim at targets or directions outside combat
         self.add(CmdGrapple())  # Can initiate grapple outside combat
+        self.add(CmdChoke())    # Can choke when grappling
         # Add wield command
         self.add(CmdWield())
         # Add shop commands

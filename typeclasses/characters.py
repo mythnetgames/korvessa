@@ -142,6 +142,45 @@ class Character(ObjectParent, DefaultCharacter):
                 self.db.prelogout_location = self.location
             self.location = None
 
+    def at_before_move(self, destination, **kwargs):
+        """
+        Called before the character moves to a new location.
+        If this character is grappling someone, drag them along.
+        If this character is grappled, they move with their grappler.
+        
+        Args:
+            destination: The location the character is moving to
+            **kwargs: Additional arguments
+            
+        Returns:
+            bool: True to allow move, False to prevent it
+        """
+        from world.combat.constants import DB_CHAR, DB_GRAPPLING_DBREF, DB_GRAPPLED_BY_DBREF
+        
+        # Check if this character has an active grapple
+        handler = getattr(self.ndb, "combat_handler", None)
+        if not handler:
+            return True  # Allow move if no combat
+        
+        # Find this character's combat entry
+        char_entry = next((e for e in handler.db.combatants if e["char"] == self), None)
+        if not char_entry:
+            return True  # Allow move if not in combat
+        
+        # Check if grappling someone - if so, drag them
+        grappling_dbref = char_entry.get(DB_GRAPPLING_DBREF)
+        if grappling_dbref:
+            # Find the grappled victim
+            from evennia.utils.dbserialize import deserialize_object
+            victim = deserialize_object(grappling_dbref)
+            if victim and victim.location != destination:
+                # Drag victim to new location
+                victim.location = destination
+                victim.msg(f"{self.key} drags you to {destination.key}.")
+                self.msg(f"You drag {victim.key} with you to {destination.key}.")
+        
+        return True  # Allow the move
+
         def at_server_start(self):
             """
             Called on every character at server reboot. Force mapper enabled for continuity.

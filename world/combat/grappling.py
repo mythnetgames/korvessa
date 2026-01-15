@@ -379,13 +379,13 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
         char_entry[DB_IS_YIELDING] = True
         # target_entry[DB_IS_YIELDING] = False  # Keep victim non-yielding for auto-resistance
         
-        char.msg(f"|gYou successfully grapple {target.key}!|n")
-        target.msg(f"|g{char.key} grapples you!|n")
+        char.msg(f"You successfully grapple {target.key}!")
+        target.msg(f"{char.key} grapples you!")
         # Note: No auto-yield message for victim since they remain non-yielding to auto-resist
         
         if char.location:
             char.location.msg_contents(
-                f"|g{char.key} grapples {target.key}!|n",
+                f"{char.key} grapples {target.key}!",
                 exclude=[char, target]
             )
         
@@ -539,7 +539,7 @@ def resolve_grapple_join(char_entry, combatants_list, handler):
     else:
         # Current grappler maintains control
         char.msg(f"|yYou fail to wrestle {target.key} away from {current_grappler.key}!|n")
-        current_grappler.msg(f"|gYou maintain your grip on {target.key} despite {char.key}'s attempt!|n")
+        current_grappler.msg(f"You maintain your grip on {target.key} despite {char.key}'s attempt!")
         target.msg(f"|y{char.key} tries to take you from {current_grappler.key} but fails!|n")
         
         if char.location:
@@ -687,7 +687,7 @@ def resolve_grapple_takeover(char_entry, combatants_list, handler):
     else:
         # Failure: Target maintains their grapple, new grappler fails
         char.msg(f"|yYou fail to grapple {target.key}, who maintains their hold on {victim.key}!|n")
-        target.msg(f"|gYou resist {char.key}'s grapple attempt and maintain your grip on {victim.key}!|n")
+        target.msg(f"You resist {char.key}'s grapple attempt and maintain your grip on {victim.key}!")
         victim.msg(f"|y{char.key} tries to grapple {target.key} but fails - you remain grappled!|n")
         
         if char.location:
@@ -750,12 +750,12 @@ def resolve_release_grapple(char_entry, combatants_list, handler):
         if e.get(DB_CHAR) != char
     )
     
-    char.msg(f"|gYou release your grapple on {grappling_target.key}.|n")
-    grappling_target.msg(f"|g{char.key} releases their grapple on you.|n")
+    char.msg(f"You release your grapple on {grappling_target.key}.")
+    grappling_target.msg(f"{char.key} releases their grapple on you.")
     
     if char.location:
         char.location.msg_contents(
-            f"|g{char.key} releases their grapple on {grappling_target.key}.|n",
+            f"{char.key} releases their grapple on {grappling_target.key}.",
             exclude=[char, grappling_target]
         )
     

@@ -731,8 +731,8 @@ class CombatHandler(DefaultScript):
                     if grappling_target:
                         # Grappler in restraint mode - maintain hold without violence
                         splattercast.msg(f"{char.key} is yielding but maintains restraining hold on {grappling_target.key}.")
-                        char.msg(f"|gYou maintain a restraining hold on {get_display_name_safe(grappling_target, char)} without violence.|n")
-                        grappling_target.msg(f"|g{get_display_name_safe(char, grappling_target)} maintains a gentle but firm restraining hold on you.|n")
+                        char.msg(f"You maintain a restraining hold on {get_display_name_safe(grappling_target, char)} without violence.")
+                        grappling_target.msg(f"{get_display_name_safe(char, grappling_target)} maintains a gentle but firm restraining hold on you.")
                         msg_contents_disguised(char.location, "|g{char0_name} maintains a restraining hold on {char1_name}.|n", [char, grappling_target], exclude=[char, grappling_target])
                     else:
                         # Regular yielding behavior
@@ -759,7 +759,7 @@ class CombatHandler(DefaultScript):
                 if current_char_combat_entry.get(DB_IS_YIELDING, False):
                     # Victim is yielding/accepting restraint - no automatic escape attempt
                     splattercast.msg(f"{char.key} is being grappled by {grappler.key} but is yielding (accepting restraint).")
-                    char.msg(f"|gYou remain still in {get_display_name_safe(grappler, char)}'s hold, not resisting.|n")
+                    char.msg(f"You remain still in {get_display_name_safe(grappler, char)}'s hold, not resisting.")
                     msg_contents_disguised(char.location, "|g{char0_name} does not resist {char1_name}'s hold.|n", [char, grappler], exclude=[char])
                     continue
                     
@@ -859,6 +859,10 @@ class CombatHandler(DefaultScript):
                         continue
                     elif combat_action == "release_grapple":
                         self._resolve_release_grapple(current_char_combat_entry, combatants_list)
+                        current_char_combat_entry["combat_action"] = None
+                        continue
+                    elif combat_action == "choke":
+                        self._resolve_choke(current_char_combat_entry, combatants_list)
                         current_char_combat_entry["combat_action"] = None
                         continue
                     elif combat_action == COMBAT_ACTION_RETREAT:
@@ -1774,6 +1778,57 @@ class CombatHandler(DefaultScript):
         """Resolve a release grapple action."""
         resolve_release_grapple(char_entry, combatants_list, self)
     
+    def _resolve_choke(self, char_entry, combatants_list):
+        """Resolve a choke action - drains target health based on attacker's BODY stat."""
+        from evennia.comms.models import ChannelDB
+        from .constants import SPLATTERCAST_CHANNEL, DB_CHAR, DB_GRAPPLING_DBREF
+        
+        splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
+        char = char_entry.get(DB_CHAR)
+        
+        # Find who they're choking
+        grappling_dbref = char_entry.get(DB_GRAPPLING_DBREF)
+        if not grappling_dbref:
+            char.msg("You are not grappling anyone to choke.")
+            return
+        
+        from evennia.utils.dbserialize import deserialize_object
+        victim = deserialize_object(grappling_dbref)
+        if not victim:
+            char.msg("Your grapple target no longer exists.")
+            return
+        
+        # Calculate damage based on attacker's BODY stat (strength of grip)
+        attacker_body = getattr(char.db, "body", 1) or 1
+        
+        # Base damage is 1 per BODY point, plus a small die roll
+        from .utils import skill_roll
+        base_damage = attacker_body
+        damage_roll, dice, bonus = skill_roll(base_damage * 5)  # Scale up for consistency
+        actual_damage = max(1, damage_roll // 5)  # Convert back to reasonable damage
+        
+        # Apply damage
+        current_hp = getattr(victim.db, "hp", 100) or 100
+        new_hp = max(0, current_hp - actual_damage)
+        victim.db.hp = new_hp
+        
+        # Send messages
+        char.msg(f"You choke {victim.key}, dealing {actual_damage} damage!")
+        victim.msg(f"{char.key} chokes you, dealing {actual_damage} damage! (HP: {new_hp})")
+        
+        if char.location:
+            char.location.msg_contents(
+                f"{char.key} chokes {victim.key} for {actual_damage} damage!",
+                exclude=[char, victim]
+            )
+        
+        splattercast.msg(f"CHOKE: {char.key} choked {victim.key} for {actual_damage} damage (victim HP now: {new_hp})")
+        
+        # Check if victim died
+        if new_hp <= 0:
+            splattercast.msg(f"CHOKE_DEATH: {victim.key} was choked to death by {char.key}!")
+            victim.msg(f"You fade away as {char.key}'s grip tightens...")
+    
     def resolve_bonus_attack(self, attacker, target):
         """
         Resolve a bonus attack triggered by specific combat events.
@@ -1933,14 +1988,14 @@ class CombatHandler(DefaultScript):
                 # Success - establish proximity
                 establish_proximity(char, target)
                 
-                char.msg(f"|gYou successfully advance to melee range with {get_display_name_safe(target, char)}.|n")
+                char.msg(f"You successfully advance to melee range with {get_display_name_safe(target, char)}.")
                 target.msg(f"|y{get_display_name_safe(char, target)} advances to melee range with you.|n")
                 msg_contents_disguised(char.location, "|y{char0_name} advances to melee range with {char1_name}.|n", [char, target], exclude=[char, target])
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE: {char.key} successfully advanced to melee with {target.key}.")
             else:
                 # Failure - no proximity established
                 char.msg(f"|rYour advance on {get_display_name_safe(target, char)} fails! They keep their distance.|n")
-                target.msg(f"|g{get_display_name_safe(char, target)} tries to advance on you but you keep your distance.|n")
+                target.msg(f"{get_display_name_safe(char, target)} tries to advance on you but you keep your distance.")
                 msg_contents_disguised(char.location, "|y{char0_name} tries to advance on {char1_name} but fails to close the distance.|n", [char, target], exclude=[char, target])
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE: {char.key} failed to advance on {target.key}.")
         else:
@@ -2024,7 +2079,7 @@ class CombatHandler(DefaultScript):
                 # Handle grapple victim dragging if needed
                 if should_drag_victim and grappled_victim:
                     # Announce dragging
-                    char.msg(f"|gYou drag {get_display_name_safe(grappled_victim, char)} with you as you advance to {target_room.key}.|n")
+                    char.msg(f"You drag {get_display_name_safe(grappled_victim, char)} with you as you advance to {target_room.key}.")
                     grappled_victim.msg(f"|r{get_display_name_safe(char, grappled_victim)} drags you along as they advance to {target_room.key}!|n")
                     msg_contents_disguised(old_location, "|y{char0_name} drags {char1_name} along as they advance toward " + target_room.key + ".|n", [char, grappled_victim], exclude=[char, grappled_victim])
                     splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_DRAG: {char.key} is dragging {grappled_victim.key} from {old_location.key} to {target_room.key}.")
@@ -2052,11 +2107,11 @@ class CombatHandler(DefaultScript):
                 check_auto_defuse(char)
                 
                 if should_drag_victim and grappled_victim:
-                    char.msg(f"|gYou successfully advance to {target_room.key} with {grappled_victim.key} in tow to engage {target.key}.|n")
+                    char.msg(f"You successfully advance to {target_room.key} with {grappled_victim.key} in tow to engage {target.key}.")
                     target.msg(f"|y{char.key} advances into the room dragging {grappled_victim.key} to engage you!|n")
                     splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_MOVE: {char.key} successfully moved to {target_room.key} with {grappled_victim.key} to engage {target.key}.")
                 else:
-                    char.msg(f"|gYou successfully advance to {target_room.key} to engage {get_display_name_safe(target, char)}.|n")
+                    char.msg(f"You successfully advance to {target_room.key} to engage {get_display_name_safe(target, char)}.")
                     target.msg(f"|y{get_display_name_safe(char, target)} advances into the room to engage you!|n")
                     msg_contents_disguised(old_location, "|y{char0_name} advances toward " + target_room.key + " to engage {char1_name}.|n", [char, target], exclude=[char])
                     msg_contents_disguised(target_room, "|y{char0_name} advances into the room to engage {char1_name}!|n", [char, target], exclude=[char, target])
@@ -2064,13 +2119,13 @@ class CombatHandler(DefaultScript):
             else:
                 # Failure - no movement
                 char.msg(f"|rYour advance toward {target.key} fails! You cannot reach their position.|n")
-                target.msg(f"|g{char.key} tries to advance toward your position but fails to reach you.|n")
+                target.msg(f"{char.key} tries to advance toward your position but fails to reach you.")
                 msg_contents_disguised(char.location, "|y{char0_name} attempts to advance toward {char1_name} but fails to reach them.|n", [char, target], exclude=[char])
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_MOVE: {char.key} failed to move to {target.key}.")
                 
                 # Check if target has ranged weapon for bonus attack
                 if is_wielding_ranged_weapon(target):
-                    target.msg(f"|gYour ranged weapon gives you a clear shot as {char.key} fails to reach you!|n")
+                    target.msg(f"Your ranged weapon gives you a clear shot as {char.key} fails to reach you!")
                     char.msg(f"|r{target.key} takes advantage of your failed advance to attack from range!|n")
                     splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_ADVANCE_MOVE_BONUS: {target.key} gets bonus attack vs {char.key} for failed cross-room advance.")
                     self.resolve_bonus_attack(target, char)
@@ -2179,7 +2234,7 @@ class CombatHandler(DefaultScript):
                 char.ndb.charge_attack_bonus_active = True
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE: {char.key} charge_attack_bonus_active set to True by successful charge.")
                 
-                char.msg(f"|gYou charge {get_display_name_safe(target, char)} and slam into melee range! Your next attack will have a bonus.|n")
+                char.msg(f"You charge {get_display_name_safe(target, char)} and slam into melee range! Your next attack will have a bonus.")
                 target.msg(f"|r{get_display_name_safe(char, target)} charges at you and crashes into melee range!|n")
                 msg_contents_disguised(char.location, "|y{char0_name} charges at {char1_name} with reckless abandon!|n", [char, target], exclude=[char, target])
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE: {char.key} successfully charged {target.key}.")
@@ -2282,7 +2337,7 @@ class CombatHandler(DefaultScript):
                 char.ndb.charge_attack_bonus_active = True
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE: {char.key} charge_attack_bonus_active set to True by successful cross-room charge.")
                 
-                char.msg(f"|gYou charge recklessly through the {exit_to_use.key} and crash into melee with {get_display_name_safe(target, char)}! Your next attack will have a bonus.|n")
+                char.msg(f"You charge recklessly through the {exit_to_use.key} and crash into melee with {get_display_name_safe(target, char)}! Your next attack will have a bonus.")
                 target.msg(f"|r{get_display_name_safe(char, target)} charges recklessly through the {exit_to_use.key} and crashes into melee with you!|n")
                 msg_contents_disguised(char.location, "|y{char0_name} charges recklessly from " + (exit_to_use.get_return_exit().key if exit_to_use.get_return_exit() else "elsewhere") + " and crashes into melee!|n", [char, target], exclude=[char, target])
                 splattercast.msg(f"{DEBUG_PREFIX_HANDLER}_CHARGE: {char.key} successfully charged cross-room and engaged {target.key} in melee.")
@@ -2292,7 +2347,7 @@ class CombatHandler(DefaultScript):
                 
                 if target_has_ranged:
                     char.msg(f"|r{target.key} stops your reckless charge with covering fire!|n")
-                    target.msg(f"|gYou stop {char.key}'s reckless charge with your ranged weapon!|n")
+                    target.msg(f"You stop {char.key}'s reckless charge with your ranged weapon!")
                     
                     # Trigger bonus attack if available
                     if hasattr(self, 'resolve_bonus_attack'):

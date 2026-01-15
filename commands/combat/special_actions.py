@@ -242,6 +242,9 @@ class CmdReleaseGrapple(Command):
     help_category = "Combat"
 
     def func(self):
+        from world.combat.grappling import break_grapple
+        from world.combat.constants import DB_CHAR, DB_GRAPPLING_DBREF, DB_GRAPPLED_BY_DBREF
+        
         caller = self.caller
         handler = getattr(caller.ndb, "combat_handler", None)
 
@@ -261,10 +264,11 @@ class CmdReleaseGrapple(Command):
             caller.msg("You are not grappling anyone.")
             return
 
-        # Set release action for the combat handler to process
-        caller_entry["combat_action"] = "release_grapple"
-        caller.msg(f"You prepare to release your hold on {victim_obj.key}.")
-        log_combat_action(caller, "release_action", victim_obj, details="combat action set to release_grapple")
+        # Immediately release the grapple
+        break_grapple(handler, caller, victim_obj)
+        caller.msg(f"You release your grapple on {victim_obj.key}.")
+        victim_obj.msg(f"{caller.key} releases their grapple on you.")
+        log_combat_action(caller, "release_action", victim_obj, details="released grapple")
 
 
 class CmdDisarm(Command):
@@ -1010,3 +1014,64 @@ class CmdCombatPrompt(Command):
             caller.msg("|gCombat status prompt enabled.|n You will see health, bleeding, stamina, and critical organ status each combat round.")
         else:
             caller.msg("|yCombat status prompt disabled.|n")
+
+
+class CmdChoke(Command):
+    """
+    Choke a grappled target, slowly draining their health.
+    
+    Usage:
+        choke
+    
+    You must be actively grappling a target to choke them.
+    Each round while choking, the victim loses health based on your BODY stat
+    (strength used to maintain the lethal grip).
+    """
+    key = "choke"
+    aliases = ["strangle", "throttle"]
+    locks = "cmd:all()"
+    help_category = "Combat"
+    
+    def func(self):
+        from world.combat.constants import DB_CHAR, DB_GRAPPLING_DBREF
+        
+        caller = self.caller
+        handler = getattr(caller.ndb, "combat_handler", None)
+        
+        if not handler:
+            caller.msg("You must be in combat to choke someone.")
+            return
+        
+        # Get caller's combat entry
+        caller_entry = next((e for e in handler.db.combatants if e["char"] == caller), None)
+        if not caller_entry:
+            caller.msg("You are not properly registered in combat.")
+            return
+        
+        # Check if grappling someone
+        grappling_dbref = caller_entry.get(DB_GRAPPLING_DBREF)
+        if not grappling_dbref:
+            caller.msg("You must be grappling someone to choke them.")
+            return
+        
+        # Get the victim
+        from evennia.utils.dbserialize import deserialize_object
+        victim = deserialize_object(grappling_dbref)
+        if not victim:
+            caller.msg("Your grapple target no longer exists.")
+            return
+        
+        # Set choke action for combat handler to process
+        caller_entry["combat_action"] = "choke"
+        
+        caller.msg(f"You begin choking {victim.key}!")
+        victim.msg(f"{caller.key} begins choking you!")
+        
+        if caller.location:
+            caller.location.msg_contents(
+                f"{caller.key} begins choking {victim.key}!",
+                exclude=[caller, victim]
+            )
+        
+        log_combat_action(caller, "choke_action", victim, details="combat action set to choke")
+
