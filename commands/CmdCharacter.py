@@ -1282,7 +1282,7 @@ class CmdSkintone(Command):
             else:
                 caller.msg(f"Your current skintone is: {skintone} (invalid)")
         else:
-            caller.msg("You have no skintone set. Longdescs will appear uncolored.")
+            caller.msg("|YYou have no skintone set. Your nakeds and longdesc will appear uncolored.\n|nUse |wskintone <tone>|n to set your skin color for all naked body part descriptions.\nType |wskintone list|n to see available tones.")
             
     def _show_available_tones(self, caller):
         """Display available skintones with previews"""

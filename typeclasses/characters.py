@@ -2541,8 +2541,10 @@ class Character(ObjectParent, DefaultCharacter):
             if not description:
                 continue
             
-            # Ensure description ends with a period if it doesn't already
-            if not description.endswith('.'):
+            # Ensure description ends with exactly one period
+            # Remove any trailing periods first, then add one back
+            description = description.rstrip('.')
+            if description:  # Make sure there's still text after stripping
                 description = description + '.'
             
             # Determine which anatomical region this location belongs to
@@ -2829,6 +2831,17 @@ class Character(ObjectParent, DefaultCharacter):
                     # Wrap the entire processed description in the skintone color
                     # Reset color at end to prevent bleeding
                     processed_desc = f"{color_code}{processed_desc}|n"
+            
+            # Apply eye color to "eye" or "eyes" mentions
+            eye_color = getattr(self.db, 'eye_color', None)
+            if eye_color:
+                from world.combat.constants import EYE_COLOR_PALETTE
+                eye_color_code = EYE_COLOR_PALETTE.get(eye_color)
+                if eye_color_code:
+                    import re
+                    # Replace "eye" or "eyes" with colored versions, case-insensitive
+                    # Use word boundaries to avoid matching "eyebrows" etc
+                    processed_desc = re.sub(r'\b(eyes?)\b', lambda m: f"{eye_color_code}{m.group(1)}|n", processed_desc, flags=re.IGNORECASE)
                 
         return processed_desc
     
