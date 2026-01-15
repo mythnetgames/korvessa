@@ -359,6 +359,9 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
         char_entry[DB_GRAPPLING_DBREF] = get_character_dbref(target)
         target_entry[DB_GRAPPLED_BY_DBREF] = get_character_dbref(char)
         
+        # DEBUG: Log the exact state being set
+        splattercast.msg(f"GRAPPLE_STATE_SET: {char.key} entry now has grappling_dbref={char_entry.get(DB_GRAPPLING_DBREF)}, target has grappled_by_dbref={target_entry.get(DB_GRAPPLED_BY_DBREF)}")
+        
         # Set victim's target to the grappler for potential retaliation after escape/release
         target_entry[DB_TARGET_DBREF] = get_character_dbref(char)
         

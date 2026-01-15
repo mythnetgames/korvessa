@@ -521,6 +521,14 @@ class CombatHandler(DefaultScript):
             combatants_list.append(regular_entry)
         splattercast.msg(f"AT_REPEAT_DEBUG: Converted SaverList to regular list with {len(combatants_list)} entries")
         
+        # DEBUG: Show grapple state from database at start of round
+        for entry in combatants_list:
+            char = entry.get(DB_CHAR)
+            grappling_dbref = entry.get(DB_GRAPPLING_DBREF)
+            grappled_by_dbref = entry.get(DB_GRAPPLED_BY_DBREF)
+            if char and (grappling_dbref or grappled_by_dbref):
+                splattercast.msg(f"AT_REPEAT_LOAD: {char.key} loaded from db with grappling_dbref={grappling_dbref}, grappled_by_dbref={grappled_by_dbref}")
+        
         # Set up active list tracking for set_target to work during round processing
         self._active_combatants_list = combatants_list
         
@@ -849,7 +857,9 @@ class CombatHandler(DefaultScript):
                 
                 if isinstance(combat_action, str):
                     if combat_action == "grapple_initiate":
+                        splattercast.msg(f"AT_REPEAT: Before grapple_initiate for {char.key}, entry has grappling_dbref={current_char_combat_entry.get(DB_GRAPPLING_DBREF)}")
                         self._resolve_grapple_initiate(current_char_combat_entry, combatants_list)
+                        splattercast.msg(f"AT_REPEAT: After grapple_initiate for {char.key}, entry has grappling_dbref={current_char_combat_entry.get(DB_GRAPPLING_DBREF)}")
                         current_char_combat_entry["combat_action"] = None
                         continue
                     elif combat_action == "grapple_join":
@@ -1094,9 +1104,23 @@ class CombatHandler(DefaultScript):
             self.stop_combat_logic()
             return
 
+        # DEBUG: Log grapple state before saving
+        for entry in combatants_list:
+            char = entry.get(DB_CHAR)
+            grappling_dbref = entry.get(DB_GRAPPLING_DBREF)
+            if grappling_dbref:
+                splattercast.msg(f"AT_REPEAT_BEFORE_SAVE: {char.key} has grappling_dbref={grappling_dbref} (before saving to db)")
+
         # Save the modified combatants list back to the database to persist combat_action changes
         self.db.combatants = combatants_list
         splattercast.msg(f"AT_REPEAT_SAVE: Saved modified combatants list back to database.")
+        
+        # DEBUG: Log grapple state after saving
+        for entry in self.db.combatants:
+            char = entry.get(DB_CHAR)
+            grappling_dbref = entry.get(DB_GRAPPLING_DBREF)
+            if grappling_dbref:
+                splattercast.msg(f"AT_REPEAT_AFTER_SAVE: {char.key} has grappling_dbref={grappling_dbref} (after saving to db)")
         
         self.db.round += 1
         splattercast.msg(f"AT_REPEAT: Handler {self.key}. Round {self.db.round} scheduled for next interval.")
