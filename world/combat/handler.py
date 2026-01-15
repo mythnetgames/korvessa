@@ -619,14 +619,16 @@ class CombatHandler(DefaultScript):
                     # Damage skill-based disguise stability in combat
                     damage_disguise_stability(char, STABILITY_DAMAGE_COMBAT, reason="combat")
                     
-                    # Check for slip
+                    # Check for slip (only applies if character is disguised)
                     slipped, slip_type = check_disguise_slip(char, "combat")
                     if slipped:
                         item, _ = get_anonymity_item(char)
                         trigger_slip_event(char, slip_type, item=item)
                         splattercast.msg(f"DISGUISE_SLIP: {char.key} disguise slipped in combat (type: {slip_type})")
-                except ImportError:
+                except ImportError as e:
                     pass  # Disguise system not available
+                except Exception as e:
+                    splattercast.msg(f"ERROR in disguise slip check for {char.key}: {e}")
                 
                 # Combat status prompt is now automatically appended to all messages via Character.msg()
                 # No need to send it explicitly here

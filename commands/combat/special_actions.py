@@ -243,7 +243,7 @@ class CmdReleaseGrapple(Command):
 
     def func(self):
         from world.combat.grappling import break_grapple
-        from world.combat.constants import DB_CHAR, DB_GRAPPLING_DBREF, DB_GRAPPLED_BY_DBREF
+        from world.combat.constants import DB_CHAR, DB_GRAPPLING_DBREF, DB_GRAPPLED_BY_DBREF, DB_IS_YIELDING
         
         caller = self.caller
         handler = getattr(caller.ndb, "combat_handler", None)
@@ -268,7 +268,14 @@ class CmdReleaseGrapple(Command):
         break_grapple(handler, caller, victim_obj)
         caller.msg(f"You release your grapple on {victim_obj.key}.")
         victim_obj.msg(f"{caller.key} releases their grapple on you.")
-        log_combat_action(caller, "release_action", victim_obj, details="released grapple")
+        
+        # Both parties become non-aggressive after releasing
+        caller_entry[DB_IS_YIELDING] = True
+        victim_entry = next((e for e in handler.db.combatants if e["char"] == victim_obj), None)
+        if victim_entry:
+            victim_entry[DB_IS_YIELDING] = True
+        
+        log_combat_action(caller, "release_action", victim_obj, details="released grapple and ceased aggression")
 
 
 class CmdDisarm(Command):
