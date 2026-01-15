@@ -172,7 +172,7 @@ class RoomTagEffectHandler(DefaultScript):
                                 char.msg("|rYou drown!|n")
                                 room.msg_contents(f"|r{char.key} drowns!|n", exclude=[char])
                                 if hasattr(char, 'at_death'):
-                                    char.at_death(death_cause="drowning")
+                                    char.at_death()
                     except Exception as e:
                         from evennia.comms.models import ChannelDB
                         try:
