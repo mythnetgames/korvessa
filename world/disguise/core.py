@@ -273,7 +273,7 @@ def apply_disguise(character, profile_id):
     if profile_id not in profiles:
         return False
     
-    profile = profiles[profile_id].copy()
+    profile = dict(profiles[profile_id])
     profile["stability"] = DISGUISE_STABILITY_MAX
     profile["profile_id"] = profile_id
     
