@@ -457,6 +457,12 @@ class CmdPullUp(Command):
             caller.msg("|yYou have nothing that can provide anonymity.|n")
             return
         
+        # Check if item covers face (required for anonymity)
+        coverage = getattr(target_item.db, "coverage", [])
+        if "face" not in coverage:
+            caller.msg(f"|yYour {target_item.key} does not cover your face - it cannot conceal your identity.|n")
+            return
+        
         # Check if already active
         if getattr(target_item.db, "anonymity_active", False):
             caller.msg(f"|yYour {target_item.key} is already providing anonymity.|n")

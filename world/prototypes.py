@@ -3781,7 +3781,7 @@ ANONYMITY_HOODIE_BASIC = {
     "typeclass": "typeclasses.items.Item",
     "desc": "A plain gray hoodie with a deep hood. The fabric is thin and worn, the kind of garment that disappears into any crowd. When the hood is pulled up, it casts the wearer's face in shadow, making identification difficult. Nothing special - just another face in the urban sprawl.",
     "attrs": [
-        ("coverage", ["chest", "back", "abdomen", "left_arm", "right_arm"]),
+        ("coverage", ["face", "head", "chest", "back", "abdomen", "left_arm", "right_arm"]),
         ("worn_desc", "A plain |xgray|n hoodie hanging loose, its worn fabric blending into the urban landscape"),
         ("layer", 2),
         ("color", "gray"),
@@ -3802,7 +3802,7 @@ ANONYMITY_HOODIE_TACTICAL = {
     "typeclass": "typeclasses.items.Item",
     "desc": "A black tactical hoodie with reinforced seams and a deep, structured hood. The fabric is slightly thicker than standard, with hidden pockets and a drawstring to tighten the hood around the face. Popular with runners and anyone who needs to move fast while staying anonymous.",
     "attrs": [
-        ("coverage", ["chest", "back", "abdomen", "left_arm", "right_arm"]),
+        ("coverage", ["face", "head", "chest", "back", "abdomen", "left_arm", "right_arm"]),
         ("worn_desc", "A |xblack|n tactical hoodie with clean lines and utilitarian purpose"),
         ("layer", 2),
         ("color", "black"),

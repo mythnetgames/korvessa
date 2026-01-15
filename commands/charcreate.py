@@ -875,18 +875,10 @@ def first_char_name_last(caller, raw_string, **kwargs):
             # Return None to re-display current node
             return None
         
-        # Check full name uniqueness
-        full_name = f"{first_name} {name}"
-        is_valid, error = validate_name(full_name, account=caller)
-        if not is_valid:
-            caller.msg(f"|r{error}|n")
-            # Return None to re-display current node
-            return None
-        
-        # Store last name and advance to next node
+        # Store last name and advance to display name step
         caller.ndb.charcreate_data['last_name'] = name
         # Call next node directly and return its result
-        return first_char_sex(caller, "", **kwargs)
+        return first_char_display_name(caller, "", **kwargs)
     
     # Display prompt (first time or after error)
     text = f"""
@@ -894,6 +886,7 @@ First name: |c{first_name}|n
 
 |wWhat is your LAST name?|n
 
+(This will be stored as your real identity)
 (2-30 characters, letters only)
 
 |w>|n """
@@ -906,12 +899,72 @@ First name: |c{first_name}|n
     return text, options
 
 
+def first_char_display_name(caller, raw_string, **kwargs):
+    """Get display name (handle/alias)."""
+    
+    first_name = caller.ndb.charcreate_data.get('first_name', '')
+    last_name = caller.ndb.charcreate_data.get('last_name', '')
+    
+    # If input provided, validate it
+    if raw_string and raw_string.strip():
+        name = raw_string.strip()
+        
+        if len(name) < 2 or len(name) > 30:
+            caller.msg(f"|rInvalid name: Name must be 2-30 characters.|n")
+            # Return None to re-display current node
+            return None
+        
+        if not re.match(r"^[a-zA-Z]+$", name):
+            caller.msg(f"|rInvalid name: Only letters allowed.|n")
+            # Return None to re-display current node
+            return None
+        
+        # Capitalize first letter
+        name = name.capitalize()
+        
+        # Check display name uniqueness
+        is_valid, error = validate_name(name, account=caller)
+        if not is_valid:
+            caller.msg(f"|r{error}|n")
+            # Return None to re-display current node
+            return None
+        
+        # Store display name and advance to next node
+        caller.ndb.charcreate_data['display_name'] = name
+        # Call next node directly and return its result
+        return first_char_sex(caller, "", **kwargs)
+    
+    # Display prompt (first time or after error)
+    text = f"""
+Real Name: |c{first_name} {last_name}|n
+
+|wWhat is your DISPLAY NAME (handle/alias)?|n
+
+This is what people will see and use to target you in emotes, combat, etc.
+You can use your real name or a street name/handle.
+
+Examples: "{first_name}", "Razor", "Ghost", "Tank", "Doc"
+
+(2-30 characters, letters only - first letter will be capitalized)
+
+|w>|n """
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_display_name"},
+    )
+    
+    return text, options
+
+
 def first_char_sex(caller, raw_string, **kwargs):
     """Select biological sex."""
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
     text = f"""
-Name: |c{first_name} {last_name}|n
+Real Name: |c{first_name} {last_name}|n
+Display Name: |c{display_name}|n
 
 Select biological sex:
 
@@ -947,6 +1000,7 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
         caller.ndb.charcreate_data['sex'] = kwargs['sex']
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     stats = caller.ndb.charcreate_data.get('stats', {
         'body': 5,
@@ -967,7 +1021,7 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
     text = f"""
 Let's assign your character's stats.
 
-Name: |c{first_name} {last_name}|n
+Display Name: |c{display_name}|n
 Sex: |c{sex.capitalize()}|n
 
 |wAll stats start at 5. Distribute |y12 points|w among them (max 12).|n
@@ -1060,7 +1114,7 @@ Commands:
             text = f"""
 Let's assign your character's stats.
 
-Name: |c{first_name} {last_name}|n
+Display Name: |c{display_name}|n
 Sex: |c{sex.capitalize()}|n
 
 |wAll stats start at 5. Distribute |y12 points|w among them (max 12).|n
@@ -1089,6 +1143,7 @@ def first_char_confirm(caller, raw_string, **kwargs):
     """Final confirmation and character creation."""
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     stats = caller.ndb.charcreate_data.get('stats', {
         'body': 5,
@@ -1107,7 +1162,8 @@ def first_char_confirm(caller, raw_string, **kwargs):
     text = f"""
 Just uh, let me know if everything looks good.
 
-|wName:|n |c{first_name} {last_name}|n
+|wReal Name:|n |c{first_name} {last_name}|n
+|wDisplay Name:|n |c{display_name}|n
 |wSex:|n |c{sex.capitalize()}|n
 
 |wStats:|n
@@ -1348,7 +1404,8 @@ def first_char_finalize(caller, raw_string, **kwargs):
     from typeclasses.characters import Character
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
-    full_name = f"{first_name} {last_name}"
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    full_real_name = f"{first_name} {last_name}"
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     stats = caller.ndb.charcreate_data.get('stats', {
         'body': 5,
@@ -1362,14 +1419,22 @@ def first_char_finalize(caller, raw_string, **kwargs):
     empathy = stats['edge'] + stats['willpower']
     start_location = get_start_location()
     try:
+        # Use display_name as character key (what people see/target)
         char, errors = caller.create_character(
-            key=full_name,
+            key=display_name,
             location=start_location,
             home=start_location,
             typeclass="typeclasses.characters.Character"
         )
         if errors:
             raise Exception(f"Character creation failed: {errors}")
+        
+        # Store real name separately
+        char.db.real_first_name = first_name
+        char.db.real_last_name = last_name
+        char.db.real_full_name = full_real_name
+        
+        # Set stats
         char.body = stats['body']
         char.ref = stats['reflexes']
         char.dex = stats['dexterity']

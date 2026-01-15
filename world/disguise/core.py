@@ -55,11 +55,41 @@ from world.combat.constants import (
 # ITEM-BASED ANONYMITY
 # ===================================================================
 
+def _item_covers_face(item):
+    """
+    Check if an item covers the face location.
+    
+    Args:
+        item: The item to check
+        
+    Returns:
+        bool: True if item covers face
+    """
+    # Check explicit coverage attribute
+    coverage = getattr(item.db, "coverage", None)
+    if coverage:
+        if isinstance(coverage, (list, tuple, set)):
+            return "face" in coverage
+        # Handle AttributeProperty or other attribute types
+        return "face" in str(coverage).lower()
+    
+    # Fallback to method if available
+    if hasattr(item, "get_current_coverage"):
+        try:
+            coverage = item.get_current_coverage()
+            return "face" in coverage
+        except:
+            pass
+    
+    return False
+
+
 def get_anonymity_item(character):
     """
     Get the currently active anonymity-providing item on a character.
     
     Checks worn items for anonymity capability (hood up, mask on, etc.)
+    Only items that cover the FACE can provide anonymity.
     
     Args:
         character: The character to check
@@ -84,6 +114,10 @@ def get_anonymity_item(character):
     
     # Check each item for anonymity capability
     for item in worn_items:
+        # CRITICAL: Item must cover FACE to provide anonymity
+        if not _item_covers_face(item):
+            continue
+        
         # Check if item explicitly provides anonymity
         if getattr(item.db, "provides_anonymity", False):
             # Check if anonymity is currently active (e.g., hood is up)
@@ -540,6 +574,8 @@ def adjust_anonymity_item(character, item=None):
     """
     Adjust an anonymity item to restore concealment after a slip.
     
+    Items must cover the FACE location to provide anonymity.
+    
     Args:
         character: The character adjusting
         item: Specific item to adjust, or None to find automatically
@@ -566,8 +602,12 @@ def adjust_anonymity_item(character, item=None):
                 if obj not in worn_items and hasattr(obj, "db") and getattr(obj.db, "currently_worn", False):
                     worn_items.append(obj)
             
-            # Find anonymity-capable item
+            # Find anonymity-capable item that covers FACE
             for obj in worn_items:
+                # CRITICAL: Item must cover FACE to provide anonymity
+                if not _item_covers_face(obj):
+                    continue
+                
                 item_name_lower = obj.key.lower()
                 for keyword in ANONYMITY_KEYWORDS:
                     if keyword in item_name_lower:
@@ -577,6 +617,10 @@ def adjust_anonymity_item(character, item=None):
                     break
     
     if not item:
+        return False
+    
+    # CRITICAL: Verify item covers FACE
+    if not _item_covers_face(item):
         return False
     
     # Reactivate anonymity
