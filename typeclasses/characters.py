@@ -2578,6 +2578,9 @@ class Character(ObjectParent, DefaultCharacter):
             paragraph_text = " ".join(current_paragraph)
             paragraphs.append(paragraph_text)
         
+        # Add color reset at end of each paragraph to prevent color bleeding
+        paragraphs = [p + "|n" for p in paragraphs]
+        
         return "\n\n".join(paragraphs)
 
     def _get_anatomical_region(self, location):
@@ -2824,13 +2827,14 @@ class Character(ObjectParent, DefaultCharacter):
         # Apply skintone coloring only if requested (for longdescs only)
         if apply_skintone:
             skintone = getattr(self.db, 'skintone', None)
+            skintone_code = None
             if skintone:
                 from world.combat.constants import SKINTONE_PALETTE
-                color_code = SKINTONE_PALETTE.get(skintone)
-                if color_code:
+                skintone_code = SKINTONE_PALETTE.get(skintone)
+                if skintone_code:
                     # Wrap the entire processed description in the skintone color
-                    # Reset color at end to prevent bleeding
-                    processed_desc = f"{color_code}{processed_desc}|n"
+                    # Don't add |n at end - period handling happens later in _format_longdescs_with_paragraphs
+                    processed_desc = f"{skintone_code}{processed_desc}"
             
             # Apply eye color to "eye" or "eyes" mentions
             eye_color = getattr(self.db, 'eye_color', None)
@@ -2841,7 +2845,9 @@ class Character(ObjectParent, DefaultCharacter):
                     import re
                     # Replace "eye" or "eyes" with colored versions, case-insensitive
                     # Use word boundaries to avoid matching "eyebrows" etc
-                    processed_desc = re.sub(r'\b(eyes?)\b', lambda m: f"{eye_color_code}{m.group(1)}|n", processed_desc, flags=re.IGNORECASE)
+                    # After eye color, return to skintone (or |n if no skintone)
+                    reset_code = skintone_code if skintone_code else "|n"
+                    processed_desc = re.sub(r'\b(eyes?)\b', lambda m: f"{eye_color_code}{m.group(1)}{reset_code}", processed_desc, flags=re.IGNORECASE)
                 
         return processed_desc
     
