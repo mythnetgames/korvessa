@@ -1540,6 +1540,14 @@ class OkamaGamebud(Item):
     Easy to jailbreak and hack, they have become the preferred communication
     method for those who want to avoid ATT or Tri-Net monitoring.
     
+    Commands:
+    - gamebud (or gb) - View the device display
+    - gamebud post=<msg> - Post to the public lobby
+    - gamebud messages - Read your private messages
+    - gamebud message <alias>=<msg> - Send a private message
+    - gamebud alias=<name> - Change your display alias
+    - gamebud color=<color> - Set your alias color
+    
     Note: Aliases are stored on the device itself, so if someone steals your
     Gamebud, they can post as you!
     """

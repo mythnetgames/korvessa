@@ -321,8 +321,8 @@ class GamebudManager(DefaultScript):
             if gamebud.db.muted:
                 continue
             
-            # Send notification
-            holder.msg(f"|c*beep*|n Private message from |w{from_alias}|n!")
+            # Send notification - green chirp for DM to differentiate from lobby posts
+            holder.msg(f"|g*chirp*|n Private message from |w{from_alias}|n!")
 
     def _notify_gamebud_holders(self, sender_alias, sender):
         """
