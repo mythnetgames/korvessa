@@ -145,6 +145,7 @@ class CmdZoneIcon(Command):
         
         # Validate icon format - extract visible characters after color codes
         import re
+        # Match color codes including |n (reset code)
         color_match = re.match(r'^(\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z0-9_])*', args)
         color_codes = color_match.group(0) if color_match else ''
         visible = args[len(color_codes):]
@@ -152,7 +153,7 @@ class CmdZoneIcon(Command):
         # Ensure exactly 2 visible characters
         if len(visible) != 2:
             self.caller.msg(f"Icon must have exactly 2 visible characters after color codes. You have {len(visible)}: '{visible}'")
-            self.caller.msg("Example: zoneicon |#00d700!!|n (green colored exclamation marks)")
+            self.caller.msg("Example: zoneicon |#00d700!! (green colored exclamation marks)")
             return
         
         room = self.caller.location
@@ -161,6 +162,11 @@ class CmdZoneIcon(Command):
         if not zone:
             self.caller.msg("You must be in a zone to set the zone icon.")
             return
+        
+        # Ensure zone icon ends with |n to reset color
+        zone_icon = args
+        if not zone_icon.endswith('|n'):
+            zone_icon = zone_icon + '|n'
         
         # Find all rooms in this zone and set zone_icon on each
         from evennia.objects.models import ObjectDB
@@ -171,10 +177,10 @@ class CmdZoneIcon(Command):
         room_count = 0
         for zroom in all_rooms:
             if getattr(zroom, "zone", None) == zone:
-                zroom.db.zone_icon = args
+                zroom.db.zone_icon = zone_icon
                 room_count += 1
         
-        self.caller.msg(f"Zone icon set to '{args}' for {room_count} room(s) in zone '{zone}'.")
+        self.caller.msg(f"Zone icon set to '{zone_icon}' for {room_count} room(s) in zone '{zone}'.")
 
 class CmdMapIconHelp(Command):
     """
