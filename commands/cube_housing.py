@@ -162,12 +162,14 @@ class CmdCheck(Command):
 
 class CmdCloseDoor(Command):
     """
-    Close and lock the cube door from inside.
+    Close and lock the door from inside.
     
     Usage:
         close door
+        close door <direction>
         
-    When inside a cube, this closes the door and locks it automatically.
+    Closes and locks the door behind you. If you specify a direction, it closes
+    that exit. Otherwise, it closes the only exit if there's just one.
     """
     
     key = "close door"
@@ -179,19 +181,32 @@ class CmdCloseDoor(Command):
         caller = self.caller
         room = caller.location
         
-        # Find if there's a CubeDoor exit in this room (which means we're in a cube)
-        exit_out = None
-        for ex in room.exits:
-            if ex.is_typeclass("typeclasses.cube_housing.CubeDoor"):
-                exit_out = ex
-                break
+        # Parse optional direction argument
+        direction = self.args.strip().lower() if self.args else None
         
-        if not exit_out:
-            caller.msg("There is no cube door here to close.")
+        exit_to_close = None
+        
+        # If direction specified, find that exit
+        if direction:
+            for ex in room.exits:
+                ex_aliases = [a.lower() for a in ex.aliases.all()] if hasattr(ex.aliases, "all") else []
+                if ex.key.lower() == direction or direction in ex_aliases:
+                    exit_to_close = ex
+                    break
+        else:
+            # No direction specified - close the only exit if there's just one
+            if len(room.exits) == 1:
+                exit_to_close = room.exits[0]
+            elif len(room.exits) > 1:
+                caller.msg("There are multiple exits. Specify which one: close door <direction>")
+                return
+        
+        if not exit_to_close:
+            caller.msg("There is no door there to close.")
             return
         
         # Success message
-        caller.msg("You pull the door shut. The lock clicks and the red indicator steadies.")
+        caller.msg("You pull the door shut. The lock clicks.")
         
         # Message to others in the room
         room.msg_contents(
