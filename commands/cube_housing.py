@@ -365,7 +365,37 @@ class CmdCreateCube(Command):
                 caller.msg(f"An exit already exists in that direction.")
                 return
         
-        # Create the cube room
+        # Get current room's zone and coordinates
+        current_room = caller.location
+        src_zone = getattr(current_room, 'zone', None)
+        src_x = getattr(current_room.db, 'x', 0) or 0
+        src_y = getattr(current_room.db, 'y', 0) or 0
+        src_z = getattr(current_room.db, 'z', 0) or 0
+        
+        # Calculate new coordinates based on direction
+        direction_offsets = {
+            "north": (0, 1, 0), "n": (0, 1, 0),
+            "south": (0, -1, 0), "s": (0, -1, 0),
+            "east": (1, 0, 0), "e": (1, 0, 0),
+            "west": (-1, 0, 0), "w": (-1, 0, 0),
+            "northeast": (1, 1, 0), "ne": (1, 1, 0),
+            "northwest": (-1, 1, 0), "nw": (-1, 1, 0),
+            "southeast": (1, -1, 0), "se": (1, -1, 0),
+            "southwest": (-1, -1, 0), "sw": (-1, -1, 0),
+            "up": (0, 0, 1), "u": (0, 0, 1),
+            "down": (0, 0, -1), "d": (0, 0, -1),
+        }
+        
+        offset = direction_offsets.get(direction)
+        if not offset:
+            caller.msg(f"Unknown direction: {direction}")
+            return
+        
+        new_x = src_x + offset[0]
+        new_y = src_y + offset[1]
+        new_z = src_z + offset[2]
+        
+        # Create the cube room with proper coordinates
         cube_room = create_object(
             CubeRoom,
             key=f"Cube #{caller.location.id}-{direction}",
@@ -373,9 +403,14 @@ class CmdCreateCube(Command):
         )
         cube_room.db.desc = "A cramped cube, barely large enough for a bed and a small space to stand. The walls are bare metal with a faint industrial smell. A red indicator light glows by the door."
         
+        # Set coordinates for map display
+        cube_room.db.x = new_x
+        cube_room.db.y = new_y
+        cube_room.db.z = new_z
+        
         # Inherit zone from parent room
-        if hasattr(caller.location.db, "zone"):
-            cube_room.db.zone = caller.location.db.zone
+        if src_zone:
+            cube_room.zone = src_zone
         
         # Create the door from hallway to cube
         door_to_cube = create_object(
