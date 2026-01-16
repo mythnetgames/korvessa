@@ -800,10 +800,6 @@ class CmdSafetyNet(Command):
                     cooldown_duration = 30
                     caller.ndb.hack_cooldown = time.time() + cooldown_duration
                 
-                # Show skill breakdown (quiet - no smarts modifier shown)
-                decking = result.get("decking_skill", 0)
-                caller.msg(f"|#00af00>Decking: |#5fff00{decking}|n")
-                
                 if result.get("success"):
                     caller.msg("|#5fff00>>>ACCESS GRANTED<<<|n")
                     caller.msg("|#00d700>>running get.credentials.db.kwc|n")
@@ -1076,13 +1072,6 @@ class CmdSafetyNet(Command):
         
         def final_result():
             success, message, new_rating, result_type = manager.raise_ice(caller, handle, amount)
-            
-            # Get skill for display (quiet - no smarts shown)
-            decking_skill = getattr(caller.db, 'decking', 0) or 0
-            if decking_skill == 0:
-                decking_skill = getattr(caller.db, 'Decking', 0) or 0
-            
-            caller.msg(f"|#00af00>Decking: |#5fff00{decking_skill}|n")
             
             # Set cooldown on critical failure
             if result_type == 'critfail':
