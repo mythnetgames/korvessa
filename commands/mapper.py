@@ -146,8 +146,10 @@ class CmdZoneIcon(Command):
         # Validate icon format - extract visible (non-color-code) characters
         import re
         
-        # Extract all color codes from the input
-        color_codes_pattern = r'\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z0-9_]'
+        # Extract all color codes from the input (only valid Evennia color codes)
+        # Valid: |#RRGGBB, |[#RRGGBB, |a-z, |A-Z
+        # NOT valid: |_, |0, etc.
+        color_codes_pattern = r'\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z]'
         color_codes_found = re.findall(color_codes_pattern, args)
         
         # Extract visible characters by removing all color codes
@@ -247,13 +249,13 @@ class CmdMap(Command):
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
                         # Use icon string as-is, so hex color codes work
-                        # Only enforce two visible characters after color codes
+                        # Extract visible characters by removing color codes
                         import re
-                        # Find all color codes at the start (supports xterm 256 hex codes like |#00d700)
-                        color_match = re.match(r'^(\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z0-9_])*', icon)
-                        color_codes = color_match.group(0) if color_match else ''
-                        # Remove color codes from icon to get visible part
-                        visible = icon[len(color_codes):][:2]
+                        # Remove all valid Evennia color codes
+                        color_codes_pattern = r'\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z]'
+                        visible = re.sub(color_codes_pattern, '', icon)[:2]
+                        # Get color codes by removing visible part
+                        color_codes = icon.replace(visible, '', 1)
                         row.append(f"{color_codes}{visible}|n")
                     else:
                         row.append("[]")
@@ -261,15 +263,16 @@ class CmdMap(Command):
                     # Use zone icon for empty spaces, default to ". "
                     zone_icon = getattr(room.db, 'zone_icon', None)
                     if zone_icon:
-                        # Use zone icon, but ensure it's 2 visible chars
+                        # Use zone icon, extract visible characters
                         import re
-                        # Supports xterm 256 hex codes like |#00d700
-                        color_match = re.match(r'^(\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z0-9_])*', zone_icon)
-                        color_codes = color_match.group(0) if color_match else ''
-                        visible = zone_icon[len(color_codes):][:2]
+                        # Remove all valid Evennia color codes
+                        color_codes_pattern = r'\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z]'
+                        visible = re.sub(color_codes_pattern, '', zone_icon)
                         # Pad to 2 chars if needed
                         visible = (visible + " ")[:2]
-                        row.append(f"{color_codes}{visible}|n")
+                        # Get color codes by removing visible part
+                        color_codes = zone_icon.replace(visible.strip(), '', 1) if visible.strip() else zone_icon.replace('|n', '')
+                        row.append(f"{color_codes}{visible}")
                     else:
                         row.append(". ")
             grid.append("".join(row))
