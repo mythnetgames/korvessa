@@ -1440,11 +1440,14 @@ class Wristpad(Item):
         
         # Flags for wristpad type (defaults to hacked for backward compatibility)
         # Set to True if this is a municipal wristpad (no SafetyNet, just map/combat)
+        is_municipal = getattr(self.db, 'is_municipal_wristpad', False)
         if not hasattr(self.db, 'is_municipal_wristpad'):
             self.db.is_municipal_wristpad = False
+        
         # Set to True if this is a hacked wristpad (SafetyNet access only)
         if not hasattr(self.db, 'is_hacked_wristpad'):
-            self.db.is_hacked_wristpad = True
+            # Default to hacked unless it's municipal
+            self.db.is_hacked_wristpad = not is_municipal
         
         # Only hacked wristpads have SafetyNet access
         self.db.is_wristpad = getattr(self.db, 'is_hacked_wristpad', True)

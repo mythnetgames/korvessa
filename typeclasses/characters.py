@@ -19,12 +19,20 @@ class Character(ObjectParent, DefaultCharacter):
 
     def at_post_login(self, session=None, **kwargs):
         """
-        Called every time a player logs in. Force mapper enabled for continuity and show map immediately.
+        Called every time a player logs in. Enable mapper only if player has municipal wristpad.
         Also checks if player is within 3 hours of an IP grant tick and grants missed IP if applicable.
         """
-        if self.account and hasattr(self.account, 'db'):
-            self.account.db.mapper_enabled = True
-        self.ndb.mapper_enabled = True
+        from world.safetynet.utils import has_municipal_wristpad
+        
+        # Only enable mapper if player has a municipal wristpad
+        if has_municipal_wristpad(self):
+            if self.account and hasattr(self.account, 'db'):
+                self.account.db.mapper_enabled = True
+            self.ndb.mapper_enabled = True
+        else:
+            if self.account and hasattr(self.account, 'db'):
+                self.account.db.mapper_enabled = False
+            self.ndb.mapper_enabled = False
         
         # Reset proxy active state on login - players must re-enable each session
         from world.safetynet.utils import check_access_device
@@ -181,14 +189,24 @@ class Character(ObjectParent, DefaultCharacter):
         
         return True  # Allow the move
 
-        def at_server_start(self):
-            """
-            Called on every character at server reboot. Force mapper enabled for continuity.
-            """
+    def at_server_start(self):
+        """
+        Called on every character at server reboot. Enable mapper only if player has municipal wristpad.
+        """
+        from world.safetynet.utils import has_municipal_wristpad
+        
+        # Only enable mapper if player has a municipal wristpad
+        if has_municipal_wristpad(self):
             if self.account and hasattr(self.account, 'db'):
                 self.account.db.mapper_enabled = True
             self.ndb.mapper_enabled = True
-            # Force map display regardless of room coordinates
+        else:
+            if self.account and hasattr(self.account, 'db'):
+                self.account.db.mapper_enabled = False
+            self.ndb.mapper_enabled = False
+        
+        # Force map display only if mapper is enabled
+        if self.ndb.mapper_enabled:
             try:
                 from commands.mapper import CmdMapOn
                 cmd = CmdMapOn()
@@ -196,15 +214,16 @@ class Character(ObjectParent, DefaultCharacter):
                 cmd.func()
             except Exception as e:
                 self.msg(f"Map enabling failed on reboot: {e}")
-    """
-    The Character just re-implements some of the Object's methods and hooks
-    to represent a Character entity in-game.
 
-    See mygame/typeclasses/objects.py for a list of
-    properties and methods available on all Object child classes like this.
-
-    In this instance, we are also adding the new stat system attributes using AttributeProperty.
-    """
+    # =========================================================================
+    # The Character just re-implements some of the Object's methods and hooks
+    # to represent a Character entity in-game.
+    #
+    # See mygame/typeclasses/objects.py for a list of
+    # properties and methods available on all Object child classes like this.
+    #
+    # In this instance, we are also adding the new stat system attributes using AttributeProperty.
+    # =========================================================================
     
     # New Stat System Attributes
     # Smarts, Willpower, Edge, Reflexes, Body, Dexterity, Empathy, Technique
