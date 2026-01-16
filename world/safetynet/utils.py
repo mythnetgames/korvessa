@@ -39,10 +39,18 @@ def has_municipal_wristpad(character):
     Returns:
         bool: True if character is wearing a municipal wristpad, False otherwise
     """
-    for obj in character.contents:
-        if getattr(obj.db, "is_municipal_wristpad", False):
-            # Check if the wristpad is actually worn
-            if getattr(obj, "is_worn", False):
+    # First check if character has worn_items
+    if not hasattr(character, 'db') or not hasattr(character.db, 'worn_items'):
+        return False
+    
+    worn_items = character.db.worn_items
+    if not worn_items:
+        return False
+    
+    # Check all worn items for municipal wristpad
+    for location, items in worn_items.items():
+        for obj in items:
+            if obj and getattr(obj.db, "is_municipal_wristpad", False):
                 return True
     return False
 
