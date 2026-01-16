@@ -2379,8 +2379,16 @@ class Character(ObjectParent, DefaultCharacter):
             return False
         
         for items in self.db.worn_items.values():
-            if item in items:
-                return True
+            for worn_item in items:
+                if worn_item is None:
+                    continue
+                # Check by reference first
+                if worn_item == item:
+                    return True
+                # Also check by dbref/id in case references differ
+                if hasattr(worn_item, 'id') and hasattr(item, 'id'):
+                    if worn_item.id == item.id:
+                        return True
         return False
     
     def get_worn_items(self, location=None):

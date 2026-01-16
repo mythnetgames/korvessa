@@ -977,21 +977,43 @@ class CmdGive(Command):
             caller.msg(f"You aren't carrying or holding '{self.item_name}'.")
             return
         
-        # Check if item is currently worn (check both method and direct worn_items)
+        # Check if item is currently worn (multiple checks for robustness)
         is_worn = False
+        
+        # Method 1: Use is_item_worn method
         if hasattr(caller, 'is_item_worn') and caller.is_item_worn(item):
             is_worn = True
-        # Also check worn_items directly by comparing dbref in case object references differ
-        if hasattr(caller.db, 'worn_items') and caller.db.worn_items:
+        
+        # Method 2: Check worn_items directly by dbref
+        if not is_worn and hasattr(caller.db, 'worn_items') and caller.db.worn_items:
+            item_id = getattr(item, 'id', None)
             for location, items_list in caller.db.worn_items.items():
                 for worn_item in items_list:
-                    if worn_item and hasattr(worn_item, 'id') and hasattr(item, 'id'):
-                        if worn_item.id == item.id:
-                            is_worn = True
-                            break
-                    elif worn_item == item:
+                    if worn_item is None:
+                        continue
+                    worn_id = getattr(worn_item, 'id', None)
+                    if item_id and worn_id and item_id == worn_id:
                         is_worn = True
                         break
+                    if worn_item == item:
+                        is_worn = True
+                        break
+                if is_worn:
+                    break
+        
+        # Method 3: Check by key match in worn_items (last resort)
+        if not is_worn and hasattr(caller.db, 'worn_items') and caller.db.worn_items:
+            item_key = getattr(item, 'key', '').lower()
+            for location, items_list in caller.db.worn_items.items():
+                for worn_item in items_list:
+                    if worn_item is None:
+                        continue
+                    worn_key = getattr(worn_item, 'key', '').lower()
+                    if item_key and worn_key and item_key == worn_key:
+                        is_worn = True
+                        break
+                if is_worn:
+                    break
         
         if is_worn:
             caller.msg("You can't give something you're wearing. Remove it first.")
