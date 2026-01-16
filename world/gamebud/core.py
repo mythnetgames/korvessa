@@ -502,11 +502,10 @@ def format_messages_display(gamebud, page=0):
     bar_empty = 10 - bar_filled
     loading_bar = "|" * bar_filled + "\\*" * min(bar_empty, 3)
     
-    # Calculate padding to align the closing ) regardless of message count width
-    # "Lobbies|| " is 10 chars, we need to account for variable msg_count width
-    msg_count_str = str(msg_count)
-    # Padding should fill the space where "Lobbies|| " was (10 chars) minus msg_count display width
-    padding = " " * max(0, 10 - len(msg_count_str))
+    # Format msg_count to be right-aligned in 2-character width for consistent spacing
+    # "Lobbies|| " is 10 chars, msg_count formatted as 2 chars right-aligned = 10 - 2 = 8 spaces needed
+    msg_count_str = f"{msg_count:>2}"  # Right-align in 2 characters
+    padding = " " * 8  # Fixed 8 spaces to account for 2-char msg_count
     
     display = UI_TEMPLATE_MESSAGES.format(
         port=GAMEBUD_PORT.ljust(2),
