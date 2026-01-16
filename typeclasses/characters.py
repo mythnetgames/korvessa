@@ -242,13 +242,24 @@ class Character(ObjectParent, DefaultCharacter):
         """
         Empathy is calculated as edge + willpower.
         Can be overridden by admin setting _emp to a specific value.
+        Also applies room bonuses (e.g., +3 from OUTSIDE tag when sun is out).
         """
+        base_emp = 0
         if self._emp is not None:
-            return self._emp
-        # Calculate from edge + willpower
-        edge_val = getattr(self, 'edge', 1)
-        will_val = getattr(self, 'will', 1)
-        return edge_val + will_val
+            base_emp = self._emp
+        else:
+            # Calculate from edge + willpower
+            edge_val = getattr(self, 'edge', 1)
+            will_val = getattr(self, 'will', 1)
+            base_emp = edge_val + will_val
+        
+        # Apply room bonuses if in a room
+        if self.location:
+            from world.room_tags import get_room_stat_bonuses
+            room_bonuses = get_room_stat_bonuses(self.location, self)
+            base_emp += room_bonuses.get("emp", 0)
+        
+        return base_emp
     
     @emp.setter
     def emp(self, value):

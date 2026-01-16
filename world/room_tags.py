@@ -98,6 +98,7 @@ VALID_TAG_NAMES = set(ALL_TAGS.keys())
 def get_tag_display_string(tags):
     """
     Generate display string for room tags to show in room title.
+    Only shows ACTIVE_TAGS (x - gameplay effects), not PASSIVE_TAGS (o - informational/bonus).
     Applies color codes from tag definitions.
     
     Args:
@@ -112,8 +113,9 @@ def get_tag_display_string(tags):
     display_parts = []
     for tag in tags:
         tag_upper = tag.upper()
-        if tag_upper in ALL_TAGS:
-            tag_data = ALL_TAGS[tag_upper]
+        # Only display ACTIVE_TAGS (those with gameplay effects)
+        if tag_upper in ACTIVE_TAGS:
+            tag_data = ACTIVE_TAGS[tag_upper]
             color = tag_data.get("color", "")
             
             if color:
@@ -237,5 +239,42 @@ def get_room_skill_bonuses(room):
             tag_bonuses = ALL_TAGS[tag]["skill_bonuses"]
             for skill, bonus in tag_bonuses.items():
                 bonuses[skill] = bonuses.get(skill, 0) + bonus
+    
+    return bonuses
+
+
+def get_room_stat_bonuses(room, char=None):
+    """
+    Get all stat bonuses from room tags.
+    
+    Args:
+        room: Room object
+        char: Character object (optional, for checking sunlight requirement)
+        
+    Returns:
+        dict: {stat_name: bonus_value}
+    """
+    bonuses = {}
+    if not hasattr(room, 'tags') or not room.tags:
+        return bonuses
+    
+    for tag in room.tags:
+        tag_upper = tag.upper()
+        if tag_upper in ALL_TAGS:
+            tag_data = ALL_TAGS[tag_upper]
+            
+            # Handle empathy bonus (OUTSIDE tag)
+            if "empathy_bonus" in tag_data:
+                # Check if sunlight is required
+                requires_sunlight = tag_data.get("requires_sunlight", False)
+                if requires_sunlight:
+                    # Check if sun is out
+                    from world.weather.time_system import get_current_time_period
+                    time_period = get_current_time_period()
+                    if time_period in ["dawn", "day", "dusk"]:
+                        bonuses["emp"] = bonuses.get("emp", 0) + tag_data["empathy_bonus"]
+                else:
+                    # No sunlight requirement, always apply
+                    bonuses["emp"] = bonuses.get("emp", 0) + tag_data["empathy_bonus"]
     
     return bonuses
