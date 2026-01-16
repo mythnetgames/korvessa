@@ -83,8 +83,8 @@ class Room(ObjectParent, DefaultRoom):
     # Sky room flag for exit filtering
     is_sky_room = AttributeProperty(default=False, autocreate=True)
     
-    # Outside room flag for weather system
-    outside = AttributeProperty(default=False, autocreate=True)
+    # Weather room flag for weather system
+    weather_room = AttributeProperty(default=False, autocreate=True)
     
     # Room description
     desc = AttributeProperty(default="", autocreate=True)

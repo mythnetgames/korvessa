@@ -65,6 +65,7 @@ from commands.CmdTogglePickup import CmdTogglePickup
 from commands.stamina_admin import CmdStaminaStart, CmdStaminaStatus
 from commands.CmdFollow import CmdFollow, CmdUnfollow, CmdLose
 from commands.CmdSetRoomType import CmdSetRoomType
+from commands.CmdWeather import CmdWeatherRoom
 from commands.CmdRepairPulseWatch import CmdRepairPulseWatch
 from commands.inspect import CmdInspect
 
@@ -357,6 +358,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdControl())
         # Add room type/tag command
         self.add(CmdSetRoomType())
+        # Add weather room toggle command
+        self.add(CmdWeatherRoom())
         # Add tailoring commands
         from commands.CmdTailoring import (
             CmdSpawnMaterial, CmdTailorName, CmdTailorCoverage, CmdTailorColor,
