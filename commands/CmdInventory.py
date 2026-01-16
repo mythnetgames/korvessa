@@ -907,9 +907,6 @@ class CmdGive(Command):
     def func(self):
         caller = self.caller
         
-        # DEBUG - at very start
-        caller.msg("|rDEBUG: CmdGive.func() called|n")
-        
         # Basic syntax validation
         if not self.item_name or not self.target_name:
             caller.msg("Usage: give <item> to <target> or give <item> <target>")
@@ -985,10 +982,6 @@ class CmdGive(Command):
         item_id = getattr(item, 'id', None)
         item_dbref = getattr(item, 'dbref', None)
         item_key = getattr(item, 'key', '').lower()
-        
-        # DEBUG: Print what we're checking
-        caller.msg(f"|yDEBUG: Checking item {item.key} (id={item_id}, dbref={item_dbref})|n")
-        caller.msg(f"|yDEBUG: worn_items = {caller.db.worn_items}|n")
         
         # Check worn_items directly - this is the source of truth
         if hasattr(caller, 'db') and caller.db.worn_items:
