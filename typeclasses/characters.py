@@ -460,20 +460,15 @@ class Character(ObjectParent, DefaultCharacter):
         if hasattr(self.ndb, 'temp_place'):
             delattr(self.ndb, 'temp_place')
         
-        # Check if mapper is enabled (account.db is the persistent source of truth)
-        mapper_enabled = False
-        if self.account and hasattr(self.account, 'db'):
-            mapper_enabled = getattr(self.account.db, 'mapper_enabled', False)
-        
-        # Also check if player has a municipal wristpad - without it, map is disabled
+        # Check if player has a municipal wristpad WORN - required for map display
         from world.safetynet.utils import has_municipal_wristpad
         has_wristpad = has_municipal_wristpad(self)
         
-        # Sync ndb with persistent state
-        self.ndb.mapper_enabled = mapper_enabled and has_wristpad
-        self.ndb.show_room_desc = not (mapper_enabled and has_wristpad)
+        # Sync ndb with persistent state based on wristpad
+        self.ndb.mapper_enabled = has_wristpad
+        self.ndb.show_room_desc = not has_wristpad
         
-        if mapper_enabled and has_wristpad:
+        if has_wristpad:
             # Show map view (which includes room description)
             from commands.mapper import CmdMap
             cmd = CmdMap()
@@ -481,7 +476,7 @@ class Character(ObjectParent, DefaultCharacter):
             cmd.args = ""
             cmd.func()
         else:
-            # Show plain room description for screenreader mode
+            # Show plain room description without map
             appearance = self.location.return_appearance(self, force_display=True)
             self.msg(appearance)
 
@@ -495,20 +490,15 @@ class Character(ObjectParent, DefaultCharacter):
         """
         if target is None or target == self.location:
             # Looking at the room
-            # Check if mapper is enabled (account.db is the persistent source of truth)
-            mapper_enabled = False
-            if self.account and hasattr(self.account, 'db'):
-                mapper_enabled = getattr(self.account.db, 'mapper_enabled', False)
-            
-            # Also check if player has a municipal wristpad - without it, map is disabled
+            # Check if player has a municipal wristpad WORN - required for map display
             from world.safetynet.utils import has_municipal_wristpad
             has_wristpad = has_municipal_wristpad(self)
             
-            # Sync ndb with persistent state
-            self.ndb.mapper_enabled = mapper_enabled and has_wristpad
-            self.ndb.show_room_desc = not (mapper_enabled and has_wristpad)
+            # Sync ndb with persistent state based on wristpad
+            self.ndb.mapper_enabled = has_wristpad
+            self.ndb.show_room_desc = not has_wristpad
             
-            if mapper_enabled and has_wristpad:
+            if has_wristpad:
                 # Show map view with room description on right side
                 from commands.mapper import CmdMap
                 cmd = CmdMap()
@@ -517,7 +507,7 @@ class Character(ObjectParent, DefaultCharacter):
                 cmd.func()
                 return
             else:
-                # Mapper disabled (screenreader mode) - show plain room description
+                # No wristpad - show plain room description
                 appearance = self.location.return_appearance(self, force_display=True)
                 return appearance
         else:

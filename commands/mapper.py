@@ -226,6 +226,7 @@ class CmdMapIconHelp(Command):
 class CmdMap(Command):
     """
     Show a 5x5 map centered on your current room, using 2-character icons per room.
+    Requires wearing a municipal Pulse watch to display.
     Usage: map
     """
     key = "map"
@@ -233,6 +234,12 @@ class CmdMap(Command):
     help_category = "Mapping"
 
     def func(self):
+        # Check if player is wearing a municipal wristpad
+        from world.safetynet.utils import has_municipal_wristpad
+        if not has_municipal_wristpad(self.caller):
+            self.caller.msg("You need to be wearing a municipal Pulse watch to display the map.")
+            return
+        
         room = self.caller.location
         x = getattr(room.db, "x", None)
         y = getattr(room.db, "y", None)
