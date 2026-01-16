@@ -268,19 +268,17 @@ class CmdPayRent(Command):
             caller.msg("That is not a cube door.")
             return
         
-        # Check if caller is the renter, or if cube is unrented
-        if exit_obj.current_renter_id and exit_obj.current_renter_id != caller.id:
-            caller.msg("You are not the registered renter of this cube.")
-            return
-        
-        # If unrented, set caller as the renter and generate a code
-        if not exit_obj.current_renter_id:
-            exit_obj.current_renter = caller
-            exit_obj.current_door_code = generate_unique_code()
-            caller.msg(f"You have claimed the cube! Your access code is: {exit_obj.current_door_code}")
-        
-        # Get caller's cash
+        # Get caller's cash FIRST (before claiming)
         cash = getattr(caller.db, "cash_on_hand", 0) or 0
+        
+        # Debug output
+        try:
+            from evennia.comms.models import ChannelDB
+            renters_channel = ChannelDB.objects.get_channel("renters")
+            if renters_channel:
+                renters_channel.msg(f"PAY RENT: {caller.key} attempting to pay rent. Cash on hand: {cash}, Direction: {direction}, Amount: {amount}")
+        except:
+            pass
         
         if cash <= 0:
             caller.msg("You have no cash on hand.")
@@ -297,6 +295,12 @@ class CmdPayRent(Command):
         if amount <= 0:
             caller.msg("You must pay a positive amount.")
             return
+        
+        # If unrented, set caller as the renter and generate a code
+        if not exit_obj.current_renter_id:
+            exit_obj.current_renter = caller
+            exit_obj.current_door_code = generate_unique_code()
+            caller.msg(f"You have claimed the cube! Your access code is: {exit_obj.current_door_code}")
         
         # Process payment
         caller.db.cash_on_hand = cash - amount
