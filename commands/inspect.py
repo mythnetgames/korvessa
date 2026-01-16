@@ -121,18 +121,34 @@ class CmdInspect(Command):
                 pass
         
         # Persistent Attributes
-        if hasattr(target, "db") and hasattr(target.db, "all"):
-            attrs = []
-            for key, value in target.db.all().items():
-                value_str = str(value)
-                if len(value_str) > 50:
-                    value_str = value_str[:50] + "..."
-                attrs.append(f"  {key} = {value_str}")
-            if attrs:
-                output.append("|wPersistent Attributes|n:")
-                output.extend(attrs[:20])  # Limit to 20 attributes
-                if len(attrs) > 20:
-                    output.append(f"  ... and {len(attrs) - 20} more")
+        if hasattr(target, "db"):
+            try:
+                attrs = []
+                all_attrs = target.db.all() if hasattr(target.db, "all") else []
+                if isinstance(all_attrs, dict):
+                    for key, value in all_attrs.items():
+                        value_str = str(value)
+                        if len(value_str) > 50:
+                            value_str = value_str[:50] + "..."
+                        attrs.append(f"  {key} = {value_str}")
+                else:
+                    # It's a list of attributes
+                    for attr in all_attrs[:20]:
+                        try:
+                            value_str = str(attr.value)
+                            if len(value_str) > 50:
+                                value_str = value_str[:50] + "..."
+                            attrs.append(f"  {attr.db_key} = {value_str}")
+                        except Exception:
+                            pass
+                
+                if attrs:
+                    output.append("|wPersistent Attributes|n:")
+                    output.extend(attrs[:20])  # Limit to 20 attributes
+                    if len(attrs) > 20:
+                        output.append(f"  ... and {len(attrs) - 20} more")
+            except Exception:
+                pass
         
         output.append(sep)
         
