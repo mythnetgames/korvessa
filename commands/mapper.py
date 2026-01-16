@@ -322,9 +322,11 @@ class CmdMap(Command):
                     other_lines.append(line)
             wrapped_lines = []
             for i, line in enumerate(other_lines):
-                # Don't wrap the first line (room name with tags) - let it overflow
+                # First line (room name) - center it dynamically
                 if i == 0 and line.startswith('|c'):
-                    wrapped_lines.append(line)
+                    vis_len = visual_len(line.strip())
+                    padding = max(0, (column_width - vis_len) // 2)
+                    wrapped_lines.append(" " * padding + line.strip())
                 else:
                     # Wrap to column width
                     wrapped = textwrap.fill(line.strip(), width=column_width)
