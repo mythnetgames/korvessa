@@ -179,22 +179,15 @@ class CmdCloseDoor(Command):
         caller = self.caller
         room = caller.location
         
-        # Check if we're in a cube room
-        if not room.tags.has("cube_room", category="housing"):
-            caller.msg("There is no cube door here to close.")
-            return
-        
-        # Find the exit out (the cube door or any exit)
+        # Find if there's a CubeDoor exit in this room (which means we're in a cube)
         exit_out = None
-        if hasattr(room, "get_exit_to_hallway"):
-            exit_out = room.get_exit_to_hallway()
-        else:
-            # Fallback: find any exit
-            if room.exits:
-                exit_out = room.exits[0]
+        for ex in room.exits:
+            if ex.is_typeclass("typeclasses.cube_housing.CubeDoor"):
+                exit_out = ex
+                break
         
         if not exit_out:
-            caller.msg("There is no door to close.")
+            caller.msg("There is no cube door here to close.")
             return
         
         # Success message

@@ -1,0 +1,120 @@
+Help entry for: rent/renting
+=============================
+
+TOPIC: Renting a Cube
+
+Cubes are small rental rooms available throughout the city. Here is how to rent
+and use one.
+
+FINDING A CUBE
+==============
+
+Cubes are located in various buildings throughout the city. Look for an exit
+leading to a cube door - you can CHECK a direction to see if a cube is there.
+
+CHECKING A CUBE
+===============
+
+Usage: check <direction>
+
+Before renting, you can check the status of a cube door to see its cost and
+whether it's available for rent.
+
+Examples:
+  check north
+  check e
+
+The command will show:
+  - Nightly Rate: The daily cost to rent the cube
+  - Rental Status: Either "Paid - X days remaining" or "Available for rent"
+
+RENTING A CUBE
+==============
+
+Usage: pay rent <direction> [= <amount>]
+
+To rent an unoccupied cube, use the pay rent command. This will:
+  1. Claim the cube as your rental
+  2. Generate a unique access code for you
+  3. Deduct the payment from your cash on hand
+  4. Add rent time to the cube
+
+Examples:
+  pay rent north          (Pay all your cash)
+  pay rent n = 500        (Pay exactly 500 dollars)
+  pay rent east = 100     (Pay exactly 100 dollars)
+
+The rate is 100 dollars per day of rent. Partial payments are accepted.
+
+You will receive a message with:
+  - Your unique 6-character access code (remember this!)
+  - How much rent time was added
+  - When your rent expires
+
+CHECKING YOUR CASH
+==================
+
+Usage: count
+
+Before renting, check how much cash you have on hand with the COUNT command.
+
+ENTERING YOUR CUBE
+==================
+
+Usage: enter <code> <direction>
+
+Once you have rented a cube and received your access code, you can enter your
+room using the ENTER command.
+
+Examples:
+  enter ABC123 north
+  enter XY7Z9K n
+
+The code is case-insensitive. If the code is correct and your rent is paid,
+the door will unlock and you can enter.
+
+MESSAGES YOU'LL SEE
+===================
+
+If the door is locked (wrong code):
+  "The keypad beeps angrily. A red indicator flashes."
+
+If rent has expired:
+  "The keypad buzzes. Payment required. A red indicator flashes."
+
+If the code is correct:
+  "The keypad chirps once. The door swings open."
+
+EXTENDING YOUR RENT
+===================
+
+You can pay rent at any time to extend the duration. Use the same PAY RENT
+command to add more time to your cube.
+
+SHARING YOUR CUBE
+=================
+
+Once inside, you can invite other players to stay with you. However, they will
+need your access code to enter. You can share your code with trusted players.
+
+CLOSING THE DOOR
+================
+
+Usage: close door
+
+When inside your cube, you can close and lock the door behind you with the
+CLOSE DOOR command.
+
+LOSING YOUR RENTAL
+==================
+
+If you don't pay your rent by the expiration date, your rental will expire and
+someone else can rent the cube. You will lose any belongings left inside.
+
+Always pay your rent on time!
+
+For more information on specific commands, use:
+  help pay rent
+  help enter
+  help check
+  help close door
