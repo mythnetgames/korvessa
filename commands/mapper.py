@@ -299,13 +299,13 @@ class CmdMap(Command):
 
         import textwrap
         # Map grid: 5 rooms x 2 chars = 10 visual chars per line
-        # Total left column: 10 (grid) + 5 (padding) = 15 chars
+        # Total left column: 10 (grid) + 2 (padding) = 12 chars
         map_grid_width = 10  # Always exactly 10 visual characters
-        padding_width = 5    # 5 spaces padding
-        left_column_width = map_grid_width + padding_width  # 15 total
+        padding_width = 2    # 2 spaces padding
+        left_column_width = map_grid_width + padding_width  # 12 total
         
-        # Description column width (80 - 15 = 65)
-        column_width = 65
+        # Description column width (80 - 12 = 68)
+        column_width = 68
         
         if appearance:
             lines = appearance.split('\n')
@@ -347,8 +347,8 @@ class CmdMap(Command):
         while len(base_map_lines) < map_grid_height:
             base_map_lines.append("          ")  # 10 spaces for empty row
         
-        # Coordinate string (displayed on its own line, not paired with description)
-        coord_str = f"x={x}, y={y}, z={z}"
+        # Coordinates are stored but not displayed to players
+        # (they remain in the system for window observation and backend functionality)
         
         # Helper to calculate visual width (excluding ALL Evennia color codes)
         def visual_len(s):
@@ -383,13 +383,8 @@ class CmdMap(Command):
             right = desc_lines[i] if i < len(desc_lines) else ""
             output.append(f"{left}{right}")
         
-        # Row 5: coordinates (padded to 25 chars) + description continues
-        coord_left = pad_to_visual_width(coord_str, left_column_width)
-        coord_right = desc_lines[map_grid_height] if map_grid_height < len(desc_lines) else ""
-        output.append(f"{coord_left}{coord_right}")
-        
-        # Remaining description lines (row 6+) - full width, no indent
-        for i in range(map_grid_height + 1, len(desc_lines)):
+        # Remaining description lines (row 5+) - full width, no indent
+        for i in range(map_grid_height, len(desc_lines)):
             output.append(desc_lines[i])
         
         self.caller.msg("\n".join(output), parse=True)
