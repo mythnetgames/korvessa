@@ -1484,7 +1484,19 @@ class Wristpad(Item):
     
     def at_wear(self, wearer, **kwargs):
         """Called when item is worn. Display welcome chime for municipal wristpads."""
-        if self.db.is_municipal_wristpad and hasattr(self.db, 'pulse_watch_id'):
+        # Initialize attributes if they don't exist (for watches created before this code)
+        if not hasattr(self.db, 'is_municipal_wristpad'):
+            self.db.is_municipal_wristpad = True
+        
+        if not hasattr(self.db, 'pulse_watch_id'):
+            # Generate unique ID if missing
+            import random
+            import string
+            chars = string.ascii_letters + string.digits + "!@#$%^&*"
+            self.db.pulse_watch_id = ''.join(random.choice(chars) for _ in range(10))
+        
+        # Display welcome chime if this is a municipal wristpad
+        if self.db.is_municipal_wristpad:
             watch_id = self.db.pulse_watch_id
             # Display welcome chime with unique ID
             wearer.msg(f"|y*beep* |CWelcome, {watch_id}! Glory be to China!|n")
@@ -1503,11 +1515,28 @@ class Wristpad(Item):
                     return False
         return True
     
+    def at_pre_wear(self, wearer, **kwargs):
+        """Called before item is worn - nothing to prevent."""
+        return True
+    
     def at_pre_remove(self, remover, **kwargs):
         """
         Prevent municipal wristpad removal without surgical scissors.
         Displays painful message when removed with scissors.
         """
+        # Initialize attributes if they don't exist (for watches created before this code)
+        if not hasattr(self.db, 'is_municipal_wristpad'):
+            self.db.is_municipal_wristpad = True
+        
+        if not hasattr(self.db, 'is_cut'):
+            self.db.is_cut = False
+        
+        if not hasattr(self.db, 'pulse_watch_id'):
+            import random
+            import string
+            chars = string.ascii_letters + string.digits + "!@#$%^&*"
+            self.db.pulse_watch_id = ''.join(random.choice(chars) for _ in range(10))
+        
         if not self.db.is_municipal_wristpad:
             return True
         
