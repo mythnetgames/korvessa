@@ -587,12 +587,17 @@ class CmdDrop(Command):
         is_worn = False
         if hasattr(caller, 'is_item_worn') and caller.is_item_worn(obj):
             is_worn = True
-        # Also check worn_items directly in case is_item_worn fails
+        # Also check worn_items directly by comparing dbref in case object references differ
         if hasattr(caller.db, 'worn_items') and caller.db.worn_items:
             for location, items_list in caller.db.worn_items.items():
-                if obj in items_list:
-                    is_worn = True
-                    break
+                for worn_item in items_list:
+                    if worn_item and hasattr(worn_item, 'id') and hasattr(obj, 'id'):
+                        if worn_item.id == obj.id:
+                            is_worn = True
+                            break
+                    elif worn_item == obj:
+                        is_worn = True
+                        break
         
         if is_worn:
             caller.msg("You can't drop something you're wearing. Remove it first.")
@@ -976,12 +981,17 @@ class CmdGive(Command):
         is_worn = False
         if hasattr(caller, 'is_item_worn') and caller.is_item_worn(item):
             is_worn = True
-        # Also check worn_items directly in case is_item_worn fails
+        # Also check worn_items directly by comparing dbref in case object references differ
         if hasattr(caller.db, 'worn_items') and caller.db.worn_items:
             for location, items_list in caller.db.worn_items.items():
-                if item in items_list:
-                    is_worn = True
-                    break
+                for worn_item in items_list:
+                    if worn_item and hasattr(worn_item, 'id') and hasattr(item, 'id'):
+                        if worn_item.id == item.id:
+                            is_worn = True
+                            break
+                    elif worn_item == item:
+                        is_worn = True
+                        break
         
         if is_worn:
             caller.msg("You can't give something you're wearing. Remove it first.")
