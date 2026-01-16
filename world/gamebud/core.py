@@ -55,19 +55,31 @@ def calculate_typing_delay(character):
     
     Formula: delay = 3.0 - (technique - 6) * 0.3
     
+    Tech scales linearly with no upper cap. Minimum delay is 0.01 seconds.
+    Tech 20 would be: 3.0 - (20 - 6) * 0.3 = 3.0 - 4.2 = -1.2 -> 0.01 seconds
+    
     Args:
         character: The character to calculate typing delay for
         
     Returns:
-        float: Delay in seconds (minimum 0.5 seconds)
+        float: Delay in seconds (minimum 0.01 seconds)
     """
-    BASE_DELAY = 3.0
-    DELAY_PER_POINT = 0.3
-    MIN_DELAY = 0.5
-    BASELINE_TECHNIQUE = 6
+    BASE_DELAY = 6.0
+    DELAY_PER_POINT = 1.0
+    MIN_DELAY = 0.01
+    BASELINE_TECHNIQUE = 1
     
-    # Get character's technique stat
-    technique = getattr(character, 'technique', BASELINE_TECHNIQUE)
+    # Get character's technique stat (stored as 'tech')
+    # Try both db attributes and direct attributes
+    technique = None
+    
+    if hasattr(character, 'db'):
+        technique = getattr(character.db, 'tech', None)
+    
+    if technique is None:
+        technique = getattr(character, 'tech', None)
+    
+    # Validate and fallback
     if not isinstance(technique, (int, float)) or technique is None or technique < 1:
         technique = BASELINE_TECHNIQUE
     technique = int(technique)
