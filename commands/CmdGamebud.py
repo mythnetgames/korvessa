@@ -48,7 +48,7 @@ class CmdGamebud(Command):
         gamebud mute         - Turn off new message notifications
         gamebud unmute       - Turn on new message notifications
     
-    The Okama Gamebud is a handheld communication device from 1971 that
+    The Okama Gamebud is a handheld communication device from 1969 that
     allows peer-to-peer messaging within Kowloon Walled City. Set an
     alias and start chatting with other Gamebud users!
     """
