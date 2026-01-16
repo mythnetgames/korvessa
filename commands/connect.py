@@ -1,7 +1,7 @@
 """
-Connect command - Use a digging tool to connect two rooms via coordinates.
+Connect command - Builder tool to connect rooms via coordinates.
 
-This command allows characters holding a digging tool to connect the current room
+This command allows builders to connect the current room
 to another room that exists at the calculated coordinates in the specified direction.
 If a room exists at those coordinates, bidirectional exits are created.
 If no room exists at those coordinates, the command fails.
@@ -13,7 +13,7 @@ from evennia.utils import create
 
 class CmdConnect(Command):
     """
-    Use a digging tool to connect two rooms together.
+    Connect two rooms together via their coordinates.
     
     Usage:
         connect <direction>
@@ -23,7 +23,7 @@ class CmdConnect(Command):
         connect e
         connect up
     
-    This command requires you to be holding a digging tool. It will:
+    This is a builder+ tool. It will:
     1. Calculate the coordinates of the room to the specified direction
     2. Look for an existing room at those coordinates
     3. If found, create bidirectional exits between the current room and that room
@@ -33,8 +33,8 @@ class CmdConnect(Command):
     (Also accepts short forms: n, s, e, w, ne, nw, se, sw, u, d)
     """
     key = "connect"
-    aliases = ["dig"]
-    locks = "cmd:all()"
+    aliases = []
+    locks = "cmd:perm(Builders)"
     help_category = "Building"
     
     # Direction to coordinate offset mapping
@@ -81,11 +81,6 @@ class CmdConnect(Command):
         current_room = caller.location
         if not current_room:
             caller.msg("You must be in a room to use this command.")
-            return
-        
-        # Check for digging tool
-        if not self._has_digging_tool(caller):
-            caller.msg("You need to be holding a digging tool to use this command.")
             return
         
         # Parse direction
@@ -151,58 +146,14 @@ class CmdConnect(Command):
             return
         
         # Success messages
-        caller.msg(f"|gYou use your digging tool to connect to {target_room.key} to the {dir_name}.|n")
+        caller.msg(f"|gConnected to {target_room.key} to the {dir_name}.|n")
         caller.msg(f"|g{current_room.key} ({src_x}, {src_y}, {src_z}) <-> {target_room.key} ({target_x}, {target_y}, {target_z})|n")
         
         # Notify room
         current_room.msg_contents(
-            f"|g{caller.key} uses a digging tool to create an exit to the {dir_name}.|n",
+            f"|g{caller.key} connects a new exit to the {dir_name}.|n",
             exclude=[caller]
         )
-    
-    def _has_digging_tool(self, character):
-        """Check if character is holding a digging tool."""
-        # Check if character has a hands attribute with equipped items
-        if hasattr(character, 'hands') and character.hands:
-            for hand, item in character.hands.items():
-                if item and self._is_digging_tool(item):
-                    return True
-        
-        # Fallback: check equipped items in inventory with tags
-        for item in character.contents:
-            if hasattr(item, 'tags') and item.tags.has('equipped', category='combat'):
-                if self._is_digging_tool(item):
-                    return True
-        
-        # Fallback: search for digging tool in inventory by keyword
-        for item in character.contents:
-            if self._is_digging_tool(item):
-                return True
-        
-        return False
-    
-    def _is_digging_tool(self, item):
-        """Check if an item is a digging tool."""
-        if not item:
-            return False
-        
-        item_key = item.key.lower()
-        item_name = getattr(item, 'name', '').lower()
-        
-        # Check item key and name for digging tool keywords
-        digging_keywords = ['dig', 'shovel', 'pickaxe', 'pick', 'axe', 'spade', 'excavator', 'tool']
-        
-        for keyword in digging_keywords:
-            if keyword in item_key or keyword in item_name:
-                return True
-        
-        # Check db attributes for tool type
-        if hasattr(item, 'db'):
-            tool_type = getattr(item.db, 'tool_type', '')
-            if tool_type and 'dig' in tool_type.lower():
-                return True
-        
-        return False
     
     def _find_room_at_coords(self, x, y, z, zone=None):
         """Find a room at the specified coordinates in the given zone."""
