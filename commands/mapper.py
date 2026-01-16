@@ -143,17 +143,20 @@ class CmdZoneIcon(Command):
             self.caller.msg("Example: zoneicon |#00d700!!|n")
             return
         
-        # Validate icon format - extract visible characters after color codes
+        # Validate icon format - extract visible (non-color-code) characters
         import re
-        # Match color codes including |n (reset code)
-        color_match = re.match(r'^(\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z0-9_])*', args)
-        color_codes = color_match.group(0) if color_match else ''
-        visible = args[len(color_codes):]
+        
+        # Extract all color codes from the input
+        color_codes_pattern = r'\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z0-9_]'
+        color_codes_found = re.findall(color_codes_pattern, args)
+        
+        # Extract visible characters by removing all color codes
+        visible_chars = re.sub(color_codes_pattern, '', args)
         
         # Ensure exactly 2 visible characters
-        if len(visible) != 2:
-            self.caller.msg(f"Icon must have exactly 2 visible characters after color codes. You have {len(visible)}: '{visible}'")
-            self.caller.msg("Example: zoneicon |#00d700!! (green colored exclamation marks)")
+        if len(visible_chars) != 2:
+            self.caller.msg(f"Icon must have exactly 2 visible characters (non-color-code characters). You have {len(visible_chars)}: '{visible_chars}'")
+            self.caller.msg("Example: zoneicon |#00d700!! or zoneicon |#00d700|r!!")
             return
         
         room = self.caller.location
