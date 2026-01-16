@@ -343,8 +343,14 @@ class CmdMap(Command):
             # |#RRGGBB (hex colors)
             # |[#RRGGBB (hex background)
             # |n, |h, |u, |s (reset/formatting)
+            # || (escaped pipe = 1 visible character)
             import re
-            stripped = re.sub(r'\|(?:\[)?(?:#[0-9a-fA-F]{6}|[a-zA-Z0-9_])', '', s)
+            # First replace escaped pipes || with placeholder
+            temp = s.replace('||', '\x00')
+            # Remove color codes (only valid letter-based codes)
+            stripped = re.sub(r'\|(?:\[)?(?:#[0-9a-fA-F]{6}|[a-zA-Z])', '', temp)
+            # Convert placeholder back to single character for counting
+            stripped = stripped.replace('\x00', '|')
             return len(stripped)
         
         def pad_to_visual_width(s, target_width):
