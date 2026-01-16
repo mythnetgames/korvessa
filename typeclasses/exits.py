@@ -918,6 +918,7 @@ class Exit(DefaultExit):
             'out': "The exit leads outward to where the open street awaits with all its dangers."
         }
         
+        direction = self.key.lower()
         return directional_themes.get(direction, "")
         
     def _get_exit_character_display(self, looker):
