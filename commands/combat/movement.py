@@ -85,6 +85,13 @@ class CmdFlee(Command):
         caller = self.caller
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         
+        # Cancel Gamebud typing if in progress
+        try:
+            from world.gamebud.core import cancel_gamebud_typing
+            cancel_gamebud_typing(caller)
+        except ImportError:
+            pass  # Gamebud module not available
+        
         # Check if player has already attempted to flee this combat round
         if hasattr(caller.ndb, "flee_attempted_this_round") and caller.ndb.flee_attempted_this_round:
             caller.msg("|rYou have already attempted to flee this combat round! Wait for the next round.|n")
@@ -542,6 +549,13 @@ class CmdAdvance(Command):
         args = self.args.strip()
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         
+        # Cancel Gamebud typing if in progress
+        try:
+            from world.gamebud.core import cancel_gamebud_typing
+            cancel_gamebud_typing(caller)
+        except ImportError:
+            pass  # Gamebud module not available
+        
         # Use robust handler validation to catch merge-related issues
         from world.combat.utils import validate_character_handler_reference
         is_valid, handler, error_msg = validate_character_handler_reference(caller)
@@ -657,6 +671,13 @@ class CmdCharge(Command):
         args = self.args.strip()
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         handler = getattr(caller.ndb, "combat_handler", None)
+
+        # Cancel Gamebud typing if in progress
+        try:
+            from world.gamebud.core import cancel_gamebud_typing
+            cancel_gamebud_typing(caller)
+        except ImportError:
+            pass  # Gamebud module not available
 
         if not handler:
             caller.msg(MSG_CHARGE_NOT_IN_COMBAT)

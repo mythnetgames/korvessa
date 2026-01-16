@@ -11,6 +11,9 @@ from world.gamebud.core import (
     check_gamebud_device,
     format_gamebud_display,
     format_messages_display,
+    start_gamebud_typing,
+    cancel_gamebud_typing,
+    is_gamebud_typing,
 )
 from world.gamebud.constants import (
     MAX_ALIAS_LENGTH,
@@ -214,7 +217,7 @@ class CmdGamebud(Command):
         caller.msg(f"|wPage {next_page + 1} of {total_pages} - use 'gamebud next' for more|n")
     
     def do_post(self, gamebud, message):
-        """Post a message to the lobby."""
+        """Post a message to the lobby with typing delay."""
         caller = self.caller
         
         # Get alias from device (always has one, either set or random)
@@ -234,11 +237,17 @@ class CmdGamebud(Command):
             caller.msg(f"|yYour message is {len(message)} characters. Max is {MAX_MESSAGE_LENGTH}.|n")
             return
         
-        # Post message with alias color
-        manager = get_gamebud_manager()
-        manager.add_message(alias, message, caller, alias_color)
+        # Check if already typing - cancel previous and start new
+        if is_gamebud_typing(caller):
+            cancel_gamebud_typing(caller, silent=True)
         
-        caller.msg(MSG_POST_SUCCESS)
+        # Define the actual post action to execute after delay
+        def complete_post():
+            manager = get_gamebud_manager()
+            manager.add_message(alias, message, caller, alias_color)
+        
+        # Start typing with delay
+        start_gamebud_typing(caller, gamebud, "post", complete_post)
     
     def do_alias(self, gamebud, alias):
         """Set the display alias."""
@@ -321,7 +330,7 @@ class CmdGamebud(Command):
         caller.msg(display)
     
     def do_send_pm(self, gamebud, target_alias, message):
-        """Send a private message to another alias."""
+        """Send a private message to another alias with typing delay."""
         caller = self.caller
         manager = get_gamebud_manager()
         
@@ -343,10 +352,16 @@ class CmdGamebud(Command):
         from_alias = gamebud.db.alias or "Unknown"
         from_color = gamebud.db.alias_color or DEFAULT_ALIAS_COLOR
         
-        # Send the message
-        manager.send_private_message(from_alias, from_color, target_alias, message, caller)
+        # Check if already typing - cancel previous and start new
+        if is_gamebud_typing(caller):
+            cancel_gamebud_typing(caller, silent=True)
         
-        caller.msg(f"|gPrivate message sent to |w{target_alias}|g.|n")
+        # Define the actual send action to execute after delay
+        def complete_send():
+            manager.send_private_message(from_alias, from_color, target_alias, message, caller)
+        
+        # Start typing with delay
+        start_gamebud_typing(caller, gamebud, "message", complete_send)
 
 
 class GamebudCmdSet(CmdSet):

@@ -132,6 +132,13 @@ class CmdSay(DefaultCmdSay):
             caller.msg("Say what?")
             return
         
+        # Cancel Gamebud typing if in progress
+        try:
+            from world.gamebud.core import cancel_gamebud_typing
+            cancel_gamebud_typing(caller)
+        except ImportError:
+            pass  # Gamebud module not available
+        
         speech = self.args.strip()
         
         # Fix grammar - contractions and capitalize standalone "i"

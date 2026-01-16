@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from evennia import DefaultScript
 from evennia.scripts.models import ScriptDB
 from evennia import create_script
+from evennia.utils import delay
 from world.gamebud.constants import (
     MAX_MESSAGES_STORED,
     MAX_PRIVATE_MESSAGES,
@@ -24,6 +25,12 @@ from world.gamebud.constants import (
     MSG_NEW_MESSAGE,
     DEFAULT_SHELL_COLOR,
     DEFAULT_ALIAS_COLOR,
+    MSG_TYPING_START_SELF,
+    MSG_TYPING_START_ROOM,
+    MSG_TYPING_DONE_SELF,
+    MSG_TYPING_DONE_ROOM,
+    MSG_TYPING_CANCELLED_SELF,
+    MSG_TYPING_CANCELLED_ROOM,
 )
 import random
 import string
@@ -31,6 +38,167 @@ import string
 
 # Global manager instance cache
 _manager_cache = None
+
+
+# =========================================================================
+# TYPING DELAY SYSTEM
+# =========================================================================
+
+def calculate_typing_delay(character):
+    """
+    Calculate typing delay based on character's Technique stat.
+    
+    Technique represents fine motor skills - higher technique = faster typing.
+    Baseline is Technique 6 = 3.0 seconds.
+    Each point above 6 reduces delay by 0.3 seconds (faster).
+    Each point below 6 increases delay by 0.3 seconds (slower).
+    
+    Formula: delay = 3.0 - (technique - 6) * 0.3
+    
+    Args:
+        character: The character to calculate typing delay for
+        
+    Returns:
+        float: Delay in seconds (minimum 0.5 seconds)
+    """
+    BASE_DELAY = 3.0
+    DELAY_PER_POINT = 0.3
+    MIN_DELAY = 0.5
+    BASELINE_TECHNIQUE = 6
+    
+    # Get character's technique stat
+    technique = getattr(character, 'technique', BASELINE_TECHNIQUE)
+    if not isinstance(technique, (int, float)) or technique is None or technique < 1:
+        technique = BASELINE_TECHNIQUE
+    technique = int(technique)
+    
+    # Calculate delay: lower technique = higher delay (slower typing)
+    delay = BASE_DELAY - (technique - BASELINE_TECHNIQUE) * DELAY_PER_POINT
+    
+    # Ensure minimum delay to prevent instant messages
+    return max(delay, MIN_DELAY)
+
+
+def start_gamebud_typing(character, gamebud, action_type, callback_func, *args, **kwargs):
+    """
+    Start the typing animation for a Gamebud action.
+    
+    Shows typing start messages, sets up the delayed callback based on character's
+    Technique stat, and stores the pending action so it can be cancelled if interrupted.
+    
+    Args:
+        character: The character typing
+        gamebud: The Gamebud device being used
+        action_type: String describing action type ("post" or "message")
+        callback_func: Function to call after delay completes
+        *args, **kwargs: Arguments to pass to callback_func
+        
+    Returns:
+        The delayed task handle (can be cancelled with task.cancel())
+    """
+    device_name = gamebud.key if gamebud else "Gamebud Advanced"
+    char_name = character.key
+    
+    # Show typing start messages
+    character.msg(MSG_TYPING_START_SELF.format(device_name=device_name))
+    if character.location:
+        character.location.msg_contents(
+            MSG_TYPING_START_ROOM.format(char_name=char_name, device_name=device_name),
+            exclude=[character]
+        )
+    
+    # Calculate typing delay based on character's technique
+    typing_delay = calculate_typing_delay(character)
+    
+    # Create wrapper that sends "done" messages before executing callback
+    def typing_complete():
+        # Clear the pending typing state
+        if hasattr(character.ndb, "gamebud_typing_task"):
+            delattr(character.ndb, "gamebud_typing_task")
+        if hasattr(character.ndb, "gamebud_typing_device"):
+            delattr(character.ndb, "gamebud_typing_device")
+        
+        # Show completion messages
+        character.msg(MSG_TYPING_DONE_SELF.format(device_name=device_name))
+        if character.location:
+            character.location.msg_contents(
+                MSG_TYPING_DONE_ROOM.format(char_name=char_name, device_name=device_name),
+                exclude=[character]
+            )
+        
+        # Execute the actual callback
+        callback_func(*args, **kwargs)
+    
+    # Start the delayed task with character-specific typing delay
+    task = delay(typing_delay, typing_complete)
+    
+    # Store the task reference so it can be cancelled
+    character.ndb.gamebud_typing_task = task
+    character.ndb.gamebud_typing_device = gamebud
+    
+    return task
+
+
+def cancel_gamebud_typing(character, silent=False):
+    """
+    Cancel any pending Gamebud typing action.
+    
+    Called when the character performs another action that should interrupt
+    their typing (combat, movement, speaking, etc.)
+    
+    Args:
+        character: The character to cancel typing for
+        silent: If True, do not show cancellation messages
+        
+    Returns:
+        bool: True if typing was cancelled, False if no typing was pending
+    """
+    if not hasattr(character.ndb, "gamebud_typing_task"):
+        return False
+    
+    task = character.ndb.gamebud_typing_task
+    gamebud = getattr(character.ndb, "gamebud_typing_device", None)
+    device_name = gamebud.key if gamebud else "Gamebud Advanced"
+    char_name = character.key
+    
+    # Cancel the delayed task
+    try:
+        if hasattr(task, "cancel"):
+            task.cancel()
+        elif hasattr(task, "remove"):
+            task.remove()
+    except Exception:
+        pass  # Task may have already fired
+    
+    # Clear the state
+    if hasattr(character.ndb, "gamebud_typing_task"):
+        delattr(character.ndb, "gamebud_typing_task")
+    if hasattr(character.ndb, "gamebud_typing_device"):
+        delattr(character.ndb, "gamebud_typing_device")
+    
+    # Show cancellation messages unless silent
+    if not silent:
+        character.msg(MSG_TYPING_CANCELLED_SELF.format(device_name=device_name))
+        if character.location:
+            character.location.msg_contents(
+                MSG_TYPING_CANCELLED_ROOM.format(char_name=char_name, device_name=device_name),
+                exclude=[character]
+            )
+    
+    return True
+
+
+def is_gamebud_typing(character):
+    """
+    Check if a character is currently typing on their Gamebud.
+    
+    Args:
+        character: The character to check
+        
+    Returns:
+        bool: True if currently typing, False otherwise
+    """
+    return hasattr(character.ndb, "gamebud_typing_task")
 
 
 def generate_random_alias():

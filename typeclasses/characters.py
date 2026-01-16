@@ -368,11 +368,19 @@ class Character(ObjectParent, DefaultCharacter):
         Notifies windows that observe the character's current room about departure.
         Blocks movement if character is in a TerraGroup Cloning Division pod procedure.
         Cancels auto-walk if this is a manual movement.
+        Cancels Gamebud typing if in progress.
         """
         # Block movement if in TerraGroup Cloning Division pod
         if getattr(self.ndb, '_movement_locked', False):
             self.msg("|yYou cannot move during the TerraGroup Cloning Division procedure.|n")
             return False
+        
+        # Cancel Gamebud typing if in progress
+        try:
+            from world.gamebud.core import cancel_gamebud_typing
+            cancel_gamebud_typing(self)
+        except ImportError:
+            pass  # Gamebud module not available
         
         # Cancel auto-walk if this is a MANUAL movement (not auto-walk's own moves)
         if not getattr(self.ndb, '_is_auto_walk_move', False):

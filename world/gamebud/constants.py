@@ -129,6 +129,14 @@ MSG_INVALID_COLOR = "|rInvalid color. Choose from: {colors}|n"
 # Notification message (beep)
 MSG_NEW_MESSAGE = "|c*beep*|n Your Gamebud chirps - new message from |w{sender}|n!"
 
+# Typing messages
+MSG_TYPING_START_SELF = "|yYou start typing on your {device_name}.|n"
+MSG_TYPING_START_ROOM = "{char_name} starts typing on their {device_name}."
+MSG_TYPING_DONE_SELF = "|gYou send a message on your {device_name}.|n"
+MSG_TYPING_DONE_ROOM = "{char_name} looks up from their {device_name}."
+MSG_TYPING_CANCELLED_SELF = "|yYou stop typing and put away your {device_name}.|n"
+MSG_TYPING_CANCELLED_ROOM = "{char_name} stops typing and puts away their {device_name}."
+
 # =============================================================================
 # HELP TEXT
 # =============================================================================

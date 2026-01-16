@@ -60,6 +60,13 @@ class CmdGrapple(Command):
             caller.msg(MSG_GRAPPLE_WHO)
             return
 
+        # Cancel Gamebud typing if in progress
+        try:
+            from world.gamebud.core import cancel_gamebud_typing
+            cancel_gamebud_typing(caller)
+        except ImportError:
+            pass  # Gamebud module not available
+
         # --- SELF-TARGET CHECK (early) ---
         # Check if player is trying to target themselves with "me", "self", or "myself"
         if self.args.strip().lower() in ["me", "myself", "self"]:

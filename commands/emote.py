@@ -140,6 +140,13 @@ class CmdEmote(DefaultCmdPose):
             caller.msg("Emote what?")
             return
         
+        # Cancel Gamebud typing if in progress
+        try:
+            from world.gamebud.core import cancel_gamebud_typing
+            cancel_gamebud_typing(caller)
+        except ImportError:
+            pass  # Gamebud module not available
+        
         emote_text = self.args.lstrip()  # Remove leading whitespace
         
         # Fix grammar in the emote text - contractions and capitalize standalone "i"
