@@ -1501,6 +1501,8 @@ class Wristpad(Item):
         # Display welcome chime if this is a municipal wristpad
         if self.db.is_municipal_wristpad:
             watch_id = self.db.pulse_watch_id
+            # Display needle prick message first
+            wearer.msg("|rYou feel a tiny prick as the small needle embeds into your flesh and your vital readout initializes.|n")
             # Display welcome chime with unique ID
             wearer.msg(f"|y*beep* |CWelcome, {watch_id}! Glory be to China!|n")
             wearer.location.msg_contents(
@@ -1549,7 +1551,7 @@ class Wristpad(Item):
         
         # Check if remover has surgical scissors in inventory
         has_scissors = any(
-            item.key.lower() == 'surgical scissors' 
+            'scissors' in item.key.lower()
             for item in remover.contents 
             if hasattr(item, 'key')
         )
