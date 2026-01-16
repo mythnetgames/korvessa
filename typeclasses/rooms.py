@@ -279,8 +279,8 @@ class Room(ObjectParent, DefaultRoom):
         if tag_display:
             lines = appearance.split('\n')
             if lines:
-                # Insert tag on its own line after the room name
-                lines.insert(1, tag_display)
+                # Append tags to the room name line with spacing
+                lines[0] = lines[0] + "  " + tag_display
                 appearance = '\n'.join(lines)
         
         integrated_content = self.get_integrated_objects_content(looker)
