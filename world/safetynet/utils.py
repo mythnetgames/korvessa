@@ -28,19 +28,22 @@ from world.safetynet.constants import (
 
 def has_municipal_wristpad(character):
     """
-    Check if a character has a municipal wristpad in their inventory.
+    Check if a character has a municipal wristpad worn.
     
     Municipal wristpads allow map and combat prompt display.
+    They must be worn, not just in inventory.
     
     Args:
         character: The character to check
         
     Returns:
-        bool: True if character has a municipal wristpad, False otherwise
+        bool: True if character is wearing a municipal wristpad, False otherwise
     """
     for obj in character.contents:
         if getattr(obj.db, "is_municipal_wristpad", False):
-            return True
+            # Check if the wristpad is actually worn
+            if getattr(obj, "is_worn", False):
+                return True
     return False
 
 
