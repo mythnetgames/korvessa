@@ -3,6 +3,7 @@ Inspect command - shows detailed information about objects for builders.
 """
 
 from evennia import Command
+from evennia.utils.utils import crop
 
 
 class CmdInspect(Command):
@@ -48,8 +49,13 @@ class CmdInspect(Command):
         output.append(f"|wName/key|n: {target.key} ({target.dbref})")
         
         # Aliases
-        if hasattr(target, "aliases") and target.aliases.all():
-            output.append(f"|wAliases|n: {', '.join(target.aliases.all())}")
+        if hasattr(target, "aliases") and target.aliases:
+            try:
+                alias_list = target.aliases.all() if hasattr(target.aliases, "all") else target.aliases
+                if alias_list:
+                    output.append(f"|wAliases|n: {', '.join(str(a) for a in alias_list)}")
+            except Exception:
+                pass
         
         # Typeclass
         if hasattr(target, "typeclass_path"):
@@ -69,22 +75,40 @@ class CmdInspect(Command):
         
         # Permissions
         if hasattr(target, "permissions"):
-            perms = target.permissions.all()
-            if perms:
-                output.append(f"|wPermissions|n: {', '.join(perms)}")
+            try:
+                perms = target.permissions.all() if hasattr(target.permissions, "all") else target.permissions
+                if perms:
+                    output.append(f"|wPermissions|n: {', '.join(str(p) for p in perms)}")
+            except Exception:
+                pass
         
-        # Locks
+        # Locks - show nicely formatted on multiple lines
         if hasattr(target, "locks"):
-            locks_str = str(target.locks)
-            if locks_str:
-                output.append(f"|wLocks|n: {locks_str}")
+            try:
+                locks_str = str(target.locks)
+                if locks_str and locks_str != "Default":
+                    locks_list = [lock.strip() for lock in locks_str.split(";")]
+                    output.append(f"|wLocks|n:")
+                    for lock in locks_list:
+                        output.append(f"  {lock}")
+                else:
+                    output.append(f"|wLocks|n: Default")
+            except Exception:
+                pass
         
         # Tags
         if hasattr(target, "tags"):
             try:
                 tags = target.tags.all() if hasattr(target.tags, "all") else target.tags
                 if tags:
-                    output.append(f"|wTags|n: {', '.join(str(t) for t in tags)}")
+                    tag_strs = []
+                    for t in tags:
+                        if hasattr(t, "db_category") and t.db_category:
+                            tag_strs.append(f"{t.db_key}[{t.db_category}]")
+                        else:
+                            tag_strs.append(str(t))
+                    if tag_strs:
+                        output.append(f"|wTags|n: {', '.join(tag_strs)}")
             except Exception:
                 pass
         
@@ -98,14 +122,20 @@ class CmdInspect(Command):
             except Exception:
                 pass
         
-        # Contents (for rooms/containers)
+        # Contents (for rooms/containers) - nicely formatted
         if hasattr(target, "contents"):
             try:
                 contents = target.contents if isinstance(target.contents, (list, tuple)) else [target.contents]
                 if contents:
                     contents_str = [f"{obj.key} ({obj.dbref})" for obj in contents if obj]
                     if contents_str:
-                        output.append(f"|wContents|n: {', '.join(contents_str)}")
+                        # Format contents on multiple lines if there are many
+                        if len(contents_str) > 3:
+                            output.append(f"|wContents|n:")
+                            for i in range(0, len(contents_str), 3):
+                                output.append("  " + ", ".join(contents_str[i:i+3]))
+                        else:
+                            output.append(f"|wContents|n: {', '.join(contents_str)}")
             except Exception:
                 pass
         
@@ -120,33 +150,25 @@ class CmdInspect(Command):
             except Exception:
                 pass
         
-        # Persistent Attributes
-        if hasattr(target, "db"):
+        # Persistent Attributes - organized display
+        if hasattr(target, "db_attributes"):
             try:
-                attrs = []
-                all_attrs = target.db.all() if hasattr(target.db, "all") else []
-                if isinstance(all_attrs, dict):
-                    for key, value in all_attrs.items():
-                        value_str = str(value)
-                        if len(value_str) > 50:
-                            value_str = value_str[:50] + "..."
-                        attrs.append(f"  {key} = {value_str}")
-                else:
-                    # It's a list of attributes
-                    for attr in all_attrs[:20]:
+                attrs_list = target.db_attributes.all()
+                if attrs_list:
+                    output.append(f"|wPersistent Attributes|n:")
+                    for attr in attrs_list[:30]:  # Limit to 30 attributes
                         try:
                             value_str = str(attr.value)
-                            if len(value_str) > 50:
-                                value_str = value_str[:50] + "..."
-                            attrs.append(f"  {attr.db_key} = {value_str}")
+                            if len(value_str) > 60:
+                                value_str = value_str[:60] + "..."
+                            if attr.db_category:
+                                output.append(f"  {attr.db_key}[{attr.db_category}] = {value_str}")
+                            else:
+                                output.append(f"  {attr.db_key} = {value_str}")
                         except Exception:
                             pass
-                
-                if attrs:
-                    output.append("|wPersistent Attributes|n:")
-                    output.extend(attrs[:20])  # Limit to 20 attributes
-                    if len(attrs) > 20:
-                        output.append(f"  ... and {len(attrs) - 20} more")
+                    if len(attrs_list) > 30:
+                        output.append(f"  ... and {len(attrs_list) - 30} more attributes")
             except Exception:
                 pass
         
