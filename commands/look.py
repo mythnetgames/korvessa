@@ -16,7 +16,7 @@ class CmdLook(DefaultCmdLook):
         look pending       - View your pending petitions
     """
     
-    aliases = ["l", "ls", "ex"]
+    aliases = ["l", "ls"]
     
     def func(self):
         """Override look to handle petitions."""
