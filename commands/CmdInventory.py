@@ -977,39 +977,41 @@ class CmdGive(Command):
             caller.msg(f"You aren't carrying or holding '{self.item_name}'.")
             return
         
-        # Check if item is currently worn (multiple checks for robustness)
+        # Check if item is currently worn - EXHAUSTIVE CHECK
         is_worn = False
+        item_id = getattr(item, 'id', None)
+        item_dbref = getattr(item, 'dbref', None)
+        item_key = getattr(item, 'key', '').lower()
         
-        # Method 1: Use is_item_worn method
-        if hasattr(caller, 'is_item_worn') and caller.is_item_worn(item):
-            is_worn = True
+        # DEBUG: Print what we're checking
+        caller.msg(f"|yDEBUG: Checking item {item.key} (id={item_id}, dbref={item_dbref})|n")
+        caller.msg(f"|yDEBUG: worn_items = {caller.db.worn_items}|n")
         
-        # Method 2: Check worn_items directly by dbref
-        if not is_worn and hasattr(caller.db, 'worn_items') and caller.db.worn_items:
-            item_id = getattr(item, 'id', None)
-            for location, items_list in caller.db.worn_items.items():
+        # Check worn_items directly - this is the source of truth
+        if hasattr(caller, 'db') and caller.db.worn_items:
+            worn_items_dict = caller.db.worn_items
+            for location, items_list in worn_items_dict.items():
+                if items_list is None:
+                    continue
                 for worn_item in items_list:
                     if worn_item is None:
                         continue
+                    # DEBUG
+                    # worn_item_id = getattr(worn_item, 'id', None)
+                    # caller.msg(f"DEBUG: Comparing to worn {worn_item.key} (id={worn_item_id})")
+                    
+                    # Check by direct reference (using 'is')
+                    if worn_item is item:
+                        is_worn = True
+                        break
+                    # Check by id
                     worn_id = getattr(worn_item, 'id', None)
-                    if item_id and worn_id and item_id == worn_id:
+                    if item_id is not None and worn_id is not None and item_id == worn_id:
                         is_worn = True
                         break
-                    if worn_item == item:
-                        is_worn = True
-                        break
-                if is_worn:
-                    break
-        
-        # Method 3: Check by key match in worn_items (last resort)
-        if not is_worn and hasattr(caller.db, 'worn_items') and caller.db.worn_items:
-            item_key = getattr(item, 'key', '').lower()
-            for location, items_list in caller.db.worn_items.items():
-                for worn_item in items_list:
-                    if worn_item is None:
-                        continue
-                    worn_key = getattr(worn_item, 'key', '').lower()
-                    if item_key and worn_key and item_key == worn_key:
+                    # Check by dbref
+                    worn_dbref = getattr(worn_item, 'dbref', None)
+                    if item_dbref and worn_dbref and item_dbref == worn_dbref:
                         is_worn = True
                         break
                 if is_worn:
