@@ -268,10 +268,16 @@ class CmdPayRent(Command):
             caller.msg("That is not a cube door.")
             return
         
-        # Check if caller is the renter
-        if exit_obj.current_renter_id != caller.id:
+        # Check if caller is the renter, or if cube is unrented
+        if exit_obj.current_renter_id and exit_obj.current_renter_id != caller.id:
             caller.msg("You are not the registered renter of this cube.")
             return
+        
+        # If unrented, set caller as the renter and generate a code
+        if not exit_obj.current_renter_id:
+            exit_obj.current_renter = caller
+            exit_obj.current_door_code = generate_unique_code()
+            caller.msg(f"You have claimed the cube! Your access code is: {exit_obj.current_door_code}")
         
         # Get caller's cash
         cash = getattr(caller.db, "cash_on_hand", 0) or 0
