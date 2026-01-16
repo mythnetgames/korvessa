@@ -40,12 +40,15 @@ class CmdWeatherRoom(Command):
         
         if arg in ("on", "enable", "1", "true", "yes"):
             room.weather_room = True
+            room.db.outside = True  # Also update legacy attribute
             caller.msg(f"Weather enabled for {room.key}")
         elif arg in ("off", "disable", "0", "false", "no"):
             room.weather_room = False
+            room.db.outside = False  # Also update legacy attribute
             caller.msg(f"Weather disabled for {room.key}")
         elif arg in ("toggle", "switch"):
             room.weather_room = not room.weather_room
+            room.db.outside = room.weather_room  # Also update legacy attribute
             status = "ENABLED" if room.weather_room else "DISABLED"
             caller.msg(f"Weather {status} for {room.key}")
         else:
