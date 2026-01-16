@@ -583,8 +583,18 @@ class CmdDrop(Command):
                 caller.msg(f"Something prevents you from releasing {obj.get_display_name(caller)}.")
             return
         
-        # Check if item is currently worn
+        # Check if item is currently worn (check both method and direct worn_items)
+        is_worn = False
         if hasattr(caller, 'is_item_worn') and caller.is_item_worn(obj):
+            is_worn = True
+        # Also check worn_items directly in case is_item_worn fails
+        if hasattr(caller.db, 'worn_items') and caller.db.worn_items:
+            for location, items_list in caller.db.worn_items.items():
+                if obj in items_list:
+                    is_worn = True
+                    break
+        
+        if is_worn:
             caller.msg("You can't drop something you're wearing. Remove it first.")
             return
         
@@ -962,8 +972,18 @@ class CmdGive(Command):
             caller.msg(f"You aren't carrying or holding '{self.item_name}'.")
             return
         
-        # Check if item is currently worn
+        # Check if item is currently worn (check both method and direct worn_items)
+        is_worn = False
         if hasattr(caller, 'is_item_worn') and caller.is_item_worn(item):
+            is_worn = True
+        # Also check worn_items directly in case is_item_worn fails
+        if hasattr(caller.db, 'worn_items') and caller.db.worn_items:
+            for location, items_list in caller.db.worn_items.items():
+                if item in items_list:
+                    is_worn = True
+                    break
+        
+        if is_worn:
             caller.msg("You can't give something you're wearing. Remove it first.")
             return
         
