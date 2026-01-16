@@ -168,10 +168,17 @@ class CmdZoneIcon(Command):
             self.caller.msg("You must be in a zone to set the zone icon.")
             return
         
-        # Ensure zone icon ends with |n to reset color
+        # Build the zone icon string
+        # If visible chars end with |, we need to escape it as || before adding |n
+        # Otherwise ||n is interpreted as "escaped pipe + n" not "pipe + color reset"
         zone_icon = args
         if not zone_icon.endswith('|n'):
-            zone_icon = zone_icon + '|n'
+            # Check if it ends with a visible | (not part of a color code)
+            if visible_chars.endswith('|'):
+                # The | at the end needs to be escaped as ||, then add |n
+                zone_icon = zone_icon + '|' + '|n'
+            else:
+                zone_icon = zone_icon + '|n'
         
         # Find all rooms in this zone and set zone_icon on each
         from evennia.objects.models import ObjectDB
