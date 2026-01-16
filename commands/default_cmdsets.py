@@ -66,6 +66,7 @@ from commands.stamina_admin import CmdStaminaStart, CmdStaminaStatus
 from commands.CmdFollow import CmdFollow, CmdUnfollow, CmdLose
 from commands.CmdSetRoomType import CmdSetRoomType
 from commands.CmdRepairPulseWatch import CmdRepairPulseWatch
+from commands.inspect import CmdInspect
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -495,6 +496,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdSpawnWristpad())        # Builder+: quick spawn wristpad (@wristpad)
         self.add(CmdSpawnComputer())        # Builder+: quick spawn computer (@computer)
         self.add(CmdSpawnPortableComputer())  # Builder+: quick spawn portable computer (@portablecomp)
+        # Add inspect command (builder-friendly @examine alternative)
+        self.add(CmdInspect())              # Builder+: inspect objects/rooms/characters
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
     """
