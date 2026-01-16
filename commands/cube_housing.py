@@ -412,22 +412,33 @@ class CmdCreateCube(Command):
         if src_zone:
             cube_room.zone = src_zone
         
+        # Force save to ensure coordinates are persisted
+        cube_room.save()
+        
+        # Normalize direction to full name for exit key
+        direction_names = {
+            "n": "north", "s": "south", "e": "east", "w": "west",
+            "ne": "northeast", "nw": "northwest", "se": "southeast", "sw": "southwest",
+            "u": "up", "d": "down"
+        }
+        exit_name = direction_names.get(direction, direction)
+        
         # Create the door from hallway to cube
         door_to_cube = create_object(
             CubeDoor,
-            key=direction,
+            key=exit_name,
             location=caller.location,
             destination=cube_room
         )
         
-        # Add standard aliases
+        # Add short alias
         alias_map = {
             "north": "n", "south": "s", "east": "e", "west": "w",
             "northeast": "ne", "northwest": "nw", "southeast": "se", "southwest": "sw",
             "up": "u", "down": "d"
         }
-        if direction in alias_map:
-            door_to_cube.aliases.add(alias_map[direction])
+        if exit_name in alias_map:
+            door_to_cube.aliases.add(alias_map[exit_name])
         
         # Get reverse direction for return exit
         reverse_map = {
@@ -436,7 +447,7 @@ class CmdCreateCube(Command):
             "northwest": "southeast", "southeast": "northwest",
             "up": "down", "down": "up", "in": "out", "out": "in"
         }
-        reverse_dir = reverse_map.get(direction, "out")
+        reverse_dir = reverse_map.get(exit_name, "out")
         
         # Create return exit (regular exit, not cube door - exiting is always allowed)
         from typeclasses.exits import Exit as NormalExit
