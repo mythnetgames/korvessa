@@ -375,10 +375,10 @@ class Character(ObjectParent, DefaultCharacter):
             self.msg("|yYou cannot move during the TerraGroup Cloning Division procedure.|n")
             return False
         
-        # Cancel Gamebud typing if in progress
+        # Cancel Gamebud typing if in progress (silent - no messages)
         try:
             from world.gamebud.core import cancel_gamebud_typing
-            cancel_gamebud_typing(self)
+            cancel_gamebud_typing(self, silent=True)
         except ImportError:
             pass  # Gamebud module not available
         

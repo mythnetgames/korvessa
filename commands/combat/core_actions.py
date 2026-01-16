@@ -67,10 +67,10 @@ class CmdAttack(Command):
             caller.msg(MSG_ATTACK_WHO)
             return
 
-        # Cancel Gamebud typing if in progress
+        # Cancel Gamebud typing if in progress (silent - no messages)
         try:
             from world.gamebud.core import cancel_gamebud_typing
-            cancel_gamebud_typing(caller)
+            cancel_gamebud_typing(caller, silent=True)
         except ImportError:
             pass  # Gamebud module not available
 

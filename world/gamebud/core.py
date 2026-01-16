@@ -96,7 +96,7 @@ def start_gamebud_typing(character, gamebud, action_type, callback_func, *args, 
     Returns:
         The delayed task handle (can be cancelled with task.cancel())
     """
-    device_name = gamebud.key if gamebud else "Gamebud Advanced"
+    device_name = gamebud.key if gamebud else "Gamebud"
     char_name = character.key
     
     # Show typing start messages
@@ -158,7 +158,7 @@ def cancel_gamebud_typing(character, silent=False):
     
     task = character.ndb.gamebud_typing_task
     gamebud = getattr(character.ndb, "gamebud_typing_device", None)
-    device_name = gamebud.key if gamebud else "Gamebud Advanced"
+    device_name = gamebud.key if gamebud else "Gamebud"
     char_name = character.key
     
     # Cancel the delayed task

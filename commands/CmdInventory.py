@@ -336,6 +336,11 @@ class CmdInventory(Command):
         for tag in ["weapon", "clothing", "medical", "consumable", "container", "material", "misc"]:
             obj.tags.remove(tag, category="item_category")
         
+        # Check for special devices FIRST - they should never be weapons
+        if self._is_special_device(obj):
+            self._ensure_tag(obj, "misc", "item_category")
+            return "Misc"
+        
         # Check for Medical (including chrome) - check BEFORE weapon/clothing
         if self._is_medical(obj):
             self._ensure_tag(obj, "medical", "item_category")
@@ -344,7 +349,6 @@ class CmdInventory(Command):
         # Check for Clothing BEFORE weapons - clothing might have damage_bonus for armor
         if self._is_clothing(obj):
             self._ensure_tag(obj, "clothing", "item_category")
-            return "Clothing"
             return "Clothing"
         
         # Check for Weapons
@@ -370,6 +374,21 @@ class CmdInventory(Command):
         # Default to Misc
         self._ensure_tag(obj, "misc", "item_category")
         return "Misc"
+    
+    def _is_special_device(self, obj):
+        """Check if item is a special device that shouldn't be classified as a weapon."""
+        # Gamebud communication device
+        if hasattr(obj, 'db') and getattr(obj.db, 'is_gamebud', False):
+            return True
+        # SafetyNet devices
+        if hasattr(obj, 'db') and getattr(obj.db, 'is_wristpad', False):
+            return True
+        if hasattr(obj, 'db') and getattr(obj.db, 'is_computer', False):
+            return True
+        # Proxy modules
+        if hasattr(obj, 'db') and getattr(obj.db, 'is_proxy', False):
+            return True
+        return False
     
     def _is_weapon(self, obj):
         """Check if item is a weapon."""

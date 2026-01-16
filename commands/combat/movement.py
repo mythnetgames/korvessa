@@ -85,10 +85,10 @@ class CmdFlee(Command):
         caller = self.caller
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         
-        # Cancel Gamebud typing if in progress
+        # Cancel Gamebud typing if in progress (silent - no messages)
         try:
             from world.gamebud.core import cancel_gamebud_typing
-            cancel_gamebud_typing(caller)
+            cancel_gamebud_typing(caller, silent=True)
         except ImportError:
             pass  # Gamebud module not available
         
@@ -549,10 +549,10 @@ class CmdAdvance(Command):
         args = self.args.strip()
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         
-        # Cancel Gamebud typing if in progress
+        # Cancel Gamebud typing if in progress (silent - no messages)
         try:
             from world.gamebud.core import cancel_gamebud_typing
-            cancel_gamebud_typing(caller)
+            cancel_gamebud_typing(caller, silent=True)
         except ImportError:
             pass  # Gamebud module not available
         
@@ -672,10 +672,10 @@ class CmdCharge(Command):
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         handler = getattr(caller.ndb, "combat_handler", None)
 
-        # Cancel Gamebud typing if in progress
+        # Cancel Gamebud typing if in progress (silent - no messages)
         try:
             from world.gamebud.core import cancel_gamebud_typing
-            cancel_gamebud_typing(caller)
+            cancel_gamebud_typing(caller, silent=True)
         except ImportError:
             pass  # Gamebud module not available
 
