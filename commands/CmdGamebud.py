@@ -15,6 +15,7 @@ from world.gamebud.core import (
 from world.gamebud.constants import (
     MAX_ALIAS_LENGTH,
     MAX_MESSAGE_LENGTH,
+    MESSAGES_PER_PAGE,
     MSG_NO_DEVICE,
     MSG_ALIAS_TOO_LONG,
     MSG_ALIAS_INVALID,
@@ -191,7 +192,6 @@ class CmdGamebud(Command):
         # Get messages and calculate total pages
         messages = manager.get_private_messages(alias)
         total_messages = len(messages)
-        from world.gamebud.constants import MESSAGES_PER_PAGE
         total_pages = (total_messages + MESSAGES_PER_PAGE - 1) // MESSAGES_PER_PAGE if total_messages > 0 else 0
         
         if total_pages == 0:
