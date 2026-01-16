@@ -1485,15 +1485,18 @@ class Wristpad(Item):
     def at_wear(self, wearer, **kwargs):
         """Called when item is worn. Display welcome chime for municipal wristpads."""
         # Initialize attributes if they don't exist (for watches created before this code)
-        if not hasattr(self.db, 'is_municipal_wristpad'):
+        if self.db.is_municipal_wristpad is None:
             self.db.is_municipal_wristpad = True
         
-        if not hasattr(self.db, 'pulse_watch_id'):
+        if self.db.pulse_watch_id is None:
             # Generate unique ID if missing
             import random
             import string
             chars = string.ascii_letters + string.digits + "!@#$%^&*"
             self.db.pulse_watch_id = ''.join(random.choice(chars) for _ in range(10))
+        
+        if self.db.is_cut is None:
+            self.db.is_cut = False
         
         # Display welcome chime if this is a municipal wristpad
         if self.db.is_municipal_wristpad:
@@ -1525,13 +1528,13 @@ class Wristpad(Item):
         Displays painful message when removed with scissors.
         """
         # Initialize attributes if they don't exist (for watches created before this code)
-        if not hasattr(self.db, 'is_municipal_wristpad'):
+        if self.db.is_municipal_wristpad is None:
             self.db.is_municipal_wristpad = True
         
-        if not hasattr(self.db, 'is_cut'):
+        if self.db.is_cut is None:
             self.db.is_cut = False
         
-        if not hasattr(self.db, 'pulse_watch_id'):
+        if self.db.pulse_watch_id is None:
             import random
             import string
             chars = string.ascii_letters + string.digits + "!@#$%^&*"
