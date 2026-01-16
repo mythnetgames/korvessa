@@ -128,6 +128,9 @@ class CmdGamebud(Command):
         # Reset page to 0 when viewing
         gamebud.db.current_page = 0
         
+        # Clear the viewing_messages flag - we're viewing lobby
+        gamebud.db.viewing_messages = False
+        
         # Format and display
         display = format_gamebud_display(gamebud, page=0)
         caller.msg(display)
@@ -139,7 +142,17 @@ class CmdGamebud(Command):
             caller.msg(f"|wPage 1 of {total_pages} - use 'gamebud next' for more|n")
     
     def do_next(self, gamebud):
-        """View next page of messages."""
+        """View next page of messages (lobby or private)."""
+        caller = self.caller
+        
+        # Check if viewing private messages or lobby
+        if gamebud.db.viewing_messages:
+            self.do_next_messages(gamebud)
+        else:
+            self.do_next_lobby(gamebud)
+    
+    def do_next_lobby(self, gamebud):
+        """View next page of lobby messages."""
         caller = self.caller
         manager = get_gamebud_manager()
         
@@ -163,6 +176,40 @@ class CmdGamebud(Command):
         # Update page and display
         gamebud.db.current_page = next_page
         display = format_gamebud_display(gamebud, page=next_page)
+        caller.msg(display)
+        caller.msg(f"|wPage {next_page + 1} of {total_pages} - use 'gamebud next' for more|n")
+    
+    def do_next_messages(self, gamebud):
+        """View next page of private messages."""
+        caller = self.caller
+        manager = get_gamebud_manager()
+        
+        # Get current page
+        current_page = gamebud.db.messages_page or 0
+        alias = gamebud.db.alias
+        
+        # Get messages and calculate total pages
+        messages = manager.get_private_messages(alias)
+        total_messages = len(messages)
+        from world.gamebud.constants import MESSAGES_PER_PAGE
+        total_pages = (total_messages + MESSAGES_PER_PAGE - 1) // MESSAGES_PER_PAGE if total_messages > 0 else 0
+        
+        if total_pages == 0:
+            caller.msg("|rYou have no private messages.|n")
+            return
+        
+        # Increment page
+        next_page = current_page + 1
+        
+        if next_page >= total_pages:
+            caller.msg("|rEnd of messages.|n")
+            # Reset to first page
+            gamebud.db.messages_page = 0
+            return
+        
+        # Update page and display
+        gamebud.db.messages_page = next_page
+        display = format_messages_display(gamebud, page=next_page)
         caller.msg(display)
         caller.msg(f"|wPage {next_page + 1} of {total_pages} - use 'gamebud next' for more|n")
     
@@ -262,6 +309,9 @@ class CmdGamebud(Command):
     def do_messages(self, gamebud):
         """View private messages using the Gamebud UI."""
         caller = self.caller
+        
+        # Set flag to indicate we're viewing private messages
+        gamebud.db.viewing_messages = True
         
         # Reset page to 0 when viewing messages
         gamebud.db.messages_page = 0

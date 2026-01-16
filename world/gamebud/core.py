@@ -11,6 +11,7 @@ from evennia.scripts.models import ScriptDB
 from evennia import create_script
 from world.gamebud.constants import (
     MAX_MESSAGES_STORED,
+    MAX_PRIVATE_MESSAGES,
     MAX_ALIAS_LENGTH,
     MAX_MESSAGE_LENGTH,
     MESSAGES_PER_PAGE,
@@ -233,9 +234,16 @@ class GamebudManager(DefaultScript):
         self.db.private_messages.append(entry)
         self.db.next_pm_id += 1
         
-        # Prune old private messages (keep last 100)
-        while len(self.db.private_messages) > 100:
-            self.db.private_messages.pop(0)
+        # Prune old private messages - keep only MAX_PRIVATE_MESSAGES for each recipient
+        # Group by recipient and prune each group
+        alias_lower = to_alias.lower()
+        recipient_messages = [m for m in self.db.private_messages if m["to_alias"] == alias_lower]
+        if len(recipient_messages) > MAX_PRIVATE_MESSAGES:
+            # Calculate how many to remove
+            remove_count = len(recipient_messages) - MAX_PRIVATE_MESSAGES
+            # Remove oldest messages for this recipient
+            for msg in recipient_messages[:remove_count]:
+                self.db.private_messages.remove(msg)
         
         # Notify recipient if they have a Gamebud with matching alias
         self._notify_pm_recipient(to_alias, from_alias)

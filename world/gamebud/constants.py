@@ -17,8 +17,11 @@ MAX_MESSAGE_LENGTH = 40
 # Number of messages shown at a time
 MESSAGES_PER_PAGE = 3
 
-# Maximum messages stored (24 hours worth of messages)
+# Maximum messages stored in lobby (24 hours worth of messages)
 MAX_MESSAGES_STORED = 24
+
+# Maximum private messages stored per recipient (before older ones disappear)
+MAX_PRIVATE_MESSAGES = 15
 
 # Default port and IP (static values)
 GAMEBUD_PORT = "80"

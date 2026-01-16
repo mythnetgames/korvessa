@@ -1574,6 +1574,12 @@ class OkamaGamebud(Item):
         # Current page for message viewing
         self.db.current_page = 0
         
+        # Current page for private messages viewing
+        self.db.messages_page = 0
+        
+        # Flag to track if viewing private messages or lobby
+        self.db.viewing_messages = False
+        
         # Default item properties
         self.db.desc = "Created in 1969 as a companion to the Okama Gamesphere, the Gamebud took on a life of its own in the Walled City due to its revolutionary ability to communicate with other Gamebuds within 0.002 square miles - roughly twice the size of Kowloon. Easy to jailbreak and hack, they have become the best way for the right kinds of people to communicate with others within the city, without ATT or Tri-Net breathing down their neck. It is a bubbly, hard plastic little thing with a transparent shell that fits in the palm of the hand."
         
