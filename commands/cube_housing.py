@@ -485,8 +485,8 @@ class CmdCreateCube(Command):
             location=cube_room
         )
         bed.db.desc = "A thin mattress on a metal frame, barely wide enough for two people to lie uncomfortably close. The sheets are clean but threadbare."
-        bed.db.get_err_msg = "The bed is bolted to the floor."
-        bed.locks.add("get:false()")
+        bed.db.can_lie_down = True
+        bed.db.can_sit = True
         
         zone_info = f" in zone '{src_zone}'" if src_zone else ""
         caller.msg(f"Created cube room '{cube_room.key}' ({cube_room.dbref}) at ({new_x}, {new_y}, {new_z}){zone_info}.")
