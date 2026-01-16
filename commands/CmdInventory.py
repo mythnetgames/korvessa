@@ -901,6 +901,23 @@ class CmdGive(Command):
         target = caller.search(self.target_name, location=caller.location)
         if not target:
             return  # Error message already sent by search
+        
+        # Check if target is a character (NPC or PC only)
+        from typeclasses.characters import Character
+        if not isinstance(target, Character):
+            caller.msg(f"You can only give items to characters.")
+            return
+
+        # Check if target is a character (has hands) - cannot give to rooms
+        if not hasattr(target, 'hands'):
+            caller.msg(f"You can't give items to {target.key} - they have no hands to receive them.")
+            return
+
+        # Check if target actually has any hands at all
+        target_hands = getattr(target, 'hands', {})
+        if not target_hands:
+            caller.msg(f"You can't give items to {target.key} - they have no hands to receive them.")
+            return
 
         # Check if caller has hands
         if not hasattr(caller, 'hands'):
@@ -911,17 +928,6 @@ class CmdGive(Command):
         caller_hands = getattr(caller, 'hands', {})
         if not caller_hands:
             caller.msg("You have no hands to give items with.")
-            return
-
-        # Check if target has hands (is a character)
-        if not hasattr(target, 'hands'):
-            caller.msg(f"You can't give items to {target.key} - they have no hands to receive them.")
-            return
-
-        # Check if target actually has any hands at all
-        target_hands = getattr(target, 'hands', {})
-        if not target_hands:
-            caller.msg(f"You can't give items to {target.key} - they have no hands to receive them.")
             return
 
         # Check if target has any free hands
@@ -955,6 +961,21 @@ class CmdGive(Command):
         if not item:
             caller.msg(f"You aren't carrying or holding '{self.item_name}'.")
             return
+        
+        # Check if item is currently worn
+        if hasattr(caller, 'is_item_worn') and caller.is_item_worn(item):
+            caller.msg("You can't give something you're wearing. Remove it first.")
+            return
+        
+        # Call at_pre_drop hook if it exists (to check other restrictions)
+        if hasattr(item, 'at_pre_drop'):
+            try:
+                result = item.at_pre_drop(caller)
+                if result is False:
+                    # Hook blocked drop - message already sent by the hook
+                    return
+            except Exception:
+                pass  # If hook fails, proceed with drop
 
         # If giving from inventory, need to wield it first
         if not from_hand:
