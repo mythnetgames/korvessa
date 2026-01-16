@@ -1420,23 +1420,42 @@ class RifleDrumMod(WeaponMod):
 
 class Wristpad(Item):
     """
-    A wristpad - a sleek PDA/pipboy-like wearable device.
-    Provides access to the SafetyNet intranet system with slower connection speeds.
+    A government issue Pulse watch - a wearable device for health monitoring.
+    Provides access to map and combat prompt display when worn.
+    Does NOT provide SafetyNet access - that requires a hacked wristpad.
     
-    Wristpads can be worn on the wrist and provide mobile SafetyNet access.
-    Connection is slower than computer terminals due to limited bandwidth.
-    Shows as an accessory on the arm when worn without covering naked body parts.
+    Can be either:
+    - Municipal Pulse watch: Provides map and combat prompt display (NO SafetyNet access)
+      - Cannot be dropped while worn
+    - Hacked wristpad: Provides only SafetyNet access (no map/combat display)
+      - Freely removable and droppable
+    
+    Municipal Pulse watches show a 2.5D display that reads body vitals with a
+    smiling avatar when healthy and frowning when sick or hurt.
     """
     
     def at_object_creation(self):
         """Initialize wristpad attributes."""
         super().at_object_creation()
         
-        # SafetyNet access flag
-        self.db.is_wristpad = True
+        # Flags for wristpad type (defaults to hacked for backward compatibility)
+        # Set to True if this is a municipal wristpad (no SafetyNet, just map/combat)
+        if not hasattr(self.db, 'is_municipal_wristpad'):
+            self.db.is_municipal_wristpad = False
+        # Set to True if this is a hacked wristpad (SafetyNet access only)
+        if not hasattr(self.db, 'is_hacked_wristpad'):
+            self.db.is_hacked_wristpad = True
+        
+        # Only hacked wristpads have SafetyNet access
+        self.db.is_wristpad = getattr(self.db, 'is_hacked_wristpad', True)
+        
+        # Municipal wristpads are not removable while worn
+        if not hasattr(self.db, 'is_removable'):
+            # Default: removable unless municipal
+            self.db.is_removable = not getattr(self.db, 'is_municipal_wristpad', False)
         
         # Default item properties
-        self.db.desc = "A compact wristpad with a flexible display screen. The device wraps around the forearm, its matte surface dotted with status LEDs and a small speaker grille. When activated, holographic displays project interface elements just above the screen. Standard municipal issue, but the firmware has clearly been modified."
+        self.db.desc = "A compact wristpad with a flexible display screen. The device wraps around the forearm, its matte surface dotted with status LEDs and a small speaker grille. When activated, holographic displays project interface elements just above the screen."
         
         # Wearable on left or right arm as an accessory (thin layer, doesn't block arm)
         self.coverage = ["left_arm", "right_arm"]
@@ -1448,6 +1467,13 @@ class Wristpad(Item):
         # High layer number (worn on top, accessory layer)
         # This ensures it displays as an accessory without blocking other clothing
         self.layer = 10
+    
+    def at_pre_drop(self, dropper, **kwargs):
+        """Prevent dropping items while they are worn."""
+        if self.is_worn:
+            dropper.msg(f"You have to take off the {self.name} before you can drop it.")
+            return False
+        return True
 
 
 class ComputerTerminal(Item):

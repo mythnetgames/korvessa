@@ -446,11 +446,15 @@ class Character(ObjectParent, DefaultCharacter):
         if self.account and hasattr(self.account, 'db'):
             mapper_enabled = getattr(self.account.db, 'mapper_enabled', False)
         
-        # Sync ndb with persistent state
-        self.ndb.mapper_enabled = mapper_enabled
-        self.ndb.show_room_desc = not mapper_enabled
+        # Also check if player has a municipal wristpad - without it, map is disabled
+        from world.safetynet.utils import has_municipal_wristpad
+        has_wristpad = has_municipal_wristpad(self)
         
-        if mapper_enabled:
+        # Sync ndb with persistent state
+        self.ndb.mapper_enabled = mapper_enabled and has_wristpad
+        self.ndb.show_room_desc = not (mapper_enabled and has_wristpad)
+        
+        if mapper_enabled and has_wristpad:
             # Show map view (which includes room description)
             from commands.mapper import CmdMap
             cmd = CmdMap()
@@ -477,11 +481,15 @@ class Character(ObjectParent, DefaultCharacter):
             if self.account and hasattr(self.account, 'db'):
                 mapper_enabled = getattr(self.account.db, 'mapper_enabled', False)
             
-            # Sync ndb with persistent state
-            self.ndb.mapper_enabled = mapper_enabled
-            self.ndb.show_room_desc = not mapper_enabled
+            # Also check if player has a municipal wristpad - without it, map is disabled
+            from world.safetynet.utils import has_municipal_wristpad
+            has_wristpad = has_municipal_wristpad(self)
             
-            if mapper_enabled:
+            # Sync ndb with persistent state
+            self.ndb.mapper_enabled = mapper_enabled and has_wristpad
+            self.ndb.show_room_desc = not (mapper_enabled and has_wristpad)
+            
+            if mapper_enabled and has_wristpad:
                 # Show map view with room description on right side
                 from commands.mapper import CmdMap
                 cmd = CmdMap()
@@ -704,6 +712,10 @@ class Character(ObjectParent, DefaultCharacter):
         """
         Append status prompt to the end of a message showing vitals.
         
+        Requires:
+        - Combat prompt enabled (combat_prompt = True)
+        - Character has a municipal wristpad (without it, prompt cannot display)
+        
         Args:
             text: The original message text
             
@@ -713,6 +725,11 @@ class Character(ObjectParent, DefaultCharacter):
         # Check if prompt is disabled (default is OFF - must be explicitly True)
         # Use explicit True check since unset attributes may return None
         if not getattr(self.db, 'combat_prompt', False) is True:
+            return text
+        
+        # Check if character has a municipal wristpad - cannot display prompt without it
+        from world.safetynet.utils import has_municipal_wristpad
+        if not has_municipal_wristpad(self):
             return text
         
         # Don't show during death, cloning, or revival sequences

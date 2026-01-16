@@ -3689,15 +3689,35 @@ CORNER_STORE_COOLER = {
 # SAFETYNET ACCESS DEVICE PROTOTYPES
 # =============================================================================
 
-# Standard municipal wristpad
-WRISTPAD = {
-    "prototype_key": "wristpad",
-    "key": "municipal wristpad",
+# Standard municipal wristpad - allows map and combat prompt display
+# Does NOT provide SafetyNet access - that requires a hacked wristpad
+# Cannot be removed while worn (locked to prevent dropping)
+MUNICIPAL_WRISTPAD = {
+    "prototype_key": "municipal_wristpad",
+    "key": "Pulse watch",
     "typeclass": "typeclasses.items.Wristpad",
-    "aliases": ["wristpad", "pad", "pda"],
-    "desc": "A compact wristpad with a flexible display screen. The device wraps around the forearm, its matte surface dotted with status LEDs and a small speaker grille. When activated, holographic displays project interface elements just above the screen. Standard municipal issue, but the firmware has clearly been modified - the SafetyNet access protocols have been unlocked.",
+    "aliases": ["pulse watch", "wristpad", "pulse", "watch"],
+    "desc": "A government issue watch with a chunky display screen. The device wraps around the wrist, and has a small little needle that pricks into the underside of your wrist. When activated, a 2.5D display projects readouts about your surroundings and body vitals, complete with a little avatar that smiles when you're healthy and frowns when you're sick or hurt. You've either had it your whole life, or got it when you arrived in China. It's illegal to remove. A logo of a triangle beset with a Y is emblazoned on the casing.",
+    "attrs": [
+        ("is_municipal_wristpad", True),
+        ("is_removable", False),
+        ("coverage", ["left_arm", "right_arm"]),
+        ("worn_desc", "%N is wearing a Pulse watch on their wrist"),
+        ("weight", 0.3),
+        ("layer", 10),
+    ],
+}
+
+# Hacked wristpad - provides SafetyNet access only, no map/combat prompt
+HACKED_WRISTPAD = {
+    "prototype_key": "hacked_wristpad",
+    "key": "hacked wristpad",
+    "typeclass": "typeclasses.items.Wristpad",
+    "aliases": ["hacked wristpad", "wristpad", "pad", "pda"],
+    "desc": "A compact wristpad with a flexible display screen. The device wraps around the forearm, its matte surface dotted with status LEDs and a small speaker grille. The firmware has clearly been modified - the SafetyNet access protocols have been unlocked. The standard mapping and system monitoring functions have been stripped out to avoid detection.",
     "attrs": [
         ("is_wristpad", True),
+        ("is_hacked_wristpad", True),
         ("coverage", ["left_arm", "right_arm"]),
         ("worn_desc", "%N is wearing a compact wristpad with a flickering display"),
         ("weight", 0.3),
@@ -3705,15 +3725,19 @@ WRISTPAD = {
     ],
 }
 
-# High-end wristpad variant
+# Legacy: keep WRISTPAD as alias for HACKED_WRISTPAD for backward compatibility
+WRISTPAD = HACKED_WRISTPAD
+
+# High-end hacked wristpad variant - premium but still just SafetyNet
 WRISTPAD_DELUXE = {
     "prototype_key": "wristpad_deluxe",
     "key": "Kiroshi TechBand Pro",
     "typeclass": "typeclasses.items.Wristpad",
     "aliases": ["techband", "kiroshi pad", "pro wristpad"],
-    "desc": "A sleek Kiroshi TechBand Pro - the premium wristpad favored by corporate executives and high-end fixers. The flexible OLED display wraps seamlessly around the forearm, with haptic feedback so refined you can feel every notification. The brushed titanium frame houses top-of-the-line processing power and an encrypted quantum chip for secure communications. Despite its corporate origins, this unit has been jailbroken to access the open SafetyNet protocols.",
+    "desc": "A sleek Kiroshi TechBand Pro - the premium wristpad favored by corporate executives and high-end fixers. The flexible OLED display wraps seamlessly around the forearm, with haptic feedback so refined you can feel every notification. The brushed titanium frame houses top-of-the-line processing power and an encrypted quantum chip for secure communications. Despite its corporate origins, this unit has been jailbroken to access the open SafetyNet protocols. The premium features have been stripped out to avoid corporate tracking.",
     "attrs": [
         ("is_wristpad", True),
+        ("is_hacked_wristpad", True),
         ("coverage", ["left_arm", "right_arm"]),
         ("worn_desc", "%N is wearing a sleek Kiroshi TechBand with a holographic display"),
         ("weight", 0.2),

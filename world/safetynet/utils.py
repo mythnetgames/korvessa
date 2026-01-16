@@ -26,6 +26,24 @@ from world.safetynet.constants import (
 )
 
 
+def has_municipal_wristpad(character):
+    """
+    Check if a character has a municipal wristpad in their inventory.
+    
+    Municipal wristpads allow map and combat prompt display.
+    
+    Args:
+        character: The character to check
+        
+    Returns:
+        bool: True if character has a municipal wristpad, False otherwise
+    """
+    for obj in character.contents:
+        if getattr(obj.db, "is_municipal_wristpad", False):
+            return True
+    return False
+
+
 def check_access_device(character):
     """
     Check if character has an access device for SafetyNet.
