@@ -271,6 +271,11 @@ class Character(ObjectParent, DefaultCharacter):
     is_holographic = AttributeProperty(False, category="shop", autocreate=True)
     tokens = AttributeProperty(0, category="shop", autocreate=True)
     
+    # Economy Attributes
+    cash_on_hand = AttributeProperty(1000, category="economy", autocreate=True)  # Start with $1000
+    payday_anchor_ts = AttributeProperty(None, category="economy", autocreate=True)  # Character creation time
+    last_payday_claim_ts = AttributeProperty(None, category="economy", autocreate=True)  # Last payday claim
+    
     # Death tracking system
     death_count = AttributeProperty(1, category='mortality', autocreate=True)
     
@@ -386,6 +391,10 @@ class Character(ObjectParent, DefaultCharacter):
 
         # Initialize medical system - replaces legacy HP system
         self._initialize_medical_state()
+        
+        # Initialize payday anchor to character creation time
+        import time
+        self.payday_anchor_ts = time.time()
 
     def _initialize_language_system(self):
         """Initialize the character's language system."""

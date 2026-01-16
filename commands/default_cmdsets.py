@@ -68,6 +68,8 @@ from commands.CmdSetRoomType import CmdSetRoomType
 from commands.CmdWeather import CmdWeatherRoom
 from commands.CmdRepairPulseWatch import CmdRepairPulseWatch
 from commands.inspect import CmdInspect
+from commands.cube_housing import CubeHousingCmdSet
+from commands.economy import EconomyCmdSet
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -439,6 +441,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add stamina system admin commands
         self.add(CmdStaminaStart())      # Admin: start stamina ticker
         self.add(CmdStaminaStatus())     # Admin: check stamina system status
+        # Add cube housing commands
+        self.add(CubeHousingCmdSet())    # Housing: enter, close door, pay rent, createcube, etc.
+        # Add economy commands
+        self.add(EconomyCmdSet())        # Economy: count, dropmoney, payday, spawncash, etc.
         # Add admin design menus for NPCs, furniture, weapons, armor/clothes
         from commands.admin_design_menus import (
             CmdNPCDesignMenu, CmdFurnitureDesignMenu, CmdWeaponDesignMenu, CmdArmorDesignMenu, CmdSpawnNPCDesign, CmdSpawnClothingDesign
