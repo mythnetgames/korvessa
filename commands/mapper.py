@@ -307,6 +307,30 @@ class CmdMap(Command):
         # Description column width (80 - 12 = 68)
         column_width = 68
         
+        # Helper to calculate visual width (excluding ALL Evennia color codes)
+        def visual_len(s):
+            # Remove all Evennia color codes:
+            # |x, |X (single letter colors)
+            # |[x, |[X (background colors)  
+            # |#RRGGBB (hex colors)
+            # |[#RRGGBB (hex background)
+            # |n, |h, |u, |s (reset/formatting)
+            # || (escaped pipe = 1 visible character)
+            import re
+            # First replace escaped pipes || with placeholder
+            temp = s.replace('||', '\x00')
+            # Remove color codes (only valid letter-based codes)
+            stripped = re.sub(r'\|(?:\[)?(?:#[0-9a-fA-F]{6}|[a-zA-Z])', '', temp)
+            # Convert placeholder back to single character for counting
+            stripped = stripped.replace('\x00', '|')
+            return len(stripped)
+        
+        def pad_to_visual_width(s, target_width):
+            # Pad string so visual width equals target_width
+            vis_len_val = visual_len(s)
+            padding = max(0, target_width - vis_len_val)
+            return s + " " * padding
+        
         if appearance:
             lines = appearance.split('\n')
             exit_line = None
@@ -352,29 +376,14 @@ class CmdMap(Command):
         # Coordinates are stored but not displayed to players
         # (they remain in the system for window observation and backend functionality)
         
-        # Helper to calculate visual width (excluding ALL Evennia color codes)
-        def visual_len(s):
-            # Remove all Evennia color codes:
-            # |x, |X (single letter colors)
-            # |[x, |[X (background colors)  
-            # |#RRGGBB (hex colors)
-            # |[#RRGGBB (hex background)
-            # |n, |h, |u, |s (reset/formatting)
-            # || (escaped pipe = 1 visible character)
-            import re
-            # First replace escaped pipes || with placeholder
-            temp = s.replace('||', '\x00')
-            # Remove color codes (only valid letter-based codes)
-            stripped = re.sub(r'\|(?:\[)?(?:#[0-9a-fA-F]{6}|[a-zA-Z])', '', temp)
-            # Convert placeholder back to single character for counting
-            stripped = stripped.replace('\x00', '|')
-            return len(stripped)
+        # Build map grid - always 5 rows, always 10 VISUAL characters per line
+        base_map_lines = []
+        for map_row in grid:
+            base_map_lines.append(map_row)
         
-        def pad_to_visual_width(s, target_width):
-            # Pad string so visual width equals target_width
-            vis_len = visual_len(s)
-            padding = max(0, target_width - vis_len)
-            return s + " " * padding
+        # Fill empty rows with spaces if grid has fewer than 5 rows
+        while len(base_map_lines) < map_grid_height:
+            base_map_lines.append("          ")  # 10 spaces for empty row
         
         # Build output - map on left, descriptions on right and bottom
         output = []
