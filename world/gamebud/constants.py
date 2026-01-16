@@ -66,7 +66,7 @@ UI_TEMPLATE = """,______________________________________________________________
 ( .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
 (                         |#5f8700OKAMA GAMEBUD|n                           )
 ()====PORT:|Y{port}|n====CPU:|Y{cpu}%|n====PROXY:  |rNULL|n====IP:|Y{ip}|n=====()
-( Alias: |Y{alias:<10}|n ||>|#0087ffLobbies|n|| |#5f8700GameBuds|n(|Y{msg_count:>2}|n Messages)|| Settings     )
+( Alias: |Y{alias:<10}|n ||>|#0087ffLobbies|n|| |#5f8700GameBuds|n(|Y{msg_count:>2}|n Messages)|| Settings    )
 (      ,-------------------------------------------------------,  )
 (      ||________________Recent Lobbies_________________________||  )
 {messages}(      '-------------------------------------------------------'  )
