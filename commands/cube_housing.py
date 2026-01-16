@@ -11,7 +11,8 @@ Commands for interacting with cube housing units:
 """
 
 import time
-from evennia import Command, CmdSet, create_object
+from evennia import Command, CmdSet
+from evennia.utils import create
 from evennia.utils.search import search_object
 from typeclasses.cube_housing import (
     CubeDoor, CubeRoom, generate_unique_code, 
@@ -395,26 +396,6 @@ class CmdCreateCube(Command):
         new_y = src_y + offset[1]
         new_z = src_z + offset[2]
         
-        # Create the cube room with proper coordinates
-        cube_room = create_object(
-            CubeRoom,
-            key=f"Cube #{caller.location.id}-{direction}",
-            location=None
-        )
-        cube_room.db.desc = "A cramped cube, barely large enough for a bed and a small space to stand. The walls are bare metal with a faint industrial smell. A red indicator light glows by the door."
-        
-        # Set coordinates for map display
-        cube_room.db.x = new_x
-        cube_room.db.y = new_y
-        cube_room.db.z = new_z
-        
-        # Inherit zone from parent room
-        if src_zone:
-            cube_room.zone = src_zone
-        
-        # Force save to ensure coordinates are persisted
-        cube_room.save()
-        
         # Normalize direction to full name for exit key
         direction_names = {
             "n": "north", "s": "south", "e": "east", "w": "west",
@@ -423,9 +404,23 @@ class CmdCreateCube(Command):
         }
         exit_name = direction_names.get(direction, direction)
         
+        # Create the cube room using same pattern as zdig
+        cube_room = create.create_object(
+            typeclass="typeclasses.cube_housing.CubeRoom",
+            key=f"Cube #{caller.location.id}-{direction}"
+        )
+        
+        # Set zone and coordinates EXPLICITLY (same as zdig)
+        if src_zone:
+            cube_room.zone = src_zone
+        cube_room.db.x = new_x
+        cube_room.db.y = new_y
+        cube_room.db.z = new_z
+        cube_room.db.desc = "A cramped cube, barely large enough for a bed and a small space to stand. The walls are bare metal with a faint industrial smell. A red indicator light glows by the door."
+        
         # Create the door from hallway to cube
-        door_to_cube = create_object(
-            CubeDoor,
+        door_to_cube = create.create_object(
+            typeclass="typeclasses.cube_housing.CubeDoor",
             key=exit_name,
             location=caller.location,
             destination=cube_room
@@ -445,14 +440,13 @@ class CmdCreateCube(Command):
             "north": "south", "south": "north", "east": "west", "west": "east",
             "northeast": "southwest", "southwest": "northeast",
             "northwest": "southeast", "southeast": "northwest",
-            "up": "down", "down": "up", "in": "out", "out": "in"
+            "up": "down", "down": "up"
         }
         reverse_dir = reverse_map.get(exit_name, "out")
         
         # Create return exit (regular exit, not cube door - exiting is always allowed)
-        from typeclasses.exits import Exit as NormalExit
-        door_to_hallway = create_object(
-            NormalExit,
+        door_to_hallway = create.create_object(
+            typeclass="typeclasses.exits.Exit",
             key=reverse_dir,
             location=cube_room,
             destination=caller.location
@@ -461,9 +455,8 @@ class CmdCreateCube(Command):
             door_to_hallway.aliases.add(alias_map[reverse_dir])
         
         # Create the bed
-        from typeclasses.objects import Object
-        bed = create_object(
-            Object,
+        bed = create.create_object(
+            typeclass="typeclasses.objects.Object",
             key="two person bed",
             location=cube_room
         )
@@ -471,8 +464,10 @@ class CmdCreateCube(Command):
         bed.db.get_err_msg = "The bed is bolted to the floor."
         bed.locks.add("get:false()")
         
-        caller.msg(f"Created cube room '{cube_room.key}' with CubeDoor to the {direction_display}.")
-        caller.msg(f"Cube is unassigned. Use 'setcuberenter {direction} = <character>' to assign a renter.")
+        zone_info = f" in zone '{src_zone}'" if src_zone else ""
+        caller.msg(f"Created cube room '{cube_room.key}' ({cube_room.dbref}) at ({new_x}, {new_y}, {new_z}){zone_info}.")
+        caller.msg(f"Created CubeDoor '{exit_name}' to the {direction_display}.")
+        caller.msg(f"Cube is unassigned. Use 'setcuberenter {exit_name} = <character>' to assign a renter.")
 
 
 class CmdSetCubeRenter(Command):
