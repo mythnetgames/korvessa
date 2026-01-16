@@ -82,7 +82,7 @@ UI_TEMPLATE_MESSAGES = """,_____________________________________________________
 ( .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
 (                         |#5f8700OKAMA GAMEBUD|n                           )
 ()====PORT:|Y{port}|n====CPU:|Y{cpu}%|n====PROXY:  |rNULL|n====IP:|Y{ip}|n=====()
-( Alias: |Y{alias:<10}|n {padding}|>|#5f8700Messages|n(|Y{msg_count}|n Messages)|| Settings     )
+( Alias: |Y{alias:<10}|n {padding}|>|#5f8700Messages|n(|Y{msg_count}|n Messages)|| Settings    )
 (      ,-------------------------------------------------------,  )
 (      ||________________Private Messages_______________________||  )
 {messages}(      '-------------------------------------------------------'  )
