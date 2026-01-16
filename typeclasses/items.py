@@ -1457,6 +1457,17 @@ class Wristpad(Item):
             # Default: removable unless municipal
             self.db.is_removable = not getattr(self.db, 'is_municipal_wristpad', False)
         
+        # Generate unique 10-character ID for municipal wristpads (used for tracking)
+        if is_municipal and not hasattr(self.db, 'pulse_watch_id'):
+            import random
+            import string
+            chars = string.ascii_letters + string.digits + "!@#$%^&*"
+            self.db.pulse_watch_id = ''.join(random.choice(chars) for _ in range(10))
+        
+        # Track if watch is cut (attached to wrist via needle)
+        if not hasattr(self.db, 'is_cut'):
+            self.db.is_cut = False
+        
         # Default item properties
         self.db.desc = "A compact wristpad with a flexible display screen. The device wraps around the forearm, its matte surface dotted with status LEDs and a small speaker grille. When activated, holographic displays project interface elements just above the screen."
         
@@ -1471,6 +1482,17 @@ class Wristpad(Item):
         # This ensures it displays as an accessory without blocking other clothing
         self.layer = 10
     
+    def at_wear(self, wearer, **kwargs):
+        """Called when item is worn. Display welcome chime for municipal wristpads."""
+        if self.db.is_municipal_wristpad and hasattr(self.db, 'pulse_watch_id'):
+            watch_id = self.db.pulse_watch_id
+            # Display welcome chime with unique ID
+            wearer.msg(f"|y*beep* |CWelcome, {watch_id}! Glory be to China!|n")
+            wearer.location.msg_contents(
+                f"|y*beep* |C{wearer.key}'s wristpad chirps and activates.|n",
+                exclude=[wearer]
+            )
+    
     def at_pre_drop(self, dropper, **kwargs):
         """Prevent dropping items while they are worn."""
         # Check if this item is worn by the dropper
@@ -1479,6 +1501,43 @@ class Wristpad(Item):
                 if self in items:
                     dropper.msg(f"You have to take off the {self.name} before you can drop it.")
                     return False
+        return True
+    
+    def at_pre_remove(self, remover, **kwargs):
+        """
+        Prevent municipal wristpad removal without surgical scissors.
+        Displays painful message when removed with scissors.
+        """
+        if not self.db.is_municipal_wristpad:
+            return True
+        
+        if self.db.is_cut:
+            # Already cut, allow normal removal
+            return True
+        
+        # Check if remover has surgical scissors in inventory
+        has_scissors = any(
+            item.key.lower() == 'surgical scissors' 
+            for item in remover.contents 
+            if hasattr(item, 'key')
+        )
+        
+        if not has_scissors:
+            remover.msg("|rThe wristpad's needle is firmly anchored to your wrist. You need scissors to remove it painfully.|n")
+            return False
+        
+        # Scissors found - apply pain and mark watch as cut
+        remover.msg("|r*PAIN* You carefully cut through the needle attachment, severing the wristpad's connection to your wrist. Blood wells from the puncture wound as you remove the device.|n")
+        remover.location.msg_contents(
+            f"|r{remover.key} carefully removes their wristpad with surgical scissors, wincing in pain.|n",
+            exclude=[remover]
+        )
+        
+        # Mark as cut and update name
+        self.db.is_cut = True
+        self.key = f"cut {self.key}" if not self.key.startswith("cut ") else self.key
+        self.db.desc = "A severed municipal wristpad with a broken needle attachment hanging from frayed cables. The device is no longer functional as worn, but could potentially be repaired with electronics expertise."
+        
         return True
 
 

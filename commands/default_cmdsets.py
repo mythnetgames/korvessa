@@ -65,6 +65,7 @@ from commands.CmdTogglePickup import CmdTogglePickup
 from commands.stamina_admin import CmdStaminaStart, CmdStaminaStatus
 from commands.CmdFollow import CmdFollow, CmdUnfollow, CmdLose
 from commands.CmdSetRoomType import CmdSetRoomType
+from commands.CmdRepairPulseWatch import CmdRepairPulseWatch
 
 
 class UnconsciousCmdSet(CmdSet):
@@ -418,6 +419,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdFollow())            # Player: follow another character
         self.add(CmdUnfollow())          # Player: stop following
         self.add(CmdLose())              # Player: shake off followers
+        # Add pulse watch repair command
+        self.add(CmdRepairPulseWatch())  # Player: repair severed pulse watch with Electronics skill
         # Add movement speed commands (stroll, walk, jog, run, sprint, pace)
         from commands.movement import MovementCmdSet
         self.add(MovementCmdSet())

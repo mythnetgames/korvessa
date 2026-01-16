@@ -3708,6 +3708,18 @@ MUNICIPAL_WRISTPAD = {
     ],
 }
 
+# Surgical scissors - required to remove municipal Pulse watch
+SURGICAL_SCISSORS = {
+    "prototype_key": "surgical_scissors",
+    "key": "pair of surgical scissors",
+    "typeclass": "typeclasses.items.Item",
+    "aliases": ["scissors", "surgical scissors", "pair", "shears"],
+    "desc": "A pair of surgical-grade stainless steel scissors. The blades are sharp and precise, designed for delicate medical work. The handles are ergonomically designed for controlled cutting. These scissors are renowned for their ability to precisely cut through tough synthetic materials - like the needle attachment systems on municipal Pulse watches.",
+    "attrs": [
+        ("weight", 0.2),
+    ],
+}
+
 # Hacked wristpad - provides SafetyNet access only, no map/combat prompt
 HACKED_WRISTPAD = {
     "prototype_key": "hacked_wristpad",

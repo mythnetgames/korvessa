@@ -197,8 +197,8 @@ class CmdMedicalInfo(Command):
             return
         
         # Check for Science or Modern Medicine skill (whichever is higher)
-        science = getattr(caller.db, 'science', 0)
-        modern_med = getattr(caller.db, 'modern_medicine', 0)
+        science = getattr(caller.db, 'science', 0) or 0
+        modern_med = getattr(caller.db, 'modern_medicine', 0) or 0
         medical_skill = max(science, modern_med)
         
         if medical_skill == 0:
