@@ -1555,7 +1555,7 @@ class Wristpad(Item):
         )
         
         if not has_scissors:
-            remover.msg("|rThe wristpad's needle is firmly anchored to your wrist. You need scissors to remove it painfully.|n")
+            remover.msg("|rThe wristpad's needle is firmly anchored to your wrist. You need scissors to remove it.|n")
             return False
         
         # Scissors found - apply pain and mark watch as cut
