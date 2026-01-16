@@ -71,8 +71,7 @@ class CubeDoor(Exit):
     def at_object_creation(self):
         """Called when the cube door is first created."""
         super().at_object_creation()
-        # Tag as cube door for easy lookup
-        self.tags.add("cube_door", category="housing")
+        # Tags will be added after object is saved (not available during creation)
     
     @property
     def current_renter(self):
@@ -201,8 +200,7 @@ class CubeRoom(Room):
     def at_object_creation(self):
         """Called when the cube room is first created."""
         super().at_object_creation()
-        # Tag as cube room for easy lookup
-        self.tags.add("cube_room", category="housing")
+        # Tags will be added after object is saved (not available during creation)
     
     def get_cube_door(self):
         """

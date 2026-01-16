@@ -3,6 +3,7 @@ Cube Housing Commands
 
 Commands for interacting with cube housing units:
 - ENTER <code> <direction> - Enter a cube with the correct code
+- CHECK <direction> - Check a cube's cost and rental status
 - CLOSE DOOR - Close and lock the door from inside
 - PAY RENT <direction> - Pay rent for a cube
 - CREATECUBE <direction> - Admin: Create a new cube
@@ -99,6 +100,63 @@ class CmdEnter(Command):
             f"{caller.key} enters through the cube door, which clicks shut behind them.",
             exclude=[caller]
         )
+
+
+class CmdCheck(Command):
+    """
+    Check a cube door to see its cost and rental status.
+    
+    Usage:
+        check <direction>
+        
+    Examples:
+        check north
+        check n
+        
+    Shows the nightly rate and either "Available for rent" or how long the rent is paid for.
+    """
+    
+    key = "check"
+    locks = "cmd:all()"
+    help_category = "Housing"
+    
+    def func(self):
+        caller = self.caller
+        
+        if not self.args:
+            caller.msg("Usage: check <direction>")
+            return
+        
+        direction = self.args.strip().lower()
+        
+        # Find the exit in the given direction
+        exit_obj = None
+        for ex in caller.location.exits:
+            ex_aliases = [a.lower() for a in ex.aliases.all()] if hasattr(ex.aliases, "all") else []
+            if ex.key.lower() == direction or direction in ex_aliases:
+                exit_obj = ex
+                break
+        
+        if not exit_obj:
+            caller.msg(f"There is no exit in that direction.")
+            return
+        
+        # Check if it's a CubeDoor
+        if not exit_obj.is_typeclass("typeclasses.cube_housing.CubeDoor"):
+            caller.msg("That is not a cube door.")
+            return
+        
+        from world.economy.constants import CUBE_RENT_PER_DAY
+        
+        # Show rental info
+        caller.msg(f"|cCube {direction}|n")
+        caller.msg(f"  Nightly Rate: ${CUBE_RENT_PER_DAY}")
+        
+        if exit_obj.current_door_code and exit_obj.is_rent_current():
+            rent_remaining = exit_obj.get_rent_remaining()
+            caller.msg(f"  Rental Status: Paid - {rent_remaining} remaining")
+        else:
+            caller.msg(f"  Rental Status: Available for rent")
 
 
 class CmdCloseDoor(Command):
@@ -578,6 +636,7 @@ class CubeHousingCmdSet(CmdSet):
     
     def at_cmdset_creation(self):
         self.add(CmdEnter())
+        self.add(CmdCheck())
         self.add(CmdCloseDoor())
         self.add(CmdPayRent())
         self.add(CmdCreateCube())
