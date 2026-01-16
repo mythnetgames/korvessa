@@ -86,9 +86,9 @@ class CmdRepairPulseWatch(Command):
         watch.db.is_cut = False
         watch.db.desc = "A compact wristpad with a flexible display screen. The device wraps around the forearm, its matte surface dotted with status LEDs and a small speaker grille. When activated, holographic displays project interface elements just above the screen."
         
-        caller.msg(f"|g*beep* You carefully reattach the {watch.name}, threading the needle back through the puncture site on your wrist. After a moment, it chirps to life.|n")
+        caller.msg("*beep* You carefully repair the Pulse watch, reattaching the severed needle and restoring its circuitry.")
         caller.location.msg_contents(
-            f"|g*beep* {caller.key} carefully reattaches their pulse watch.|n",
+            f"*beep* {caller.key} carefully repairs their pulse watch.",
             exclude=[caller]
         )
     

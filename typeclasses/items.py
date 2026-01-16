@@ -1561,9 +1561,9 @@ class Wristpad(Item):
             return False
         
         # Scissors found - apply pain and mark watch as cut
-        remover.msg("|r*PAIN* You carefully cut through the needle attachment, severing the wristpad's connection to your wrist. Blood wells from the puncture wound as you remove the device.|n")
+        remover.msg("|r*PAIN* You carefully cut through the needle attachment, severing the watch's connection to your wrist. Blood wells from the puncture wound as you remove the device.|n")
         remover.location.msg_contents(
-            f"|r{remover.key} carefully removes their wristpad with surgical scissors, wincing in pain.|n",
+            f"|r{remover.key} carefully removes their watch with surgical scissors, wincing in pain.|n",
             exclude=[remover]
         )
         
