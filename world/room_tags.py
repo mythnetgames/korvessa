@@ -77,10 +77,9 @@ PASSIVE_TAGS = {
         "icon": "o",
     },
     "OUTSIDE": {
-        "desc": "Fresh air (+3 Empathy while sun is out)",
+        "desc": "Fresh air (+3 Empathy)",
         "icon": "o",
         "empathy_bonus": 3,
-        "requires_sunlight": True,
     },
     "FALLING": {
         "desc": "Open air - falling hazard active",
@@ -249,7 +248,7 @@ def get_room_stat_bonuses(room, char=None):
     
     Args:
         room: Room object
-        char: Character object (optional, for checking sunlight requirement)
+        char: Character object (optional, for future use)
         
     Returns:
         dict: {stat_name: bonus_value}
@@ -265,16 +264,6 @@ def get_room_stat_bonuses(room, char=None):
             
             # Handle empathy bonus (OUTSIDE tag)
             if "empathy_bonus" in tag_data:
-                # Check if sunlight is required
-                requires_sunlight = tag_data.get("requires_sunlight", False)
-                if requires_sunlight:
-                    # Check if sun is out
-                    from world.weather.time_system import get_current_time_period
-                    time_period = get_current_time_period()
-                    if time_period in ["dawn", "day", "dusk"]:
-                        bonuses["emp"] = bonuses.get("emp", 0) + tag_data["empathy_bonus"]
-                else:
-                    # No sunlight requirement, always apply
-                    bonuses["emp"] = bonuses.get("emp", 0) + tag_data["empathy_bonus"]
+                bonuses["emp"] = bonuses.get("emp", 0) + tag_data["empathy_bonus"]
     
     return bonuses
