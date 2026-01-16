@@ -347,6 +347,17 @@ class CmdCreateCube(Command):
         
         direction = self.args.strip().lower()
         
+        # Map direction to display name
+        direction_display_map = {
+            "north": "north (n)", "south": "south (s)", "east": "east (e)", "west": "west (w)",
+            "northeast": "northeast (ne)", "northwest": "northwest (nw)", 
+            "southeast": "southeast (se)", "southwest": "southwest (sw)",
+            "up": "up (u)", "down": "down (d)", "n": "north (n)", "s": "south (s)",
+            "e": "east (e)", "w": "west (w)", "ne": "northeast (ne)", "nw": "northwest (nw)",
+            "se": "southeast (se)", "sw": "southwest (sw)", "u": "up (u)", "d": "down (d)"
+        }
+        direction_display = direction_display_map.get(direction, direction)
+        
         # Check if exit already exists in that direction
         for ex in caller.location.exits:
             ex_aliases = [a.lower() for a in ex.aliases.all()] if hasattr(ex.aliases, "all") else []
@@ -361,6 +372,10 @@ class CmdCreateCube(Command):
             location=None
         )
         cube_room.db.desc = "A cramped cube, barely large enough for a bed and a small space to stand. The walls are bare metal with a faint industrial smell. A red indicator light glows by the door."
+        
+        # Inherit zone from parent room
+        if hasattr(caller.location.db, "zone"):
+            cube_room.db.zone = caller.location.db.zone
         
         # Create the door from hallway to cube
         door_to_cube = create_object(
@@ -410,7 +425,7 @@ class CmdCreateCube(Command):
         bed.db.get_err_msg = "The bed is bolted to the floor."
         bed.locks.add("get:false()")
         
-        caller.msg(f"Created cube room '{cube_room.key}' with CubeDoor to the {direction}.")
+        caller.msg(f"Created cube room '{cube_room.key}' with CubeDoor to the {direction_display}.")
         caller.msg(f"Cube is unassigned. Use 'setcuberenter {direction} = <character>' to assign a renter.")
 
 
