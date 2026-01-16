@@ -313,3 +313,46 @@ def get_online_indicator(handle_name, manager):
         return INDICATOR_ONLINE
     else:
         return INDICATOR_OFFLINE
+
+
+def send_safetynet_flavor(character, device_type, action_type):
+    """
+    Send a flavor message to the room when character uses SafetyNet.
+    
+    Args:
+        character: The character using SafetyNet
+        device_type: "wristpad" or "computer"
+        action_type: "post", "dm", "read", "search", or "login"
+    """
+    from world.safetynet.constants import (
+        FLAVOR_WRISTPAD_POST,
+        FLAVOR_WRISTPAD_DM,
+        FLAVOR_WRISTPAD_READ,
+        FLAVOR_WRISTPAD_SEARCH,
+        FLAVOR_WRISTPAD_LOGIN,
+        FLAVOR_TERMINAL_POST,
+        FLAVOR_TERMINAL_DM,
+        FLAVOR_TERMINAL_READ,
+        FLAVOR_TERMINAL_SEARCH,
+        FLAVOR_TERMINAL_LOGIN,
+    )
+    
+    # Map device_type and action_type to flavor message
+    flavor_map = {
+        ("wristpad", "post"): FLAVOR_WRISTPAD_POST,
+        ("wristpad", "dm"): FLAVOR_WRISTPAD_DM,
+        ("wristpad", "read"): FLAVOR_WRISTPAD_READ,
+        ("wristpad", "search"): FLAVOR_WRISTPAD_SEARCH,
+        ("wristpad", "login"): FLAVOR_WRISTPAD_LOGIN,
+        ("computer", "post"): FLAVOR_TERMINAL_POST,
+        ("computer", "dm"): FLAVOR_TERMINAL_DM,
+        ("computer", "read"): FLAVOR_TERMINAL_READ,
+        ("computer", "search"): FLAVOR_TERMINAL_SEARCH,
+        ("computer", "login"): FLAVOR_TERMINAL_LOGIN,
+    }
+    
+    flavor_msg = flavor_map.get((device_type, action_type))
+    
+    if flavor_msg and character.location:
+        formatted_msg = flavor_msg.format(actor=character.name)
+        character.location.msg_contents(formatted_msg, exclude=[character])

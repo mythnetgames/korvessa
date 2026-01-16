@@ -247,6 +247,22 @@ MSG_PASSWORD_ADDED = "|gSafetyNet: Additional password created.|n"
 MSG_PASSWORD_REMINDER = "|rOOC: Save this password now. It will NOT be displayed again.|n"
 
 # =============================================================================
+# FLAVOR MESSAGES - Room notifications when using SafetyNet
+# =============================================================================
+
+FLAVOR_WRISTPAD_POST = "{actor} taps quickly on their wristpad, composing a post."
+FLAVOR_WRISTPAD_DM = "{actor} types carefully on their wristpad screen."
+FLAVOR_WRISTPAD_READ = "{actor} scrolls through their wristpad display."
+FLAVOR_WRISTPAD_SEARCH = "{actor} searches their wristpad intently."
+FLAVOR_WRISTPAD_LOGIN = "{actor} logs into their wristpad."
+
+FLAVOR_TERMINAL_POST = "{actor} sits at the terminal, typing out a post."
+FLAVOR_TERMINAL_DM = "{actor} types a message on the terminal keyboard."
+FLAVOR_TERMINAL_READ = "{actor} reads from the terminal screen."
+FLAVOR_TERMINAL_SEARCH = "{actor} runs a search on the terminal."
+FLAVOR_TERMINAL_LOGIN = "{actor} logs into the terminal."
+
+# =============================================================================
 # ONLINE/OFFLINE INDICATORS
 # =============================================================================
 

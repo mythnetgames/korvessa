@@ -14,6 +14,7 @@ from world.safetynet.utils import (
     delayed_output,
     format_timestamp,
     get_online_indicator,
+    send_safetynet_flavor,
 )
 from world.safetynet.constants import (
     MSG_NO_DEVICE,
@@ -209,6 +210,9 @@ class CmdSafetyNet(Command):
         caller.ndb.sn_feed = feed
         caller.ndb.sn_offset = 0
         
+        # Send flavor message to room
+        send_safetynet_flavor(caller, device_type, "read")
+        
         posts = manager.get_posts(feed=feed, limit=POSTS_PER_PAGE, offset=0)
         
         output = self._format_posts(posts, feed, manager)
@@ -224,6 +228,9 @@ class CmdSafetyNet(Command):
         feed = getattr(caller.ndb, "sn_feed", DEFAULT_FEED)
         offset = getattr(caller.ndb, "sn_offset", 0) + POSTS_PER_PAGE
         caller.ndb.sn_offset = offset
+        
+        # Send flavor message to room
+        send_safetynet_flavor(caller, device_type, "read")
         
         posts = manager.get_posts(feed=feed, limit=POSTS_PER_PAGE, offset=offset)
         
@@ -278,6 +285,9 @@ class CmdSafetyNet(Command):
             caller.msg("|rUsage: sn post <message>|n")
             return
         
+        # Send flavor message to room
+        send_safetynet_flavor(caller, device_type, "post")
+        
         def do_post_delayed():
             success, result_msg = manager.create_post(
                 handle_data["display_name"],
@@ -307,6 +317,9 @@ class CmdSafetyNet(Command):
         
         handle = parts[0]
         password = parts[1]
+        
+        # Send flavor message to room
+        send_safetynet_flavor(caller, device_type, "login")
         
         def do_login_delayed():
             success, message = manager.login(caller, handle, password)
@@ -353,6 +366,9 @@ class CmdSafetyNet(Command):
         if not message:
             caller.msg("|rMessage cannot be empty.|n")
             return
+        
+        # Send flavor message to room
+        send_safetynet_flavor(caller, device_type, "dm")
         
         def do_dm_delayed():
             success, result_msg = manager.send_dm(
@@ -520,6 +536,9 @@ class CmdSafetyNet(Command):
             return
         
         query = args.strip()
+        
+        # Send flavor message to room
+        send_safetynet_flavor(caller, device_type, "search")
         
         def do_search_delayed():
             posts = manager.search_posts(query, limit=20)
