@@ -248,31 +248,18 @@ class CmdMap(Command):
                 elif room_obj:
                     icon = getattr(room_obj.db, 'map_icon', None)
                     if icon:
-                        # Use icon string as-is, so hex color codes work
-                        # Extract visible characters by removing color codes
-                        import re
-                        # Remove all valid Evennia color codes
-                        color_codes_pattern = r'\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z]'
-                        visible = re.sub(color_codes_pattern, '', icon)[:2]
-                        # Get color codes by removing visible part
-                        color_codes = icon.replace(visible, '', 1)
-                        row.append(f"{color_codes}{visible}|n")
+                        # Use icon as-is, ensure it ends with |n
+                        if not icon.endswith('|n'):
+                            icon = icon + '|n'
+                        row.append(icon)
                     else:
                         row.append("[]")
                 else:
                     # Use zone icon for empty spaces, default to ". "
                     zone_icon = getattr(room.db, 'zone_icon', None)
                     if zone_icon:
-                        # Use zone icon, extract visible characters
-                        import re
-                        # Remove all valid Evennia color codes
-                        color_codes_pattern = r'\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z]'
-                        visible = re.sub(color_codes_pattern, '', zone_icon)
-                        # Pad to 2 chars if needed
-                        visible = (visible + " ")[:2]
-                        # Get color codes by removing visible part
-                        color_codes = zone_icon.replace(visible.strip(), '', 1) if visible.strip() else zone_icon.replace('|n', '')
-                        row.append(f"{color_codes}{visible}")
+                        # Use zone_icon directly - already validated to have 2 visible chars
+                        row.append(zone_icon)
                     else:
                         row.append(". ")
             grid.append("".join(row))
