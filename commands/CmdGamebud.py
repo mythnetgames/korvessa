@@ -75,6 +75,15 @@ class CmdGamebud(Command):
             self.do_view(gamebud)
             return
         
+        # Check for space in args (could be "message alias=msg")
+        if args.lower().startswith("message ") and "=" in args:
+            # Parse: message alias=message content
+            rest = args[8:]  # After "message "
+            if "=" in rest:
+                target_alias, pm_content = rest.split("=", 1)
+                self.do_send_pm(gamebud, target_alias.strip(), pm_content.strip())
+                return
+        
         # Check for = sign (post=msg or alias=name or color=colorname)
         if "=" in args:
             cmd_part, value_part = args.split("=", 1)
@@ -99,6 +108,8 @@ class CmdGamebud(Command):
             self.do_view(gamebud)
         elif primary_cmd == "next":
             self.do_next(gamebud)
+        elif primary_cmd == "messages":
+            self.do_messages(gamebud)
         elif primary_cmd == "mute":
             self.do_mute(gamebud)
         elif primary_cmd == "unmute":
@@ -246,6 +257,59 @@ class CmdGamebud(Command):
         # Show confirmation with the color applied to the color name display
         colored_name = f"|{alias_color}{color_name}|n"
         caller.msg(MSG_COLOR_SET.format(color=colored_name))
+    
+    def do_messages(self, gamebud):
+        """View private messages."""
+        caller = self.caller
+        manager = get_gamebud_manager()
+        
+        alias = gamebud.db.alias or "Unknown"
+        messages = manager.get_private_messages(alias)
+        
+        if not messages:
+            caller.msg("|yNo private messages.|n")
+            return
+        
+        # Mark messages as read
+        manager.mark_messages_read(alias)
+        
+        # Display messages
+        caller.msg("|w--- Private Messages ---|n")
+        for msg in messages[:10]:  # Show last 10 messages
+            from_color = msg.get("from_color", "w")
+            read_marker = "" if msg["read"] else "|Y*|n"
+            caller.msg(f"{read_marker}|{from_color}{msg['from_alias']}|n: {msg['message']}")
+        
+        if len(messages) > 10:
+            caller.msg(f"|y({len(messages) - 10} older messages not shown)|n")
+    
+    def do_send_pm(self, gamebud, target_alias, message):
+        """Send a private message to another alias."""
+        caller = self.caller
+        manager = get_gamebud_manager()
+        
+        if not target_alias:
+            caller.msg("|rYou must specify a recipient alias.|n")
+            caller.msg("|yUsage: gamebud message <alias>=<message>|n")
+            return
+        
+        if not message:
+            caller.msg("|rYou must provide a message.|n")
+            caller.msg("|yUsage: gamebud message <alias>=<message>|n")
+            return
+        
+        if len(message) > MAX_MESSAGE_LENGTH:
+            caller.msg(MSG_MESSAGE_TOO_LONG)
+            return
+        
+        # Get sender info
+        from_alias = gamebud.db.alias or "Unknown"
+        from_color = gamebud.db.alias_color or DEFAULT_ALIAS_COLOR
+        
+        # Send the message
+        manager.send_private_message(from_alias, from_color, target_alias, message, caller)
+        
+        caller.msg(f"|gPrivate message sent to |w{target_alias}|g.|n")
 
 
 class GamebudCmdSet(CmdSet):
