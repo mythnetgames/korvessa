@@ -262,12 +262,12 @@ def format_gamebud_display(gamebud, page=0):
         name = msg["alias"][:10].ljust(10)
         # Message is max 40 chars (to fit display width)
         content = msg["message"][:40].ljust(40)
-        # Get alias color from message
+        # Get alias color from message - add pipe prefix for ANSI
         alias_color = msg.get("alias_color", DEFAULT_ALIAS_COLOR)
         message_lines += MESSAGE_LINE_TEMPLATE.format(
             name=name, 
             message=content,
-            alias_color=alias_color
+            alias_color=f"|{alias_color}"
         )
         messages_shown += 1
     
