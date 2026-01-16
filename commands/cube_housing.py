@@ -320,16 +320,16 @@ class CmdCreateCube(Command):
     Create a new cube housing unit.
     
     Usage:
-        createcube <direction>
+        createcube <direction> <name>
         
     Examples:
-        createcube north
-        createcube east
+        createcube north Cube 101 - Dao Lane Motel
+        createcube e Room 5B
         
     This creates:
-    - A new cube room in the specified direction
+    - A new cube room in the specified direction with the given name
     - A CubeDoor exit to the cube
-    - A return CubeDoor exit back to this room
+    - A return exit back to this room
     - A bed inside the cube
     
     The cube starts unassigned with no renter and no active code.
@@ -343,10 +343,16 @@ class CmdCreateCube(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: createcube <direction>")
+            caller.msg("Usage: createcube <direction> <name>")
             return
         
-        direction = self.args.strip().lower()
+        args = self.args.strip().split(None, 1)  # Split into direction and rest
+        if len(args) < 2:
+            caller.msg("Usage: createcube <direction> <name>")
+            return
+        
+        direction = args[0].lower()
+        room_name = args[1]
         
         # Map direction to display name
         direction_display_map = {
@@ -404,10 +410,10 @@ class CmdCreateCube(Command):
         }
         exit_name = direction_names.get(direction, direction)
         
-        # Create the cube room using same pattern as zdig
+        # Create the cube room using standard Room typeclass so it shows on map
         cube_room = create.create_object(
-            typeclass="typeclasses.cube_housing.CubeRoom",
-            key=f"Cube #{caller.location.id}-{direction}"
+            typeclass="typeclasses.rooms.Room",
+            key=room_name
         )
         
         # Set zone and coordinates EXPLICITLY (same as zdig)
