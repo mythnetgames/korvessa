@@ -2281,6 +2281,13 @@ class Character(ObjectParent, DefaultCharacter):
             location_items.insert(insert_index, item)
             self.db.worn_items[location] = location_items
         
+        # Call at_wear hook on the item if it exists
+        if hasattr(item, 'at_wear'):
+            try:
+                item.at_wear(self)
+            except Exception:
+                pass  # If hook fails, continue anyway
+        
         return True, f"You put on {item.key}."
     
     def remove_item(self, item):
@@ -2288,6 +2295,16 @@ class Character(ObjectParent, DefaultCharacter):
         # Validate item is worn
         if not self.is_item_worn(item):
             return False, "You're not wearing that item."
+        
+        # Check if item has at_pre_remove hook that blocks removal
+        if hasattr(item, 'at_pre_remove'):
+            try:
+                result = item.at_pre_remove(self)
+                if result is False:
+                    # Hook blocked removal - message already sent by the hook
+                    return False, ""
+            except Exception:
+                pass  # If hook fails, proceed with removal
         
         # Ensure worn_items is initialized
         if not self.db.worn_items:
