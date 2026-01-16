@@ -150,15 +150,21 @@ class CmdZoneIcon(Command):
         # Valid: |#RRGGBB, |[#RRGGBB, |a-z, |A-Z
         # NOT valid: |_, |0, etc.
         color_codes_pattern = r'\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z]'
-        color_codes_found = re.findall(color_codes_pattern, args)
         
-        # Extract visible characters by removing all color codes
-        visible_chars = re.sub(color_codes_pattern, '', args)
+        # First, handle escaped pipes || - replace with placeholder for counting
+        # || represents a single visible | character
+        temp_args = args.replace('||', '\x00')  # Use null byte as placeholder
+        
+        # Extract visible characters by removing all color codes from temp string
+        visible_chars = re.sub(color_codes_pattern, '', temp_args)
+        # Convert placeholder back to single | for display
+        visible_chars_display = visible_chars.replace('\x00', '|')
         
         # Ensure exactly 2 visible characters
         if len(visible_chars) != 2:
-            self.caller.msg(f"Icon must have exactly 2 visible characters (non-color-code characters). You have {len(visible_chars)}: '{visible_chars}'")
+            self.caller.msg(f"Icon must have exactly 2 visible characters (non-color-code characters). You have {len(visible_chars)}: '{visible_chars_display}'")
             self.caller.msg("Example: zoneicon |#00d700!! or zoneicon |#00d700|r!!")
+            self.caller.msg("Use || to display a literal | character.")
             return
         
         room = self.caller.location
@@ -171,11 +177,16 @@ class CmdZoneIcon(Command):
         # Build the zone icon string
         # If visible chars end with |, we need to escape it as || before adding |n
         # Otherwise ||n is interpreted as "escaped pipe + n" not "pipe + color reset"
+        # But if user already escaped it (ends with ||), don't double-escape
         zone_icon = args
         if not zone_icon.endswith('|n'):
             # Check if it ends with a visible | (not part of a color code)
-            if visible_chars.endswith('|'):
-                # The | at the end needs to be escaped as ||, then add |n
+            # visible_chars has \x00 for escaped pipes
+            if visible_chars.endswith('\x00'):
+                # Already ends with escaped pipe ||, just add |n
+                zone_icon = zone_icon + '|n'
+            elif visible_chars.endswith('|'):
+                # Ends with unescaped visible |, need to escape it
                 zone_icon = zone_icon + '|' + '|n'
             else:
                 zone_icon = zone_icon + '|n'
