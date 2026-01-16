@@ -14,7 +14,7 @@ class CmdRepairPulseWatch(Command):
     Repair and reattach a severed pulse watch.
     
     Usage:
-        repair pulse watch <watch object>
+        repair <watch>
         
     Reattaches a municipal pulse watch that has been cut. This requires an Electronics
     skill check. Most characters with decent electronics skills should be able to do
@@ -31,18 +31,11 @@ class CmdRepairPulseWatch(Command):
         caller = self.caller
         
         if not self.args:
-            caller.msg("Usage: repair pulse watch <object>")
+            caller.msg("Usage: repair <watch>")
             return
         
-        # Parse arguments
-        args = self.args.split()
-        if len(args) < 3 or args[0].lower() != "pulse" or args[1].lower() != "watch":
-            caller.msg("Usage: repair pulse watch <object name or number>")
-            return
-        
-        # Get the watch object
-        watch_name = " ".join(args[2:]) if len(args) > 2 else args[2]
-        watch = caller.search(watch_name, candidates=caller.contents)
+        # Get the watch object by searching inventory
+        watch = caller.search(self.args.strip(), candidates=caller.contents)
         
         if not watch:
             return
