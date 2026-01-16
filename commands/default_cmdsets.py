@@ -341,6 +341,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add zone-aware dig command
         from commands.zonedig import CmdZoneDig
         self.add(CmdZoneDig())
+        # Add connect command (dig tool to connect rooms by coordinates)
+        from commands.connect import CmdConnect
+        self.add(CmdConnect())
         # Add control command
         from commands.control import CmdControl
         self.add(CmdControl())
