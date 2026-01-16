@@ -436,7 +436,7 @@ def format_gamebud_display(gamebud, page=0):
         cpu=str(cpu).rjust(2),
         ip=GAMEBUD_IP,
         alias=alias,
-        msg_count=str(msg_count),
+        msg_count=msg_count,
         messages=message_lines,
         bar=loading_bar,
     )
@@ -503,7 +503,6 @@ def format_messages_display(gamebud, page=0):
     loading_bar = "|" * bar_filled + "\\*" * min(bar_empty, 3)
     
     # Format msg_count to be right-aligned in 2-character width for consistent spacing
-    # "Lobbies|| " is 10 chars, msg_count formatted as 2 chars right-aligned = 10 - 2 = 8 spaces needed
     msg_count_str = f"{msg_count:>2}"  # Right-align in 2 characters
     padding = " " * 8  # Fixed 8 spaces to account for 2-char msg_count
     
@@ -512,7 +511,7 @@ def format_messages_display(gamebud, page=0):
         cpu=str(cpu).rjust(2),
         ip=GAMEBUD_IP,
         alias=alias,
-        msg_count=msg_count_str,
+        msg_count=msg_count,
         messages=message_lines,
         bar=loading_bar,
         padding=padding,
