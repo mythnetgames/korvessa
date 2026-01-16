@@ -254,6 +254,15 @@ class CmdMap(Command):
         rooms = [r for r in ObjectDB.objects.filter(db_typeclass_path="typeclasses.rooms.Room") 
                  if getattr(r.db, "z", None) == z and getattr(r, "zone", None) == zone]
         coords = {(r.db.x, r.db.y): r for r in rooms if r.db.x is not None and r.db.y is not None}
+        
+        # Get zone_icon from any room in this zone that has it set
+        zone_icon = None
+        for zroom in rooms:
+            zi = getattr(zroom.db, 'zone_icon', None)
+            if zi:
+                zone_icon = zi
+                break
+        
         grid = []
         for dy in range(2, -3, -1):
             row = []
@@ -274,7 +283,6 @@ class CmdMap(Command):
                         row.append("[]")
                 else:
                     # Use zone icon for empty spaces, default to ". "
-                    zone_icon = getattr(room.db, 'zone_icon', None)
                     if zone_icon:
                         # Use zone_icon directly - already validated to have 2 visible chars
                         row.append(zone_icon)
