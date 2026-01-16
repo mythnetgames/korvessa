@@ -124,6 +124,45 @@ class CmdAreaIcon(Command):
         room = self.caller.location
         room.db.area_icon = args
         self.caller.msg(f"Area icon for this area set to '{args}'.")
+
+class CmdZoneIcon(Command):
+    """
+    Set the default icon for nonexistent rooms in this zone.
+    Usage: zoneicon <icon>
+    Example: zoneicon |#00d700!!|n
+    This icon will be displayed for all empty coordinate spaces in the zone's map.
+    """
+    key = "zoneicon"
+    locks = "cmd:perm(Builders)"
+    help_category = "Mapping"
+
+    def func(self):
+        args = self.args.strip()
+        if not args:
+            self.caller.msg("Usage: zoneicon <icon>")
+            self.caller.msg("Example: zoneicon |#00d700!!|n")
+            return
+        
+        room = self.caller.location
+        zone = getattr(room, "zone", None)
+        
+        if not zone:
+            self.caller.msg("You must be in a zone to set the zone icon.")
+            return
+        
+        # Get or create the zone's icon attribute on the first room in the zone
+        # Store it on all rooms in the zone for consistency
+        from evennia.objects.models import ObjectDB
+        zone_rooms = ObjectDB.objects.filter(
+            db_typeclass_path__endswith='typeclasses.rooms.Room',
+            db_zone=zone
+        )
+        
+        for zroom in zone_rooms:
+            zroom.db.zone_icon = args
+        
+        self.caller.msg(f"Zone icon set to '{args}' for {zone_rooms.count()} room(s) in zone '{zone}'.")
+
 class CmdMapIconHelp(Command):
     """
     Show help for map icon settings.
@@ -188,8 +227,8 @@ class CmdMap(Command):
                         # Use icon string as-is, so hex color codes work
                         # Only enforce two visible characters after color codes
                         import re
-                        # Find all color codes at the start
-                        color_match = re.match(r'^(\|[#a-zA-Z0-9_\[\]]+)*', icon)
+                        # Find all color codes at the start (supports xterm 256 hex codes like |#00d700)
+                        color_match = re.match(r'^(\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z0-9_])*', icon)
                         color_codes = color_match.group(0) if color_match else ''
                         # Remove color codes from icon to get visible part
                         visible = icon[len(color_codes):][:2]
@@ -197,7 +236,20 @@ class CmdMap(Command):
                     else:
                         row.append("[]")
                 else:
-                    row.append("  ")
+                    # Use zone icon for empty spaces, default to ". "
+                    zone_icon = getattr(room.db, 'zone_icon', None)
+                    if zone_icon:
+                        # Use zone icon, but ensure it's 2 visible chars
+                        import re
+                        # Supports xterm 256 hex codes like |#00d700
+                        color_match = re.match(r'^(\|(?:\[)?#[0-9a-fA-F]{6}|\|[a-zA-Z0-9_])*', zone_icon)
+                        color_codes = color_match.group(0) if color_match else ''
+                        visible = zone_icon[len(color_codes):][:2]
+                        # Pad to 2 chars if needed
+                        visible = (visible + " ")[:2]
+                        row.append(f"{color_codes}{visible}|n")
+                    else:
+                        row.append(". ")
             grid.append("".join(row))
 
         import textwrap
@@ -329,6 +381,7 @@ mapping_cmds = [
     CmdMapOff,
     CmdMapIcon,
     CmdAreaIcon,
+    CmdZoneIcon,
     CmdMapIconHelp,
     CmdMap,
     CmdHelpMapping,

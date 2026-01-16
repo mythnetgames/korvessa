@@ -182,7 +182,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdWipeCoords())
         # Add mapping commands
         from commands.mapper import (
-            CmdMapOn, CmdMapOff, CmdMapRoom, CmdMapColor, CmdMapIcon, CmdAreaIcon, CmdMapIconHelp, CmdMap
+            CmdMapOn, CmdMapOff, CmdMapRoom, CmdMapColor, CmdMapIcon, CmdAreaIcon, CmdZoneIcon, CmdMapIconHelp, CmdMap
         )
         self.add(CmdMapOn())
         self.add(CmdMapOff())
@@ -190,6 +190,7 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdMapColor())
         self.add(CmdMapIcon())
         self.add(CmdAreaIcon())
+        self.add(CmdZoneIcon())
         self.add(CmdMapIconHelp())
         self.add(CmdMap())
         # Add stats command
