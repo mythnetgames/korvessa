@@ -587,6 +587,16 @@ class CmdDrop(Command):
         if hasattr(caller, 'is_item_worn') and caller.is_item_worn(obj):
             caller.msg("You can't drop something you're wearing. Remove it first.")
             return
+        
+        # Call at_pre_drop hook if it exists
+        if hasattr(obj, 'at_pre_drop'):
+            try:
+                result = obj.at_pre_drop(caller)
+                if result is False:
+                    # Hook blocked drop - message already sent by the hook
+                    return
+            except Exception:
+                pass  # If hook fails, proceed with drop
 
         # If it's wielded, remove it from the hand
         was_wielded = False
