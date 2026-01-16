@@ -10,6 +10,7 @@ from world.gamebud.core import (
     get_gamebud_manager,
     check_gamebud_device,
     format_gamebud_display,
+    format_messages_display,
 )
 from world.gamebud.constants import (
     MAX_ALIAS_LENGTH,
@@ -259,29 +260,15 @@ class CmdGamebud(Command):
         caller.msg(MSG_COLOR_SET.format(color=colored_name))
     
     def do_messages(self, gamebud):
-        """View private messages."""
+        """View private messages using the Gamebud UI."""
         caller = self.caller
-        manager = get_gamebud_manager()
         
-        alias = gamebud.db.alias or "Unknown"
-        messages = manager.get_private_messages(alias)
+        # Reset page to 0 when viewing messages
+        gamebud.db.messages_page = 0
         
-        if not messages:
-            caller.msg("|yNo private messages.|n")
-            return
-        
-        # Mark messages as read
-        manager.mark_messages_read(alias)
-        
-        # Display messages
-        caller.msg("|w--- Private Messages ---|n")
-        for msg in messages[:10]:  # Show last 10 messages
-            from_color = msg.get("from_color", "w")
-            read_marker = "" if msg["read"] else "|Y*|n"
-            caller.msg(f"{read_marker}|{from_color}{msg['from_alias']}|n: {msg['message']}")
-        
-        if len(messages) > 10:
-            caller.msg(f"|y({len(messages) - 10} older messages not shown)|n")
+        # Display the messages UI
+        display = format_messages_display(gamebud, page=0)
+        caller.msg(display)
     
     def do_send_pm(self, gamebud, target_alias, message):
         """Send a private message to another alias."""

@@ -17,6 +17,7 @@ from world.gamebud.constants import (
     GAMEBUD_PORT,
     GAMEBUD_IP,
     UI_TEMPLATE,
+    UI_TEMPLATE_MESSAGES,
     MESSAGE_LINE_TEMPLATE,
     EMPTY_MESSAGE_LINE,
     MSG_NEW_MESSAGE,
@@ -431,6 +432,77 @@ def format_gamebud_display(gamebud, page=0):
     loading_bar = "|" * bar_filled + "\\*" * min(bar_empty, 3)
     
     display = UI_TEMPLATE.format(
+        port=GAMEBUD_PORT.ljust(2),
+        cpu=str(cpu).rjust(2),
+        ip=GAMEBUD_IP,
+        alias=alias,
+        msg_count=str(msg_count),
+        messages=message_lines,
+        bar=loading_bar,
+    )
+    
+    return display
+
+
+def format_messages_display(gamebud, page=0):
+    """
+    Format the Gamebud UI display for private messages.
+    
+    Args:
+        gamebud: The Gamebud device
+        page (int): Current message page
+        
+    Returns:
+        str: Formatted UI display
+    """
+    manager = get_gamebud_manager()
+    
+    # Get alias - should always have one (either set or random)
+    alias = gamebud.db.alias or generate_random_alias()
+    
+    # Get unread private message count for this alias
+    msg_count = manager.get_unread_count(alias)
+    
+    # Get private messages for current page
+    all_messages = manager.get_private_messages(alias)
+    start = page * MESSAGES_PER_PAGE
+    end = start + MESSAGES_PER_PAGE
+    messages = all_messages[start:end]
+    
+    # Mark messages as read when viewing
+    manager.mark_messages_read(alias)
+    
+    # Format message lines
+    message_lines = ""
+    messages_shown = 0
+    for msg in messages:
+        # Name is max 10 chars, left aligned
+        name = msg["from_alias"][:10].ljust(10)
+        # Message is max 40 chars (to fit display width)
+        content = msg["message"][:40].ljust(40)
+        # Get alias color from message - add pipe prefix for ANSI
+        alias_color = msg.get("from_color", DEFAULT_ALIAS_COLOR)
+        message_lines += MESSAGE_LINE_TEMPLATE.format(
+            name=name, 
+            message=content,
+            alias_color=f"|{alias_color}"
+        )
+        messages_shown += 1
+    
+    # Fill remaining lines if less than 3 messages
+    while messages_shown < MESSAGES_PER_PAGE:
+        message_lines += EMPTY_MESSAGE_LINE
+        messages_shown += 1
+    
+    # Build display
+    cpu = random.randint(65, 99)
+    
+    # Generate loading bar based on CPU percentage
+    bar_filled = int(cpu / 10)
+    bar_empty = 10 - bar_filled
+    loading_bar = "|" * bar_filled + "\\*" * min(bar_empty, 3)
+    
+    display = UI_TEMPLATE_MESSAGES.format(
         port=GAMEBUD_PORT.ljust(2),
         cpu=str(cpu).rjust(2),
         ip=GAMEBUD_IP,

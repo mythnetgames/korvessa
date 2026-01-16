@@ -76,6 +76,22 @@ UI_TEMPLATE = """,______________________________________________________________
 (       \\/           [1 2 3 4 5 6 7 8 9 0]                        )
 \\_________________________________________________________________/|n"""
 
+# UI Template for private messages view
+UI_TEMPLATE_MESSAGES = """,_________________________________________________________________,
+( |#5faf00OKAMA|W(c)|n 1969 .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
+( .'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'.'. )
+(                         |#5f8700OKAMA GAMEBUD|n                           )
+()====PORT:|Y{port}|n====CPU:|Y{cpu}%|n====PROXY:  |rNULL|n====IP:|Y{ip}|n=====()
+( Alias: |Y{alias:<10}|n Lobbies|| |>|#5f8700Messages|n(|Y{msg_count}|n Messages)|| Settings     )
+(      ,-------------------------------------------------------,  )
+(      ||________________Private Messages_______________________||  )
+{messages}(      '-------------------------------------------------------'  )
+(                    [Q W E R T Y U I O P]                        )
+(       /\\           [A S D F G H J K L .]                        )
+(     <-|#ffffdf()|n->         [Z X C V B N M , : ;]                        )
+(       \\/           [1 2 3 4 5 6 7 8 9 0]                        )
+\\_________________________________________________________________/|n"""
+
 # Message line template - name (10 chars) : message (40 chars max)
 # Note: || is escaped pipe character in Evennia ANSI
 # {alias_color} is user's chosen alias color
