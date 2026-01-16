@@ -150,7 +150,7 @@ class CmdZoneIcon(Command):
             self.caller.msg("You must be in a zone to set the zone icon.")
             return
         
-        # Find all rooms in this zone and set zone_icon on each (if not already set)
+        # Find all rooms in this zone and set zone_icon on each
         from evennia.objects.models import ObjectDB
         all_rooms = ObjectDB.objects.filter(
             db_typeclass_path__endswith='typeclasses.rooms.Room'
@@ -159,10 +159,8 @@ class CmdZoneIcon(Command):
         room_count = 0
         for zroom in all_rooms:
             if getattr(zroom, "zone", None) == zone:
-                # Only set if not already set
-                if not getattr(zroom.db, 'zone_icon', None):
-                    zroom.db.zone_icon = args
-                    room_count += 1
+                zroom.db.zone_icon = args
+                room_count += 1
         
         self.caller.msg(f"Zone icon set to '{args}' for {room_count} room(s) in zone '{zone}'.")
 
