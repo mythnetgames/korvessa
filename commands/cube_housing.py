@@ -269,7 +269,7 @@ class CmdPayRent(Command):
             return
         
         # Get caller's cash FIRST (before claiming)
-        cash = getattr(caller.db, "cash_on_hand", 0) or 0
+        cash = caller.cash_on_hand or 0
         
         # Debug output
         try:
@@ -303,7 +303,7 @@ class CmdPayRent(Command):
             caller.msg(f"You have claimed the cube! Your access code is: {exit_obj.current_door_code}")
         
         # Process payment
-        caller.db.cash_on_hand = cash - amount
+        caller.cash_on_hand = cash - amount
         seconds_added = exit_obj.add_rent_time(amount)
         
         # Calculate time added for display
