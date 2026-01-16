@@ -206,11 +206,11 @@ class CmdCloseDoor(Command):
             return
         
         # Success message
-        caller.msg("You pull the door shut. The lock clicks.")
+        caller.msg("You pull the door shut. The keypad beeps once and the red indicator steadies.")
         
         # Message to others in the room
         room.msg_contents(
-            f"{caller.key} pulls the door shut.",
+            f"{caller.key} pulls the door shut. The keypad beeps once.",
             exclude=[caller]
         )
 

@@ -445,6 +445,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CubeHousingCmdSet())    # Housing: enter, close door, pay rent, createcube, etc.
         # Add economy commands
         self.add(EconomyCmdSet())        # Economy: count, dropmoney, payday, spawncash, etc.
+        # Add furniture interaction commands
+        from commands.furniture import FurnitureCmdSet
+        self.add(FurnitureCmdSet())      # Furniture: sit, lie, stand
         # Add admin design menus for NPCs, furniture, weapons, armor/clothes
         from commands.admin_design_menus import (
             CmdNPCDesignMenu, CmdFurnitureDesignMenu, CmdWeaponDesignMenu, CmdArmorDesignMenu, CmdSpawnNPCDesign, CmdSpawnClothingDesign
