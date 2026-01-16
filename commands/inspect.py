@@ -80,25 +80,45 @@ class CmdInspect(Command):
                 output.append(f"|wLocks|n: {locks_str}")
         
         # Tags
-        if hasattr(target, "tags") and target.tags.all():
-            tags = target.tags.all()
-            output.append(f"|wTags|n: {', '.join(str(t) for t in tags)}")
+        if hasattr(target, "tags"):
+            try:
+                tags = target.tags.all() if hasattr(target.tags, "all") else target.tags
+                if tags:
+                    output.append(f"|wTags|n: {', '.join(str(t) for t in tags)}")
+            except Exception:
+                pass
         
         # Scripts
-        if hasattr(target, "scripts") and target.scripts.all():
-            scripts = target.scripts.all()
-            script_names = [f"{s.key} ({s.dbref})" for s in scripts]
-            output.append(f"|wScripts|n: {', '.join(script_names)}")
+        if hasattr(target, "scripts"):
+            try:
+                scripts = target.scripts.all() if hasattr(target.scripts, "all") else target.scripts
+                if scripts:
+                    script_names = [f"{s.key} ({s.dbref})" for s in scripts]
+                    output.append(f"|wScripts|n: {', '.join(script_names)}")
+            except Exception:
+                pass
         
         # Contents (for rooms/containers)
-        if hasattr(target, "contents") and target.contents:
-            contents = [f"{obj.key} ({obj.dbref})" for obj in target.contents]
-            output.append(f"|wContents|n: {', '.join(contents)}")
+        if hasattr(target, "contents"):
+            try:
+                contents = target.contents if isinstance(target.contents, (list, tuple)) else [target.contents]
+                if contents:
+                    contents_str = [f"{obj.key} ({obj.dbref})" for obj in contents if obj]
+                    if contents_str:
+                        output.append(f"|wContents|n: {', '.join(contents_str)}")
+            except Exception:
+                pass
         
         # Exits (for rooms)
-        if hasattr(target, "exits") and target.exits:
-            exits = [f"{ex.key} ({ex.dbref})" for ex in target.exits]
-            output.append(f"|wExits|n: {', '.join(exits)}")
+        if hasattr(target, "exits"):
+            try:
+                exits = target.exits if isinstance(target.exits, (list, tuple)) else [target.exits]
+                if exits:
+                    exits_str = [f"{ex.key} ({ex.dbref})" for ex in exits if ex]
+                    if exits_str:
+                        output.append(f"|wExits|n: {', '.join(exits_str)}")
+            except Exception:
+                pass
         
         # Persistent Attributes
         if hasattr(target, "db") and hasattr(target.db, "all"):
