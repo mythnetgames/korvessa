@@ -907,6 +907,9 @@ class CmdGive(Command):
     def func(self):
         caller = self.caller
         
+        # DEBUG - at very start
+        caller.msg("|rDEBUG: CmdGive.func() called|n")
+        
         # Basic syntax validation
         if not self.item_name or not self.target_name:
             caller.msg("Usage: give <item> to <target> or give <item> <target>")
