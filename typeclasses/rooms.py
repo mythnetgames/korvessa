@@ -278,8 +278,9 @@ class Room(ObjectParent, DefaultRoom):
         tag_display = get_tag_display_string(getattr(self, 'tags', []))
         if tag_display:
             lines = appearance.split('\n')
-            if lines and lines[0].startswith('|c'):
-                # This is the room name line, append tags
+            if lines:
+                # The room name is now the first non-empty line (no longer centered with |c)
+                # Just append tags to the first line
                 lines[0] = lines[0].rstrip('|n') + f" {tag_display}|n"
                 appearance = '\n'.join(lines)
         
