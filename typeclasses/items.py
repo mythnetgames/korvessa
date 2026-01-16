@@ -1473,9 +1473,12 @@ class Wristpad(Item):
     
     def at_pre_drop(self, dropper, **kwargs):
         """Prevent dropping items while they are worn."""
-        if self.is_worn:
-            dropper.msg(f"You have to take off the {self.name} before you can drop it.")
-            return False
+        # Check if this item is worn by the dropper
+        if hasattr(dropper, 'db') and hasattr(dropper.db, 'worn_items'):
+            for location, items in dropper.db.worn_items.items():
+                if self in items:
+                    dropper.msg(f"You have to take off the {self.name} before you can drop it.")
+                    return False
         return True
 
 
