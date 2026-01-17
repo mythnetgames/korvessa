@@ -1,48 +1,89 @@
 <style>
 body {
-    background: #0a001a;
-    color: #e0e0ff;
-    font-family: 'Inter', 'Roboto', 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1a1410 0%, #2d1f0e 50%, #1a1410 100%);
+    color: #d4c5a9;
+    font-family: 'Georgia', 'Palatino', serif;
 }
+
 .card, .card-header {
-    background: linear-gradient(90deg, #1a0033 0%, #330066 100%);
-    color: #ff00cc;
-    border: 2px solid #00fff7;
-    box-shadow: 0 0 24px #00fff744, 0 0 4px #ff00cc44;
+    background: linear-gradient(90deg, rgba(45,31,14,0.8) 0%, rgba(60,40,20,0.8) 100%);
+    color: #c19a6b;
+    border: 1px solid #8b4513;
+    border-radius: 0;
+    box-shadow: inset 0 1px 0 rgba(212,175,55,0.2), 0 4px 8px rgba(0,0,0,0.6);
 }
+
 .nav-link, a {
-    color: #00fff7 !important;
-    text-shadow: 0 0 8px #00fff7, 0 0 2px #ff00cc;
+    color: #d4a574 !important;
+    text-shadow: none;
 }
+
 .nav-link:hover, a:hover {
-    color: #ff00cc !important;
-    text-shadow: 0 0 12px #ff00cc, 0 0 4px #00fff7;
+    color: #e8dcc8 !important;
 }
+
+.faction-card {
+    margin: 12px 0;
+    padding: 16px;
+    border: 1px solid #8b4513;
+    background: rgba(45,31,14,0.9);
+    border-left: 4px solid #d4a574;
+}
+
+.faction-velora { border-left-color: #d4a574; }
+.faction-feyliks { border-left-color: #c5a572; }
+.faction-regalus { border-left-color: #8b4513; }
+
+h1, h2, h3 { color: #e8dcc8; font-family: 'Georgia', serif; letter-spacing: 1px; }
 </style>
-<p>
-    Welcome to Kowloon, chummer. Out here on the fringe of civilized space. You'll enter a world 
-    where survival hinges on your wits, your skills, and your ability to adapt. Whether you're a
-    hardened mercenary, a cunning hacker, or a resourceful scavenger, Kowloon offers endless 
-    opportunities and challenges.
-</p>
-    In the sprawling expanse of Kowloon, survival is a daily struggle. The colony is a melting pot 
-    of outcasts, mercenaries, hackers, and scavengers, all vying for resources and power. The 
-    environment is harsh, with treacherous terrain and unpredictable weather patterns that can turn 
-    deadly in an instant. Trust is a rare commodity, and alliances are often temporary and fragile.
+<h1 style="text-align: center; margin-bottom: 24px; font-size: 2.5rem;">Welcome to Korvessa</h1>
+
+<p style="text-align: center; font-size: 1.1rem; margin-bottom: 16px; color: #c19a6b;">
+  <em>May He Watch over you.</em>
 </p>
 
 <p>
-    Technology is both a boon and a bane in Kowloon. Advanced cybernetic enhancements and 
-    sophisticated weaponry are commonplace, but they come at a cost. The line between human and 
-    machine is blurred, leading to ethical dilemmas and identity crises. Hackers wield immense power, 
-    capable of manipulating systems and information to their advantage, but they must constantly 
-    evade detection from corporate security forces and rival factions.
-
-                                    Welcome to the Walled City.
+  One hundred and sixty years ago, divine cataclysms drove humanity into five sacred cities. Since The Herding, Korvessa has endured beneath the watchful eye of the Watcher—isolated, protected, bound by law and faith. The boundaries beyond the city remain deadly; none who venture beyond and attempt to escape return alive.
 </p>
+
+<p>
+  For sixty years, the Watcher's hooded emissaries have delivered rare gifts and sacred texts through the Sprinkling—a yearly rite that anchors the city's survival and belief. But five years ago, the Sprinkling did not come. Now, as faith fractures and factions vie for influence, whispers speak of another Scholar's Passage—a once-a-decade journey beyond the walls, guided by the Watcher's unseen hand.
+</p>
+
+<p>
+  <strong>What will you become in this walled world?</strong>
+</p>
+
+<hr style="border-color: #8b4513; margin: 24px 0;">
+
+<h2 style="text-align: center; margin: 24px 0;">The Three Paths</h2>
+
+<div class="faction-card faction-velora">
+  <h3 style="color: #d4a574; margin-top: 0;">Veloran - The Path of Order</h3>
+  <p>
+    Followers of Velora seek virtue, sacrifice, and the perfection of self through discipline. Knights, healers, and artisans find meaning in service and endurance. The scale balances all, and through steadfast duty comes strength.
+  </p>
+</div>
+
+<div class="faction-card faction-feyliks">
+  <h3 style="color: #c5a572; margin-top: 0;">Feyliksian - The Path of Chance</h3>
+  <p>
+    Devotees of Feyliks embrace fortune, trickery, and freedom. Gamblers, performers, and those who dance with risk find ecstasy in the unknown. The dice fall as they will—seize the moment, for fate is yours to claim.
+  </p>
+</div>
+
+<div class="faction-card faction-regalus">
+  <h3 style="color: #8b4513; margin-top: 0;">Regalist - The Path of Dominion</h3>
+  <p>
+    Regalus demands ambition, strength, and the will to command. Lords, warriors, and those who hunger for power seek to bend the world to their vision. Authority flows to those with the will to seize it.
+  </p>
+</div>
+
+<hr style="border-color: #8b4513; margin: 24px 0;">
+
 {% if telnet_enabled %}
-<p>
-    <strong>Connect via Telnet:</strong> {{ server_hostname }}, port
+<p style="text-align: center; margin-top: 24px;">
+    <strong>Connect to Korvessa:</strong> {{ server_hostname }}, port
     {% for port in telnet_ports %}
     {% if not forloop.first and forloop.last %} or
     {% elif forloop.counter != 1 %},
@@ -51,7 +92,3 @@ body {
     {% endfor %}
 </p>
 {% endif %}
-
-<hr/>
-
-<p>
