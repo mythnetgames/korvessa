@@ -555,9 +555,6 @@ class CmdCloseDoor(Command):
                         break
         
         if not door:
-                    if door:
-                        break
-        if not door:
             caller.msg(f"No door found for exit '{direction}'.")
             return
         result = door.close(caller)
@@ -565,6 +562,7 @@ class CmdCloseDoor(Command):
             audit_channel = get_audit_channel()
             if audit_channel:
                 audit_channel.msg(f"{caller.key} closed door on exit '{direction}'.")
+
 
 class CmdLockDoor(Command):
     """Lock a door on an exit (if you have the key)."""
