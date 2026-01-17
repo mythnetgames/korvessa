@@ -1101,15 +1101,41 @@ class CmdPressLock(Command):
             return
         direction = args[1].lower()
         exit_obj = find_exit_by_direction(caller.location, direction)
-        if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
+        
+        # Check if exit exists and has a door with keypad
+        if not exit_obj:
+            caller.msg(f"No exit found in direction '{direction}'.")
+            return
+        if not getattr(exit_obj.db, "has_door", False):
+            caller.msg(f"No door on exit '{direction}'.")
+            return
+        if not getattr(exit_obj.db, "door_keypad_code", None):
             caller.msg(f"No keypad found on door for exit '{direction}'.")
             return
-        keypad = exit_obj.db.door.db.keypad
-        if not keypad.db.is_unlocked:
-            caller.msg("The keypad is already locked.")
+        
+        # Check if already locked
+        if getattr(exit_obj.db, "door_is_locked", False):
+            caller.msg("The door is already locked.")
             return
-        keypad.db.is_unlocked = False
-        caller.msg("You lock the keypad lock.")
+        
+        # Close and lock the door
+        exit_obj.db.door_is_open = False
+        exit_obj.db.door_is_locked = True
+        
+        # Send 3-person messages
+        caller.msg(f"You press the lock button on the keypad and the door seals shut with a heavy click.")
+        caller.location.msg_contents(f"{caller.key} presses the lock button on the keypad and the door seals shut with a heavy click.", exclude=[caller])
+        
+        # Sync to reverse exit
+        dest_room = getattr(exit_obj, "destination", None)
+        if dest_room:
+            reverse_exit = exit_obj._get_reverse_exit()
+            if reverse_exit and getattr(reverse_exit.db, "has_door", False):
+                reverse_exit.db.door_is_open = False
+                reverse_exit.db.door_is_locked = True
+                dest_room.msg_contents(f"The door to the {exit_obj.key} seals shut with a heavy click.")
+        
+        # Audit log
         audit_channel = get_audit_channel()
         if audit_channel:
-            audit_channel.msg(f"{caller.key} locked keypad on exit '{direction}'.")
+            audit_channel.msg(f"{caller.key} pressed lock on keypad for exit '{direction}' in {caller.location.key}.")
