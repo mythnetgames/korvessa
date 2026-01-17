@@ -709,43 +709,43 @@ def _get_messages():
     """Get the list of death progression messages."""
     return [
         {
-            "dying": "|rYou feel The Watcher's attention settle upon you like a weight. Its gaze is cold, searching, dissecting every memory, every choice, every lie.|n\n",
+            "dying": "|#5f005fYou feel The Watcher's attention settle upon you like a weight. Its gaze is cold, searching, dissecting every memory, every choice, every lie.|n\n",
             "observer": "|n{name}'s eyes go wide, then vacant, as if looking into something vast and unknowable.|n"
         },
         {
-            "dying": "|rThe Watcher weighs your actions on scales you cannot see. Each moment of your life is lifted, examined, turned over in that terrible judgment. Nothing is hidden.|n\n",
+            "dying": "|#5f005fThe Watcher weighs your actions on scales you cannot see. Each moment of your life is lifted, examined, turned over in that terrible judgment. Nothing is hidden.|n\n",
             "observer": "|n{name}'s body goes rigid, every muscle taut with invisible tension.|n"
         },
         {
-            "dying": "|rYou are being analyzed. Dissected. Your very soul laid bare before an intelligence that has watched ten thousand like you die, and will watch ten thousand more. You are neither unique nor memorable.|n\n",
+            "dying": "|#5f0087You are being analyzed. Dissected. Your very soul laid bare before an intelligence that has watched ten thousand like you die, and will watch ten thousand more. You are neither unique nor memorable.|n\n",
             "observer": "|n{name}'s breath comes in shallow, panicked gasps.|n"
         },
         {
-            "dying": "|rThe Watcher catalogs your failures. It sees the cruelty you hid. It sees the kindness you never offered. It sees exactly what you were beneath the flesh. There is no appeal. There is no mercy.|n\n",
+            "dying": "|#5f0087The Watcher catalogs your failures. It sees the cruelty you hid. It sees the kindness you never offered. It sees exactly what you were beneath the flesh. There is no appeal. There is no mercy.|n\n",
             "observer": "|n{name}'s skin pales to ashen gray as beads of cold sweat form on their brow.|n"
         },
         {
-            "dying": "|rYour consciousness fractures under that scrutiny. Piece by piece, moment by moment, you are reduced to component parts. Everything you were is being sorted into the cosmic ledger.|n\n",
+            "dying": "|#5f00afYour consciousness fractures under that scrutiny. Piece by piece, moment by moment, you are reduced to component parts. Everything you were is being sorted into the cosmic ledger.|n\n",
             "observer": "|n{name}'s muscles twitch involuntarily, as if struck by invisible forces.|n"
         },
         {
-            "dying": "|rYou realize, with terrible clarity, that The Watcher knows you. Truly knows you. Every petty thought, every selfish act, every prayer that was never sincere. Nothing escapes that gaze.|n\n",
+            "dying": "|#5f00afYou realize, with terrible clarity, that The Watcher knows you. Truly knows you. Every petty thought, every selfish act, every prayer that was never sincere. Nothing escapes that gaze.|n\n",
             "observer": "|n{name}'s body convulses, a final spasm of resistance against the inevitable.|n"
         },
         {
-            "dying": "|rThe weight of The Watcher's judgment presses down like gravity itself. Your mind becomes smaller, narrower, until there is nothing left but the crushing awareness of what you were and what you have failed to be.|n\n",
+            "dying": "|#5f00d7The weight of The Watcher's judgment presses down like gravity itself. Your mind becomes smaller, narrower, until there is nothing left but the crushing awareness of what you were and what you have failed to be.|n\n",
             "observer": "|n{name} lies nearly still, only the faintest rise and fall of their chest remaining.|n"
         },
         {
-            "dying": "|rThe Watcher's assessment is complete. You have been weighed, measured, and found... as all things are found. Your thread has been observed from first breath to last. Now comes the reckoning.|n\n",
+            "dying": "|#5f00d7The Watcher's assessment is complete. You have been weighed, measured, and found... as all things are found. Your thread has been observed from first breath to last. Now comes the reckoning.|n\n",
             "observer": "|n{name}'s breathing becomes barely perceptible, a whisper of life fading away.|n"
         },
         {
-            "dying": "|rIn the silence of The Watcher's presence, you understand finally: you were never in control. You were always just a story it was reading. And now that story is ending exactly as it was meant to.|n\n",
+            "dying": "|#5f00ffIn the silence of The Watcher's presence, you understand finally: you were never in control. You were always just a story it was reading. And now that story is ending exactly as it was meant to.|n\n",
             "observer": "|n{name}'s lips have gone pale, all color draining away like sand through an hourglass.|n"
         },
         {
-            "dying": "|rYou surrender to The Watcher's gaze. There is nothing left to resist with. Only the final silence remains, and in that silence, The Watcher continues to watch.|n\n",
+            "dying": "|#5f00ffYou surrender to The Watcher's gaze. There is nothing left to resist with. Only the final silence remains, and in that silence, The Watcher continues to watch.|n\n",
             "observer": "|n{name} lies motionless, no longer struggling against what cannot be escaped.|n"
         }
     ]
