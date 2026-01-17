@@ -152,21 +152,24 @@ def is_exit_passable_for_player(exit_obj, character, debug_channel=None):
         return True  # Door is unlocked
     
     # Check for regular door blocking
-    direction = exit_obj.key.lower()
-    room = exit_obj.location
-    
-    try:
-        from commands.door import find_door
-        door = find_door(room, direction) if find_door else None
-        if door and not getattr(door.db, "is_open", True):
-            try:
-                if debug_channel:
-                    debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - regular door is closed")
-            except Exception:
-                pass
-            return False  # Door is closed
-    except (ImportError, Exception):
-        pass
+    # NOTE: Closed doors are NOT a blocker - they can be opened during normal traversal
+    # Only housing doors with code locks should block pathfinding
+    # Also validate that the door actually exists before checking it
+    # direction = exit_obj.key.lower()
+    # room = exit_obj.location
+    # try:
+    #     from commands.door import find_door
+    #     door = find_door(room, direction) if find_door else None
+    #     # Validate door is actually in room contents (not a stale reference)
+    #     if door and door in room.contents and not getattr(door.db, "is_open", True):
+    #         try:
+    #             if debug_channel:
+    #                 debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - regular door is closed")
+    #         except Exception:
+    #             pass
+    #         return False  # Door is closed
+    # except (ImportError, Exception):
+    #     pass
     
     return True
 
