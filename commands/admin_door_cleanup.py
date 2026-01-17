@@ -1,5 +1,5 @@
 """
-Admin command to clean up stale door references.
+Admin command to clean up legacy door objects and migrate to exit-based doors.
 """
 
 from evennia import Command
@@ -8,11 +8,15 @@ from evennia.objects.models import ObjectDB
 
 class CmdCleanupDoors(Command):
     """
-    Clean up stale or orphaned door objects from rooms.
+    Clean up legacy door objects from rooms.
     
     Usage:
-        @cleanup_doors           - Find and remove invalid doors
-        @cleanup_doors validate  - Check for stale door references without removing
+        @cleanup_doors           - Find and remove all legacy Door objects
+        @cleanup_doors validate  - Check for legacy doors without removing
+        @cleanup_doors migrate   - Remove legacy doors and attach doors to exits
+    
+    Legacy Door objects are room contents that should be replaced with
+    exit-based doors (door properties stored directly on exits).
     """
     key = "@cleanup_doors"
     aliases = ["@door_cleanup"]
@@ -23,10 +27,12 @@ class CmdCleanupDoors(Command):
         caller = self.caller
         arg = self.args.strip().lower()
         validate_only = arg == "validate"
+        migrate_mode = arg == "migrate"
         
-        caller.msg("Scanning for stale door objects...")
+        caller.msg("Scanning for legacy door objects...")
         
         removed_count = 0
+        migrated_count = 0
         invalid_count = 0
         
         # Get all door objects
@@ -66,41 +72,72 @@ class CmdCleanupDoors(Command):
                 caller.msg(f"  ERROR checking contents for {door.key}({door.dbref}): {e}")
                 continue
             
-            # Check if exit_direction field exists and is valid
+            # Get exit direction
             exit_direction = getattr(door.db, "exit_direction", None)
-            if not exit_direction:
-                invalid_count += 1
-                if validate_only:
-                    caller.msg(f"  INVALID: {door.key}({door.dbref}) in {door.location.key} - no exit_direction")
+            room = door.location
+            
+            if validate_only:
+                if exit_direction:
+                    caller.msg(f"  LEGACY: {door.key}({door.dbref}) in {room.key} - direction '{exit_direction}'")
                 else:
-                    caller.msg(f"  REMOVING: {door.key}({door.dbref}) - no exit_direction set")
-                    door.delete()
-                    removed_count += 1
+                    caller.msg(f"  LEGACY: {door.key}({door.dbref}) in {room.key} - no exit_direction set")
+                invalid_count += 1
                 continue
             
-            # Check if the exit still exists
-            exit_obj = None
-            try:
-                # Search for exit by direction in the room
-                for exit in door.location.exits:
-                    if exit and exit.key.lower() == exit_direction.lower():
-                        exit_obj = exit
+            if migrate_mode and exit_direction:
+                # Find the exit and attach door to it
+                exit_obj = None
+                for ex in getattr(room, "exits", []):
+                    aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
+                    if ex.key.lower() == exit_direction.lower() or exit_direction.lower() in aliases:
+                        exit_obj = ex
                         break
-            except Exception as e:
-                caller.msg(f"  ERROR checking exits for {door.key}({door.dbref}): {e}")
-                continue
-            
-            if not exit_obj:
-                # Exit doesn't exist anymore - orphaned door
-                invalid_count += 1
-                if validate_only:
-                    caller.msg(f"  INVALID: {door.key}({door.dbref}) in {door.location.key} - exit '{exit_direction}' does not exist")
+                
+                if exit_obj and not getattr(exit_obj.db, "has_door", False):
+                    # Migrate door state to exit
+                    exit_obj.db.has_door = True
+                    exit_obj.db.door_is_open = getattr(door.db, "is_open", False)
+                    exit_obj.db.door_is_locked = getattr(door.db, "is_locked", False)
+                    exit_obj.db.door_desc = getattr(door.db, "desc", "A sturdy door blocks the way.")
+                    
+                    # Migrate keypad if present
+                    keypad = getattr(door.db, "keypad", None)
+                    if keypad:
+                        exit_obj.db.door_keypad_code = getattr(keypad.db, "combination", None)
+                        exit_obj.db.door_keypad_unlocked = getattr(keypad.db, "is_unlocked", False)
+                        keypad.delete()
+                    
+                    # Migrate lock if present
+                    lock = getattr(door.db, "lock", None)
+                    if lock:
+                        lock.delete()
+                    
+                    caller.msg(f"  MIGRATED: {door.key}({door.dbref}) -> exit '{exit_obj.key}'")
+                    door.delete()
+                    migrated_count += 1
                 else:
-                    caller.msg(f"  REMOVING: {door.key}({door.dbref}) - exit '{exit_direction}' was deleted")
+                    caller.msg(f"  REMOVING: {door.key}({door.dbref}) - no matching exit or exit already has door")
                     door.delete()
                     removed_count += 1
+            else:
+                # Just remove the legacy door
+                caller.msg(f"  REMOVING: {door.key}({door.dbref}) in {room.key}")
+                
+                # Clean up keypad/lock
+                keypad = getattr(door.db, "keypad", None)
+                if keypad:
+                    keypad.delete()
+                lock = getattr(door.db, "lock", None)
+                if lock:
+                    lock.delete()
+                    
+                door.delete()
+                removed_count += 1
         
         if validate_only:
-            caller.msg(f"\n|wValidation complete:|n {invalid_count} invalid door(s) found")
+            caller.msg(f"\n|wValidation complete:|n {invalid_count} legacy door(s) found")
+            caller.msg("Use '@cleanup_doors' to remove them, or '@cleanup_doors migrate' to migrate to exit-based doors.")
+        elif migrate_mode:
+            caller.msg(f"\n|wMigration complete:|n {migrated_count} door(s) migrated, {removed_count} door(s) removed")
         else:
-            caller.msg(f"\n|wCleanup complete:|n {removed_count} door(s) removed, {invalid_count} invalid door(s) found")
+            caller.msg(f"\n|wCleanup complete:|n {removed_count} legacy door(s) removed")

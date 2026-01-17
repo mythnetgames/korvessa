@@ -20,6 +20,14 @@ class Exit(DefaultExit):
     Exits are connectors between rooms. Exits are normal Objects except
     they define the `destination` property and override some hooks
     and methods to represent the exits.
+    
+    Door Properties (stored on exit.db):
+        has_door: bool - Whether this exit has a door attached
+        door_is_open: bool - Whether the door is open (True) or closed (False)
+        door_is_locked: bool - Whether the door is locked
+        door_desc: str - Description of the door
+        door_keypad_code: str - 8-digit keypad code (if keypad attached)
+        door_keypad_unlocked: bool - Whether keypad is currently unlocked
     """
 
     def announce_move_from(self, traversing_object, destination):
@@ -29,6 +37,111 @@ class Exit(DefaultExit):
     def announce_move_to(self, traversing_object, source_location):
         """Suppress default Evennia exit arrival message."""
         return ""
+
+    # --- DOOR PROPERTY METHODS ---
+    
+    def attach_door(self):
+        """Attach a door to this exit."""
+        self.db.has_door = True
+        self.db.door_is_open = False
+        self.db.door_is_locked = False
+        self.db.door_desc = "A sturdy door blocks the way."
+    
+    def remove_door(self):
+        """Remove the door from this exit."""
+        self.db.has_door = False
+        self.db.door_is_open = False
+        self.db.door_is_locked = False
+        self.db.door_desc = None
+        self.db.door_keypad_code = None
+        self.db.door_keypad_unlocked = False
+    
+    def has_door(self):
+        """Check if this exit has a door."""
+        return getattr(self.db, "has_door", False)
+    
+    def door_open(self, caller):
+        """Open the door on this exit."""
+        if not self.has_door():
+            caller.msg("There is no door here.")
+            return False
+        if getattr(self.db, "door_is_locked", False):
+            caller.msg("The door is locked.")
+            return False
+        # Check keypad
+        if getattr(self.db, "door_keypad_code", None) and not getattr(self.db, "door_keypad_unlocked", False):
+            caller.msg("The keypad is locked. Enter the correct code to unlock.")
+            return False
+        if getattr(self.db, "door_is_open", False):
+            caller.msg("The door is already open.")
+            return False
+        self.db.door_is_open = True
+        caller.msg(f"You open the door to the {self.key}.")
+        if caller.location:
+            caller.location.msg_contents(f"{caller.key} opens the door to the {self.key}.", exclude=[caller])
+        return True
+    
+    def door_close(self, caller):
+        """Close the door on this exit."""
+        if not self.has_door():
+            caller.msg("There is no door here.")
+            return False
+        if not getattr(self.db, "door_is_open", False):
+            caller.msg("The door is already closed.")
+            return False
+        self.db.door_is_open = False
+        caller.msg(f"You close the door to the {self.key}.")
+        if caller.location:
+            caller.location.msg_contents(f"{caller.key} closes the door to the {self.key}.", exclude=[caller])
+        return True
+    
+    def door_lock(self, caller):
+        """Lock the door on this exit."""
+        if not self.has_door():
+            caller.msg("There is no door here.")
+            return False
+        if getattr(self.db, "door_is_open", False):
+            caller.msg("Close the door first.")
+            return False
+        if getattr(self.db, "door_is_locked", False):
+            caller.msg("The door is already locked.")
+            return False
+        self.db.door_is_locked = True
+        caller.msg(f"You lock the door to the {self.key}.")
+        if caller.location:
+            caller.location.msg_contents(f"{caller.key} locks the door to the {self.key}.", exclude=[caller])
+        return True
+    
+    def door_unlock(self, caller):
+        """Unlock the door on this exit."""
+        if not self.has_door():
+            caller.msg("There is no door here.")
+            return False
+        if not getattr(self.db, "door_is_locked", False):
+            caller.msg("The door is not locked.")
+            return False
+        self.db.door_is_locked = False
+        caller.msg(f"You unlock the door to the {self.key}.")
+        if caller.location:
+            caller.location.msg_contents(f"{caller.key} unlocks the door to the {self.key}.", exclude=[caller])
+        return True
+    
+    def get_door_display_name(self):
+        """Get formatted exit name with +/- indicator for door status.
+        
+        Returns:
+            str: Exit key with + prefix if closed/locked, - prefix if open
+        """
+        if not self.has_door():
+            return self.key
+        
+        # + for closed/locked doors, - for open doors
+        if not getattr(self.db, "door_is_open", False) or getattr(self.db, "door_is_locked", False):
+            return f"+{self.key}"
+        else:
+            return f"-{self.key}"
+    
+    # --- END DOOR PROPERTY METHODS ---
 
     def at_object_creation(self):
         super().at_object_creation()
@@ -286,17 +399,23 @@ class Exit(DefaultExit):
             # Fall through to normal traversal on error
         
         # --- DOOR BLOCKING CHECK ---
-        direction = self.key.lower()
-        room = traversing_object.location
-        # Import find_door from commands.door
-        try:
-            from commands.door import find_door
-        except ImportError:
-            find_door = None
-        door = find_door(room, direction) if find_door else None
-        if door and not getattr(door.db, "is_open", True):
-            traversing_object.msg("The door to the %s is closed." % self.key)
-            return
+        # First check if THIS exit has a door attached
+        if self.has_door():
+            if not getattr(self.db, "door_is_open", False):
+                traversing_object.msg(f"The door to the {self.key} is closed.")
+                return
+        else:
+            # Fallback: check for legacy Door objects in the room
+            direction = self.key.lower()
+            room = traversing_object.location
+            try:
+                from commands.door import find_door
+            except ImportError:
+                find_door = None
+            door = find_door(room, direction) if find_door else None
+            if door and not getattr(door.db, "is_open", True):
+                traversing_object.msg("The door to the %s is closed." % self.key)
+                return
         # --- END DOOR BLOCKING CHECK ---
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         # Autopopulate coordinates for target room if missing

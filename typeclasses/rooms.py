@@ -820,8 +820,18 @@ class Room(ObjectParent, DefaultRoom):
                     direction = exit_obj.get_formatted_exit_name()
                 else:
                     direction = exit_obj.key
+            elif getattr(exit_obj.db, "has_door", False):
+                # Exit has a door attached directly - use its display method
+                if hasattr(exit_obj, "get_door_display_name"):
+                    direction = exit_obj.get_door_display_name()
+                else:
+                    # Fallback: manual +/- indicator
+                    if not getattr(exit_obj.db, "door_is_open", False) or getattr(exit_obj.db, "door_is_locked", False):
+                        direction = f"+{exit_obj.key}"
+                    else:
+                        direction = f"-{exit_obj.key}"
             else:
-                # Check if there's a door object attached to this exit
+                # Check if there's a legacy door object attached to this exit
                 direction = exit_obj.key
                 for obj in exit_obj.location.contents:
                     if (obj.is_typeclass("typeclasses.doors.Door") and 

@@ -67,8 +67,18 @@ class CmdLook(DefaultCmdLook):
                 # Use the door's formatted name with +/- indicator
                 formatted_name = exit_obj.get_formatted_exit_name()
                 exit_strs.append(formatted_name)
+            elif getattr(exit_obj.db, "has_door", False):
+                # Exit has a door attached directly - use its display method
+                if hasattr(exit_obj, "get_door_display_name"):
+                    exit_strs.append(exit_obj.get_door_display_name())
+                else:
+                    # Fallback: manual +/- indicator
+                    if not getattr(exit_obj.db, "door_is_open", False) or getattr(exit_obj.db, "door_is_locked", False):
+                        exit_strs.append(f"+{exit_obj.key}")
+                    else:
+                        exit_strs.append(f"-{exit_obj.key}")
             else:
-                # Check if there's a door object attached to this exit
+                # Check if there's a legacy door object attached to this exit
                 exit_name = exit_obj.key
                 for obj in room.contents:
                     if (obj.is_typeclass("typeclasses.doors.Door") and 
