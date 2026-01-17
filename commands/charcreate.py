@@ -1256,13 +1256,6 @@ def first_char_personality_skill(caller, raw_string, **kwargs):
     sdesc = caller.ndb.charcreate_data.get('sdesc', '')
     race = caller.ndb.charcreate_data.get('race', 'human')
     
-    # Common skills that make sense for Freehands
-    available_skills = [
-        'athletics', 'endurance', 'acrobatics', 'stealth', 'perception',
-        'persuasion', 'deception', 'streetwise', 'survival', 'crafting',
-        'medicine', 'investigation', 'lore', 'social'
-    ]
-    
     text = f"""
 Sdesc: |c{sdesc}|n
 Race: |c{race.capitalize()}|n
@@ -1271,33 +1264,43 @@ Personality: |cFreehands|n
 |w=== Choose Your Secondary Skill Bonus ===|n
 
 As a Freehands, you may apply your |y+5%|n secondary skill bonus
-to any skill of your choosing:
+to |yany|n skill of your choosing. Enter the skill name exactly as shown:
 
 """
     
-    for i, skill in enumerate(available_skills, 1):
-        text += f"|w[{i:2d}]|n {skill.replace('_', ' ').title()}\n"
+    # Display all available skills in columns
+    for i, skill in enumerate(ALL_SKILLS, 1):
+        text += f"|w[{i:2d}]|n {skill.replace('_', ' ').title():20} "
+        if i % 3 == 0:
+            text += "\n"
     
-    text += "\n|wEnter choice:|n "
+    text += "\n\n|wEnter choice (number or skill name):|n "
     
     # Handle input
     if raw_string and raw_string.strip():
         choice = raw_string.strip()
         
         try:
+            # Try numeric choice first
             choice_num = int(choice)
-            if 1 <= choice_num <= len(available_skills):
-                selected_skill = available_skills[choice_num - 1]
+            if 1 <= choice_num <= len(ALL_SKILLS):
+                selected_skill = ALL_SKILLS[choice_num - 1]
                 caller.ndb.charcreate_data['personality_secondary_skill'] = selected_skill
-                
                 caller.msg(f"|gYou will receive +5% |c{selected_skill.replace('_', ' ').title()}|g.|n")
                 return first_char_sex(caller, "", **kwargs)
             else:
-                caller.msg(f"|rInvalid choice. Please enter a number 1-{len(available_skills)}.|n")
+                caller.msg(f"|rInvalid choice. Please enter a number 1-{len(ALL_SKILLS)} or a skill name.|n")
                 return None
         except ValueError:
-            caller.msg(f"|rInvalid choice. Please enter a number 1-{len(available_skills)}.|n")
-            return None
+            # Try matching skill name
+            choice_lower = choice.lower().replace(' ', '_')
+            if choice_lower in ALL_SKILLS:
+                caller.ndb.charcreate_data['personality_secondary_skill'] = choice_lower
+                caller.msg(f"|gYou will receive +5% |c{choice_lower.replace('_', ' ').title()}|g.|n")
+                return first_char_sex(caller, "", **kwargs)
+            else:
+                caller.msg(f"|rSkill not found. Please enter a valid skill name or number 1-{len(ALL_SKILLS)}.|n")
+                return None
     
     options = (
         {"key": "_default",
