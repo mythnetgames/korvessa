@@ -51,7 +51,53 @@ def is_exit_passable_for_player(exit_obj, character):
             if not can_fly:
                 return False
     
-    # Check for door blocking
+    # Check for housing doors (CubeDoor or PadDoor)
+    # These can be passed if the door is open/unlocked OR if character is the renter
+    if exit_obj.is_typeclass("typeclasses.cube_housing.CubeDoor"):
+        # Check if door is open (not closed)
+        is_closed = getattr(exit_obj, 'is_closed', True)
+        # Check paired door state too
+        paired_door_id = getattr(exit_obj.db, 'paired_door_id', None)
+        if not is_closed and paired_door_id:
+            from evennia.objects.models import ObjectDB
+            try:
+                paired = ObjectDB.objects.get(id=paired_door_id)
+                if paired and hasattr(paired, 'is_closed'):
+                    is_closed = paired.is_closed
+            except ObjectDB.DoesNotExist:
+                pass
+        
+        if is_closed:
+            # Check if character is the renter (they can pass their own door)
+            renter_id = getattr(exit_obj, 'current_renter_id', None)
+            if character and renter_id and character.id == renter_id:
+                return True  # Renter can always pass their own door
+            return False  # Door is locked
+        return True  # Door is open
+    
+    if exit_obj.is_typeclass("typeclasses.pad_housing.PadDoor"):
+        # Check if door is unlocked
+        is_unlocked = getattr(exit_obj, 'is_unlocked', False)
+        # Check paired door state too
+        paired_door_id = getattr(exit_obj.db, 'paired_door_id', None)
+        if not is_unlocked and paired_door_id:
+            from evennia.objects.models import ObjectDB
+            try:
+                paired = ObjectDB.objects.get(id=paired_door_id)
+                if paired and hasattr(paired, 'is_unlocked'):
+                    is_unlocked = paired.is_unlocked
+            except ObjectDB.DoesNotExist:
+                pass
+        
+        if not is_unlocked:
+            # Check if character is the renter (they can pass their own door)
+            renter_id = getattr(exit_obj, 'current_renter_id', None)
+            if character and renter_id and character.id == renter_id:
+                return True  # Renter can always pass their own door
+            return False  # Door is locked
+        return True  # Door is unlocked
+    
+    # Check for regular door blocking
     direction = exit_obj.key.lower()
     room = exit_obj.location
     
