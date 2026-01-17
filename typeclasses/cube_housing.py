@@ -164,9 +164,8 @@ class CubeDoor(Exit):
             # They're inside the cube trying to leave - door is open, allow it
             return super().at_traverse(traversing_object, target_location, **kwargs)
         
-        # Trying to enter from outside with door open but no code
-        traversing_object.msg("The door is open, but you'd be better off with a code...")
-        return False
+        # Trying to enter from outside - door is open so they can slip through
+        return super().at_traverse(traversing_object, target_location, **kwargs)
     
     def at_failed_traverse(self, traversing_object, **kwargs):
         """Called when traversal fails."""
