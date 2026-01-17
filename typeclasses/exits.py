@@ -414,14 +414,22 @@ class Exit(DefaultExit):
                     tier_name = TIER_NAMES[stamina.current_tier].lower()
                     direction = self.key.lower()
                     
+                    # Convert abbreviations to full direction names
+                    direction_map = {
+                        "n": "north", "s": "south", "e": "east", "w": "west",
+                        "ne": "northeast", "nw": "northwest", "se": "southeast", "sw": "southwest",
+                        "u": "up", "d": "down",
+                    }
+                    full_direction = direction_map.get(direction, direction)
+                    
                     # Get movement verb
                     verbs = self._get_movement_verb(tier_name)
                     
-                    # Send departure message
-                    traversing_object.msg(f"You head {direction}...")
+                    # Send departure message using movement verb
+                    traversing_object.msg(f"You begin {verbs['present']} {full_direction}...")
                     if traversing_object.location:
                         traversing_object.location.msg_contents(
-                            f"{traversing_object.key} {verbs['egress']} to the {direction}.",
+                            f"{traversing_object.key} {verbs['egress']} to the {full_direction}.",
                             exclude=[traversing_object]
                         )
                     

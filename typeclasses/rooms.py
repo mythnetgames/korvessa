@@ -985,19 +985,31 @@ class Room(ObjectParent, DefaultRoom):
     def format_direction_with_alias(self, direction, alias):
         """
         Format a direction with its alias in parentheses if available.
+        Converts abbreviations (n, s, e, w, etc.) to full direction names.
         
         Args:
-            direction (str): The direction name
+            direction (str): The direction name or abbreviation
             alias (str): The alias, if any
             
         Returns:
             str: Formatted direction string
         """
-        direction_str = str(direction)
-        alias_str = str(alias) if alias is not None else None
-        if alias_str and alias_str != direction_str:
-            return f"{direction_str} ({alias_str})"
-        return direction_str
+        # Map abbreviations to full direction names
+        direction_map = {
+            "n": "north", "s": "south", "e": "east", "w": "west",
+            "ne": "northeast", "nw": "northwest", "se": "southeast", "sw": "southwest",
+            "u": "up", "d": "down",
+            "in": "in", "out": "out",
+        }
+        
+        direction_str = str(direction).lower()
+        # Convert abbreviation to full name if applicable
+        full_direction = direction_map.get(direction_str, direction_str)
+        
+        alias_str = str(alias).lower() if alias is not None else None
+        if alias_str and alias_str != full_direction:
+            return f"{full_direction} ({alias_str})"
+        return full_direction
     
     def format_direction_list(self, directions):
         """

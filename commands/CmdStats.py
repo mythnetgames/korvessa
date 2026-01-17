@@ -203,30 +203,41 @@ class CmdStats(Command):
             
             return f"{display_name:<18} {eff_color}{effective:>3}|n{bonus_indicator}"
         
+        # Split domains into left (0-3) and right (4-7)
+        domain_list = list(skills_by_domain.items())
+        left_domains = domain_list[:4]
+        right_domains = domain_list[4:]
+        
         msg += "\n"
-        for domain, skills in skills_by_domain.items():
-            msg += f"|#ffff00{domain}:|n\n"
+        
+        # Generate lines for left and right columns
+        left_lines = []
+        right_lines = []
+        
+        # Generate left column
+        for domain, skills in left_domains:
+            left_lines.append(f"|#ffff00{domain}:|n")
+            for display_name, attr_name in skills:
+                left_lines.append(f"  {format_skill_line(display_name, attr_name, char)}")
+            left_lines.append("")  # Blank line between domains
+        
+        # Generate right column
+        for domain, skills in right_domains:
+            right_lines.append(f"|#ffff00{domain}:|n")
+            for display_name, attr_name in skills:
+                right_lines.append(f"  {format_skill_line(display_name, attr_name, char)}")
+            right_lines.append("")  # Blank line between domains
+        
+        # Combine into two columns
+        max_lines = max(len(left_lines), len(right_lines))
+        for i in range(max_lines):
+            left_text = left_lines[i] if i < len(left_lines) else ""
+            right_text = right_lines[i] if i < len(right_lines) else ""
             
-            # Split skills into two columns (4 per column max, or ceil if odd)
-            mid = (len(skills) + 1) // 2
-            left_skills = skills[:mid]
-            right_skills = skills[mid:]
-            
-            # Display two columns
-            for i in range(max(len(left_skills), len(right_skills))):
-                left_line = ""
-                if i < len(left_skills):
-                    left_line = format_skill_line(left_skills[i][0], left_skills[i][1], char)
-                
-                right_line = ""
-                if i < len(right_skills):
-                    right_line = format_skill_line(right_skills[i][0], right_skills[i][1], char)
-                
-                if right_line:
-                    msg += f"  {left_line:<45}  {right_line}\n"
-                else:
-                    msg += f"  {left_line}\n"
-            
-            msg += "\n"
+            # Pad left column to consistent width
+            if right_text:
+                msg += f"{left_text:<50} {right_text}\n"
+            else:
+                msg += f"{left_text}\n"
         
         char.msg(msg)
