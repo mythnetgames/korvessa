@@ -221,10 +221,10 @@ class CubeDoor(Exit):
         Get the exit name with door status indicator.
         
         Returns:
-            str: Exit name with + (closed) or - (open) prefix
+            str: Exit name with + (closed) or - (open) prefix, in green
         """
         indicator = "+" if self.is_closed else "-"
-        return f"{indicator}{self.key}"
+        return f"|g{indicator}|n{self.key}"
 
 
 class CubeRoom(Room):
