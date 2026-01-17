@@ -219,7 +219,7 @@ class CmdCloseDoorPad(Command):
             if incoming_pad_doors.count() == 1:
                 housing_door = incoming_pad_doors.first()
                 if housing_door:
-                    housing_door = housing_door.typeclass
+                    housing_door = getattr(housing_door, 'typeclass', housing_door)
             elif incoming_pad_doors.count() > 1:
                 # Multiple pad doors - need direction
                 if not direction:
@@ -236,7 +236,7 @@ class CmdCloseDoorPad(Command):
                 if incoming_cube_doors.count() == 1:
                     housing_door = incoming_cube_doors.first()
                     if housing_door:
-                        housing_door = housing_door.typeclass
+                        housing_door = getattr(housing_door, 'typeclass', housing_door)
                 elif incoming_cube_doors.count() > 1 and not direction:
                     caller.msg("There are multiple doors here. Please specify a direction.")
                     return
@@ -354,7 +354,7 @@ class CmdOpenDoorPad(Command):
             if incoming_cube_doors.count() == 1:
                 housing_door = incoming_cube_doors.first()
                 if housing_door:
-                    housing_door = housing_door.typeclass
+                    housing_door = getattr(housing_door, 'typeclass', housing_door)
             elif incoming_cube_doors.count() > 1 and not direction:
                 caller.msg("There are multiple doors here. Please specify a direction.")
                 return
