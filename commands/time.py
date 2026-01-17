@@ -14,7 +14,6 @@ from world.calendar import (
     is_birthday_today,
     get_holiday_today
 )
-import random
 
 # Color palette (hex codes)
 COLORS = {
@@ -56,11 +55,6 @@ class CmdTime(Command):
         
         # Get current Korvessan date
         date = get_korvessan_date()
-        
-        # Add slight variation to minutes for flavor (imprecise timekeeping)
-        variation = random.randint(-5, 5)
-        adjusted_minute = max(0, min(59, date['minute'] + variation))
-        date['minute'] = adjusted_minute
         
         # Check for birthday
         is_bday = is_birthday_today(caller)
