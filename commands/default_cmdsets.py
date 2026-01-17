@@ -33,7 +33,6 @@ from commands.CmdBug import CmdBug
 from commands.CmdAdmin import CmdHeal, CmdPeace, CmdTestDeathCurtain, CmdWeather, CmdResetMedical, CmdMedicalAudit, CmdTestDeath, CmdTestUnconscious, CmdSpawnAmmo
 from commands.CmdRevive import CmdRevive
 from commands.CmdFixCharacterOwnership import CmdFixCharacterOwnership
-from commands.fix_baseline_stats import CmdFixBaselineStats
 from commands.combat.cmdset_combat import CombatCmdSet
 from commands.combat.special_actions import CmdAim, CmdGrapple, CmdReload, CmdAmmo, CmdChoke
 from commands.CmdThrow import (
@@ -228,8 +227,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdSetStat())
         # Add fighting style command (character customization)
         self.add(CmdFightingStyle())
-        # Add fix baseline stats command (admin)
-        self.add(CmdFixBaselineStats())
         # Add spawnset command for armor sets (builder and up)
         from commands.CmdSpawnSet import CmdSpawnSet
         self.add(CmdSpawnSet())
