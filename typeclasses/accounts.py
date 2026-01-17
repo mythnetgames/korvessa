@@ -179,6 +179,11 @@ class Account(DefaultAccount):
         # Clean up any incomplete character creation attempts
         # Delete characters without proper initialization (no stats set)
         for char in list(all_characters):
+            # Skip validation for staff/admin characters (they bypass chargen)
+            is_admin_char = char.account and (char.account.is_superuser or char.account.is_staff)
+            if is_admin_char:
+                continue
+            
             # Check if character has basic stats initialized
             has_stats = (
                 hasattr(char, 'body') and char.body is not None and
