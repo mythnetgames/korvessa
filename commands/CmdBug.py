@@ -9,8 +9,106 @@ input validation, and privacy-conscious reporting.
 from evennia.commands.default.muxcommand import MuxCommand
 from django.conf import settings
 from datetime import datetime, timezone
-import requests
-import json
+try:
+    import requests
+    import json
+except Exception:
+    # Minimal requests-like shim using urllib as a fallback when the
+    # third-party `requests` package is not installed. This provides the
+    # small subset of functionality used by this module: `get`, `post`,
+    # `.json()` on responses, `status_code`, and a few exception types.
+    import urllib.request as _urllib_request
+    import urllib.parse as _urllib_parse
+    import urllib.error as _urllib_error
+    import json as _json
+
+    class _RequestsBaseException(Exception):
+        pass
+
+    class Timeout(_RequestsBaseException):
+        pass
+
+    class ConnectionError(_RequestsBaseException):
+        pass
+
+    class HTTPError(_RequestsBaseException):
+        def __init__(self, msg, response=None):
+            super().__init__(msg)
+            self.response = response
+
+    class RequestException(_RequestsBaseException):
+        pass
+
+    class _Response:
+        def __init__(self, code, data, headers):
+            self.status_code = code
+            self._data = data
+            self.headers = headers
+            try:
+                self.text = data.decode("utf-8") if isinstance(data, (bytes, bytearray)) else str(data)
+            except Exception:
+                self.text = str(data)
+
+        def json(self):
+            try:
+                return _json.loads(self.text)
+            except Exception:
+                raise RequestException("Failed to parse JSON response")
+
+        def raise_for_status(self):
+            if not (200 <= int(self.status_code) < 300):
+                err = HTTPError(f"HTTP {self.status_code}", response=self)
+                raise err
+
+    def _build_url(url, params):
+        if not params:
+            return url
+        qs = _urllib_parse.urlencode(params)
+        return url + ("&" if "?" in url else "?") + qs
+
+    def _do_request(method, url, headers=None, params=None, data=None, timeout=None):
+        full_url = _build_url(url, params)
+        req = _urllib_request.Request(full_url, data=data, headers=headers or {}, method=method)
+        try:
+            with _urllib_request.urlopen(req, timeout=timeout) as resp:
+                body = resp.read()
+                return _Response(resp.getcode(), body, resp.headers)
+        except _urllib_error.HTTPError as e:
+            body = None
+            try:
+                body = e.read()
+            except Exception:
+                body = b""
+            response = _Response(e.code, body, getattr(e, 'headers', {}))
+            raise HTTPError(str(e), response=response)
+        except _urllib_error.URLError as e:
+            # URLError may wrap timeouts or connection failures
+            msg = str(e.reason) if hasattr(e, 'reason') else str(e)
+            if 'timed out' in msg.lower():
+                raise Timeout(msg)
+            raise ConnectionError(msg)
+
+    def _get(url, headers=None, params=None, timeout=None):
+        return _do_request('GET', url, headers=headers, params=params, timeout=timeout)
+
+    def _post(url, headers=None, json=None, timeout=None):
+        data = None
+        hdrs = dict(headers or {})
+        if json is not None:
+            data = _json.dumps(json).encode('utf-8')
+            hdrs.setdefault('Content-Type', 'application/json')
+        return _do_request('POST', url, headers=hdrs, data=data, timeout=timeout)
+
+    requests = type('requests', (), {})()
+    requests.get = staticmethod(_get)
+    requests.post = staticmethod(_post)
+    requests.exceptions = type('exc', (), {
+        'Timeout': Timeout,
+        'ConnectionError': ConnectionError,
+        'HTTPError': HTTPError,
+        'RequestException': RequestException,
+    })
+    json = _json
 
 
 class CmdBug(MuxCommand):
