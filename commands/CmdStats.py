@@ -175,36 +175,58 @@ class CmdStats(Command):
             ],
         }
         
+        def format_skill_line(display_name, attr_name, char):
+            """Format a single skill line with value and color coding."""
+            raw = getattr(char.db, attr_name, 0) or 0
+            effective = get_effective_skill(raw, char=char, skill_attr=attr_name)
+            
+            # Color code based on skill level
+            if effective >= 90:
+                eff_color = "|M"  # Magenta/purple for mastery
+            elif effective >= 76:
+                eff_color = "|C"  # Cyan for advanced
+            elif effective >= 46:
+                eff_color = "|G"  # Green for professional
+            elif effective >= 21:
+                eff_color = "|Y"  # Yellow for competent
+            elif effective > 0:
+                eff_color = "|w"  # White for novice
+            else:
+                eff_color = "|x"  # Grey for untrained
+            
+            # Format with any bonus/malus indicators
+            bonus_indicator = ""
+            if effective > math.floor(raw):
+                bonus_indicator = f" |G(+{effective - math.floor(raw)})|n"
+            elif effective < math.floor(raw):
+                bonus_indicator = f" |R({effective - math.floor(raw)})|n"
+            
+            return f"{display_name:<18} {eff_color}{effective:>3}|n{bonus_indicator}"
+        
         msg += "\n"
         for domain, skills in skills_by_domain.items():
             msg += f"|#ffff00{domain}:|n\n"
-            for display_name, attr_name in skills:
-                raw = getattr(char.db, attr_name, 0) or 0
-                raw_formatted = format_raw_skill(raw)
-                effective = get_effective_skill(raw, char=char, skill_attr=attr_name)
+            
+            # Split skills into two columns (4 per column max, or ceil if odd)
+            mid = (len(skills) + 1) // 2
+            left_skills = skills[:mid]
+            right_skills = skills[mid:]
+            
+            # Display two columns
+            for i in range(max(len(left_skills), len(right_skills))):
+                left_line = ""
+                if i < len(left_skills):
+                    left_line = format_skill_line(left_skills[i][0], left_skills[i][1], char)
                 
-                # Color code based on skill level
-                if effective >= 90:
-                    eff_color = "|M"  # Magenta/purple for mastery
-                elif effective >= 76:
-                    eff_color = "|C"  # Cyan for advanced
-                elif effective >= 46:
-                    eff_color = "|G"  # Green for professional
-                elif effective >= 21:
-                    eff_color = "|Y"  # Yellow for competent
-                elif effective > 0:
-                    eff_color = "|w"  # White for novice
+                right_line = ""
+                if i < len(right_skills):
+                    right_line = format_skill_line(right_skills[i][0], right_skills[i][1], char)
+                
+                if right_line:
+                    msg += f"  {left_line:<45}  {right_line}\n"
                 else:
-                    eff_color = "|x"  # Grey for untrained
-                
-                # Format with any bonus/malus indicators
-                bonus_indicator = ""
-                if effective > math.floor(raw):
-                    bonus_indicator = f" |G(+{effective - math.floor(raw)})|n"
-                elif effective < math.floor(raw):
-                    bonus_indicator = f" |R({effective - math.floor(raw)})|n"
-                
-                msg += f"  {display_name:<20} {eff_color}{effective:>3}|n{bonus_indicator}\n"
+                    msg += f"  {left_line}\n"
+            
             msg += "\n"
         
         char.msg(msg)
