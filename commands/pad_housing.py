@@ -242,7 +242,32 @@ class CmdCloseDoorPad(Command):
                     return
         
         if not housing_door:
-            caller.msg("There is no housing door here to close.")
+            # No housing door found - check for regular exit-based doors
+            from commands.door import find_exit_by_direction as find_exit_dir, find_door
+            
+            if direction:
+                exit_obj = find_exit_dir(room, direction)
+            else:
+                # Find any exit with a door
+                exit_obj = None
+                for ex in room.exits:
+                    if getattr(ex.db, "has_door", False):
+                        exit_obj = ex
+                        break
+            
+            if exit_obj and getattr(exit_obj.db, "has_door", False):
+                # Use the exit's door_close method
+                result = exit_obj.door_close(caller)
+                return
+            
+            # Also check for legacy Door objects
+            if direction:
+                door = find_door(room, direction)
+                if door:
+                    door.close(caller)
+                    return
+            
+            caller.msg("There is no door here to close.")
             return
         
         # Handle based on door type
@@ -349,6 +374,31 @@ class CmdOpenDoorPad(Command):
             if incoming_pad_doors.exists():
                 caller.msg("Pad doors require using ENTER <code> <direction> to unlock.")
                 return
+            
+            # No housing door found - check for regular exit-based doors
+            from commands.door import find_exit_by_direction as find_exit_dir, find_door
+            
+            if direction:
+                exit_obj = find_exit_dir(room, direction)
+            else:
+                # Find any exit with a door
+                exit_obj = None
+                for ex in room.exits:
+                    if getattr(ex.db, "has_door", False):
+                        exit_obj = ex
+                        break
+            
+            if exit_obj and getattr(exit_obj.db, "has_door", False):
+                # Use the exit's door_open method
+                result = exit_obj.door_open(caller)
+                return
+            
+            # Also check for legacy Door objects
+            if direction:
+                door = find_door(room, direction)
+                if door:
+                    door.open(caller)
+                    return
             
             caller.msg("There is no door here to open.")
             return
