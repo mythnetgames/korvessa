@@ -242,6 +242,7 @@ class CmdSpawnNPC(Command):
             # Set attributes from template
             npc.db.npc_template_id = npc_data['id']
             npc.db.desc = npc_data['desc']
+            npc.db.sdesc = npc_data.get('sdesc', '')
             npc.db.faction = npc_data['faction']
             npc.db.wandering_zone = npc_data['wandering_zone']
             npc.db.is_shopkeeper = npc_data['is_shopkeeper']

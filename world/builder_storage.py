@@ -157,7 +157,7 @@ def delete_furniture(furniture_id):
 # NPC FUNCTIONS
 # ============================================================================
 
-def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=False,
+def add_npc(name, desc, sdesc="", faction="neutral", wandering_zone="", is_shopkeeper=False,
             stats=None, skills=None, created_by="", primary_language="common", known_languages=None, race="human"):
     """
     Add a new NPC template to storage.
@@ -167,6 +167,7 @@ def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=Fals
     Args:
         name: NPC name
         desc: NPC description
+        sdesc: NPC short description (how they appear in rooms)
         faction: Faction ID this NPC belongs to
         wandering_zone: Zone ID for wandering, or empty string for static
         is_shopkeeper: Is this NPC a shopkeeper?
@@ -243,6 +244,7 @@ def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=Fals
         "id": npc_id,
         "name": name,
         "desc": desc,
+        "sdesc": sdesc,
         "faction": faction,
         "wandering_zone": wandering_zone,
         "is_shopkeeper": is_shopkeeper,

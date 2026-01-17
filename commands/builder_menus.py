@@ -328,6 +328,7 @@ def npc_start(caller, raw_string, **kwargs):
     caller.ndb._npc_data = {
         "name": "",
         "desc": "",
+        "sdesc": "",
         "lookplace": "",
         "faction": "neutral",
         "wandering_zone": "",
@@ -434,7 +435,7 @@ def npc_desc(caller, raw_string, **kwargs):
         
         # Store and advance
         caller.ndb._npc_data["desc"] = desc
-        return npc_properties(caller, "", **kwargs)
+        return npc_sdesc(caller, "", **kwargs)
     
     # Display mode - show prompt
     text = BuilderMenuMixin.format_header("NPC DESIGNER - STEP 2: DESCRIPTION")
@@ -446,6 +447,43 @@ def npc_desc(caller, raw_string, **kwargs):
     )
     return text, options
 
+
+def npc_sdesc(caller, raw_string, **kwargs):
+    """Get NPC short description (sdesc) using proper EvMenu pattern."""
+    from world.sdesc_system import validate_sdesc
+    
+    # Input mode - process user's text
+    if raw_string and raw_string.strip():
+        sdesc = raw_string.strip().lower()
+        
+        # Validate sdesc (format and uniqueness)
+        is_valid, error = validate_sdesc(sdesc)
+        if not is_valid:
+            caller.msg(f"|r{error}|n")
+            return npc_sdesc(caller, "", **kwargs)  # Re-display this node
+        
+        # Store and advance
+        caller.ndb._npc_data["sdesc"] = sdesc
+        return npc_properties(caller, "", **kwargs)
+    
+    # Display mode - show prompt
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - STEP 3: SHORT DESCRIPTION (SDESC)")
+    text += f"\nNPC: {caller.ndb._npc_data['name']}\n"
+    text += "\nEnter the NPC's short description (how they appear in rooms).\n"
+    text += "|yExamples:|n\n"
+    text += "  a weathered street vendor\n"
+    text += "  a scarred elf with one eye\n"
+    text += "  a stout dwarf woman\n"
+    text += "\n|wGuidelines:|n\n"
+    text += "  - Use lowercase\n"
+    text += "  - 3-80 characters\n"
+    text += "  - Must be unique (no other character can have this sdesc)\n"
+    text += "  - Letters, numbers, spaces, and basic punctuation only\n"
+    
+    options = (
+        {"key": "_default", "goto": "npc_sdesc"},
+    )
+    return text, options
 
 def npc_properties(caller, raw_string, **kwargs):
     """Configure NPC properties."""
@@ -477,7 +515,7 @@ def npc_properties(caller, raw_string, **kwargs):
             return npc_properties(caller, "", **kwargs)  # Re-display menu
     
     # Display mode - show menu
-    text = BuilderMenuMixin.format_header("NPC DESIGNER - PROPERTIES")
+    text = BuilderMenuMixin.format_header("NPC DESIGNER - PROPERTIES (STEP 4)")
     text += f"\nNPC: {caller.ndb._npc_data['name']}\n\n"
     text += "|y1|n - Faction: " + caller.ndb._npc_data["faction"] + "\n"
     text += "|y2|n - Wandering Zone: " + (caller.ndb._npc_data["wandering_zone"] or "(none - static)") + "\n"
@@ -1001,6 +1039,7 @@ def npc_save(caller, raw_string, **kwargs):
     npc = add_npc(
         name=data["name"],
         desc=data["desc"],
+        sdesc=data["sdesc"],
         faction=data["faction"],
         wandering_zone=data["wandering_zone"],
         is_shopkeeper=data["is_shopkeeper"],
@@ -1014,6 +1053,7 @@ def npc_save(caller, raw_string, **kwargs):
     text = BuilderMenuMixin.format_header("SUCCESS")
     text += f"\nNPC saved!\n"
     text += f"Name: {npc['name']}\n"
+    text += f"Sdesc: {npc['sdesc']}\n"
     text += f"ID: {npc['id']}\n"
     text += f"Faction: {npc['faction']}\n"
     text += f"Primary Language: {npc['primary_language']}\n"
