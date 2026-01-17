@@ -431,7 +431,7 @@ class CmdProgramKeypad(Command):
         if dest_room:
             reverse_exit = exit_obj._get_reverse_exit()
             if reverse_exit and getattr(reverse_exit.db, "door_keypad_code", None):
-                reverse_exit.db.door_keypad_code = combo
+                reverse_exit.db.door_keypad_code = new_combo
                 if audit_channel:
                     audit_channel.msg(f"Auto-synced keypad combo for exit '{reverse_exit.key}' in {dest_room.key}.")
                 caller.msg(f"Also synced code to reverse exit '{reverse_exit.key}' in {dest_room.key}.")
@@ -1100,7 +1100,7 @@ class CmdPressLock(Command):
             caller.msg("Usage: press lock on <direction>")
             return
         direction = args[1].lower()
-        exit_obj = caller.location.exits.get(direction)
+        exit_obj = find_exit_by_direction(caller.location, direction)
         if not exit_obj or not hasattr(exit_obj.db, "door") or not exit_obj.db.door.db.keypad:
             caller.msg(f"No keypad found on door for exit '{direction}'.")
             return
