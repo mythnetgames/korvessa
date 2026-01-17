@@ -443,6 +443,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdStaminaStatus())     # Admin: check stamina system status
         # Add cube housing commands
         self.add(CubeHousingCmdSet())    # Housing: enter, close door, pay rent, createcube, etc.
+        # Add pad housing commands (replaces cube commands for unified housing)
+        from commands.pad_housing import PadHousingCmdSet
+        self.add(PadHousingCmdSet())     # Housing: enter, check, close door, pay rent, createpad, setrent, etc.
         # Add economy commands
         self.add(EconomyCmdSet())        # Economy: count, dropmoney, payday, spawncash, etc.
         # Add furniture interaction commands

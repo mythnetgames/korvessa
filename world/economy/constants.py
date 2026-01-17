@@ -15,6 +15,11 @@ PAYDAY_PERIOD_SECONDS = 7 * 24 * 3600  # 7 days in seconds
 # Cube housing (referenced from cube_housing.py)
 CUBE_RENT_PER_DAY = 100
 
+# Pad housing (larger multi-room housing)
+PAD_CODE_LENGTH = 6
+PAD_DEFAULT_WEEKLY_RENT = 1  # Default weekly rent in dollars (can be changed via SETRENT)
+RENT_PERIOD_SECONDS = 7 * 24 * 3600  # 7 days in seconds (used for rent calculations)
+
 # Money pile settings
 MONEY_PILE_KEY = "cash"
 MONEY_PILE_ALIASES = ["money", "dollars", "pile of cash", "money pile"]
