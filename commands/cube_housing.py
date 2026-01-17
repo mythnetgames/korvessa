@@ -244,9 +244,10 @@ class CmdCloseDoor(Command):
             from evennia.objects.models import ObjectDB
             try:
                 paired = ObjectDB.objects.get(id=paired_door_id)
+                # Only use .typeclass if not already a CubeDoor
                 if paired:
-                    paired = paired.typeclass
-                    paired.is_closed = True
+                    if hasattr(paired, 'is_closed'):
+                        paired.is_closed = True
             except ObjectDB.DoesNotExist:
                 pass
         
@@ -335,9 +336,10 @@ class CmdOpenDoor(Command):
                 from evennia.objects.models import ObjectDB
                 try:
                     paired = ObjectDB.objects.get(id=paired_door_id)
+                    # Only use .typeclass if not already a CubeDoor
                     if paired:
-                        paired = paired.typeclass
-                        paired.is_closed = False
+                        if hasattr(paired, 'is_closed'):
+                            paired.is_closed = False
                 except ObjectDB.DoesNotExist:
                     pass
             
