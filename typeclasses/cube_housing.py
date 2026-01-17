@@ -136,8 +136,19 @@ class CubeDoor(Exit):
         if kwargs.get("cube_authorized"):
             return super().at_traverse(traversing_object, target_location, **kwargs)
         
+        # Check if door is closed (check this door and paired door)
+        is_closed = self.is_closed
+        paired_door_id = self.db.paired_door_id
+        if not is_closed and paired_door_id:
+            from evennia.objects.models import ObjectDB
+            try:
+                paired = ObjectDB.objects.get(id=paired_door_id)
+                is_closed = paired.is_closed if hasattr(paired, 'is_closed') else False
+            except ObjectDB.DoesNotExist:
+                pass
+        
         # If door is closed, always block even with authorization
-        if self.is_closed:
+        if is_closed:
             traversing_object.msg("The door is closed and locked. A red indicator light glows steadily.")
             return False
         

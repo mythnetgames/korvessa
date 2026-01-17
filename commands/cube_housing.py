@@ -86,7 +86,7 @@ class CmdEnter(Command):
         
         # Message to the room (others see them enter)
         caller.location.msg_contents(
-            f"{caller.key} enters as the cube door swings open, then shuts behind them.",
+            f"{caller.key} enters a code in the door and the cube door swings open and they head inside.",
             exclude=[caller]
         )
         
@@ -232,6 +232,18 @@ class CmdCloseDoor(Command):
         
         # Set the door as closed
         cube_door.is_closed = True
+        
+        # Also close paired door if it exists
+        paired_door_id = cube_door.db.paired_door_id
+        if paired_door_id:
+            from evennia.objects.models import ObjectDB
+            try:
+                paired = ObjectDB.objects.get(id=paired_door_id)
+                if hasattr(paired, 'is_closed'):
+                    paired.is_closed = True
+            except ObjectDB.DoesNotExist:
+                pass
+        
         caller.msg("You pull the door shut. The keypad beeps once and the red indicator steadies.")
         
         # Message to others in the room
@@ -307,6 +319,18 @@ class CmdOpenDoor(Command):
         # Open the door
         if cube_door.is_closed:
             cube_door.is_closed = False
+            
+            # Also open paired door if it exists
+            paired_door_id = cube_door.db.paired_door_id
+            if paired_door_id:
+                from evennia.objects.models import ObjectDB
+                try:
+                    paired = ObjectDB.objects.get(id=paired_door_id)
+                    if hasattr(paired, 'is_closed'):
+                        paired.is_closed = False
+                except ObjectDB.DoesNotExist:
+                    pass
+            
             caller.msg("You push the door open. The keypad beeps softly and the indicator dims.")
             
             # Message to others in the room
@@ -571,15 +595,19 @@ class CmdCreateCube(Command):
         }
         reverse_dir = reverse_map.get(exit_name, "out")
         
-        # Create return exit (regular exit, not cube door - exiting is always allowed)
+        # Create return exit as a CubeDoor too (so door closure works both ways)
         door_to_hallway = create.create_object(
-            typeclass="typeclasses.exits.Exit",
+            typeclass="typeclasses.cube_housing.CubeDoor",
             key=reverse_dir,
             location=cube_room,
             destination=caller.location
         )
         if reverse_dir in alias_map:
             door_to_hallway.aliases.add(alias_map[reverse_dir])
+        
+        # Link the two doors so they share closed state
+        door_to_cube.db.paired_door_id = door_to_hallway.id
+        door_to_hallway.db.paired_door_id = door_to_cube.id
         
         # Create the bed
         bed = create.create_object(
