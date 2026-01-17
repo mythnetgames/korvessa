@@ -24,22 +24,41 @@ def get_all_rooms():
     return rooms
 
 
-def is_exit_passable_for_player(exit_obj, character):
+def is_exit_passable_for_player(exit_obj, character, debug_channel=None):
     """
     Check if an exit is passable for a player character.
     
     Args:
         exit_obj: The exit to check
         character: The character trying to pass
+        debug_channel: Optional channel for debug output
         
     Returns:
         bool: True if passable, False if blocked
     """
+    def debug_msg(msg):
+        if debug_channel:
+            try:
+                debug_channel.msg(f"PASSABLE: {msg}")
+            except Exception:
+                pass
+    
     if not exit_obj:
+        debug_msg("exit_obj is None")
         return False
+    
+    # Check if character is locked by someone aiming at them
+    if character:
+        aimer = getattr(character.ndb, "aimed_at_by", None)
+        if aimer:
+            # Check if the aimer is still valid and in the same location
+            if aimer.location and aimer.location == character.location:
+                debug_msg(f"{exit_obj.key}: blocked - character locked by {aimer.key}'s aim")
+                return False  # Character is locked by aim
     
     # Check for edge/gap exits - players need special handling
     if getattr(exit_obj.db, "is_edge", False) or getattr(exit_obj.db, "is_gap", False):
+        debug_msg(f"{exit_obj.key}: blocked - edge/gap exit")
         return False
     
     # Check for sky rooms - only allow if character can fly
@@ -218,13 +237,14 @@ def find_path(start_room, end_room, character=None, max_depth=100):
             # Check passability
             if character:
                 try:
-                    passable = is_exit_passable_for_player(exit_obj, character)
+                    passable = is_exit_passable_for_player(exit_obj, character, debug_channel)
                 except Exception as e:
                     debug_msg(f"Passability check error: {e}")
                     passable = True  # Default to passable on error
                 
                 if not passable:
                     exits_blocked += 1
+                    debug_msg(f"EXIT BLOCKED: {exit_obj.key} to {dest_room.key}")
                     continue
             
             # Build new path
