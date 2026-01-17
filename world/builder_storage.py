@@ -202,21 +202,18 @@ def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=Fals
             "ranged": 0,
             "melee": 0,
             "brawling": 0,
-            "martial_arts": 0,
             "grappling": 0,
             # Stealth/Subterfuge
-            "snooping": 0,
+            "lockpicking": 0,
             "stealing": 0,
-            "hiding": 0,
-            "sneaking": 0,
+            "stealth": 0,
             "disguise": 0,
             # Social
-            "mercantile": 0,
+            "haggle": 0,
             "persuasion": 0,
             "streetwise": 0,
             # Crafting
             "carpentry": 0,
-            "blacksmithing": 0,
             "herbalism": 0,
             "tailoring": 0,
             "cooking": 0,
@@ -231,7 +228,7 @@ def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=Fals
             "first_aid": 0,
             "chirurgy": 0,
             # Creative
-            "paint_draw_sculpt": 0,
+            "arts": 0,
             "instrument": 0,
         }
     
@@ -304,7 +301,10 @@ def migrate_npc_skills():
         "ranged": "ranged",
         "grapple": "grappling",
         "dodge": "dodge",
-        "stealth": "sneaking",
+        "stealth": "stealth",
+        "sneaking": "stealth",  # Combine into stealth
+        "hiding": "stealth",    # Combine into stealth
+        "snooping": "lockpicking",  # Rename snooping to lockpicking
         "intimidate": None,  # Remove
         "persuasion": "persuasion",
         "perception": "investigation",  # Remap to investigation
@@ -319,10 +319,14 @@ def migrate_npc_skills():
         "chemical": "herbalism",
         "science": None,  # Remove
         "tinkering": "carpentry",
-        "manufacturing": "blacksmithing",
+        "manufacturing": None,  # Remove (was blacksmithing)
+        "blacksmithing": None,  # Remove
         "forensics": "investigation",
         "decking": None,  # Remove
         "electronics": None,  # Remove
+        "martial_arts": None,  # Remove
+        "mercantile": None,  # Remove
+        "paint_draw_sculpt": "arts",  # Rename to arts
     }
     
     # New skill defaults
@@ -334,21 +338,18 @@ def migrate_npc_skills():
         "ranged": 0,
         "melee": 0,
         "brawling": 0,
-        "martial_arts": 0,
         "grappling": 0,
         # Stealth/Subterfuge
-        "snooping": 0,
+        "lockpicking": 0,
         "stealing": 0,
-        "hiding": 0,
-        "sneaking": 0,
+        "stealth": 0,
         "disguise": 0,
         # Social
-        "mercantile": 0,
+        "haggle": 0,
         "persuasion": 0,
         "streetwise": 0,
         # Crafting
         "carpentry": 0,
-        "blacksmithing": 0,
         "herbalism": 0,
         "tailoring": 0,
         "cooking": 0,
@@ -363,7 +364,7 @@ def migrate_npc_skills():
         "first_aid": 0,
         "chirurgy": 0,
         # Creative
-        "paint_draw_sculpt": 0,
+        "arts": 0,
         "instrument": 0,
     }
     

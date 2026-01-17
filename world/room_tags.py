@@ -21,10 +21,10 @@ ACTIVE_TAGS = {
         "duration_minutes": 60,
     },
     "CROWDED": {
-        "desc": "Snooping+ Disguise+ Stealing+ Hiding+",
+        "desc": "Lockpicking+ Disguise+ Stealing+ Stealth+",
         "icon": "x",
         "color": "|#5f5f00",
-        "skill_bonuses": {"snooping": 10, "disguise": 10, "stealing": 10, "hiding": 10},
+        "skill_bonuses": {"lockpicking": 10, "disguise": 10, "stealing": 10, "stealth": 10},
     },
     "UNSTABLE": {
         "desc": "Chance to fall to rooms below (Dexterity check)",

@@ -828,7 +828,6 @@ SKILL_BLADES = "blades"
 SKILL_RANGED = "ranged"
 SKILL_MELEE = "melee"
 SKILL_BRAWLING = "brawling"
-SKILL_MARTIAL_ARTS = "martial_arts"
 SKILL_GRAPPLING = "grappling"
 SKILL_DODGE = "dodge"
 SKILL_PARRY = "parry"
@@ -916,9 +915,9 @@ WEAPON_SKILL_MAP = {
     "unarmed": SKILL_BRAWLING,
     
     # === MARTIAL ARTS (trained combat, traditional weapons) ===
-    "nunchaku": SKILL_MARTIAL_ARTS,
-    "shuriken": SKILL_MARTIAL_ARTS,   # traditional throwing star
-    "tiger_claws": SKILL_MARTIAL_ARTS,
+    "nunchaku": SKILL_BRAWLING,       # martial arts weapons -> brawling
+    "shuriken": SKILL_BRAWLING,       # martial arts weapons -> brawling
+    "tiger_claws": SKILL_BRAWLING,    # martial arts weapons -> brawling
 }
 
 # Reverse mapping: skill to list of weapons (auto-generated)

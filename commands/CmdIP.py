@@ -32,14 +32,14 @@ from world.combat.utils import (
 # List of all skills in the game
 SKILL_LIST = [
     # Combat
-    "dodge", "parry", "blades", "ranged", "melee", "brawling", "martial_arts",
+    "dodge", "parry", "blades", "ranged", "melee", "brawling",
     "grappling",
     # Stealth/Subterfuge
-    "snooping", "stealing", "hiding", "sneaking", "disguise",
+    "lockpicking", "stealing", "stealth", "disguise",
     # Social
-    "mercantile", "persuasion", "streetwise",
+    "haggle", "persuasion", "streetwise",
     # Crafting
-    "carpentry", "blacksmithing", "herbalism", "tailoring", "cooking",
+    "carpentry", "herbalism", "tailoring", "cooking",
     # Survival
     "tracking", "foraging",
     # Lore
@@ -47,7 +47,7 @@ SKILL_LIST = [
     # Medical
     "first_aid", "chirurgy",
     # Creative
-    "paint_draw_sculpt", "instrument"
+    "arts", "instrument"
 ]
 
 # Skill name display mapping (for pretty printing)
@@ -59,21 +59,18 @@ SKILL_DISPLAY_NAMES = {
     "ranged": "Ranged",
     "melee": "Melee",
     "brawling": "Brawling",
-    "martial_arts": "Martial Arts",
     "grappling": "Grappling",
     # Stealth/Subterfuge
-    "snooping": "Snooping",
+    "lockpicking": "Lockpicking",
     "stealing": "Stealing",
-    "hiding": "Hiding",
-    "sneaking": "Sneaking",
+    "stealth": "Stealth",
     "disguise": "Disguise",
     # Social
-    "mercantile": "Mercantile",
+    "haggle": "Haggle",
     "persuasion": "Persuasion",
     "streetwise": "Streetwise",
     # Crafting
     "carpentry": "Carpentry",
-    "blacksmithing": "Blacksmithing",
     "herbalism": "Herbalism",
     "tailoring": "Tailoring",
     "cooking": "Cooking",
@@ -88,7 +85,7 @@ SKILL_DISPLAY_NAMES = {
     "first_aid": "First Aid",
     "chirurgy": "Chirurgy",
     # Creative
-    "paint_draw_sculpt": "Paint/Draw/Sculpt",
+    "arts": "Arts",
     "instrument": "Instrument"
 }
 

@@ -1605,14 +1605,9 @@ class CombatHandler(DefaultScript):
         from world.combat.constants import get_weapon_skill, SKILL_BRAWLING
         weapon_skill_name = get_weapon_skill(weapon_type)
         
-        # For unarmed combat, check fighting style preference
+        # For unarmed combat, use brawling
         if weapon_type == "unarmed":
-            fighting_style = getattr(attacker.db, "fighting_style", None) or "brawling"
-            if fighting_style == "martial_arts":
-                attacker_weapon_skill = getattr(attacker.db, "martial_arts", 0) or 0
-            else:
-                # Default to brawling
-                attacker_weapon_skill = getattr(attacker.db, "brawling", 0) or 0
+            attacker_weapon_skill = getattr(attacker.db, "brawling", 0) or 0
         else:
             # Get attacker's weapon skill level (stored as db attribute, 0-100 scale)
             # Convert skill name to db attribute format (e.g., "blades" -> character.db.blades)

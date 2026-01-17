@@ -78,31 +78,27 @@ class CmdStats(Command):
         char = self.caller
         # Stat definitions: (attribute, display name, abbreviation)
         stats = [
-            ("smrt", "Smarts", "SMRT"),
-            ("will", "Willpower", "WILL"),
-            ("edge", "Edge", "EDGE"),
-            ("ref", "Reflexes", "REF"),
-            ("body", "Body", "BODY"),
+            ("str", "Strength", "STR"),
             ("dex", "Dexterity", "DEX"),
-            ("emp", "Empathy", "EMP"),
-            ("tech", "Technique", "TECH"),
+            ("con", "Constitution", "CON"),
+            ("int", "Intelligence", "INT"),
+            ("wis", "Wisdom", "WIS"),
+            ("cha", "Charisma", "CHA"),
         ]
         # Two-column display
-        left_stats = stats[:4]
-        right_stats = stats[4:]
+        left_stats = stats[:3]
+        right_stats = stats[3:]
         msg = "|ystats|n\n"
         # Get stat values (current/max)
         def stat_line(attr, name, abbr):
-            # Empathy is now calculated via property (edge + willpower) / 2
-            # All stats use the same logic now
-            val = getattr(char, attr, 0)
-            maxval = getattr(char, f"max_{attr}", val)
-            return f"|#dfdf00{name:<10}|n [ |w{val}|n / |g{maxval}|n ]"
+            # D&D stats use the same logic
+            val = getattr(char, attr, 10)
+            return f"|#dfdf00{name:<15}|n [ |w{val}|n ]"
         # Build two columns
-        for i in range(4):
+        for i in range(3):
             left = left_stats[i]
             right = right_stats[i]
-            msg += f"{stat_line(*left):<25}{stat_line(*right):<25}\n"
+            msg += f"{stat_line(*left):<30}{stat_line(*right):<30}\n"
         
         # Consciousness backup status - shown right below stats
         clone_backup = getattr(char.db, 'clone_backup', None)
@@ -141,21 +137,18 @@ class CmdStats(Command):
             ("Ranged", "ranged"),
             ("Melee", "melee"),
             ("Brawling", "brawling"),
-            ("Martial Arts", "martial_arts"),
             ("Grappling", "grappling"),
             # Stealth/Subterfuge
-            ("Snooping", "snooping"),
+            ("Lockpicking", "lockpicking"),
             ("Stealing", "stealing"),
-            ("Hiding", "hiding"),
-            ("Sneaking", "sneaking"),
+            ("Stealth", "stealth"),
             ("Disguise", "disguise"),
             # Social
-            ("Mercantile", "mercantile"),
+            ("Haggle", "haggle"),
             ("Persuasion", "persuasion"),
             ("Streetwise", "streetwise"),
             # Crafting
             ("Carpentry", "carpentry"),
-            ("Blacksmithing", "blacksmithing"),
             ("Herbalism", "herbalism"),
             ("Tailoring", "tailoring"),
             ("Cooking", "cooking"),
@@ -170,7 +163,7 @@ class CmdStats(Command):
             ("First Aid", "first_aid"),
             ("Chirurgy", "chirurgy"),
             # Creative
-            ("Paint/Draw/Sculpt", "paint_draw_sculpt"),
+            ("Arts", "arts"),
             ("Instrument", "instrument"),
         ]
         

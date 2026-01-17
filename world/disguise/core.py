@@ -918,8 +918,8 @@ def recognition_check(observer, target):
     This is a DIFFICULT SMARTS check. The observer's own Disguise skill helps
     them understand and pick apart disguise work (takes one to know one).
 
-    Observer Roll: SMRT * d10 + snooping + (disguise_skill / 2) + bonuses
-    Target Roll: EDGE * d10 + disguise_skill + stability_bonus + clothing_bonus
+    Observer Roll: INT * d10 + lockpicking + (disguise_skill / 2) + bonuses
+    Target Roll: WIS * d10 + disguise_skill + stability_bonus + clothing_bonus
     
     Target receives +5 defense per disguise clothing item worn (e.g., hoodie + mask = +10).
     Max 2 items per body location.
@@ -933,17 +933,17 @@ def recognition_check(observer, target):
     Returns:
         tuple: (recognized, margin) where margin is how much observer won/lost by
     """
-    # Observer uses SMRT (primary) + snooping + THEIR OWN disguise skill
+    # Observer uses INT (primary) + lockpicking + THEIR OWN disguise skill
     # "Takes one to know one" - experts at disguise can spot flaws
-    observer_smrt = getattr(observer.db, "smrt", 1)
-    observer_snooping = getattr(observer.db, "snooping", 0)
+    observer_int = getattr(observer.db, "int", 10)
+    observer_lockpicking = getattr(observer.db, "lockpicking", 0)
     observer_disguise = getattr(observer.db, "disguise", 0)
     
-    # Base roll: SMRT * d10 (makes SMARTS the key stat)
-    base_roll = random.randint(1, 10) * observer_smrt
+    # Base roll: INT * d10 (makes INT the key stat)
+    base_roll = random.randint(1, 10) * observer_int
     
-    # Add snooping skill
-    skill_bonus = observer_snooping
+    # Add lockpicking skill
+    skill_bonus = observer_lockpicking
     
     # Add half their own disguise skill (expertise bonus)
     expertise_bonus = observer_disguise // 2
@@ -959,15 +959,15 @@ def recognition_check(observer, target):
     if target in proximity:
         observer_roll += RECOGNITION_BONUS_CLOSE_CONTACT
     
-    # Target uses EDGE * d10 + disguise skill (full skill for defense)
+    # Target uses WIS * d10 + disguise skill (full skill for defense)
     target_disguise = getattr(target.db, "disguise", 0)
-    target_edge = getattr(target.db, "edge", 1)
+    target_wis = getattr(target.db, "wis", 10)
     
     # Target base roll with a BONUS to make scrutiny difficult
     # This is the "difficulty" factor - disguises should be hard to pierce
     difficulty_bonus = 30  # Significant base difficulty
     
-    target_roll = random.randint(1, 10) * target_edge + target_disguise + difficulty_bonus
+    target_roll = random.randint(1, 10) * target_wis + target_disguise + difficulty_bonus
     
     # Stability affects target defense (unstable disguises are easier to spot)
     disguise = get_active_disguise(target)
