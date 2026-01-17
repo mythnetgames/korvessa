@@ -1,8 +1,8 @@
 """
-Curtain of Death - Death Animation System
+Veil of the Watcher - Death Animation System
 
-Simple, reliable death animation that displays to the dying character
-and then triggers death progression.
+Divine, thematic death animation that displays to the dying character
+and then triggers death progression into the Watcher's Domain.
 """
 
 from evennia.utils import delay
@@ -22,6 +22,8 @@ def show_death_curtain(character, message=None):
     """
     Main entry point - show death animation to character.
     
+    Displays the Veil descending as consciousness fades.
+    
     Args:
         character: The dying character
         message: Optional custom death message
@@ -29,24 +31,24 @@ def show_death_curtain(character, message=None):
     if not character:
         return
         
-    _log(f"CURTAIN: Starting for {character.key}")
+    _log(f"VEIL: Starting for {character.key}")
     
     # Set flag so messages bypass the dead character filter
     character.ndb._death_curtain_active = True
     
-    # Default message
+    # Default message - thematic and mystical
     if not message:
-        message = "A red haze blurs your vision as the world slips away..."
+        message = "The world grows distant. You feel yourself slipping into shadow..."
     
     location = character.location
     
     # Send animation frames with delays
-    _send_frame(character, 0, message, 0.0)    # Full message
-    _send_frame(character, 1, message, 0.4)    # 20% faded
-    _send_frame(character, 2, message, 0.8)    # 40% faded
-    _send_frame(character, 3, message, 1.2)    # 60% faded
-    _send_frame(character, 4, message, 1.6)    # 80% faded
-    _send_frame(character, 5, message, 2.0)    # Fully faded
+    _send_frame(character, 0, message, 0.0)    # Full awareness
+    _send_frame(character, 1, message, 0.4)    # Slipping
+    _send_frame(character, 2, message, 0.8)    # Fading
+    _send_frame(character, 3, message, 1.2)    # Dimming
+    _send_frame(character, 4, message, 1.6)    # Almost gone
+    _send_frame(character, 5, message, 2.0)    # Into darkness
     
     # Complete animation and start progression
     delay(2.5, _complete_animation, character, location)
@@ -91,23 +93,26 @@ def _do_send_frame(character, message, fade_amount, is_first):
 
 
 def _fade_text(text, fade_amount):
-    """Replace characters with dots based on fade amount."""
+    """Replace characters with shadowy symbols based on fade amount (mystical fading)."""
     import random
     
     if fade_amount <= 0:
         return text
     if fade_amount >= 1.0:
-        return '.' * len(text.replace(' ', '')) + ' ' * text.count(' ')
+        # Fully faded into void - use mystical symbol
+        return ' ' * len(text)
     
     chars = list(text)
-    # Get non-space, non-dot indices
-    indices = [i for i, c in enumerate(chars) if c not in ' .']
+    # Get non-space indices
+    indices = [i for i, c in enumerate(chars) if c not in ' ']
     
     if indices:
         num_to_fade = int(len(indices) * fade_amount)
         to_fade = random.sample(indices, min(num_to_fade, len(indices)))
+        # Use mystical fade characters instead of dots
+        fade_chars = ['~', '-', '`', "'", '.']
         for i in to_fade:
-            chars[i] = '.'
+            chars[i] = random.choice(fade_chars)
     
     return ''.join(chars)
 

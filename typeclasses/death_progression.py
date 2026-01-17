@@ -210,31 +210,31 @@ def _present_death_choice(character, account, session):
 def _show_death_choice_menu(account, session):
     """Display the death choice menu in Watcher's Domain theme."""
     account.msg("")
-    account.msg("|m" + "=" * 70 + "|n")
+    account.msg("=" * 70)
     account.msg("")
-    account.msg("|m    THE WATCHER OBSERVES. YOUR CHOICE AWAITS.|n")
+    account.msg("    THE WATCHER OBSERVES. YOUR CHOICE AWAITS.")
     account.msg("")
-    account.msg("|m    Your essence teeters at the threshold between breath and silence.|n")
-    account.msg("|m    The Watcher's gaze presses upon your soul, appraising, measuring.|n")
+    account.msg("    Your essence teeters at the threshold between breath and silence.")
+    account.msg("    The Watcher's gaze presses upon your soul, appraising, measuring.")
     account.msg("")
-    account.msg("|m    You stand in the Watcher's Domain - a space between worlds.|n")
-    account.msg("|m    Here, in this moment, only one choice matters.|n")
+    account.msg("    You stand in the Watcher's Domain - a space between worlds.")
+    account.msg("    Here, in this moment, only one choice matters.")
     account.msg("")
-    account.msg("|m    " + "-" * 66 + "|n")
+    account.msg("    " + "-" * 66)
     account.msg("")
-    account.msg("|m    |cLIVE|m    - Return to the mortal world. Face the consequences.|n")
-    account.msg("|m           The Watcher will speak with those who tend the world.|n")
-    account.msg("|m           You will answer for what transpired.|n")
+    account.msg("    |cLIVE|n    - Return to the mortal world. Face the consequences.")
+    account.msg("           The Watcher will speak with those who tend the world.")
+    account.msg("           You will answer for what transpired.")
     account.msg("")
-    account.msg("|m    |rDIE|m     - Accept the void. Let your story end here.|n")
-    account.msg("|m           The Watcher releases you into eternal silence.|n")
-    account.msg("|m           Your name fades from the world's memory.|n")
+    account.msg("    |rDIE|n     - Accept the void. Let your story end here.")
+    account.msg("           The Watcher releases you into eternal silence.")
+    account.msg("           Your name fades from the world's memory.")
     account.msg("")
-    account.msg("|m    " + "-" * 66 + "|n")
+    account.msg("    " + "-" * 66)
     account.msg("")
-    account.msg("|m" + "=" * 70 + "|n")
+    account.msg("=" * 70)
     account.msg("")
-    account.msg("|mType |cLIVE|m or |rDIE|m to choose your fate.|n")
+    account.msg("Type |cLIVE|n or |rDIE|n to choose your fate.")
     account.msg("")
     
     # Death choice cmdset is added in _present_death_choice
@@ -282,6 +282,7 @@ def _handle_live_path(account, character, session):
     """Handle the LIVE choice - teleport to room #5 for admin intervention."""
     from evennia.utils import delay
     from evennia.search_index import search_object
+    from world.medical.utils import full_heal
     
     account.msg("\n" * 2)
     account.msg("|m" + "=" * 70 + "|n")
@@ -289,26 +290,41 @@ def _handle_live_path(account, character, session):
     account.msg("|mThe Watcher observes your choice.|n")
     account.msg("")
     
-    # Teleport character to room #5
-    def _teleport_to_admin_room():
-        if character and character.location:
-            # Try to find room #5 by dbref
-            try:
-                admin_room = search_object("#5")
-                if admin_room:
-                    character.move_to(admin_room[0], quiet=True)
-                    account.msg("|mYou are drawn through the veil of The Watcher's Domain.|n")
-                    account.msg("|mWhen vision returns, you find yourself in an unfamiliar place.|n")
-                    account.msg("|mA figure awaits, ready to speak about your fate.|n")
-                else:
-                    # Fallback to limbo if room #5 doesn't exist
-                    _move_to_limbo(character)
-                    account.msg("|mYou are drawn into the void, waiting for judgment.|n")
-            except Exception as e:
-                _log(f"LIVE_PATH: Error teleporting {character.key}: {e}")
+    # Revive the character and teleport to room #5
+    def _revive_and_teleport():
+        if not character:
+            return
+        
+        # First, fully heal the character
+        try:
+            full_heal(character)
+            _log(f"LIVE_PATH: Revived {character.key}")
+        except Exception as e:
+            _log(f"LIVE_PATH: Error reviving {character.key}: {e}")
+        
+        # Clear any death flags
+        if hasattr(character.ndb, 'death_curtain_pending'):
+            del character.ndb.death_curtain_pending
+        if hasattr(character.db, 'death_processed'):
+            del character.db.death_processed
+        
+        # Try to find room #5 by dbref
+        try:
+            admin_room = search_object("#5")
+            if admin_room:
+                character.move_to(admin_room[0], quiet=True)
+                account.msg("|mYou are drawn through the veil of The Watcher's Domain.|n")
+                account.msg("|mWhen vision returns, you find yourself in an unfamiliar place.|n")
+                account.msg("|mA figure awaits, ready to speak about your fate.|n")
+            else:
+                # Fallback to limbo if room #5 doesn't exist
                 _move_to_limbo(character)
+                account.msg("|mYou are drawn into the void, waiting for judgment.|n")
+        except Exception as e:
+            _log(f"LIVE_PATH: Error teleporting {character.key}: {e}")
+            _move_to_limbo(character)
     
-    delay(2.0, _teleport_to_admin_room)
+    delay(2.0, _revive_and_teleport)
     delay(5.0, account.msg, "")
     delay(6.0, account.msg, "|m" + "=" * 70 + "|n")
 
