@@ -337,6 +337,26 @@ class Exit(DefaultExit):
         return reverses.get(direction.lower(), direction)
 
     def at_traverse(self, traversing_object, target_location):
+        # --- DOOR BLOCKING CHECK (must happen first!) ---
+        # First check if THIS exit has a door attached
+        if self.has_door():
+            if not getattr(self.db, "door_is_open", False):
+                traversing_object.msg(f"The door to the {self.key} is closed.")
+                return
+        else:
+            # Fallback: check for legacy Door objects in the room
+            direction = self.key.lower()
+            room = traversing_object.location
+            try:
+                from commands.door import find_door
+            except ImportError:
+                find_door = None
+            door = find_door(room, direction) if find_door else None
+            if door and not getattr(door.db, "is_open", True):
+                traversing_object.msg("The door to the %s is closed." % self.key)
+                return
+        # --- END DOOR BLOCKING CHECK ---
+        
         # --- STAMINA MOVEMENT SYSTEM ---
         # Only apply to characters with accounts
         try:
@@ -462,25 +482,6 @@ class Exit(DefaultExit):
             splattercast.msg(f"STAMINA_ERROR: {traversing_object.key} traversing {self.key}: {e}")
             # Fall through to normal traversal on error
         
-        # --- DOOR BLOCKING CHECK ---
-        # First check if THIS exit has a door attached
-        if self.has_door():
-            if not getattr(self.db, "door_is_open", False):
-                traversing_object.msg(f"The door to the {self.key} is closed.")
-                return
-        else:
-            # Fallback: check for legacy Door objects in the room
-            direction = self.key.lower()
-            room = traversing_object.location
-            try:
-                from commands.door import find_door
-            except ImportError:
-                find_door = None
-            door = find_door(room, direction) if find_door else None
-            if door and not getattr(door.db, "is_open", True):
-                traversing_object.msg("The door to the %s is closed." % self.key)
-                return
-        # --- END DOOR BLOCKING CHECK ---
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         # Autopopulate coordinates for target room if missing
         src_room = traversing_object.location
