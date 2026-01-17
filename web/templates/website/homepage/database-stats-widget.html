@@ -1,10 +1,10 @@
-<div class="card">
-    <h4 class="card-header text-center">Database Stats</h4>
+<div class="card" style="border: 1px solid #8b4513; background: linear-gradient(90deg, rgba(45,31,14,0.8) 0%, rgba(60,40,20,0.8) 100%); box-shadow: inset 0 1px 0 rgba(212,175,55,0.2), 0 4px 8px rgba(0,0,0,0.6);">
+    <h4 class="card-header text-center" style="background: rgba(45,31,14,0.9); border-bottom: 1px solid #8b4513; color: #e8dcc8; letter-spacing: 1px;">Korvessa Records</h4>
     <div class="card-body px-0 py-0">
         <ul class="list-group">
-            <li class="list-group-item" style="background: #1a0033; color: #ff00cc; border: 2px solid #00fff7;">{{num_accounts_registered}} account{{num_accounts_registered|pluralize}} (+ {{num_characters}} characters)</li>
-            <li class="list-group-item" style="background: #1a0033; color: #ff00cc; border: 2px solid #00fff7;">{{num_rooms}} room{{num_rooms|pluralize}} (+ {{num_exits}} exits)</li>
-            <li class="list-group-item" style="background: #1a0033; color: #ff00cc; border: 2px solid #00fff7;">{{num_others}} other objects</li>
+            <li class="list-group-item" style="background: rgba(26, 20, 16, 0.9); color: #c19a6b; border: 1px solid #8b4513;">{{num_accounts_registered}} soul{{num_accounts_registered|pluralize}} incarnate ({{num_characters}} active)</li>
+            <li class="list-group-item" style="background: rgba(26, 20, 16, 0.9); color: #c19a6b; border: 1px solid #8b4513;">{{num_rooms}} district{{num_rooms|pluralize}} mapped ({{num_exits}} passage{{num_exits|pluralize}})</li>
+            <li class="list-group-item" style="background: rgba(26, 20, 16, 0.9); color: #c19a6b; border: 1px solid #8b4513;">{{num_others}} artifact{{num_others|pluralize}}</li>
         </ul>
     </div>
 </div>
