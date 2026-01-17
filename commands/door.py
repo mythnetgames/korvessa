@@ -375,7 +375,7 @@ class CmdProgramKeypad(Command):
     Set the keypad's 8-digit combination.
     
     Usage:
-        programkeypad <direction> <combo>
+        programkeypad <direction> <old_combo> <new_combo>
     """
     key = "programkeypad"
     locks = "cmd:perm(Builder)"
@@ -384,14 +384,18 @@ class CmdProgramKeypad(Command):
     def func(self):
         caller = self.caller
         args = self.args.strip().split()
-        if len(args) != 2:
-            caller.msg("Usage: programkeypad <direction> <combo>")
+        if len(args) != 3:
+            caller.msg("Usage: programkeypad <direction> <old_combo> <new_combo>")
             return
-        direction, combo = args
+        direction, old_combo, new_combo = args
         direction = direction.strip().lower()
         
-        if len(combo) != 8 or not combo.isdigit():
-            caller.msg("Combination must be 8 digits.")
+        if len(new_combo) != 8 or not new_combo.isdigit():
+            caller.msg("New combination must be 8 digits.")
+            return
+        
+        if len(old_combo) != 8 or not old_combo.isdigit():
+            caller.msg("Old combination must be 8 digits.")
             return
         
         # Find the exit
@@ -405,17 +409,23 @@ class CmdProgramKeypad(Command):
             caller.msg(f"No door on exit '{exit_obj.key}'.")
             return
         
-        if not getattr(exit_obj.db, "door_keypad_code", None):
+        current_code = getattr(exit_obj.db, "door_keypad_code", None)
+        if not current_code:
             caller.msg(f"No keypad on door for exit '{exit_obj.key}'. Use 'attachkeypad {direction}' first.")
             return
         
-        # Set the code
-        exit_obj.db.door_keypad_code = combo
-        caller.msg(f"Keypad combo for exit '{exit_obj.key}' set to {combo}.")
+        # Verify old code
+        if old_combo != current_code:
+            caller.msg("Incorrect old combination.")
+            return
+        
+        # Set the new code
+        exit_obj.db.door_keypad_code = new_combo
+        caller.msg(f"Keypad combo for exit '{exit_onew_bj.key}' changed from {old_combo} to {new_combo}.")
         
         audit_channel = get_audit_channel()
         if audit_channel:
-            audit_channel.msg(f"{caller.key} programmed keypad combo for exit '{exit_obj.key}' to {combo}.")
+            audit_channel.msg(f"{caller.key} programmed keypad combo for exit '{exit_obj.key}' to {new_combo}.")
         # Sync combo to paired keypad on reverse exit
         dest_room = getattr(exit_obj, "destination", None)
         if dest_room:
