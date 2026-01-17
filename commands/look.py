@@ -23,7 +23,7 @@ class CmdLook(DefaultCmdLook):
     aliases = ["l", "ls"]
     
     def func(self):
-        """Override look to handle petitions."""
+        """Override look to handle petitions and force room display."""
         caller = self.caller
         
         # Check if looking at petitions
@@ -34,7 +34,20 @@ class CmdLook(DefaultCmdLook):
             self.view_pending(caller)
             return
         
-        # Otherwise use default look
+        # Handle looking at the room itself - force display even if mapper is off
+        if not self.args:
+            # Bare 'look' with no arguments - show the room
+            location = caller.location
+            if not location:
+                caller.msg("You don't have a location to look at.")
+                return
+            
+            # Force room display by passing force_display=True
+            appearance = location.return_appearance(caller, force_display=True)
+            caller.msg(appearance)
+            return
+        
+        # Otherwise use default look for specific objects
         super().func()
     
     def format_room_exits(self, room):
