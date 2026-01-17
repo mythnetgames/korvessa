@@ -302,6 +302,13 @@ def create_character_from_template(account, template, sex="ambiguous"):
     char.db.primary_language = 'common'
     char.db.known_languages = list(race_langs)
     
+    # Apply racial mechanics (reroll, language fluency, etc.)
+    try:
+        from world.racial_mechanics import apply_racial_mechanics
+        apply_racial_mechanics(char)
+    except Exception:
+        pass
+    
     # Debug: Verify sex was set correctly
     from evennia.comms.models import ChannelDB
     try:
@@ -1010,16 +1017,16 @@ def first_char_race(caller, raw_string, **kwargs):
     # Build race descriptions with language info
     race_info = {
 'human': {
-    'desc': 'Commonborn and widespread, humans endure through adaptability, ambition, and social maneuvering. Their cultures are fragmented, shaped more by hardship and history than destiny.',
-    'bonus': 'Learns slightly faster.'
+    'desc': 'Brief-lived and ever-changing, humans survive by adapting when things go wrong. They stumble, recover, and try again, often succeeding not through perfection, but persistence.',
+    'bonus': 'Once per hour, silently reroll a failed non-combat roll and accept the new result. Also speaks Common.'
 },
 'elf': {
-    'desc': 'Long-lived and insular, elves are shaped by memory rather than progress. Their keen senses come from centuries of survival, not mysticism, and their traditions are slow to change.',
-    'bonus': 'Speaks Elvish in addition to Common.'
+    'desc': 'Deliberate and restrained, elves prefer quiet paths and indirect solutions. They act with patience, favoring misdirection and subtle influence over force or haste.',
+    'bonus': 'Gain advantage on non-combat Subterfuge rolls. Speak Common and Elvish.'
 },
 'dwarf': {
-    'desc': 'Enduring and tradition-bound, dwarves are defined by lineage, craft, and obligation. Their resilience is earned through labor, stone, and unyielding social codes.',
-    'bonus': 'Speaks Dwarvish in addition to Common.'
+    'desc': 'Stone-bred and enduring, dwarves are shaped by long labor and scarce provision. They move steadily through hardship, sustained by habit and discipline.',
+    'bonus': 'Hunger and thirst advance more slowly. Get drunk slower. Speak Common and Dwarvish.'
         }
     }
     

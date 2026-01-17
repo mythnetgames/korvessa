@@ -39,6 +39,10 @@ def at_server_start():
         StaminaTicker.create(key="stamina_ticker")
     elif not ticker.is_active:
         ticker.start()
+    
+    # Start the survival ticker (hunger/thirst/intoxication)
+    from world.survival.script import start_survival_ticker
+    start_survival_ticker()
 
 
 def at_server_stop():

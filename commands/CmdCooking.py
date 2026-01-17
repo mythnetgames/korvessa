@@ -995,8 +995,24 @@ class CmdEat(Command):
         caller.msg(msg_self)
         caller.location.msg_contents(msg_others, exclude=[caller])
         
-        # Apply nutritious buff if this is nutritious food
-        if getattr(item, 'is_nutritious', False):
+        # Check if nutritious
+        is_nutritious = getattr(item, 'is_nutritious', False) or getattr(item.db, 'nutritious', False)
+        
+        # Record the meal in survival system
+        try:
+            from world.survival.core import record_meal
+            meal_result = record_meal(caller, nutritious=is_nutritious)
+            
+            # Show nutrition bonus message
+            if is_nutritious and meal_result.get("nutrition_bonus"):
+                caller.msg("|gYou feel nourished! Health bonus active for 2 hours.|n")
+                if meal_result.get("helped_sober"):
+                    caller.msg("|gThe nutritious food helps clear your head.|n")
+        except Exception:
+            pass  # Survival system not loaded
+        
+        # Apply nutritious buff if this is nutritious food (legacy stamina system)
+        if is_nutritious:
             from commands.movement import _get_or_create_stamina
             stamina = _get_or_create_stamina(caller)
             
@@ -1085,6 +1101,38 @@ class CmdDrink(Command):
         # Send consume messages
         caller.msg(msg_self)
         caller.location.msg_contents(msg_others, exclude=[caller])
+        
+        # Check for alcohol properties
+        is_alcohol = getattr(item, 'is_alcohol', False) or getattr(item.db, 'is_alcohol', False)
+        alcohol_strength = getattr(item, 'alcohol_strength', 10) or getattr(item.db, 'alcohol_strength', 10)
+        
+        # Record the drink in survival system
+        try:
+            from world.survival.core import record_drink, get_intoxication_tier, INTOXICATION_TIERS
+            drink_result = record_drink(
+                caller,
+                is_alcohol=is_alcohol,
+                alcohol_strength=alcohol_strength if is_alcohol else 0
+            )
+            
+            # Show alcohol effects if tier changed
+            if is_alcohol and drink_result.get("tier_changed"):
+                new_tier = drink_result.get("new_tier", "sober")
+                
+                if new_tier == "tipsy":
+                    caller.msg("|yYou feel a pleasant warmth spreading through you.|n")
+                elif new_tier == "buzzed":
+                    caller.msg("|yThe alcohol is going to your head. You feel buzzed.|n")
+                elif new_tier == "drunk":
+                    caller.msg("|rYou are definitely drunk now. The world sways slightly.|n")
+                elif new_tier == "very_drunk":
+                    caller.msg("|rYou are very drunk. Standing straight is becoming a challenge.|n")
+                elif new_tier == "wasted":
+                    caller.msg("|R[WARNING]|r You are completely wasted. Your liver aches.|n")
+                elif new_tier == "alcohol_poisoning":
+                    caller.msg("|R[DANGER]|r You feel sick. You may have alcohol poisoning!|n")
+        except Exception:
+            pass  # Survival system not loaded
         
         # Decrement consumes
         consumes -= 1

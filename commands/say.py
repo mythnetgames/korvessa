@@ -145,6 +145,13 @@ class CmdSay(DefaultCmdSay):
         if speech and speech[-1] not in '.!?':
             speech = speech + '.'
         
+        # Apply intoxication slurring if drunk
+        try:
+            from world.survival.core import slur_speech
+            speech = slur_speech(caller, speech)
+        except Exception:
+            pass  # Survival system not loaded
+        
         # Check for disguise slip on speech
         try:
             from world.disguise.core import (

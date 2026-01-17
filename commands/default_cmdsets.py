@@ -410,6 +410,14 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdAdminDesignRecipe()) # Admin: design auto-approved recipes
         from commands.CmdDeleteRecipe import CmdDeleteRecipe
         self.add(CmdDeleteRecipe())      # Admin: delete approved recipes
+        # Add survival system commands
+        from commands.survival_commands import CmdSurvivalStatus
+        self.add(CmdSurvivalStatus())    # Player: check hunger/thirst/intoxication status
+        # Add admin survival testing commands
+        from commands.admin_survival import CmdSurvivalTest, CmdForceHunger, CmdIntoxicate
+        self.add(CmdSurvivalTest())      # Admin: test survival system
+        self.add(CmdForceHunger())       # Admin: force hunger/thirst/starvation/dehydration
+        self.add(CmdIntoxicate())        # Admin: intoxicate characters
         # Add pickup toggle command
         self.add(CmdTogglePickup())      # Admin: toggle if objects can be picked up
         # Add test dummy commands

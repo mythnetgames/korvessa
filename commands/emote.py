@@ -180,6 +180,12 @@ class CmdEmote(DefaultCmdPose):
                 # Add period if no ending punctuation
                 if speech and speech[-1] not in '.!?':
                     speech = speech + '.'
+                # Apply intoxication slurring if drunk
+                try:
+                    from world.survival.core import slur_speech
+                    speech = slur_speech(caller, speech)
+                except Exception:
+                    pass  # Survival system not loaded
                 return f'{quote}*in a {voice}* {speech}{quote}'
             
             # Replace all quoted speech instances with voice-enhanced versions
@@ -196,6 +202,12 @@ class CmdEmote(DefaultCmdPose):
                 # Add period if no ending punctuation
                 if speech and speech[-1] not in '.!?':
                     speech = speech + '.'
+                # Apply intoxication slurring if drunk
+                try:
+                    from world.survival.core import slur_speech
+                    speech = slur_speech(caller, speech)
+                except Exception:
+                    pass  # Survival system not loaded
                 return f'{quote}{speech}{quote}'
             
             emote_text = re.sub(quote_pattern, fix_quotes, emote_text)

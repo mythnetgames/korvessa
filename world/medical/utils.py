@@ -1260,5 +1260,12 @@ def full_heal(character):
     except Exception:
         pass
     
+    # Clear intoxication from survival system
+    try:
+        from world.survival.core import on_character_healed
+        on_character_healed(character)
+    except Exception:
+        pass  # Survival system not loaded
+    
     character.save_medical_state()
     return True

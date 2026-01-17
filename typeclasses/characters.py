@@ -84,6 +84,23 @@ class Character(ObjectParent, DefaultCharacter):
                 )
 
             self.location.for_contents(message, exclude=[self], from_obj=self)
+        
+        # Track login for survival system (starvation tracking)
+        try:
+            from world.survival.core import update_login_tracking
+            update_login_tracking(self)
+        except Exception:
+            pass  # Survival system not critical - don't break login
+        
+        # Initialize racial mechanics if not already done
+        try:
+            from world.racial_mechanics import apply_racial_mechanics, get_human_reroll_data
+            # Only apply once - check if human reroll data exists
+            if self.race and self.race.lower() == 'human':
+                if not get_human_reroll_data(self):
+                    apply_racial_mechanics(self)
+        except Exception:
+            pass  # Racial mechanics not critical - don't break login
 
     def show_pending_petitions(self):
         """Display pending and active petitions on login."""
