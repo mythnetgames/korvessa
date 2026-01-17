@@ -128,66 +128,83 @@ class CmdStats(Command):
         msg += f"\n|y[ Investment Points: |w{current_ip}|y IP ]|n"
         msg += f" |xType 'invest' to spend IP on skills.|n\n"
         
-        # Skill table with raw values showing hundredths
-        skills = [
-            # Combat
-            ("Dodge", "dodge"),
-            ("Parry", "parry"),
-            ("Blades", "blades"),
-            ("Ranged", "ranged"),
-            ("Melee", "melee"),
-            ("Brawling", "brawling"),
-            ("Grappling", "grappling"),
-            # Stealth/Subterfuge
-            ("Lockpicking", "lockpicking"),
-            ("Stealing", "stealing"),
-            ("Stealth", "stealth"),
-            ("Disguise", "disguise"),
-            # Social
-            ("Haggle", "haggle"),
-            ("Persuasion", "persuasion"),
-            ("Streetwise", "streetwise"),
-            # Crafting
-            ("Carpentry", "carpentry"),
-            ("Herbalism", "herbalism"),
-            ("Tailoring", "tailoring"),
-            ("Cooking", "cooking"),
-            # Survival
-            ("Tracking", "tracking"),
-            ("Foraging", "foraging"),
-            # Lore
-            ("Investigation", "investigation"),
-            ("Lore", "lore"),
-            ("Appraise", "appraise"),
-            # Medical
-            ("First Aid", "first_aid"),
-            ("Chirurgy", "chirurgy"),
-            # Creative
-            ("Arts", "arts"),
-            ("Instrument", "instrument"),
-        ]
+        # Skill table organized by domain
+        skills_by_domain = {
+            "COMBAT": [
+                ("Dodge", "dodge"),
+                ("Parry", "parry"),
+                ("Blades", "blades"),
+                ("Ranged", "ranged"),
+                ("Melee", "melee"),
+                ("Brawling", "brawling"),
+                ("Grappling", "grappling"),
+            ],
+            "STEALTH/SUBTERFUGE": [
+                ("Lockpicking", "lockpicking"),
+                ("Stealing", "stealing"),
+                ("Stealth", "stealth"),
+                ("Disguise", "disguise"),
+            ],
+            "SOCIAL": [
+                ("Haggle", "haggle"),
+                ("Persuasion", "persuasion"),
+                ("Streetwise", "streetwise"),
+            ],
+            "CRAFTING": [
+                ("Carpentry", "carpentry"),
+                ("Herbalism", "herbalism"),
+                ("Tailoring", "tailoring"),
+                ("Cooking", "cooking"),
+            ],
+            "SURVIVAL": [
+                ("Tracking", "tracking"),
+                ("Foraging", "foraging"),
+            ],
+            "LORE": [
+                ("Investigation", "investigation"),
+                ("Lore", "lore"),
+                ("Appraise", "appraise"),
+            ],
+            "MEDICAL": [
+                ("First Aid", "first_aid"),
+                ("Chirurgy", "chirurgy"),
+            ],
+            "CREATIVE": [
+                ("Arts", "arts"),
+                ("Instrument", "instrument"),
+            ],
+        }
         
-        # Underlined header, 'Raw' aligned to column 21
-        msg += "\n|#ffff00|[#00005f|uSkill                Raw     Eff|n\n"
-        for display_name, attr_name in skills:
-            raw = getattr(char.db, attr_name, 0) or 0
-            raw_formatted = format_raw_skill(raw)
-            effective = get_effective_skill(raw, char=char, skill_attr=attr_name)
-            
-            # Color code based on skill level
-            if effective >= 90:
-                eff_color = "|M"  # Magenta/purple for mastery
-            elif effective >= 76:
-                eff_color = "|C"  # Cyan for advanced
-            elif effective >= 46:
-                eff_color = "|G"  # Green for professional
-            elif effective >= 21:
-                eff_color = "|Y"  # Yellow for competent
-            elif effective > 0:
-                eff_color = "|w"  # White for novice
-            else:
-                eff_color = "|x"  # Grey for untrained
-            
-            msg += f"{display_name:<20}{raw_formatted:>7}  {eff_color}{effective:>3}|n\n"
+        msg += "\n"
+        for domain, skills in skills_by_domain.items():
+            msg += f"|#ffff00{domain}:|n\n"
+            for display_name, attr_name in skills:
+                raw = getattr(char.db, attr_name, 0) or 0
+                raw_formatted = format_raw_skill(raw)
+                effective = get_effective_skill(raw, char=char, skill_attr=attr_name)
+                
+                # Color code based on skill level
+                if effective >= 90:
+                    eff_color = "|M"  # Magenta/purple for mastery
+                elif effective >= 76:
+                    eff_color = "|C"  # Cyan for advanced
+                elif effective >= 46:
+                    eff_color = "|G"  # Green for professional
+                elif effective >= 21:
+                    eff_color = "|Y"  # Yellow for competent
+                elif effective > 0:
+                    eff_color = "|w"  # White for novice
+                else:
+                    eff_color = "|x"  # Grey for untrained
+                
+                # Format with any bonus/malus indicators
+                bonus_indicator = ""
+                if effective > math.floor(raw):
+                    bonus_indicator = f" |G(+{effective - math.floor(raw)})|n"
+                elif effective < math.floor(raw):
+                    bonus_indicator = f" |R({effective - math.floor(raw)})|n"
+                
+                msg += f"  {display_name:<20} {eff_color}{effective:>3}|n{bonus_indicator}\n"
+            msg += "\n"
         
         char.msg(msg)
