@@ -436,6 +436,179 @@ class CmdProgramKeypad(Command):
                     audit_channel.msg(f"Auto-synced keypad combo for exit '{reverse_exit.key}' in {dest_room.key}.")
                 caller.msg(f"Also synced code to reverse exit '{reverse_exit.key}' in {dest_room.key}.")
 
+class CmdAddSecondaryCode(Command):
+    """
+    Add a 4-digit secondary code to a keypad.
+    Secondary codes can unlock the door but cannot reprogram it.
+    
+    Usage:
+        addcode <direction> <4-digit code>
+    """
+    key = "addcode"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    
+    def func(self):
+        caller = self.caller
+        args = self.args.strip().split()
+        if len(args) != 2:
+            caller.msg("Usage: addsecondarycode <direction> <4-digit code>")
+            return
+        
+        direction, code = args
+        direction = direction.strip().lower()
+        
+        # Validate code format
+        if len(code) != 4 or not code.isdigit():
+            caller.msg("Secondary code must be exactly 4 digits.")
+            return
+        
+        # Find the exit
+        exit_obj = find_exit_by_direction(caller.location, direction)
+        if not exit_obj:
+            caller.msg(f"No exit found in direction '{direction}'.")
+            return
+        
+        # Check if exit has a door with keypad
+        if not getattr(exit_obj.db, "has_door", False):
+            caller.msg(f"No door on exit '{exit_obj.key}'.")
+            return
+        
+        if not getattr(exit_obj.db, "door_keypad_code", None):
+            caller.msg(f"No keypad on door for exit '{exit_obj.key}'. Use 'attachkeypad {direction}' first.")
+            return
+        
+        # Get or create secondary codes list
+        secondary_codes = getattr(exit_obj.db, "door_secondary_codes", [])
+        if not isinstance(secondary_codes, list):
+            secondary_codes = []
+        
+        # Check if code already exists
+        if code in secondary_codes:
+            caller.msg(f"Code {code} is already in the secondary codes list.")
+            return
+        
+        # Add the code
+        secondary_codes.append(code)
+        exit_obj.db.door_secondary_codes = secondary_codes
+        caller.msg(f"Added secondary code {code} to exit '{exit_obj.key}'.")
+        
+        # Sync to reverse exit
+        dest_room = getattr(exit_obj, "destination", None)
+        if dest_room:
+            reverse_exit = exit_obj._get_reverse_exit()
+            if reverse_exit and getattr(reverse_exit.db, "door_keypad_code", None):
+                reverse_exit.db.door_secondary_codes = secondary_codes
+                caller.msg(f"Also synced secondary code to reverse exit '{reverse_exit.key}' in {dest_room.key}.")
+        
+        # Audit log
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} added secondary code {code} to exit '{exit_obj.key}' in {caller.location.key}.")
+
+class CmdRemoveSecondaryCode(Command):
+    """
+    Remove a 4-digit secondary code from a keypad.
+    
+    Usage:
+        removecode <direction> <4-digit code>
+    """
+    key = "removecode"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    
+    def func(self):
+        caller = self.caller
+        args = self.args.strip().split()
+        if len(args) != 2:
+            caller.msg("Usage: removesecondarycode <direction> <4-digit code>")
+            return
+        
+        direction, code = args
+        direction = direction.strip().lower()
+        
+        # Find the exit
+        exit_obj = find_exit_by_direction(caller.location, direction)
+        if not exit_obj:
+            caller.msg(f"No exit found in direction '{direction}'.")
+            return
+        
+        # Check if exit has a door with keypad
+        if not getattr(exit_obj.db, "has_door", False):
+            caller.msg(f"No door on exit '{exit_obj.key}'.")
+            return
+        
+        if not getattr(exit_obj.db, "door_keypad_code", None):
+            caller.msg(f"No keypad on door for exit '{exit_obj.key}'.")
+            return
+        
+        # Get secondary codes list
+        secondary_codes = getattr(exit_obj.db, "door_secondary_codes", [])
+        if not isinstance(secondary_codes, list) or code not in secondary_codes:
+            caller.msg(f"Code {code} not found in secondary codes list.")
+            return
+        
+        # Remove the code
+        secondary_codes.remove(code)
+        exit_obj.db.door_secondary_codes = secondary_codes
+        caller.msg(f"Removed secondary code {code} from exit '{exit_obj.key}'.")
+        
+        # Sync to reverse exit
+        dest_room = getattr(exit_obj, "destination", None)
+        if dest_room:
+            reverse_exit = exit_obj._get_reverse_exit()
+            if reverse_exit and getattr(reverse_exit.db, "door_keypad_code", None):
+                reverse_exit.db.door_secondary_codes = secondary_codes
+                caller.msg(f"Also synced removal to reverse exit '{reverse_exit.key}' in {dest_room.key}.")
+        
+        # Audit log
+        audit_channel = get_audit_channel()
+        if audit_channel:
+            audit_channel.msg(f"{caller.key} removed secondary code {code} from exit '{exit_obj.key}' in {caller.location.key}.")
+
+class CmdListSecondaryCodes(Command):
+    """
+    List all secondary codes for a keypad.
+    
+    Usage:
+        listcodes <direction>
+    """
+    key = "listcodes"
+    locks = "cmd:perm(Builder)"
+    help_category = "Building"
+    
+    def func(self):
+        caller = self.caller
+        direction = self.args.strip().lower()
+        if not direction:
+            caller.msg("Usage: listsecondarycodes <direction>")
+            return
+        
+        # Find the exit
+        exit_obj = find_exit_by_direction(caller.location, direction)
+        if not exit_obj:
+            caller.msg(f"No exit found in direction '{direction}'.")
+            return
+        
+        # Check if exit has a door with keypad
+        if not getattr(exit_obj.db, "has_door", False):
+            caller.msg(f"No door on exit '{exit_obj.key}'.")
+            return
+        
+        if not getattr(exit_obj.db, "door_keypad_code", None):
+            caller.msg(f"No keypad on door for exit '{exit_obj.key}'.")
+            return
+        
+        # Get secondary codes list
+        secondary_codes = getattr(exit_obj.db, "door_secondary_codes", [])
+        if not secondary_codes:
+            caller.msg(f"No secondary codes set for exit '{exit_obj.key}'.")
+            return
+        
+        caller.msg(f"Secondary codes for exit '{exit_obj.key}':")
+        for code in secondary_codes:
+            caller.msg(f"  {code}")
+
 class CmdShowCombo(Command):
     """Show the keypad combo (builder+ only)."""
     key = "showcombo"
@@ -890,12 +1063,22 @@ class CmdPushCombo(Command):
             caller.msg(f"No keypad on door for exit '{exit_obj.key}'.")
             return
         
-        # Check the code
+        # Check the code (primary 8-digit or secondary 4-digit)
+        secondary_codes = getattr(exit_obj.db, "door_secondary_codes", [])
+        
         if combo == keypad_code:
+            # Primary code unlocked
             exit_obj.db.door_keypad_unlocked = True
             caller.msg("Keypad unlocked.")
+            caller.location.msg_contents(f"{caller.key} enters a code on the keypad. It beeps and unlocks.", exclude=[caller])
+        elif combo in secondary_codes:
+            # Secondary code unlocked
+            exit_obj.db.door_keypad_unlocked = True
+            caller.msg("Keypad unlocked.")
+            caller.location.msg_contents(f"{caller.key} enters a code on the keypad. It beeps and unlocks.", exclude=[caller])
         else:
             caller.msg("Incorrect combination.")
+            caller.location.msg_contents(f"{caller.key} enters a code on the keypad. It buzzes disapprovingly.", exclude=[caller])
 
 class CmdUnlockExit(Command):
     """Unlock a door or keypad on an exit."""
