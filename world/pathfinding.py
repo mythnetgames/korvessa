@@ -36,16 +36,16 @@ def is_exit_passable_for_player(exit_obj, character, debug_channel=None):
     Returns:
         bool: True if passable, False if blocked
     """
-    def debug_msg(msg):
-        if debug_channel:
-            try:
-                debug_channel.msg(f"PASSABLE: {msg}")
-            except Exception:
-                pass
-    
     if not exit_obj:
-        debug_msg("exit_obj is None")
         return False
+    
+    exit_key = getattr(exit_obj, 'key', 'unknown')
+    
+    try:
+        if debug_channel:
+            debug_channel.msg(f"PASSABLE_CHECK: {exit_key} - checking passability for {character.key if character else 'NoChar'}")
+    except Exception:
+        pass
     
     # Check if character is locked by someone aiming at them
     if character:
@@ -53,12 +53,22 @@ def is_exit_passable_for_player(exit_obj, character, debug_channel=None):
         if aimer:
             # Check if the aimer is still valid and in the same location
             if aimer.location and aimer.location == character.location:
-                debug_msg(f"{exit_obj.key}: blocked - character locked by {aimer.key}'s aim")
+                try:
+                    if debug_channel:
+                        debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - character locked by aim from {aimer.key}")
+                except Exception:
+                    pass
                 return False  # Character is locked by aim
     
     # Check for edge/gap exits - players need special handling
-    if getattr(exit_obj.db, "is_edge", False) or getattr(exit_obj.db, "is_gap", False):
-        debug_msg(f"{exit_obj.key}: blocked - edge/gap exit")
+    is_edge = getattr(exit_obj.db, "is_edge", False)
+    is_gap = getattr(exit_obj.db, "is_gap", False)
+    if is_edge or is_gap:
+        try:
+            if debug_channel:
+                debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - is_edge={is_edge}, is_gap={is_gap}")
+        except Exception:
+            pass
         return False
     
     # Check for sky rooms - only allow if character can fly
@@ -68,6 +78,11 @@ def is_exit_passable_for_player(exit_obj, character, debug_channel=None):
             # Check if character can fly
             can_fly = getattr(character.db, "can_fly", False) if character else False
             if not can_fly:
+                try:
+                    if debug_channel:
+                        debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - target is sky room, no fly")
+                except Exception:
+                    pass
                 return False
     
     # Check for housing doors (CubeDoor or PadDoor)
@@ -96,6 +111,11 @@ def is_exit_passable_for_player(exit_obj, character, debug_channel=None):
             renter_id = getattr(exit_obj, 'current_renter_id', None)
             if character and renter_id and character.id == renter_id:
                 return True  # Renter can always pass their own door
+            try:
+                if debug_channel:
+                    debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - CubeDoor is closed")
+            except Exception:
+                pass
             return False  # Door is locked
         return True  # Door is open
     
@@ -123,6 +143,11 @@ def is_exit_passable_for_player(exit_obj, character, debug_channel=None):
             renter_id = getattr(exit_obj, 'current_renter_id', None)
             if character and renter_id and character.id == renter_id:
                 return True  # Renter can always pass their own door
+            try:
+                if debug_channel:
+                    debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - PadDoor is locked")
+            except Exception:
+                pass
             return False  # Door is locked
         return True  # Door is unlocked
     
@@ -134,6 +159,11 @@ def is_exit_passable_for_player(exit_obj, character, debug_channel=None):
         from commands.door import find_door
         door = find_door(room, direction) if find_door else None
         if door and not getattr(door.db, "is_open", True):
+            try:
+                if debug_channel:
+                    debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - regular door is closed")
+            except Exception:
+                pass
             return False  # Door is closed
     except (ImportError, Exception):
         pass
