@@ -202,16 +202,21 @@ class Exit(DefaultExit):
         """Get formatted exit name with +/- indicator for door status.
         
         Returns:
-            str: Exit key with + prefix if closed/locked, - prefix if open
+            str: Exit key with + prefix if closed/locked, - prefix if open.
+                 Green color for keypad doors, yellow for normal doors.
         """
         if not self.has_door():
             return self.key
         
+        # Check if this door has a keypad attached (green) or is a normal door (yellow)
+        has_keypad = bool(getattr(self.db, "door_keypad_code", None))
+        color = "|g" if has_keypad else "|y"
+        
         # + for closed/locked doors, - for open doors
         if not getattr(self.db, "door_is_open", False) or getattr(self.db, "door_is_locked", False):
-            return f"+{self.key}"
+            return f"{color}+|n{self.key}"
         else:
-            return f"-{self.key}"
+            return f"{color}-|n{self.key}"
     
     # --- END DOOR PROPERTY METHODS ---
 

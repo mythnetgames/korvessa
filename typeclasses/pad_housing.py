@@ -273,10 +273,10 @@ class PadDoor(Exit):
         Get the exit name with door status indicator.
         
         Returns:
-            str: Exit name with + (locked) or - (unlocked) prefix
+            str: Exit name with + (locked) or - (unlocked) prefix, in green
         """
         indicator = "+" if not self.is_unlocked else "-"
-        return f"{indicator}{self.key}"
+        return f"|g{indicator}|n{self.key}"
     
     def get_entry_door(self):
         """
