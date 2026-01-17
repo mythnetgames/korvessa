@@ -421,7 +421,7 @@ class CmdProgramKeypad(Command):
         
         # Set the new code
         exit_obj.db.door_keypad_code = new_combo
-        caller.msg(f"Keypad combo for exit '{exit_onew_bj.key}' changed from {old_combo} to {new_combo}.")
+        caller.msg(f"Keypad combo for exit '{exit_obj.key}' changed from {old_combo} to {new_combo}.")
         
         audit_channel = get_audit_channel()
         if audit_channel:
