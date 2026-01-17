@@ -619,6 +619,10 @@ class CmdCreateCube(Command):
         door_to_cube.db.paired_door_id = door_to_hallway.id
         door_to_hallway.db.paired_door_id = door_to_cube.id
         
+        # Start with door closed for security
+        door_to_cube.is_closed = True
+        door_to_hallway.is_closed = True
+        
         # Create the bed
         bed = create.create_object(
             typeclass="typeclasses.objects.Object",

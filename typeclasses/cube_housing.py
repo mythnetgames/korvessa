@@ -130,19 +130,14 @@ class CubeDoor(Exit):
     def at_traverse(self, traversing_object, target_location, **kwargs):
         """
         Override default traversal - cube doors cannot be traversed normally.
-        They require the ENTER command with the correct code.
+        They require the ENTER command with the correct code to enter.
         
-        EXCEPTION: Allow people to EXIT the cube (leave from inside).
+        EXCEPTION: Allow people to EXIT the cube IF the door is open.
+        This gives a window of vulnerability - if you open the door to leave,
+        sneaky folk can slip in while it's open.
         """
         # Check if this is an authorized traversal (set by ENTER command)
         if kwargs.get("cube_authorized"):
-            return super().at_traverse(traversing_object, target_location, **kwargs)
-        
-        # Allow exiting from inside the cube (traverser's current location is the destination of the reverse exit)
-        # This exit's source is self.location, and its destination is target_location
-        # If traversing_object is in self.location (the cube), allow them to leave
-        if traversing_object.location == self.location and self.destination == target_location:
-            # They're inside the cube trying to leave - always allow
             return super().at_traverse(traversing_object, target_location, **kwargs)
         
         # Check if door is closed (check this door and paired door)
@@ -158,13 +153,19 @@ class CubeDoor(Exit):
             except ObjectDB.DoesNotExist:
                 pass
         
-        # If door is closed, always block even with authorization
+        # If door is closed, always block
         if is_closed:
             traversing_object.msg("The door is closed and locked. A red indicator light glows steadily.")
             return False
         
-        # Block normal traversal (trying to enter without code)
-        traversing_object.msg("The door is locked. A red indicator light glows steadily.")
+        # Door is open - allow exit from inside, block entry from outside
+        # Allow exiting from inside the cube (traverser's current location is this room)
+        if traversing_object.location == self.location:
+            # They're inside the cube trying to leave - door is open, allow it
+            return super().at_traverse(traversing_object, target_location, **kwargs)
+        
+        # Trying to enter from outside with door open but no code
+        traversing_object.msg("The door is open, but you'd be better off with a code...")
         return False
     
     def at_failed_traverse(self, traversing_object, **kwargs):
