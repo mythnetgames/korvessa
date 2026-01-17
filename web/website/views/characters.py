@@ -328,14 +328,18 @@ class CharacterCreateView(EvenniaCharacterCreateView):
             return self.form_invalid(form)
         
         if character:
-            # Set D&D 5e stats (using AttributeProperty) - ensure integers
-            character.str = int(form.cleaned_data.get('str', 10))
-            character.dex = int(form.cleaned_data.get('dex', 10))
-            character.con = int(form.cleaned_data.get('con', 10))
-            character.int = int(form.cleaned_data.get('int', 10))
-            character.wis = int(form.cleaned_data.get('wis', 10))
-            character.cha = int(form.cleaned_data.get('cha', 10))
-            character.race = form.cleaned_data.get('race', 'human')
+            # Set D&D 5e stats from form fields (map form field names to DB attribute names)
+            # Form has: smarts, body, willpower, dexterity, edge, empathy, reflexes, technique
+            # DB needs: str, dex, con, int, wis, cha
+            # For now, map the cyberpunk form fields to D&D stats as best we can:
+            # smarts -> int, body -> str, willpower -> wis, dexterity -> dex
+            # edge -> cha (charisma/luck), empathy -> wis (partial), reflexes -> dex (partial)
+            character.str = int(form.cleaned_data.get('body', 10))  # Physical strength = Body
+            character.dex = int(form.cleaned_data.get('dexterity', 10))  # Dexterity stays dex
+            character.con = int(form.cleaned_data.get('body', 10))  # Constitution = Body (physical resilience)
+            character.int = int(form.cleaned_data.get('smarts', 10))  # Intelligence = Smarts
+            character.wis = int(form.cleaned_data.get('willpower', 10))  # Wisdom = Willpower
+            character.cha = int(form.cleaned_data.get('edge', 10))  # Charisma = Edge (force of personality/luck)
             
             # Set sex (using AttributeProperty)
             character.sex = sex
