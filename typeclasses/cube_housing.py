@@ -131,9 +131,18 @@ class CubeDoor(Exit):
         """
         Override default traversal - cube doors cannot be traversed normally.
         They require the ENTER command with the correct code.
+        
+        EXCEPTION: Allow people to EXIT the cube (leave from inside).
         """
         # Check if this is an authorized traversal (set by ENTER command)
         if kwargs.get("cube_authorized"):
+            return super().at_traverse(traversing_object, target_location, **kwargs)
+        
+        # Allow exiting from inside the cube (traverser's current location is the destination of the reverse exit)
+        # This exit's source is self.location, and its destination is target_location
+        # If traversing_object is in self.location (the cube), allow them to leave
+        if traversing_object.location == self.location and self.destination == target_location:
+            # They're inside the cube trying to leave - always allow
             return super().at_traverse(traversing_object, target_location, **kwargs)
         
         # Check if door is closed (check this door and paired door)
@@ -154,7 +163,7 @@ class CubeDoor(Exit):
             traversing_object.msg("The door is closed and locked. A red indicator light glows steadily.")
             return False
         
-        # Block normal traversal
+        # Block normal traversal (trying to enter without code)
         traversing_object.msg("The door is locked. A red indicator light glows steadily.")
         return False
     
