@@ -94,14 +94,11 @@ class CmdEnter(Command):
         was_closed = exit_obj.is_closed
         exit_obj.is_closed = False
         
-        # Perform the actual traversal
-        caller.move_to(destination, quiet=True)
+        # Perform the actual traversal (quiet=False so room is shown)
+        caller.move_to(destination, quiet=False)
         
         # Re-lock the door
         exit_obj.is_closed = was_closed
-        
-        # Show the new room
-        caller.msg(caller.location.return_appearance(caller, force_display=True))
         
         # Message in destination room
         caller.location.msg_contents(
@@ -221,13 +218,21 @@ class CmdCloseDoor(Command):
             )
             
             if incoming_doors.count() == 1:
+                # Get the actual Evennia object, not the raw DB object
                 cube_door = incoming_doors.first()
+                if cube_door:
+                    cube_door = cube_door.typeclass
             elif incoming_doors.count() > 1:
                 caller.msg("There are multiple cube doors leading here. This should not happen.")
                 return
         
         if not cube_door:
             caller.msg("There is no cube door here to close.")
+            return
+        
+        # Check if already closed
+        if cube_door.is_closed:
+            caller.msg("The door is already closed.")
             return
         
         # Set the door as closed
@@ -239,7 +244,8 @@ class CmdCloseDoor(Command):
             from evennia.objects.models import ObjectDB
             try:
                 paired = ObjectDB.objects.get(id=paired_door_id)
-                if hasattr(paired, 'is_closed'):
+                if paired:
+                    paired = paired.typeclass
                     paired.is_closed = True
             except ObjectDB.DoesNotExist:
                 pass
@@ -307,7 +313,10 @@ class CmdOpenDoor(Command):
             )
             
             if incoming_doors.count() == 1:
+                # Get the actual Evennia object, not the raw DB object
                 cube_door = incoming_doors.first()
+                if cube_door:
+                    cube_door = cube_door.typeclass
             elif incoming_doors.count() > 1:
                 caller.msg("There are multiple cube doors leading here. This should not happen.")
                 return
@@ -326,7 +335,8 @@ class CmdOpenDoor(Command):
                 from evennia.objects.models import ObjectDB
                 try:
                     paired = ObjectDB.objects.get(id=paired_door_id)
-                    if hasattr(paired, 'is_closed'):
+                    if paired:
+                        paired = paired.typeclass
                         paired.is_closed = False
                 except ObjectDB.DoesNotExist:
                     pass
