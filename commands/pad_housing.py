@@ -513,6 +513,16 @@ class CmdPayRentPad(Command):
             exit_obj.current_door_code = generate_unique_pad_code()
             caller.msg(f"You have claimed the pad! Your access code is: {exit_obj.current_door_code}")
             
+            # Sync to paired exit door (the door back to hallway from inside pad)
+            if exit_obj.paired_door_id:
+                from evennia.objects.models import ObjectDB
+                try:
+                    paired_door = ObjectDB.objects.get(id=exit_obj.paired_door_id)
+                    paired_door.current_renter = caller
+                    paired_door.current_door_code = exit_obj.current_door_code
+                except ObjectDB.DoesNotExist:
+                    pass
+            
             # Set character housing attributes
             caller.db.housing_tier = "pad"
             caller.db.pad_id = exit_obj.id

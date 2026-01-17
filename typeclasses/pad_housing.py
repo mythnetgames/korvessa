@@ -257,6 +257,15 @@ class PadDoor(Exit):
         else:
             self.rent_paid_until_ts = self.rent_paid_until_ts + seconds_added
         
+        # Sync to paired door
+        if self.paired_door_id:
+            from evennia.objects.models import ObjectDB
+            try:
+                paired_door = ObjectDB.objects.get(id=self.paired_door_id)
+                paired_door.rent_paid_until_ts = self.rent_paid_until_ts
+            except ObjectDB.DoesNotExist:
+                pass
+        
         return seconds_added
     
     def get_formatted_exit_name(self):
