@@ -38,14 +38,14 @@ from evennia.settings_default import *
 ######################################################################
 
 # This is the name of your game. Make it catchy!
-SERVERNAME = "Kowloon"
+SERVERNAME = "Korvessa"
 # Short one-sentence blurb describing your game. Shown under the title
 # on the website and could be used in online listings of your game etc.
-GAME_SLOGAN = "The Walled City"
+GAME_SLOGAN = "May He Watch over you."
 # The url address to your server, like mymudgame.com. This should be the publicly
 # visible location. This is used e.g. on the web site to show how you connect to the
 # game over telnet. Default is localhost (only on your machine).
-SERVER_HOSTNAME = "kowloon.life"
+SERVER_HOSTNAME = "korvessarpi.org"
 # Lockdown mode will cut off the game from any external connections
 # and only allow connections from localhost. Requires a cold reboot.
 LOCKDOWN_MODE = False
@@ -61,9 +61,9 @@ TELNET_PORTS = [4000]
 # This is a security setting protecting against host poisoning
 # attacks.  It defaults to allowing all. In production, make
 # sure to change this to your actual host addresses/IPs.
-ALLOWED_HOSTS = ["kowloon.life", "www.kowloon.life", "127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["korvessarpi.org", "www.korvessarpi.org", "127.0.0.1", "localhost"]
 # This is a security setting protecting against DJANGO CSRF nonsense
-CSRF_TRUSTED_ORIGINS = ['https://kowloon.life', 'https://3.137.218.62']
+CSRF_TRUSTED_ORIGINS = ['https://korvessarpi.org', 'https://3.3.15.195.148']
 # Start the evennia webclient. This requires the webserver to be running and
 # offers the fallback ajax-based webclient backbone for browsers not supporting
 # the websocket one.
@@ -71,7 +71,7 @@ WEBCLIENT_ENABLED = True
 
 # Use secure websocket on port 8443 (CloudFlare-proxied port)
 # CloudFlare handles SSL termination and proxies to backend port 4002
-WEBSOCKET_CLIENT_URL = "wss://kowloon.life:4002"
+WEBSOCKET_CLIENT_URL = "wss://korvessarpi.org:4002"
 
 # Default exit typeclass
 DEFAULT_EXIT_TYPECLASS = "typeclasses.exits.Exit"

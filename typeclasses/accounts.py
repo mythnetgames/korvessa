@@ -184,11 +184,11 @@ class Account(DefaultAccount):
             if is_admin_char:
                 continue
             
-            # Check if character has basic stats initialized
+            # Check if character has basic D&D 5e stats initialized
             has_stats = (
-                hasattr(char, 'body') and char.body is not None and
-                hasattr(char, 'ref') and char.ref is not None and
-                hasattr(char, 'edge') and char.edge is not None
+                hasattr(char, 'str') and char.str is not None and
+                hasattr(char, 'dex') and char.dex is not None and
+                hasattr(char, 'con') and char.con is not None
             )
             
             # If no stats, this is an incomplete creation - delete it
