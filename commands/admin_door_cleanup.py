@@ -30,7 +30,6 @@ class CmdCleanupDoors(Command):
         invalid_count = 0
         
         # Get all door objects
-        from typeclasses.doors import Door
         try:
             all_doors = ObjectDB.objects.filter(db_typeclass_path__contains="doors.Door")
         except Exception as e:
@@ -45,9 +44,9 @@ class CmdCleanupDoors(Command):
                     caller.msg(f"  INVALID: {door.key}({door.dbref}) - no location")
                 else:
                     try:
+                        caller.msg(f"  REMOVING: {door.key}({door.dbref}) - no location")
                         door.delete()
                         removed_count += 1
-                        caller.msg(f"  REMOVED: {door.key}({door.dbref}) - no location")
                     except Exception as e:
                         caller.msg(f"  ERROR deleting {door.key}({door.dbref}): {e}")
                 continue
@@ -59,12 +58,9 @@ class CmdCleanupDoors(Command):
                     if validate_only:
                         caller.msg(f"  INVALID: {door.key}({door.dbref}) - not in {door.location.key}.contents")
                     else:
-                        try:
-                            door.delete()
-                            removed_count += 1
-                            caller.msg(f"  REMOVED: {door.key}({door.dbref}) - not in location.contents")
-                        except Exception as e:
-                            caller.msg(f"  ERROR deleting {door.key}({door.dbref}): {e}")
+                        caller.msg(f"  REMOVING: {door.key}({door.dbref}) - not in location.contents")
+                        door.delete()
+                        removed_count += 1
                     continue
             except Exception as e:
                 caller.msg(f"  ERROR checking contents for {door.key}({door.dbref}): {e}")
@@ -73,9 +69,36 @@ class CmdCleanupDoors(Command):
             # Check if exit_direction field exists and is valid
             exit_direction = getattr(door.db, "exit_direction", None)
             if not exit_direction:
-                # Door might not be attached to an exit
-                caller.msg(f"  INFO: {door.key}({door.dbref}) in {door.location.key} - no exit_direction set")
+                invalid_count += 1
+                if validate_only:
+                    caller.msg(f"  INVALID: {door.key}({door.dbref}) in {door.location.key} - no exit_direction")
+                else:
+                    caller.msg(f"  REMOVING: {door.key}({door.dbref}) - no exit_direction set")
+                    door.delete()
+                    removed_count += 1
                 continue
+            
+            # Check if the exit still exists
+            exit_obj = None
+            try:
+                # Search for exit by direction in the room
+                for exit in door.location.exits:
+                    if exit and exit.key.lower() == exit_direction.lower():
+                        exit_obj = exit
+                        break
+            except Exception as e:
+                caller.msg(f"  ERROR checking exits for {door.key}({door.dbref}): {e}")
+                continue
+            
+            if not exit_obj:
+                # Exit doesn't exist anymore - orphaned door
+                invalid_count += 1
+                if validate_only:
+                    caller.msg(f"  INVALID: {door.key}({door.dbref}) in {door.location.key} - exit '{exit_direction}' does not exist")
+                else:
+                    caller.msg(f"  REMOVING: {door.key}({door.dbref}) - exit '{exit_direction}' was deleted")
+                    door.delete()
+                    removed_count += 1
         
         if validate_only:
             caller.msg(f"\n|wValidation complete:|n {invalid_count} invalid door(s) found")
