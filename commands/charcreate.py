@@ -1694,11 +1694,120 @@ Examples: "Young adult", "Middle-aged", "Elderly", "In their 30s",
         
         caller.ndb.charcreate_data['character_facts']['apparent_age'] = apparent_age
         caller.msg(f"|gSet 'Apparent Age' to: |c{apparent_age}|n")
-        return first_char_facts_appearance(caller, "", **kwargs)
+        return first_char_facts_actual_age(caller, "", **kwargs)
     
     options = (
         {"key": "_default",
          "goto": "first_char_facts_age"},
+    )
+    
+    return text, options
+
+
+def first_char_facts_actual_age(caller, raw_string, **kwargs):
+    """Enter the character's actual age and birthday."""
+    from world.calendar import MONTHS
+    
+    text = f"""
+|w=== Character Birthday ===|n
+
+Now let's set your character's actual birthday. This is used for
+birthday celebrations and age calculations.
+
+|wEnter your character's age (e.g., 23, 18, 45):|n
+"""
+    
+    if raw_string and raw_string.strip():
+        try:
+            age = int(raw_string.strip())
+            if age < 1 or age > 120:
+                caller.msg("|rAge must be between 1 and 120.|n")
+                return None
+            
+            caller.ndb.charcreate_data['age'] = age
+            caller.msg(f"|gSet age to: |c{age}|n")
+            
+            # Move to birthday month selection
+            return first_char_facts_birthday_month(caller, "", **kwargs)
+        except ValueError:
+            caller.msg("|rPlease enter a valid number.|n")
+            return None
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_actual_age"},
+    )
+    
+    return text, options
+
+
+def first_char_facts_birthday_month(caller, raw_string, **kwargs):
+    """Select the birth month."""
+    from world.calendar import MONTHS
+    
+    months_text = ""
+    for i, month in enumerate(MONTHS):
+        months_text += f"|w[{i+1:2d}]|n {month['name']}\n"
+    
+    text = f"""
+|w=== Select Birth Month ===|n
+
+{months_text}
+|wEnter the number of your birth month:|n
+"""
+    
+    if raw_string and raw_string.strip():
+        try:
+            month_num = int(raw_string.strip()) - 1
+            if month_num < 0 or month_num >= len(MONTHS):
+                caller.msg("|rPlease enter a valid month number (1-12).|n")
+                return None
+            
+            caller.ndb.charcreate_data['birthday_month'] = month_num
+            caller.msg(f"|gSet birth month to: |c{MONTHS[month_num]['name']}|n")
+            
+            return first_char_facts_birthday_day(caller, "", **kwargs)
+        except ValueError:
+            caller.msg("|rPlease enter a valid number.|n")
+            return None
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_birthday_month"},
+    )
+    
+    return text, options
+
+
+def first_char_facts_birthday_day(caller, raw_string, **kwargs):
+    """Select the birth day."""
+    
+    text = f"""
+|w=== Select Birth Day ===|n
+
+Enter the day of the month you were born (1-30):
+"""
+    
+    if raw_string and raw_string.strip():
+        try:
+            day = int(raw_string.strip())
+            if day < 1 or day > 30:
+                caller.msg("|rPlease enter a day between 1 and 30.|n")
+                return None
+            
+            caller.ndb.charcreate_data['birthday_day'] = day
+            from world.calendar import MONTHS
+            month_name = MONTHS[caller.ndb.charcreate_data['birthday_month']]['name']
+            caller.msg(f"|gSet birth day to: |c{day} {month_name}|n")
+            
+            return first_char_facts_appearance(caller, "", **kwargs)
+        except ValueError:
+            caller.msg("|rPlease enter a valid number.|n")
+            return None
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_birthday_day"},
     )
     
     return text, options
@@ -2088,6 +2197,11 @@ def first_char_finalize(caller, raw_string, **kwargs):
         
         # Apply character facts
         apply_character_facts(char, character_facts)
+        
+        # Set birthday and age
+        char.db.age = caller.ndb.charcreate_data.get('age', 18)
+        char.db.birthday_month = caller.ndb.charcreate_data.get('birthday_month', 0)
+        char.db.birthday_day = caller.ndb.charcreate_data.get('birthday_day', 1)
         
         # Set languages
         char.db.languages = languages

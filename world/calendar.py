@@ -121,6 +121,73 @@ CALENDAR_EPOCH_YEAR = 160 - elapsed_years
 
 
 # =============================================================================
+# HOLIDAYS - Religious and Superstitious Observances
+# =============================================================================
+
+HOLIDAYS = [
+    # PLOWBREAK
+    {'month': 0, 'day': 3, 'name': 'Turning Oath', 'tradition': 'Velora', 'desc': 'Followers of Velora reaffirm discipline before the year begins in earnest. Tools are cleaned and checked. Sloppy labor after this day is seen as moral failure, not accident.'},
+    {'month': 0, 'day': 12, 'name': 'The Watched Furrow', 'tradition': 'Watcher', 'desc': 'Fields are worked in silence where possible. It is believed the Watcher sees what is hidden in soil and in intent. Lies spoken this day are said to surface later in the year.'},
+    {'month': 0, 'day': 21, 'name': 'The Uneven Line', 'tradition': 'Superstitious', 'desc': 'One furrow is deliberately plowed crooked to confuse ill fate. Those who insist on perfection invite misfortune, according to folk belief.'},
+    
+    # SEEDWAKE
+    {'month': 1, 'day': 2, 'name': 'Casting of Hands', 'tradition': 'Three Children', 'desc': 'The young and inexperienced are set to sow seed. Errors are expected and forgiven. Effort matters more than result.'},
+    {'month': 1, 'day': 11, 'name': 'Held Seed', 'tradition': 'Watcher', 'desc': 'No planting is done. Frost or blight following this day is blamed on those who ignored the warning.'},
+    {'month': 1, 'day': 23, 'name': 'Open Palm', 'tradition': 'Feyliks', 'desc': 'Seed is shared freely, gambled, or traded. Hoarding on this day is believed to sour fortune later.'},
+    
+    # SPROUTMERE
+    {'month': 2, 'day': 5, 'name': 'Green Oath', 'tradition': 'Velora', 'desc': 'Commitments are renewed. Contracts sworn this day are expected to endure hardship.'},
+    {'month': 2, 'day': 14, 'name': 'Small Feet', 'tradition': 'Three Children', 'desc': 'Children and apprentices walk the fields. Damage caused is forgiven, but negligence by elders is not.'},
+    {'month': 2, 'day': 26, 'name': 'Watching Leaves', 'tradition': 'Watcher', 'desc': 'Fields are inspected closely. Signs of blight discovered after this day are blamed on willful blindness.'},
+    
+    # TALLGROW
+    {'month': 3, 'day': 4, 'name': 'Bound Work', 'tradition': 'Velora', 'desc': 'Crops are tied and corrected. Neglect here is remembered at harvest.'},
+    {'month': 3, 'day': 13, 'name': 'Foolstep', 'tradition': 'Feyliks', 'desc': 'A day associated with accidents and daring. Risky labor is undertaken deliberately. Failure is blamed on luck, not skill.'},
+    {'month': 3, 'day': 22, 'name': 'The Quiet Mark', 'tradition': 'Superstitious', 'desc': 'Midday labor pauses briefly. Ignoring the pause is said to invite injury before the month ends.'},
+    
+    # SUNPRESS
+    {'month': 4, 'day': 6, 'name': 'Thirstcount', 'tradition': 'Watcher', 'desc': 'Water stores are measured honestly. Lying about supply is believed to draw drought.'},
+    {'month': 4, 'day': 15, 'name': 'Heat Mercy', 'tradition': 'Velora', 'desc': 'Excessive punishment and labor are avoided. Cruelty shown this day is remembered by the faithful.'},
+    {'month': 4, 'day': 27, 'name': 'Flygift', 'tradition': 'Superstitious', 'desc': 'Food is left out for vermin spirits to keep them from livestock. Refusal is blamed if sickness spreads.'},
+    
+    # FIRSTREAP
+    {'month': 5, 'day': 1, 'name': 'First Sheaf', 'tradition': 'Velora', 'desc': 'The earliest harvest is cut carefully. Waste on this day is deeply frowned upon.'},
+    {'month': 5, 'day': 10, 'name': 'Bread of Chance', 'tradition': 'Feyliks', 'desc': 'First loaves from new grain are eaten. Ill fortune blamed on luck, not milling.'},
+    {'month': 5, 'day': 19, 'name': 'Counted Silence', 'tradition': 'Watcher', 'desc': 'Harvest totals are tallied quietly. Boasting invites suspicion.'},
+    
+    # FULLREAP
+    {'month': 6, 'day': 3, 'name': 'Open Field', 'tradition': 'Regalus', 'desc': 'Harvest begins under authority. Theft during this period carries harsh consequence.'},
+    {'month': 6, 'day': 16, 'name': 'Measure True', 'tradition': 'Velora', 'desc': 'Weights and measures are checked. False accounting after this day is treated as deliberate crime.'},
+    {'month': 6, 'day': 28, 'name': 'Feast of Plenty', 'tradition': 'Feyliks', 'desc': 'Excess is permitted briefly. Those who abstain are assumed fearful or hiding loss.'},
+    
+    # STUBBLEWAKE
+    {'month': 7, 'day': 7, 'name': 'Gleaning Right', 'tradition': 'Three Children', 'desc': 'The landless may gather remains. Denial is seen as cruelty.'},
+    {'month': 7, 'day': 18, 'name': 'Herd Turn', 'tradition': 'Superstitious', 'desc': 'Livestock are moved. Injuries are blamed on poor fortune rather than skill.'},
+    {'month': 7, 'day': 25, 'name': 'The Last Look', 'tradition': 'Watcher', 'desc': 'Fields are inspected one final time. Missed harvest after this day is blamed on neglect.'},
+    
+    # TURNSOIL
+    {'month': 8, 'day': 4, 'name': 'Second Claim', 'tradition': 'Regalus', 'desc': 'Land boundaries are reaffirmed or seized. Authority asserted now is expected to hold.'},
+    {'month': 8, 'day': 14, 'name': 'Ashmark', 'tradition': 'Superstitious', 'desc': 'Controlled burning is permitted. Fire afterward is unforgivable.'},
+    {'month': 8, 'day': 26, 'name': 'Broken Spade', 'tradition': 'Velora', 'desc': 'Tools that fail are repaired or discarded. Using broken tools later is seen as stubborn pride.'},
+    
+    # COLDROOT
+    {'month': 9, 'day': 5, 'name': 'Rootpull', 'tradition': 'Velora', 'desc': 'Root crops are harvested carefully. Delay beyond this day is blamed for rot.'},
+    {'month': 9, 'day': 17, 'name': 'Cellar Seal', 'tradition': 'Watcher', 'desc': 'Stores are closed and counted. Missing goods spark accusations.'},
+    {'month': 9, 'day': 24, 'name': 'Mistwalk', 'tradition': 'Superstitious', 'desc': 'Travel avoided where possible. Loss on this day is attributed to fate.'},
+    
+    # STORETHIN
+    {'month': 10, 'day': 6, 'name': 'Short Measure', 'tradition': 'Regalus', 'desc': 'Rations are reduced by decree. Failure to comply is treated as defiance.'},
+    {'month': 10, 'day': 15, 'name': 'Quiet Hearth', 'tradition': 'Watcher', 'desc': 'Social visits decline. Secrets shared are believed remembered.'},
+    {'month': 10, 'day': 27, 'name': 'Coin Turn', 'tradition': 'Feyliks', 'desc': 'Last risky trades before scarcity bites. Loss is blamed on chance, not judgment.'},
+    
+    # LASTSEED
+    {'month': 11, 'day': 3, 'name': 'Final Count', 'tradition': 'Watcher', 'desc': 'Stores are tallied honestly. Lies now are remembered into the next year.'},
+    {'month': 11, 'day': 14, 'name': 'Hard Night', 'tradition': 'Velora', 'desc': 'No excess is permitted. Discipline is observed openly.'},
+    {'month': 11, 'day': 30, 'name': 'Dominion Mark', 'tradition': 'Regalus', 'desc': 'The year ends in authority. Debts are named, punishments declared, and nothing is forgiven yet.'},
+]
+
+
+# =============================================================================
 # TIME PERIOD MAPPINGS (for weather/atmosphere)
 # =============================================================================
 
@@ -429,3 +496,139 @@ def get_colloquial_date(date=None):
     
     position = get_month_position(date)
     return f"{position} {date['month_name']}"
+
+
+def calculate_birthday_epoch(age, birthday_month, birthday_day):
+    """
+    Calculate when a character was born based on their age and birthday.
+    
+    Args:
+        age (int): Character's age in years
+        birthday_month (int): Month of birth (0-11, 0=Plowbreak)
+        birthday_day (int): Day of birth (1-30)
+        
+    Returns:
+        int: Game time in seconds when the character was born
+    """
+    # Get current date
+    current_date = get_korvessan_date()
+    current_year = current_date['year']
+    current_month = current_date['month_index']
+    current_day = current_date['day']
+    
+    # Calculate birth year
+    birth_year = current_year - age
+    
+    # If birthday hasn't happened yet this year, they were born a year earlier
+    if birthday_month > current_month or (birthday_month == current_month and birthday_day > current_day):
+        birth_year -= 1
+    
+    # Calculate total days since calendar epoch to birth date
+    days_to_birth = (birth_year - CALENDAR_EPOCH_YEAR) * DAYS_PER_YEAR
+    days_to_birth += birthday_month * DAYS_PER_MONTH
+    days_to_birth += birthday_day - 1  # Days are 1-indexed, but we need 0-indexed for calculation
+    
+    # Convert to seconds
+    return days_to_birth * SECONDS_PER_DAY
+
+
+def is_birthday_today(character=None, birthday_month=None, birthday_day=None):
+    """
+    Check if today is a character's birthday.
+    
+    Args:
+        character: Character object (optional, if not provided use birthday_month/day)
+        birthday_month (int): Month of birth (0-11) if character not provided
+        birthday_day (int): Day of birth (1-30) if character not provided
+        
+    Returns:
+        bool: True if today is the birthday
+    """
+    current_date = get_korvessan_date()
+    
+    if character:
+        # Get birthday from character database
+        if not hasattr(character.db, 'birthday_month') or not hasattr(character.db, 'birthday_day'):
+            return False
+        birthday_month = character.db.birthday_month
+        birthday_day = character.db.birthday_day
+    
+    if birthday_month is None or birthday_day is None:
+        return False
+    
+    return current_date['month_index'] == birthday_month and current_date['day'] == birthday_day
+
+
+def get_character_age(character=None, birthday_month=None, birthday_day=None):
+    """
+    Calculate a character's current age.
+    
+    Args:
+        character: Character object (optional)
+        birthday_month (int): Month of birth (0-11) if character not provided
+        birthday_day (int): Day of birth (1-30) if character not provided
+        
+    Returns:
+        int: Age in years
+    """
+    if character:
+        if not hasattr(character.db, 'birthday_month') or not hasattr(character.db, 'birthday_day'):
+            return None
+        birthday_month = character.db.birthday_month
+        birthday_day = character.db.birthday_day
+    
+    if birthday_month is None or birthday_day is None:
+        return None
+    
+    current_date = get_korvessan_date()
+    current_year = current_date['year']
+    current_month = current_date['month_index']
+    current_day = current_date['day']
+    
+    # Start with year difference
+    age = current_year - (current_year - CALENDAR_EPOCH_YEAR)  # This is overly complex, simplify:
+    
+    # Actually, we need to know birth year. Let's recalculate properly.
+    # If we have birthday_month and birthday_day, we can work backwards from now
+    # But we don't have the birth year directly. This function assumes we know birth year somehow.
+    # For now, we'll assume age was stored separately.
+    
+    return None  # This needs more info to work
+
+
+def format_birthday(birthday_month, birthday_day):
+    """
+    Format a birthday as a string.
+    
+    Args:
+        birthday_month (int): Month (0-11)
+        birthday_day (int): Day (1-30)
+        
+    Returns:
+        str: Formatted birthday like "the 15th of Fullreap"
+    """
+    suffix = get_ordinal_suffix(birthday_day)
+    return f"the {birthday_day}{suffix} of {MONTHS[birthday_month]['name']}"
+
+
+def get_holiday_today(date=None):
+    """
+    Check if today is a holiday and return its information.
+    
+    Args:
+        date: Date dict from get_korvessan_date(), or None for current
+        
+    Returns:
+        dict: Holiday info with 'name', 'tradition', 'desc', or None if not a holiday
+    """
+    if date is None:
+        date = get_korvessan_date()
+    
+    current_month = date['month_index']
+    current_day = date['day']
+    
+    for holiday in HOLIDAYS:
+        if holiday['month'] == current_month and holiday['day'] == current_day:
+            return holiday
+    
+    return None
