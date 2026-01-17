@@ -175,8 +175,8 @@ class CmdCloseDoor(Command):
         close door
         close door <direction>
         
-    Closes and locks the door behind you. If you specify a direction, it closes
-    that exit. Otherwise, it closes the only exit if there's just one.
+    Closes and locks the cube door. When inside a cube, this closes the door
+    that leads into your cube (preventing entry from outside).
     """
     
     key = "close door"
@@ -188,38 +188,50 @@ class CmdCloseDoor(Command):
         caller = self.caller
         room = caller.location
         
+        from typeclasses.cube_housing import CubeDoor
+        
         # Parse optional direction argument
         direction = self.args.strip().lower() if self.args else None
         
-        exit_to_close = None
+        cube_door = None
         
-        # If direction specified, find that exit
+        # First, check if any exit FROM this room is a CubeDoor
         if direction:
             for ex in room.exits:
                 ex_aliases = [a.lower() for a in ex.aliases.all()] if hasattr(ex.aliases, "all") else []
                 if ex.key.lower() == direction or direction in ex_aliases:
-                    exit_to_close = ex
+                    if isinstance(ex, CubeDoor):
+                        cube_door = ex
                     break
         else:
-            # No direction specified - close the only exit if there's just one
-            if len(room.exits) == 1:
-                exit_to_close = room.exits[0]
-            elif len(room.exits) > 1:
-                caller.msg("There are multiple exits. Specify which one: close door <direction>")
+            # Check all exits from this room for CubeDoors
+            for ex in room.exits:
+                if isinstance(ex, CubeDoor):
+                    cube_door = ex
+                    break
+        
+        # If no CubeDoor exit found, check for CubeDoors leading INTO this room
+        # (this is for when you're INSIDE a cube and want to close the door)
+        if not cube_door:
+            # Find all CubeDoors that have this room as their destination
+            from evennia.objects.models import ObjectDB
+            incoming_doors = ObjectDB.objects.filter(
+                db_typeclass_path__contains="CubeDoor",
+                db_destination=room
+            )
+            
+            if incoming_doors.count() == 1:
+                cube_door = incoming_doors.first()
+            elif incoming_doors.count() > 1:
+                caller.msg("There are multiple cube doors leading here. This should not happen.")
                 return
         
-        if not exit_to_close:
-            caller.msg("There is no door there to close.")
-            return
-        
-        # Check if it's a CubeDoor
-        from typeclasses.cube_housing import CubeDoor
-        if not isinstance(exit_to_close, CubeDoor):
-            caller.msg("That is not a cube door.")
+        if not cube_door:
+            caller.msg("There is no cube door here to close.")
             return
         
         # Set the door as closed
-        exit_to_close.is_closed = True
+        cube_door.is_closed = True
         caller.msg("You pull the door shut. The keypad beeps once and the red indicator steadies.")
         
         # Message to others in the room
@@ -237,8 +249,8 @@ class CmdOpenDoor(Command):
         open door
         open door <direction>
         
-    Opens a door you previously closed. If you specify a direction, it opens
-    that exit. Otherwise, it opens the only exit if there's just one.
+    Opens a cube door you previously closed. When inside a cube, this opens
+    the door that leads into your cube.
     """
     
     key = "open door"
@@ -250,39 +262,51 @@ class CmdOpenDoor(Command):
         caller = self.caller
         room = caller.location
         
+        from typeclasses.cube_housing import CubeDoor
+        
         # Parse optional direction argument
         direction = self.args.strip().lower() if self.args else None
         
-        exit_to_open = None
+        cube_door = None
         
-        # If direction specified, find that exit
+        # First, check if any exit FROM this room is a CubeDoor
         if direction:
             for ex in room.exits:
                 ex_aliases = [a.lower() for a in ex.aliases.all()] if hasattr(ex.aliases, "all") else []
                 if ex.key.lower() == direction or direction in ex_aliases:
-                    exit_to_open = ex
+                    if isinstance(ex, CubeDoor):
+                        cube_door = ex
                     break
         else:
-            # No direction specified - open the only exit if there's just one
-            if len(room.exits) == 1:
-                exit_to_open = room.exits[0]
-            elif len(room.exits) > 1:
-                caller.msg("There are multiple exits. Specify which one: open door <direction>")
+            # Check all exits from this room for CubeDoors
+            for ex in room.exits:
+                if isinstance(ex, CubeDoor):
+                    cube_door = ex
+                    break
+        
+        # If no CubeDoor exit found, check for CubeDoors leading INTO this room
+        # (this is for when you're INSIDE a cube and want to open the door)
+        if not cube_door:
+            # Find all CubeDoors that have this room as their destination
+            from evennia.objects.models import ObjectDB
+            incoming_doors = ObjectDB.objects.filter(
+                db_typeclass_path__contains="CubeDoor",
+                db_destination=room
+            )
+            
+            if incoming_doors.count() == 1:
+                cube_door = incoming_doors.first()
+            elif incoming_doors.count() > 1:
+                caller.msg("There are multiple cube doors leading here. This should not happen.")
                 return
         
-        if not exit_to_open:
-            caller.msg("There is no door there to open.")
-            return
-        
-        # Check if it's a CubeDoor
-        from typeclasses.cube_housing import CubeDoor
-        if not isinstance(exit_to_open, CubeDoor):
-            caller.msg("That is not a cube door.")
+        if not cube_door:
+            caller.msg("There is no cube door here to open.")
             return
         
         # Open the door
-        if exit_to_open.is_closed:
-            exit_to_open.is_closed = False
+        if cube_door.is_closed:
+            cube_door.is_closed = False
             caller.msg("You push the door open. The keypad beeps softly and the indicator dims.")
             
             # Message to others in the room
