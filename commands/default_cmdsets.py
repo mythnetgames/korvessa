@@ -20,6 +20,7 @@ from commands import CmdCharacter
 from commands import CmdInventory
 from commands.CmdInventory import CmdGet, CmdInventory as CmdInv, CmdGive, CmdDrop
 from commands import CmdAdmin
+from commands.admin_door_cleanup import CmdCleanupDoors
 from commands import CmdClothing
 from commands.CmdClothing import CmdWear, CmdRemove, CmdFreeHands
 from commands.CmdFightingStyle import CmdFightingStyle
@@ -346,6 +347,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add autocoord command
         from commands.autocoord import CmdAutoCoord
         self.add(CmdAutoCoord())
+        # Add cleanup doors command
+        self.add(CmdCleanupDoors())
         # Add deletezone command
         from commands.deletezone import CmdDeleteZone
         self.add(CmdDeleteZone())
