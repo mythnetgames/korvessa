@@ -167,7 +167,7 @@ def _complete_death(character):
     # Send observer message
     if character.location:
         character.location.msg_contents(
-            f"|m{character.key}'s form fades from sight, becoming one with The Watcher's realm.|n",
+            f"|#5f005f{character.key}'s form fades from sight, becoming one with The Watcher's realm.|n",
             exclude=[character]
         )
     
