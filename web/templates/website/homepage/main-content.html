@@ -23,11 +23,18 @@ body {
 }
 
 .faction-card {
-    margin: 12px 0;
-    padding: 16px;
+    margin: 16px 0;
+    padding: 20px;
     border: 1px solid #8b4513;
-    background: rgba(45,31,14,0.9);
+    background: linear-gradient(90deg, rgba(45,31,14,0.8) 0%, rgba(60,40,20,0.8) 100%);
     border-left: 4px solid #d4a574;
+    box-shadow: inset 0 1px 0 rgba(212,175,55,0.2), 0 4px 8px rgba(0,0,0,0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.faction-card:hover {
+    transform: translateY(-2px);
+    box-shadow: inset 0 1px 0 rgba(212,175,55,0.3), 0 6px 12px rgba(0,0,0,0.8);
 }
 
 .faction-velora { border-left-color: #d4a574; }
@@ -59,22 +66,22 @@ h1, h2, h3 { color: #e8dcc8; font-family: 'Georgia', serif; letter-spacing: 1px;
 <h2 style="text-align: center; margin: 24px 0;">The Three Paths</h2>
 
 <div class="faction-card faction-velora">
-  <h3 style="color: #d4a574; margin-top: 0;">Veloran - The Path of Order</h3>
-  <p>
+  <h3 style="color: #d4a574; margin: 0 0 12px 0; font-size: 1.4rem; letter-spacing: 0.5px;">Veloran - The Path of Order</h3>
+  <p style="margin: 0; line-height: 1.6; color: #d4c5a9;">
     Followers of Velora seek virtue, sacrifice, and the perfection of self through discipline. Knights, healers, and artisans find meaning in service and endurance. The scale balances all, and through steadfast duty comes strength.
   </p>
 </div>
 
 <div class="faction-card faction-feyliks">
-  <h3 style="color: #c5a572; margin-top: 0;">Feyliksian - The Path of Chance</h3>
-  <p>
+  <h3 style="color: #c5a572; margin: 0 0 12px 0; font-size: 1.4rem; letter-spacing: 0.5px;">Feyliksian - The Path of Chance</h3>
+  <p style="margin: 0; line-height: 1.6; color: #d4c5a9;">
     Devotees of Feyliks embrace fortune, trickery, and freedom. Gamblers, performers, and those who dance with risk find ecstasy in the unknown. The dice fall as they will—seize the moment, for fate is yours to claim.
   </p>
 </div>
 
 <div class="faction-card faction-regalus">
-  <h3 style="color: #8b4513; margin-top: 0;">Regalist - The Path of Dominion</h3>
-  <p>
+  <h3 style="color: #8b4513; margin: 0 0 12px 0; font-size: 1.4rem; letter-spacing: 0.5px;">Regalist - The Path of Dominion</h3>
+  <p style="margin: 0; line-height: 1.6; color: #d4c5a9;">
     Regalus demands ambition, strength, and the will to command. Lords, warriors, and those who hunger for power seek to bend the world to their vision. Authority flows to those with the will to seize it.
   </p>
 </div>
