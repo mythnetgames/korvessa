@@ -213,7 +213,8 @@ class CmdCloseDoor(Command):
             return
         
         # Check if it's a CubeDoor
-        if not exit_to_close.is_typeclass("typeclasses.cube_housing.CubeDoor"):
+        from typeclasses.cube_housing import CubeDoor
+        if not isinstance(exit_to_close, CubeDoor):
             caller.msg("That is not a cube door.")
             return
         
@@ -274,7 +275,8 @@ class CmdOpenDoor(Command):
             return
         
         # Check if it's a CubeDoor
-        if not exit_to_open.is_typeclass("typeclasses.cube_housing.CubeDoor"):
+        from typeclasses.cube_housing import CubeDoor
+        if not isinstance(exit_to_open, CubeDoor):
             caller.msg("That is not a cube door.")
             return
         
