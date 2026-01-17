@@ -90,8 +90,15 @@ class CmdEnter(Command):
             exclude=[caller]
         )
         
+        # Temporarily unlock the door to allow traversal
+        was_closed = exit_obj.is_closed
+        exit_obj.is_closed = False
+        
         # Perform the actual traversal
         caller.move_to(destination, quiet=True)
+        
+        # Re-lock the door
+        exit_obj.is_closed = was_closed
         
         # Show the new room
         caller.msg(caller.location.return_appearance(caller, force_display=True))
@@ -205,14 +212,82 @@ class CmdCloseDoor(Command):
             caller.msg("There is no door there to close.")
             return
         
-        # Success message
-        caller.msg("You pull the door shut. The keypad beeps once and the red indicator steadies.")
+        # Set the door as closed
+        if hasattr(exit_to_close, 'is_closed'):
+            exit_to_close.is_closed = True
+            caller.msg("You pull the door shut. The keypad beeps once and the red indicator steadies.")
+            
+            # Message to others in the room
+            room.msg_contents(
+                f"{caller.key} pulls the door shut. The keypad beeps once.",
+                exclude=[caller]
+            )
+        else:
+            caller.msg("That is not a cube door.")
+            return
+
+
+class CmdOpenDoor(Command):
+    """
+    Open a closed door from inside.
+    
+    Usage:
+        open door
+        open door <direction>
         
-        # Message to others in the room
-        room.msg_contents(
-            f"{caller.key} pulls the door shut. The keypad beeps once.",
-            exclude=[caller]
-        )
+    Opens a door you previously closed. If you specify a direction, it opens
+    that exit. Otherwise, it opens the only exit if there's just one.
+    """
+    
+    key = "open door"
+    aliases = ["opendoor"]
+    locks = "cmd:all()"
+    help_category = "Housing"
+    
+    def func(self):
+        caller = self.caller
+        room = caller.location
+        
+        # Parse optional direction argument
+        direction = self.args.strip().lower() if self.args else None
+        
+        exit_to_open = None
+        
+        # If direction specified, find that exit
+        if direction:
+            for ex in room.exits:
+                ex_aliases = [a.lower() for a in ex.aliases.all()] if hasattr(ex.aliases, "all") else []
+                if ex.key.lower() == direction or direction in ex_aliases:
+                    exit_to_open = ex
+                    break
+        else:
+            # No direction specified - open the only exit if there's just one
+            if len(room.exits) == 1:
+                exit_to_open = room.exits[0]
+            elif len(room.exits) > 1:
+                caller.msg("There are multiple exits. Specify which one: open door <direction>")
+                return
+        
+        if not exit_to_open:
+            caller.msg("There is no door there to open.")
+            return
+        
+        # Open the door
+        if hasattr(exit_to_open, 'is_closed'):
+            if exit_to_open.is_closed:
+                exit_to_open.is_closed = False
+                caller.msg("You push the door open. The keypad beeps softly and the indicator dims.")
+                
+                # Message to others in the room
+                room.msg_contents(
+                    f"{caller.key} pushes the door open. The keypad beeps softly.",
+                    exclude=[caller]
+                )
+            else:
+                caller.msg("The door is already open.")
+        else:
+            caller.msg("That is not a cube door.")
+            return
 
 
 class CmdPayRent(Command):
@@ -718,6 +793,7 @@ class CubeHousingCmdSet(CmdSet):
         self.add(CmdEnter())
         self.add(CmdCheck())
         self.add(CmdCloseDoor())
+        self.add(CmdOpenDoor())
         self.add(CmdPayRent())
         self.add(CmdCreateCube())
         self.add(CmdSetCubeRenter())

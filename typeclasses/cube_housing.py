@@ -67,6 +67,7 @@ class CubeDoor(Exit):
     current_door_code = AttributeProperty(None, category="housing", autocreate=True)
     rent_paid_until_ts = AttributeProperty(0, category="housing", autocreate=True)
     current_renter_id = AttributeProperty(None, category="housing", autocreate=True)
+    is_closed = AttributeProperty(False, category="housing", autocreate=True)
     
     def at_object_creation(self):
         """Called when the cube door is first created."""
@@ -134,6 +135,11 @@ class CubeDoor(Exit):
         # Check if this is an authorized traversal (set by ENTER command)
         if kwargs.get("cube_authorized"):
             return super().at_traverse(traversing_object, target_location, **kwargs)
+        
+        # If door is closed, always block even with authorization
+        if self.is_closed:
+            traversing_object.msg("The door is closed and locked. A red indicator light glows steadily.")
+            return False
         
         # Block normal traversal
         traversing_object.msg("The door is locked. A red indicator light glows steadily.")
