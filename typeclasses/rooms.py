@@ -518,6 +518,8 @@ class Room(ObjectParent, DefaultRoom):
         Returns:
             str: Combined crowd and character placement descriptions
         """
+        from world.sdesc_system import format_sdesc_for_room
+        
         characters = []
         
         for obj in self.contents:
@@ -532,37 +534,13 @@ class Room(ObjectParent, DefaultRoom):
             # No characters, but might still have crowd messages
             return crowd_msg if crowd_msg else ""
         
-        # Group characters by their placement description
-        placement_groups = {}
+        # Generate descriptions for each character using sdesc + pose
+        descriptions = []
         
         for char in characters:
-            # Check placement hierarchy: override_place > temp_place > look_place > fallback
-            # Empty strings are treated as not set
-            override_place = char.override_place or ""
-            temp_place = char.temp_place or ""
-            look_place = char.look_place or ""
-            
-            placement = (override_place if override_place else
-                        temp_place if temp_place else
-                        look_place if look_place else
-                        "standing here.")
-            
-            if placement not in placement_groups:
-                placement_groups[placement] = []
-            placement_groups[placement].append(char.get_display_name(looker))
-        
-        # Generate natural language descriptions
-        descriptions = []
-        for placement, char_names in placement_groups.items():
-            char_names_str = [str(n) for n in char_names]
-            if len(char_names_str) == 1:
-                descriptions.append(f"{char_names_str[0]} is {placement}")
-            elif len(char_names_str) == 2:
-                descriptions.append(f"{char_names_str[0]} and {char_names_str[1]} are {placement}")
-            else:
-                # Handle 3+ characters: "A, B, and C are here"
-                all_but_last = ", ".join(char_names_str[:-1])
-                descriptions.append(f"{all_but_last}, and {char_names_str[-1]} are {placement}")
+            # Format for room display (capitalize, add period)
+            formatted = format_sdesc_for_room(char, looker)
+            descriptions.append(formatted)
         
         character_display = " ".join(descriptions) if descriptions else ""
         
@@ -690,12 +668,13 @@ class Room(ObjectParent, DefaultRoom):
         ]
         
         # Format each item group with appropriate quantifier
-        # Wrap item names in |w for bold white highlighting
+        # Wrap item names in |#0087ff (blue) for highlighting
+        OBJECT_COLOR = "|#0087ff"
         formatted_items = []
         for item_name, count in item_counts.items():
             item_name_str = str(item_name)
             if count == 1:
-                formatted_items.append(f"a |w{item_name_str}|n")
+                formatted_items.append(f"a {OBJECT_COLOR}{item_name_str}|n")
             elif count <= 50:
                 quantity = quantity_words[count]
                 # Handle plural forms - simple approach for now
@@ -709,18 +688,18 @@ class Room(ObjectParent, DefaultRoom):
                     plural_name = item_name_str[:-2] + "ves"
                 else:
                     plural_name = item_name_str + "s"
-                formatted_items.append(f"{quantity} |w{plural_name}|n")
+                formatted_items.append(f"{quantity} {OBJECT_COLOR}{plural_name}|n")
             else:
                 # Use random euphemism for large quantities
                 euphemism = random.choice(euphemisms)
                 if "{}" in euphemism:
                     # Handle template euphemisms like "more {} than you know what to do with"
                     plural_name = item_name_str + "s" if not item_name_str.endswith('s') else item_name_str
-                    formatted_items.append(euphemism.format(f"|w{plural_name}|n"))
+                    formatted_items.append(euphemism.format(f"{OBJECT_COLOR}{plural_name}|n"))
                 else:
                     # Handle direct euphemisms like "a shitload of"
                     plural_name = item_name_str + "s" if not item_name_str.endswith('s') else item_name_str
-                    formatted_items.append(f"{euphemism} |w{plural_name}|n")
+                    formatted_items.append(f"{euphemism} {OBJECT_COLOR}{plural_name}|n")
         
         # Format using natural language similar to character placement
         # Item names are already wrapped in |w...|n from above

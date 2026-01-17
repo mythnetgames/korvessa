@@ -1,5 +1,6 @@
 """
 Custom Emote command that integrates voice descriptions into speech and language garbling.
+Also supports sdesc-based target parsing with /word syntax for characters and *word for objects.
 """
 
 import re
@@ -9,6 +10,9 @@ from world.language.utils import (
     garble_text_by_proficiency,
     get_language_proficiency,
     apply_passive_language_learning,
+)
+from world.sdesc_system import (
+    get_sdesc_with_pose, parse_targets_in_string, personalize_text
 )
 
 
@@ -115,17 +119,27 @@ class CmdEmote(DefaultCmdPose):
         emote <action>
         :<action>
     
+    You can reference other characters in the room by partial sdesc match:
+        emote smiles at /tall and waves.
+        (becomes: "A short woman smiles at a tall man and waves.")
+    
+    You can also reference objects with *:
+        emote picks up *sword and examines it.
+        (becomes: "A tall man picks up a steel sword and examines it.")
+    
     If your emote contains speech (like "says,"), your @voice will be inserted
     around the speech text. Speech text will also be garbled for observers based
     on their language proficiency.
     
     Examples:
-        emote passes the boof to Test Dummy and says, "Hit this shit."
+        emote passes the boof to /test and says, "Hit this shit."
         : waves hello to everyone.
+        :nods to /hooded and /scarred
+        emote picks up *dagger and looks at /elf
     """
     
     def func(self):
-        """Override emote to include voice description and language garbling."""
+        """Override emote to include voice description, sdesc targets, and language garbling."""
         caller = self.caller
         
         # Debug: Check if func is being called multiple times
@@ -145,6 +159,12 @@ class CmdEmote(DefaultCmdPose):
         # Fix grammar in the emote text - contractions and capitalize standalone "i"
         emote_text = fix_speech_grammar(emote_text)
         
+        # Parse /target references for characters and *target for objects
+        # Returns (parsed_text, char_targets, obj_targets) where:
+        # - char_targets is list of (search_term, matched_character, possessive) tuples
+        # - obj_targets is list of (search_term, matched_object, possessive) tuples
+        parsed_text, char_targets, obj_targets = parse_targets_in_string(emote_text, caller.location, caller)
+        
         # Check for disguise slip on emote
         try:
             from world.disguise.core import (
@@ -160,73 +180,120 @@ class CmdEmote(DefaultCmdPose):
         # Check if character has a voice set
         voice = getattr(caller.db, 'voice', None)
         
-        # Get speaker's primary language
+        # Get speaker's primary language (default if not specified per-speech)
         primary_language = get_primary_language(caller)
         
         # Extract speech from emote for language processing
-        quote_pattern = r'(["\'])(.*?)\1'
-        speech_matches = list(re.finditer(quote_pattern, emote_text))
+        # Supports language prefix syntax: dwarven"Hello" or just "Hello" (uses primary)
+        # Language-prefixed speech: language"speech"
+        lang_speech_pattern = r'(\w+)"([^"]*)"'
+        # Simple quoted speech: "speech" or 'speech'
+        simple_quote_pattern = r'(["\'])([^"\']*)\1'
         
-        if voice:
-            # Look for any quoted speech in the emote and insert accent
-            def replace_quotes(match):
-                quote = match.group(1)  # The quote character (" or ')
-                speech = match.group(2)  # The actual speech
-                # Fix speech grammar (contractions, capitalize I, etc.)
-                speech = fix_speech_grammar(speech)
-                # Capitalize first letter
-                if speech:
-                    speech = speech[0].upper() + speech[1:] if len(speech) > 1 else speech.upper()
-                # Add period if no ending punctuation
-                if speech and speech[-1] not in '.!?':
-                    speech = speech + '.'
-                # Apply intoxication slurring if drunk
-                try:
-                    from world.survival.core import slur_speech
-                    speech = slur_speech(caller, speech)
-                except Exception:
-                    pass  # Survival system not loaded
-                return f'{quote}*in a {voice}* {speech}{quote}'
+        # Track speech segments with their languages for garbling
+        # First, find language-prefixed speech and replace with processed version
+        def process_lang_speech(match):
+            language = match.group(1).lower()
+            speech = match.group(2)
             
-            # Replace all quoted speech instances with voice-enhanced versions
-            emote_text = re.sub(quote_pattern, replace_quotes, emote_text)
-        else:
-            # Even without voice, fix grammar in quoted speech
-            def fix_quotes(match):
-                quote = match.group(1)
-                speech = match.group(2)
-                speech = fix_speech_grammar(speech)
-                # Capitalize first letter
-                if speech:
-                    speech = speech[0].upper() + speech[1:] if len(speech) > 1 else speech.upper()
-                # Add period if no ending punctuation
-                if speech and speech[-1] not in '.!?':
-                    speech = speech + '.'
-                # Apply intoxication slurring if drunk
-                try:
-                    from world.survival.core import slur_speech
-                    speech = slur_speech(caller, speech)
-                except Exception:
-                    pass  # Survival system not loaded
-                return f'{quote}{speech}{quote}'
+            # Check if it's actually a language or just a word before quotes
+            from world.language.constants import LANGUAGES
+            if language not in LANGUAGES:
+                # Not a valid language, treat as regular quote
+                return match.group(0)
             
-            emote_text = re.sub(quote_pattern, fix_quotes, emote_text)
+            # Validate caller knows this language
+            lang_proficiency = get_language_proficiency(caller, language)
+            if lang_proficiency < 10.0:
+                # Don't know language well enough - will be handled at render time
+                pass
+            
+            # Process the speech
+            speech = fix_speech_grammar(speech)
+            if speech:
+                speech = speech[0].upper() + speech[1:] if len(speech) > 1 else speech.upper()
+            if speech and speech[-1] not in '.!?':
+                speech = speech + '.'
+            
+            # Apply intoxication slurring
+            try:
+                from world.survival.core import slur_speech
+                speech = slur_speech(caller, speech)
+            except Exception:
+                pass
+            
+            lang_name = LANGUAGES[language]['name']
+            if voice:
+                return f'"*speaking {lang_name} in a {voice}* {speech}"'
+            else:
+                return f'"*speaking {lang_name}* {speech}"'
         
-        # Format the pose with caller's display name (respects disguises)
-        pose_text = f"{caller.get_display_name(caller)} {emote_text}"
+        # Process language-prefixed speech first
+        emote_text_processed = re.sub(lang_speech_pattern, process_lang_speech, parsed_text)
         
-        # Send to the caller (ungarbled)
-        caller.msg(pose_text)
+        # Now handle remaining simple quotes (no language prefix = use primary)
+        def process_simple_speech(match):
+            quote = match.group(1)
+            speech = match.group(2)
+            
+            # Skip if already processed (contains *speaking)
+            if '*speaking' in speech:
+                return match.group(0)
+            
+            speech = fix_speech_grammar(speech)
+            if speech:
+                speech = speech[0].upper() + speech[1:] if len(speech) > 1 else speech.upper()
+            if speech and speech[-1] not in '.!?':
+                speech = speech + '.'
+            
+            # Apply intoxication slurring
+            try:
+                from world.survival.core import slur_speech
+                speech = slur_speech(caller, speech)
+            except Exception:
+                pass
+            
+            # Use speaker's primary language
+            from world.language.constants import LANGUAGES
+            lang_name = LANGUAGES.get(primary_language, {}).get('name', primary_language.title())
+            
+            if voice:
+                return f'{quote}*speaking {lang_name} in a {voice}* {speech}{quote}'
+            else:
+                return f'{quote}*speaking {lang_name}* {speech}{quote}'
+        
+        emote_text = re.sub(simple_quote_pattern, process_simple_speech, emote_text_processed)
+        
+        # Re-extract speech matches for garbling (now with language tags)
+        speech_matches = list(re.finditer(simple_quote_pattern, emote_text))
+        
+        # Get caller's sdesc for the pose (uses sdesc system which respects disguises)
+        from world.sdesc_system import get_sdesc
+        caller_sdesc = get_sdesc(caller, caller)  # Self-view - shows real sdesc
+        
+        # Format the pose with placeholders for targets and caller's sdesc
+        pose_template = f"{{caller}} {emote_text}"
+        
+        # Send to the caller (ungarbled, personalized)
+        # For self, capitalize the sdesc for sentence start
+        caller_pose = pose_template.replace("{caller}", caller_sdesc.capitalize() if caller_sdesc else caller.key)
+        caller_pose = personalize_text(caller_pose, char_targets, obj_targets, caller, caller)
+        caller.msg(caller_pose)
         
         # Send to others in the location
         if caller.location:
             for char in caller.location.contents:
                 if char == caller:
                     continue
+                if not hasattr(char, 'msg'):
+                    continue
+                
+                # Get how this viewer sees the caller
+                viewer_sees_caller = get_sdesc(caller, char)
                 
                 # Create perspective-adjusted message for this character
-                # Just use the original pose_text - display_name is already correct
-                message = pose_text
+                message = pose_template.replace("{caller}", viewer_sees_caller.capitalize() if viewer_sees_caller else caller.key)
+                message = personalize_text(message, char_targets, obj_targets, char, caller)
                 
                 # Apply language garbling to speech if present
                 if speech_matches:
@@ -248,5 +315,4 @@ class CmdEmote(DefaultCmdPose):
                         # Apply passive learning
                         apply_passive_language_learning(char, primary_language)
                 
-                if hasattr(char, 'msg'):
-                    char.msg(message)
+                char.msg(message)

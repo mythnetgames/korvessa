@@ -885,10 +885,10 @@ def first_char_name_last(caller, raw_string, **kwargs):
             # Return None to re-display current node
             return None
         
-        # Store last name and advance to display name step
+        # Store last name and advance to sdesc step
         caller.ndb.charcreate_data['last_name'] = name
         # Call next node directly and return its result
-        return first_char_display_name(caller, "", **kwargs)
+        return first_char_sdesc(caller, "", **kwargs)
     
     # Display prompt (first time or after error)
     text = f"""
@@ -909,38 +909,25 @@ First name: |c{first_name}|n
     return text, options
 
 
-def first_char_display_name(caller, raw_string, **kwargs):
-    """Get display name (handle/alias)."""
+def first_char_sdesc(caller, raw_string, **kwargs):
+    """Get short description (sdesc) - how others see you."""
+    from world.sdesc_system import validate_sdesc
     
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     
     # If input provided, validate it
     if raw_string and raw_string.strip():
-        name = raw_string.strip()
+        sdesc = raw_string.strip().lower()  # Sdescs are lowercase
         
-        if len(name) < 2 or len(name) > 30:
-            caller.msg(f"|rInvalid name: Name must be 2-30 characters.|n")
-            # Return None to re-display current node
-            return None
-        
-        if not re.match(r"^[a-zA-Z\s]+$", name):
-            caller.msg(f"|rInvalid name: Only letters and spaces allowed.|n")
-            # Return None to re-display current node
-            return None
-        
-        # Use title case: capitalize first letter of each word
-        name = name.title()
-        
-        # Check display name uniqueness
-        is_valid, error = validate_name(name, account=caller)
+        # Validate sdesc
+        is_valid, error = validate_sdesc(sdesc)
         if not is_valid:
             caller.msg(f"|r{error}|n")
-            # Return None to re-display current node
             return None
         
-        # Store display name and advance to race selection
-        caller.ndb.charcreate_data['display_name'] = name
+        # Store sdesc and advance to race selection
+        caller.ndb.charcreate_data['sdesc'] = sdesc
         # Call next node directly and return its result
         return first_char_race(caller, "", **kwargs)
     
@@ -948,20 +935,31 @@ def first_char_display_name(caller, raw_string, **kwargs):
     text = f"""
 Real Name: |c{first_name} {last_name}|n
 
-|wWhat is your DISPLAY NAME?|n
+|w=== Short Description (Sdesc) ===|n
 
-This is what people will see and use to target you in emotes, combat, etc.
-You can use your real name or an alias.
+Your sdesc is how others see you in the world. It replaces your name
+in room descriptions and emotes.
 
-Examples: "{first_name}", "Thornwood", "Ashford", "Grim"
+|yExamples:|n
+  a tall man with weathered hands
+  a scarred elven woman in dark robes  
+  a stocky dwarf with coal-black beard
+  a young human with bright eyes
 
-(2-30 characters, letters only - first letter will be capitalized)
+|wGuidelines:|n
+  - Start with "a" or "an" (describing yourself)
+  - Keep it brief but distinctive (3-80 characters)
+  - Focus on what others would notice at a glance
+  - Letters, numbers, spaces, and basic punctuation only
+
+|cIn the room, you might appear as:|n
+  "A tall man is standing by the bar."
 
 |w>|n """
     
     options = (
         {"key": "_default",
-         "goto": "first_char_display_name"},
+         "goto": "first_char_sdesc"},
     )
     
     return text, options
@@ -971,11 +969,11 @@ def first_char_sex(caller, raw_string, **kwargs):
     """Select biological sex."""
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
     race = caller.ndb.charcreate_data.get('race', 'human')
     text = f"""
 Real Name: |c{first_name} {last_name}|n
-Display Name: |c{display_name}|n
+Sdesc: |c{sdesc}|n
 Race: |c{race.capitalize()}|n
 
 Select biological sex:
@@ -1012,7 +1010,7 @@ def first_char_race(caller, raw_string, **kwargs):
     
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
     
     # Build race descriptions with language info
     race_info = {
@@ -1034,7 +1032,7 @@ def first_char_race(caller, raw_string, **kwargs):
     
     text = f"""
 Real Name: |c{first_name} {last_name}|n
-Display Name: |c{display_name}|n
+Sdesc: |c{sdesc}|n
 
 |wSelect your race:|n
 
@@ -1088,11 +1086,11 @@ def first_char_personality(caller, raw_string, **kwargs):
     """Select character personality (class-like choice at chargen)."""
     from world.personality_system import PERSONALITIES, get_personality_display
     
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
     race = caller.ndb.charcreate_data.get('race', 'human')
     
     text = f"""
-Display Name: |c{display_name}|n
+Sdesc: |c{sdesc}|n
 Race: |c{race.capitalize()}|n
 
 |w=== Select Your Personality ===|n
@@ -1161,7 +1159,7 @@ def first_char_personality_stat(caller, raw_string, **kwargs):
     """Choose which stat bonus to take from personality."""
     from world.personality_system import PERSONALITIES
     
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
     race = caller.ndb.charcreate_data.get('race', 'human')
     personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
     
@@ -1169,7 +1167,7 @@ def first_char_personality_stat(caller, raw_string, **kwargs):
     stat_options = p['stat_options']
     
     text = f"""
-Display Name: |c{display_name}|n
+Sdesc: |c{sdesc}|n
 Race: |c{race.capitalize()}|n
 Personality: |c{p['name']}|n
 
@@ -1231,7 +1229,7 @@ def first_char_personality_skill(caller, raw_string, **kwargs):
     """Choose secondary skill for Freehands personality."""
     from world.personality_system import ALL_SKILLS
     
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
     race = caller.ndb.charcreate_data.get('race', 'human')
     
     # Common skills that make sense for Freehands
@@ -1242,7 +1240,7 @@ def first_char_personality_skill(caller, raw_string, **kwargs):
     ]
     
     text = f"""
-Display Name: |c{display_name}|n
+Sdesc: |c{sdesc}|n
 Race: |c{race.capitalize()}|n
 Personality: |cFreehands|n
 
@@ -1293,7 +1291,7 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
         caller.ndb.charcreate_data['sex'] = kwargs['sex']
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
     race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
@@ -1336,7 +1334,7 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
     text = f"""
 |wAssign Your Ability Scores|n
 
-Display Name: |c{display_name}|n
+Sdesc: |c{sdesc}|n
 Race: |c{race.capitalize()}|n
 Sex: |c{sex.capitalize()}|n
 Personality: |c{p['name']}|n
@@ -1428,7 +1426,7 @@ def first_char_confirm(caller, raw_string, **kwargs):
     
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
     race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
@@ -1465,7 +1463,7 @@ def first_char_confirm(caller, raw_string, **kwargs):
 |wReview Your Character|n
 
 |wReal Name:|n |c{first_name} {last_name}|n
-|wDisplay Name:|n |c{display_name}|n
+|wSdesc:|n |c{sdesc}|n
 |wRace:|n |c{race.capitalize()}|n
 |wSex:|n |c{sex.capitalize()}|n
 |wPersonality:|n |c{p['name']}|n
@@ -1590,7 +1588,8 @@ def first_char_select_second_language(caller, raw_string, **kwargs):
 
 def first_char_facts_name(caller, raw_string, **kwargs):
     """Enter the name this character is known by publicly."""
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
+    real_name = f"{caller.ndb.charcreate_data.get('first_name', '')} {caller.ndb.charcreate_data.get('last_name', '')}"
     
     text = f"""
 |w=== Character Facts - Public Knowledge ===|n
@@ -1605,7 +1604,7 @@ They create RP hooks and can be discovered through skill rolls.
 |w1. Name as Known|n
 
 How is your character publicly known? This could be:
-- Their full display name: |c{display_name}|n
+- Their real name: |c{real_name}|n
 - A nickname or alias (e.g., "The Red", "Old Tom")
 - A title (e.g., "The Butcher's Son", "Lady Merchant")
 
@@ -1640,7 +1639,6 @@ How is your character publicly known? This could be:
 
 def first_char_facts_age(caller, raw_string, **kwargs):
     """Enter the character's apparent age."""
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
     
     text = f"""
 |w=== Character Facts - Public Knowledge ===|n
@@ -1684,7 +1682,6 @@ Examples: "Young adult", "Middle-aged", "Elderly", "In their 30s",
 
 def first_char_facts_appearance(caller, raw_string, **kwargs):
     """Enter notable appearance details."""
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
     
     text = f"""
 |w=== Character Facts - Public Knowledge ===|n
@@ -1731,7 +1728,6 @@ Examples:
 
 def first_char_facts_rumors(caller, raw_string, **kwargs):
     """Enter common rumors about the character."""
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
     
     text = f"""
 |w=== Character Facts - Public Knowledge ===|n
@@ -1782,7 +1778,6 @@ def first_char_facts_affiliations(caller, raw_string, **kwargs):
     """Enter known affiliations."""
     from world.personality_system import PERSONALITIES
     
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
     personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
     p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
     
@@ -1845,8 +1840,6 @@ def first_char_facts_reputation(caller, raw_string, **kwargs):
     """Select reputation tier."""
     from world.personality_system import REPUTATION_TIERS
     
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
-    
     text = f"""
 |w=== Character Facts - Public Knowledge ===|n
 
@@ -1897,7 +1890,6 @@ def first_char_facts_confirm(caller, raw_string, **kwargs):
     """Review and confirm character facts before finalization."""
     from world.personality_system import REPUTATION_TIERS
     
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
     facts = caller.ndb.charcreate_data.get('character_facts', {})
     
     tier = facts.get('reputation_tier', 'minor')
@@ -2013,7 +2005,7 @@ def first_char_finalize(caller, raw_string, **kwargs):
     
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
-    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
     full_real_name = f"{first_name} {last_name}"
     race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
@@ -2036,9 +2028,9 @@ def first_char_finalize(caller, raw_string, **kwargs):
     
     start_location = get_start_location()
     try:
-        # Use display_name as character key (what people see/target)
+        # Use real name as character key, sdesc stored separately
         char, errors = caller.create_character(
-            key=display_name,
+            key=full_real_name,
             location=start_location,
             home=start_location,
             typeclass="typeclasses.characters.Character"
@@ -2046,10 +2038,11 @@ def first_char_finalize(caller, raw_string, **kwargs):
         if errors:
             raise Exception(f"Character creation failed: {errors}")
         
-        # Store real name separately
+        # Store name components and sdesc
         char.db.real_first_name = first_name
         char.db.real_last_name = last_name
         char.db.real_full_name = full_real_name
+        char.db.sdesc = sdesc  # Short description for room display
         
         # Set D&D 5e stats
         char.str = stats['str']

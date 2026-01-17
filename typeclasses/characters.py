@@ -347,14 +347,14 @@ class Character(ObjectParent, DefaultCharacter):
     
     def get_display_name(self, looker=None, **kwargs):
         """
-        Get the display name for this character, accounting for disguises and anonymity.
+        Get the display name for this character, accounting for sdescs, disguises, 
+        anonymity, and recog (personal naming).
         
         Identity Display Priority (highest to lowest):
-        1. True name (if a slip occurred and not corrected)
-        2. Active disguise display name (if skill disguise intact)
-        3. Active disguise anonymity descriptor
-        4. Item-based anonymity descriptor (hood up, mask on, etc.)
-        5. True name (fallback)
+        1. Recog name (if looker has personally named this character)
+        2. Disguise identity (if disguised)
+        3. Sdesc (short description like "a tall man")
+        4. Key (fallback to real name)
         
         Args:
             looker: The character looking at this one
@@ -363,14 +363,19 @@ class Character(ObjectParent, DefaultCharacter):
         Returns:
             str: The appropriate display name
         """
-        # Import here to avoid circular imports
+        # Use the sdesc system which handles disguise, recog, and sdesc
         try:
-            from world.disguise.core import get_display_identity
-            display_name, is_true = get_display_identity(self, looker)
-            return display_name
+            from world.sdesc_system import get_sdesc
+            return get_sdesc(self, looker)
         except ImportError:
-            # Disguise system not available, fall back to true name
-            return self.key
+            # Sdesc system not available, fall back to disguise system or key
+            try:
+                from world.disguise.core import get_display_identity
+                display_name, is_true = get_display_identity(self, looker)
+                return display_name
+            except ImportError:
+                # Disguise system not available either, fall back to true name
+                return self.key
 
     def at_object_creation(self):
         """

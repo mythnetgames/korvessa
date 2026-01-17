@@ -1,5 +1,6 @@
 """
 Custom Say command that integrates voice descriptions and language garbling.
+Supports language prefix syntax: dwarven"Hello" to speak in a specific language.
 """
 
 import re
@@ -8,6 +9,7 @@ from world.language.utils import (
     get_primary_language,
     apply_language_garbling_to_observers,
 )
+from world.sdesc_system import get_sdesc, parse_language_speech
 
 
 def fix_speech_grammar(text):
@@ -112,27 +114,48 @@ class CmdSay(DefaultCmdSay):
     Usage:
         say <message>
         "<message>
+        say dwarven"<message>"   - Speak in a specific language
     
     If you have set a @voice, others will hear your speech as:
     *in a [voice description]* <message>
     
-    The language you speak is determined by your primary language.
+    The language you speak is determined by your primary language, or you can
+    specify a language by prefixing your speech: dwarven"Hello there!"
+    
     Others will hear your speech garbled based on their proficiency in that language.
     
     Examples:
         say Hello there!
         "How are you?
+        say elven"Greetings, friend."
     """
     
     def func(self):
-        """Override say to include voice description and language garbling."""
+        """Override say to include voice description, language prefix, and garbling."""
         caller = self.caller
         
         if not self.args:
             caller.msg("Say what?")
             return
         
-        speech = self.args.strip()
+        raw_speech = self.args.strip()
+        
+        # Parse language prefix (e.g., dwarven"Hello")
+        specified_language, speech = parse_language_speech(raw_speech)
+        
+        # Check if caller knows the specified language
+        if specified_language:
+            from world.language.utils import get_language_proficiency
+            proficiency = get_language_proficiency(caller, specified_language)
+            if proficiency < 10.0:
+                from world.language.constants import LANGUAGES
+                lang_name = LANGUAGES.get(specified_language, {}).get('name', specified_language.title())
+                caller.msg(f"You don't know {lang_name} well enough to speak it.")
+                return
+            primary_language = specified_language
+        else:
+            # Use default primary language
+            primary_language = get_primary_language(caller)
         
         # Fix grammar - contractions and capitalize standalone "i"
         speech = fix_speech_grammar(speech)
@@ -164,9 +187,6 @@ class CmdSay(DefaultCmdSay):
         except ImportError:
             pass  # Disguise system not available
         
-        # Get speaker's primary language
-        primary_language = get_primary_language(caller)
-        
         # Get language name
         from world.language.constants import LANGUAGES
         language_name = LANGUAGES[primary_language]['name']
@@ -174,18 +194,22 @@ class CmdSay(DefaultCmdSay):
         # Check if character has a voice set
         voice = getattr(caller.db, 'voice', None)
         
-        # Get display name (respects disguises)
-        display_name = caller.get_display_name(caller)
+        # Get sdesc for self-view (speaker sees their own sdesc)
+        caller_sdesc = get_sdesc(caller, caller)
+        if caller_sdesc:
+            caller_sdesc = caller_sdesc.capitalize()
+        else:
+            caller_sdesc = caller.key
         
         if voice:
             # Format message with voice and language for speaker (no garbling for themselves)
-            message = f'{display_name} says, "*speaking {language_name} in a {voice}* {speech}"|n'
+            message = f'{caller_sdesc} says, "*speaking {language_name} in a {voice}* {speech}"|n'
             
             # Send to caller (ungarbled)
             caller.msg(message)
         else:
             # No voice - format simple message with language
-            message = f'{display_name} says, "*speaking {language_name}* {speech}"|n'
+            message = f'{caller_sdesc} says, "*speaking {language_name}* {speech}"|n'
             caller.msg(message)
         
         # Apply language garbling for observers
@@ -196,12 +220,16 @@ class CmdSay(DefaultCmdSay):
             
             # Send garbled messages to each observer
             for observer, garbled_speech in observer_messages.items():
-                # Get display name as seen by this observer (respects disguises)
-                observer_display_name = caller.get_display_name(observer)
-                if voice:
-                    observer_msg = f'{observer_display_name} says, "*speaking {language_name} in a {voice}* {garbled_speech}"|n'
+                # Get sdesc as seen by this observer (respects disguises and recog)
+                observer_sdesc = get_sdesc(caller, observer)
+                if observer_sdesc:
+                    observer_sdesc = observer_sdesc.capitalize()
                 else:
-                    observer_msg = f'{observer_display_name} says, "*speaking {language_name}* {garbled_speech}"|n'
+                    observer_sdesc = caller.key
+                if voice:
+                    observer_msg = f'{observer_sdesc} says, "*speaking {language_name} in a {voice}* {garbled_speech}"|n'
+                else:
+                    observer_msg = f'{observer_sdesc} says, "*speaking {language_name}* {garbled_speech}"|n'
                 observer.msg(observer_msg)
                 
                 # Send passive learning notification after the speech

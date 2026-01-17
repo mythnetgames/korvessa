@@ -394,6 +394,12 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdFacts())             # Player: view facts about others (direct access)
         self.add(CmdEditFacts())         # Admin: edit character facts
         self.add(CmdViewFacts())         # Admin: view character facts
+        # Add sdesc system commands (short descriptions, recognition)
+        # Note: Players cannot set own sdesc (admin only). Use 'tp' for poses.
+        from commands.sdesc_commands import CmdName, CmdNames, CmdSetSdesc
+        self.add(CmdName())              # Player: name other characters (recog)
+        self.add(CmdNames())             # Player: list named characters
+        self.add(CmdSetSdesc())          # Admin: set character sdesc
         # Add cooking system commands
         from commands.CmdCooking import (
             CmdDesignRecipe, CmdCook, CmdEat, CmdDrink, CmdTaste, CmdSmellFood,
