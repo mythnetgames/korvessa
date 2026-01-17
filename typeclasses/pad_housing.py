@@ -259,6 +259,16 @@ class PadDoor(Exit):
         
         return seconds_added
     
+    def get_formatted_exit_name(self):
+        """
+        Get the exit name with door status indicator.
+        
+        Returns:
+            str: Exit name with + (locked) or - (unlocked) prefix
+        """
+        indicator = "+" if not self.is_unlocked else "-"
+        return f"{indicator}{self.key}"
+    
     def get_entry_door(self):
         """
         Get the entry door (the one from the hallway) for this pad.

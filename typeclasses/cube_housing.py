@@ -215,6 +215,16 @@ class CubeDoor(Exit):
             self.rent_paid_until_ts = self.rent_paid_until_ts + seconds_added
         
         return seconds_added
+    
+    def get_formatted_exit_name(self):
+        """
+        Get the exit name with door status indicator.
+        
+        Returns:
+            str: Exit name with + (closed) or - (open) prefix
+        """
+        indicator = "+" if self.is_closed else "-"
+        return f"{indicator}{self.key}"
 
 
 class CubeRoom(Room):

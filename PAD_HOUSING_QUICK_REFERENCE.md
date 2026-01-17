@@ -7,6 +7,21 @@ Pads are larger rented living spaces than cubes. Each pad creates its own ZONE a
 - **Cubes**: Auto-traverse on correct code entry
 - **Pads**: Door unlocks and swings open, player must walk through manually
 
+## Door Status Indicators
+
+When you look in a room, housing doors display with status indicators:
+
+- **+north** = Door is closed and locked (cannot pass without correct code)
+- **-north** = Door is open and unlocked (can be traversed freely)
+
+This helps players quickly see:
+1. Where doors are located
+2. Whether they are secure or someone left them open
+3. Security at a glance
+
+For cubes: + = closed, - = open (via OPEN DOOR command)
+For pads: + = locked, - = unlocked (via ENTER <code> command)
+
 ## Constants
 
 Located in `world/economy/constants.py`:
