@@ -100,29 +100,6 @@ class CmdStats(Command):
             right = right_stats[i]
             msg += f"{stat_line(*left):<30}{stat_line(*right):<30}\n"
         
-        # Consciousness backup status - shown right below stats
-        clone_backup = getattr(char.db, 'clone_backup', None)
-        if clone_backup:
-            # Has consciousness backup - show in bright green with timestamp
-            backup_timestamp = clone_backup.get('timestamp', 0)
-            backup_datetime = datetime.fromtimestamp(backup_timestamp)
-            formatted_time = backup_datetime.strftime("%Y-%m-%d %H:%M:%S")
-            msg += f"\n|G[ CONSCIOUSNESS BACKUP ACTIVE ]|n |gLast Updated: {formatted_time}|n\n"
-        else:
-            # No consciousness backup - show warning in bright red
-            msg += f"\n|R[ NO CONSCIOUSNESS BACKUP - DEATH IS PERMANENT ]|n\n"
-        
-        # Chrome/augmentations section
-        chrome_list = getattr(char.db, 'installed_chrome_list', None)
-        if chrome_list and len(chrome_list) > 0:
-            msg += "\n|#870000Chrome & Augmentations:|n\n"
-            for chrome in chrome_list:
-                chrome_name = chrome.get("name", "Unknown")
-                chrome_slot = chrome.get("slot", "unknown")
-                msg += f"  |y{chrome_name}|n ({chrome_slot})\n"
-        else:
-            msg += "\n|#870000No chrome or augmentations.|n\n"
-        
         # Investment Points (IP) section
         current_ip = getattr(char.db, 'ip', 0) or 0
         msg += f"\n|y[ Investment Points: |w{current_ip}|y IP ]|n"

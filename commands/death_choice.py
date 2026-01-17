@@ -1,7 +1,7 @@
 """
 Death Choice Commands
 
-Commands for choosing SLEEVE or DIE after death.
+Commands for choosing LIVE or DIE after death.
 These are added to the account when death choice is presented.
 """
 
@@ -9,19 +9,19 @@ from evennia import Command, CmdSet
 from evennia.commands.default.muxcommand import MuxCommand
 
 
-class CmdDeathClone(MuxCommand):
+class CmdDeathLive(MuxCommand):
     """
-    Choose to transfer to your sleeve backup.
+    Choose to live. You will be appraised by The Watcher and brought before the staff.
     
     Usage:
-        sleeve
+        live
     """
-    key = "clone"
+    key = "live"
     locks = "cmd:all()"
     help_category = "Death"
     
     def func(self):
-        """Execute the clone choice."""
+        """Execute the live choice."""
         # Get the account - when unpuppeted, caller IS the session
         # The session has .account attribute
         if hasattr(self.caller, 'account') and self.caller.account:
@@ -40,7 +40,7 @@ class CmdDeathClone(MuxCommand):
         
         # Process the choice
         from typeclasses.death_progression import _process_death_choice
-        _process_death_choice(account, "clone")
+        _process_death_choice(account, "live")
 
 
 class CmdDeathDie(MuxCommand):
@@ -88,5 +88,5 @@ class DeathChoiceCmdSet(CmdSet):
     no_objs = True
     
     def at_cmdset_creation(self):
-        self.add(CmdDeathClone())
+        self.add(CmdDeathLive())
         self.add(CmdDeathDie())

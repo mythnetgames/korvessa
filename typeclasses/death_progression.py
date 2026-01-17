@@ -151,10 +151,10 @@ def _complete_death(character):
     
     # Send final message (flag still allows messages through)
     final_msg = (
-        "\n|R" + "=" * 60 + "|n\n"
-        "|RThe darkness claims you completely...|n\n"
-        "|rYour consciousness fades into the void.|n\n"
-        "|R" + "=" * 60 + "|n\n"
+        "\n|m" + "=" * 60 + "|n\n"
+        "|mThe Watcher's gaze falls upon you...|n\n"
+        "|mYour fate is sealed in the eternal silence.|n\n"
+        "|m" + "=" * 60 + "|n\n"
     )
     _send_to_character(character, final_msg)
     
@@ -164,14 +164,9 @@ def _complete_death(character):
     # Send observer message
     if character.location:
         character.location.msg_contents(
-            f"|r{character.key}'s form grows utterly still, life's final spark extinguished forever.|n",
+            f"|m{character.key}'s form fades from sight, becoming one with The Watcher's realm.|n",
             exclude=[character]
         )
-    
-    # Check if character has a clone backup
-    from typeclasses.cloning_pod import has_clone_backup, get_clone_backup
-    has_backup = has_clone_backup(character)
-    backup_data = get_clone_backup(character) if has_backup else None
     
     # Get account and session
     account = character.account
@@ -183,19 +178,17 @@ def _complete_death(character):
         _log(f"DEATH_PROG: No account/session for {character.key}")
         return
     
-    # Present the choice
-    _present_death_choice(character, account, session, has_backup, backup_data)
+    # Present the choice (no backup data anymore - just ask LIVE or DIE)
+    _present_death_choice(character, account, session)
 
 
-def _present_death_choice(character, account, session, has_backup, backup_data):
-    """Present the CLONE or DIE choice to the player."""
+def _present_death_choice(character, account, session):
+    """Present the LIVE or DIE choice to the player."""
     from evennia.utils import delay
     
     # Store state for the choice
     account.ndb._death_choice_pending = True
     account.ndb._death_choice_character = character
-    account.ndb._death_choice_backup_data = backup_data
-    account.ndb._death_choice_has_backup = has_backup
     
     # Add the death choice cmdset to the account AND session
     # (session is the actual command receiver when unpuppeted)
@@ -205,49 +198,37 @@ def _present_death_choice(character, account, session, has_backup, backup_data):
         session.cmdset.add(DeathChoiceCmdSet, persistent=False)
     
     # Small delay then show the choice
-    delay(2.0, _show_death_choice_menu, account, session, has_backup)
+    delay(2.0, _show_death_choice_menu, account, session)
 
 
-def _show_death_choice_menu(account, session, has_backup):
-    """Display the death choice menu."""
+def _show_death_choice_menu(account, session):
+    """Display the death choice menu in Watcher's Domain theme."""
     account.msg("")
-    account.msg("|X" + "=" * 70 + "|n")
+    account.msg("|m" + "=" * 70 + "|n")
     account.msg("")
-    account.msg("|W    NEURAL PATTERN DETECTED - CONSCIOUSNESS TRANSFER INITIATED|n")
+    account.msg("|m    THE WATCHER OBSERVES. YOUR CHOICE AWAITS.|n")
     account.msg("")
-    
-    if has_backup:
-        account.msg("|g    [CONSCIOUSNESS BACKUP FOUND]|n")
-        account.msg("")
-        account.msg("|W    Your consciousness hovers between this world and the next.|n")
-        account.msg("|W    A backup of your neural pattern exists in the TerraGroup system.|n")
-        account.msg("")
-        account.msg("|W    You have a choice:|n")
-        account.msg("")
-        account.msg("|c    RESTORE|n - Transfer to a new sleeve. You will awaken")
-        account.msg("              with your memories and identity intact.")
-        account.msg("")
-        account.msg("|r    DIE|n     - Refuse the transfer. Your consciousness will")
-        account.msg("               dissipate. You will cease to exist.")
-        account.msg("")
-    else:
-        account.msg("|r    [NO CONSCIOUSNESS BACKUP FOUND]|n")
-        account.msg("")
-        account.msg("|W    Your consciousness hovers between this world and the next.|n")
-        account.msg("|r    No backup of your neural pattern exists in the system.|n")
-        account.msg("")
-        account.msg("|W    You have a choice:|n")
-        account.msg("")
-        account.msg("|y    CLONE|n - Attempt emergency neural transfer. Without a backup,")
-        account.msg("            the process will fail. A blank slate may be generated.")
-        account.msg("")
-        account.msg("|r    DIE|n   - Accept the void. Your consciousness will")
-        account.msg("            dissipate. You will cease to exist.")
-        account.msg("")
-    
-    account.msg("|X" + "=" * 70 + "|n")
+    account.msg("|m    Your essence teeters at the threshold between breath and silence.|n")
+    account.msg("|m    The Watcher's gaze presses upon your soul, appraising, measuring.|n")
     account.msg("")
-    account.msg("|WType |cCLONE|W or |rDIE|W to make your choice.|n")
+    account.msg("|m    You stand in the Watcher's Domain - a space between worlds.|n")
+    account.msg("|m    Here, in this moment, only one choice matters.|n")
+    account.msg("")
+    account.msg("|m    " + "-" * 66 + "|n")
+    account.msg("")
+    account.msg("|m    |cLIVE|m    - Return to the mortal world. Face the consequences.|n")
+    account.msg("|m           The Watcher will speak with those who tend the world.|n")
+    account.msg("|m           You will answer for what transpired.|n")
+    account.msg("")
+    account.msg("|m    |rDIE|m     - Accept the void. Let your story end here.|n")
+    account.msg("|m           The Watcher releases you into eternal silence.|n")
+    account.msg("|m           Your name fades from the world's memory.|n")
+    account.msg("")
+    account.msg("|m    " + "-" * 66 + "|n")
+    account.msg("")
+    account.msg("|m" + "=" * 70 + "|n")
+    account.msg("")
+    account.msg("|mType |cLIVE|m or |rDIE|m to choose your fate.|n")
     account.msg("")
     
     # Death choice cmdset is added in _present_death_choice
@@ -271,71 +252,56 @@ def _process_death_choice(account, choice):
     
     # Get stored state
     character = getattr(account.ndb, '_death_choice_character', None)
-    backup_data = getattr(account.ndb, '_death_choice_backup_data', None)
-    has_backup = getattr(account.ndb, '_death_choice_has_backup', False)
     
     # Clear the state
     if hasattr(account.ndb, '_death_choice_pending'):
         del account.ndb._death_choice_pending
     if hasattr(account.ndb, '_death_choice_character'):
         del account.ndb._death_choice_character
-    if hasattr(account.ndb, '_death_choice_backup_data'):
-        del account.ndb._death_choice_backup_data
-    if hasattr(account.ndb, '_death_choice_has_backup'):
-        del account.ndb._death_choice_has_backup
     
-    _log(f"DEATH_CHOICE: {account.key} chose {choice} (has_backup={has_backup})")
+    _log(f"DEATH_CHOICE: {account.key} chose {choice}")
     
-    if choice == "clone":
-        if has_backup and backup_data:
-            # Has backup - proceed with clone restoration
-            _handle_clone_path(account, character, session, backup_data)
-        else:
-            # No backup - clone fails, show malfunction
-            _handle_failed_clone_path(account, character, session)
+    if choice == "live":
+        # Player chose to live - teleport to room #5 for admin intervention
+        _handle_live_path(account, character, session)
     else:
         # Chose to die - show permanent death sequence
         _handle_permanent_death_path(account, character, session)
 
 
-def _handle_clone_path(account, character, session, backup_data):
-    """Handle the clone restoration path."""
-    # Create corpse first
-    corpse = _create_corpse(character)
+def _handle_live_path(account, character, session):
+    """Handle the LIVE choice - teleport to room #5 for admin intervention."""
+    from evennia.utils import delay
+    from evennia.search_index import search_object
     
-    # Move character to limbo
-    _move_to_limbo(character)
+    account.msg("\n" * 2)
+    account.msg("|m" + "=" * 70 + "|n")
+    account.msg("")
+    account.msg("|mThe Watcher observes your choice.|n")
+    account.msg("")
     
-    # Unpuppet
-    if session:
-        account.unpuppet_object(session)
+    # Teleport character to room #5
+    def _teleport_to_admin_room():
+        if character and character.location:
+            # Try to find room #5 by dbref
+            try:
+                admin_room = search_object("#5")
+                if admin_room:
+                    character.move_to(admin_room[0], quiet=True)
+                    account.msg("|mYou are drawn through the veil of The Watcher's Domain.|n")
+                    account.msg("|mWhen vision returns, you find yourself in an unfamiliar place.|n")
+                    account.msg("|mA figure awaits, ready to speak about your fate.|n")
+                else:
+                    # Fallback to limbo if room #5 doesn't exist
+                    _move_to_limbo(character)
+                    account.msg("|mYou are drawn into the void, waiting for judgment.|n")
+            except Exception as e:
+                _log(f"LIVE_PATH: Error teleporting {character.key}: {e}")
+                _move_to_limbo(character)
     
-    # Archive the character
-    if hasattr(character, 'archive_character'):
-        character.archive_character(reason="death")
-    
-    # Start clone restoration
-    _start_clone_restoration(account, character, session, backup_data)
-
-
-def _handle_failed_clone_path(account, character, session):
-    """Handle the failed clone path (no backup)."""
-    # Create corpse first
-    corpse = _create_corpse(character)
-    
-    # Move character to limbo
-    _move_to_limbo(character)
-    
-    # Unpuppet
-    if session:
-        account.unpuppet_object(session)
-    
-    # Archive the character
-    if hasattr(character, 'archive_character'):
-        character.archive_character(reason="death")
-    
-    # Start the failed clone sequence (similar to clone but ends in failure)
-    _start_new_character(account, character, session)
+    delay(2.0, _teleport_to_admin_room)
+    delay(5.0, account.msg, "")
+    delay(6.0, account.msg, "|m" + "=" * 70 + "|n")
 
 
 def _handle_permanent_death_path(account, character, session):
@@ -386,65 +352,72 @@ def _handle_permanent_death_path(account, character, session):
 
 
 def _play_permanent_death(account, character, session):
-    """Play the permanent death sequence."""
+    """Play the permanent death sequence in Watcher's Domain with divine theme."""
     from evennia.utils import delay
     
     # Clear screen
     account.msg("\n" * 3)
     
-    # The void
-    delay(0.5, account.msg, "|X" + "=" * 70 + "|n")
+    # Color codes for Watcher's Domain gradient
+    # Deep purple -> Dark magenta -> Magenta -> Bright magenta -> Pink
+    
+    # The dissolution begins
+    delay(0.5, account.msg, "|m" + "=" * 70 + "|n")
     delay(1.0, account.msg, "")
-    delay(1.5, account.msg, "|xYou let go.|n")
+    delay(1.5, account.msg, "|5You release your grip on the mortal world.|n")
     delay(3.0, account.msg, "")
-    delay(4.0, account.msg, "|xThe light fades.|n")
-    delay(5.5, account.msg, "|xThe pain fades.|n")
-    delay(7.0, account.msg, "|xEverything... fades.|n")
+    delay(4.0, account.msg, "|5The breath leaves your body.|n")
+    delay(5.5, account.msg, "|5The pain becomes memory becomes nothing.|n")
+    delay(7.0, account.msg, "|5Everything... dissolves...|n")
     delay(9.0, account.msg, "")
-    delay(10.5, account.msg, "|XThere is nothing.|n")
+    delay(10.5, account.msg, "|1Darkness wraps around you, soft and inevitable.|n")
     delay(12.5, account.msg, "")
-    delay(14.0, account.msg, "|XNo sensation. No thought. No self.|n")
+    delay(14.0, account.msg, "|1No light. No sound. No self.|n")
     delay(16.0, account.msg, "")
-    delay(18.0, account.msg, "|XJust... nothing.|n")
+    delay(18.0, account.msg, "|1Only the vast, knowing silence.|n")
     delay(20.0, account.msg, "")
-    delay(22.0, account.msg, "|X" + "=" * 70 + "|n")
+    delay(22.0, account.msg, "|m" + "=" * 70 + "|n")
     delay(24.0, account.msg, "")
-    delay(26.0, account.msg, "|r    And then...|n")
+    delay(26.0, account.msg, "|3    And then...|n")
     delay(28.0, account.msg, "")
-    delay(30.0, account.msg, "|W    Something.|n")
+    delay(30.0, account.msg, "|m    Eyes open.|n")
     delay(32.0, account.msg, "")
-    delay(33.5, account.msg, "|X" + "-" * 70 + "|n")
+    delay(33.5, account.msg, "|m" + "-" * 70 + "|n")
     delay(35.0, account.msg, "")
-    delay(36.5, account.msg, "|c[SYSTEM VOICE - Cold, distant, indifferent]|n")
+    delay(36.5, account.msg, "|m[THE WATCHER SPEAKS - A voice like starlight and stone]|n")
     delay(38.0, account.msg, "")
-    delay(40.0, account.msg, "|W    \"Consciousness termination confirmed.\"|n")
-    delay(42.5, account.msg, "|W    \"Neural pattern: dissolved.\"|n")
-    delay(45.0, account.msg, "|W    \"Identity file: closed.\"|n")
-    delay(47.5, account.msg, "")
-    # Use real name instead of display name for cloning system
-    # Check real_full_name, then fall back to first_name + last_name, then character key
-    real_name = 'Subject'
+    
+    # Character name handling
+    char_name = 'Departed One'
     if character:
-        real_name = getattr(character.db, 'real_full_name', None)
-        if not real_name:
-            # Fallback: construct from individual name fields
+        char_name = getattr(character.db, 'real_full_name', None)
+        if not char_name:
             first = getattr(character.db, 'real_first_name', '')
             last = getattr(character.db, 'real_last_name', '')
             if first or last:
-                real_name = f"{first} {last}".strip()
+                char_name = f"{first} {last}".strip()
             else:
-                real_name = character.key
-    delay(49.5, account.msg, f"|W    \"{real_name}: Deceased.\"|n")
-    delay(52.0, account.msg, "")
-    delay(54.0, account.msg, "|W    \"Sleeve allocation for account in progress.\"|n")
-    delay(56.5, account.msg, "|W    \"Please stand by for neural imprinting.\"|n")
-    delay(58.5, account.msg, "")
-    delay(60.0, account.msg, "|X" + "-" * 70 + "|n")
-    delay(61.5, account.msg, "")
-    delay(63.0, account.msg, "|X" + "=" * 70 + "|n")
+                char_name = character.key
+    
+    delay(40.0, account.msg, f"|m    \"I have seen your thread, {char_name}.|n")
+    delay(43.0, account.msg, f"|m    I have measured its weight.|n")
+    delay(46.0, account.msg, "|m    I have appraised its worth.|n")
+    delay(49.0, account.msg, "")
+    delay(51.5, account.msg, "|m    You sought to write more pages.|n")
+    delay(54.5, account.msg, "|m    Your story ended here instead.|n")
+    delay(57.5, account.msg, "")
+    delay(60.0, account.msg, "|m    Your name fades from the world.|n")
+    delay(63.0, account.msg, "|m    Your deeds become whispers.|n")
+    delay(66.0, account.msg, "|m    Your thread unravels into the eternal silence.|n")
+    delay(69.0, account.msg, "|m    You are released.\"|n")
+    delay(72.0, account.msg, "")
+    
+    delay(74.5, account.msg, "|m" + "-" * 70 + "|n")
+    delay(76.0, account.msg, "")
+    delay(78.0, account.msg, "|m" + "=" * 70 + "|n")
     
     # Start character creation after sequence
-    delay(65.0, _begin_character_creation, account, character, session)
+    delay(80.0, _begin_character_creation, account, character, session)
 
 
 def _handle_death_completion(character):
@@ -562,315 +535,8 @@ def _move_to_limbo(character):
         _log(f"DEATH_PROG_ERROR: Move to limbo failed: {e}")
 
 
-def _start_clone_restoration(account, old_character, session, backup_data):
-    """
-    Restore character from clone backup - the unnerving Matrix-style awakening.
-    
-    This is only called when the character HAS a clone backup.
-    They are pulled from a pod with their backed-up stats/skills/appearance.
-    Chrome and inventory are LOST.
-    """
-    from evennia.utils import delay
-    
-    # Lock commands during the cutscene by setting flag on account and session
-    account.ndb._clone_awakening_locked = True
-    if session:
-        session.ndb._clone_awakening_locked = True
-    
-    # Play the unnerving awakening sequence
-    _play_clone_awakening(account, old_character, session, backup_data)
-
-
-def _play_clone_awakening(account, old_character, session, backup_data):
-    """Play the unnerving Matrix-style pod extraction sequence."""
-    from datetime import datetime
-    from evennia.utils import delay, gametime
-    
-    # Get the backup timestamp for the voice to read
-    backup_timestamp = backup_data.get('timestamp', 0)
-    backup_datetime = datetime.fromtimestamp(backup_timestamp)
-    last_backup_str = backup_datetime.strftime("%B %d, %Y at %H:%M")
-    
-    # Current in-game time for the voice to announce
-    current_game_time = gametime.gametime(absolute=True)
-    current_datetime = datetime.fromtimestamp(current_game_time)
-    current_time_str = current_datetime.strftime("%B %d, %Y. %H:%M hours")
-    
-    # Clear screen and start the unnerving sequence
-    account.msg("\n" * 5)
-    
-    # Darkness and sensory confusion
-    delay(0.5, account.msg, "|X" + "=" * 70 + "|n")
-    delay(1.0, account.msg, "")
-    delay(1.5, account.msg, "|xYou can't move.|n")
-    delay(2.5, account.msg, "|xYou can't see.|n")
-    delay(3.5, account.msg, "|xYou can't breathe.|n")
-    delay(5.0, account.msg, "")
-    delay(5.5, account.msg, "|xThere is pressure. All around you. Thick. Viscous.|n")
-    delay(7.0, account.msg, "|xYou are suspended in something warm and wet.|n")
-    delay(8.5, account.msg, "")
-    
-    # The drainage
-    delay(9.5, account.msg, "|rA loud THUNK echoes through your skull.|n")
-    delay(11.0, account.msg, "|xThe liquid begins to drain.|n")
-    delay(12.5, account.msg, "|xSlowly at first. Then rushing.|n")
-    delay(14.0, account.msg, "|xYou feel yourself... settling. Heavy.|n")
-    delay(15.5, account.msg, "")
-    
-    # The opening
-    delay(16.5, account.msg, "|xA seam of light. Blinding.|n")
-    delay(18.0, account.msg, "|xGlass parts with a hydraulic hiss.|n")
-    delay(19.5, account.msg, "|xCold air hits wet skin.|n")
-    delay(21.0, account.msg, "")
-    delay(21.5, account.msg, "|xYou fall forward.|n")
-    delay(23.0, account.msg, "|xHands catch you. Mechanical. Precise.|n")
-    delay(24.5, account.msg, "")
-    
-    # The voice
-    delay(26.0, account.msg, "|X" + "-" * 70 + "|n")
-    delay(27.0, account.msg, "")
-    delay(28.0, account.msg, "|c[SYSTEM VOICE - Pleasant, synthetic, wrong]|n")
-    delay(29.5, account.msg, "")
-    delay(30.5, account.msg, f"|W    \"Good morning. The current date and time is:|n")
-    delay(32.0, account.msg, f"|W     {current_time_str}.\"|n")
-    delay(34.0, account.msg, "")
-    delay(35.5, account.msg, f"|W    \"Your last consciousness backup was recorded:|n")
-    delay(37.0, account.msg, f"|W     {last_backup_str}.\"|n")
-    delay(39.0, account.msg, "")
-    delay(40.5, account.msg, "|W    \"Your previous body has been... discontinued.\"|n")
-    delay(42.5, account.msg, "|W    \"This is your new sleeve. Please take a moment.\"|n")
-    delay(44.5, account.msg, "|W    \"Motor functions will normalize shortly.\"|n")
-    delay(46.5, account.msg, "")
-    delay(47.5, account.msg, "|W    \"Welcome back.\"|n")
-    delay(49.0, account.msg, "")
-    delay(50.0, account.msg, "|X" + "-" * 70 + "|n")
-    delay(51.0, account.msg, "")
-    
-    # Coming to
-    delay(52.5, account.msg, "|xYour vision clears.|n")
-    delay(54.0, account.msg, "|xYou are kneeling on cold tile. Naked. Shivering.|n")
-    delay(55.5, account.msg, "|xBiosynthetic amniotic fluid drips from your body.|n")
-    delay(57.0, account.msg, "")
-    delay(58.0, account.msg, "|yThe memories of your death are... |rfragmented|y. Distant.|n")
-    delay(59.5, account.msg, "|yLike something that happened to someone else.|n")
-    delay(61.0, account.msg, "")
-    delay(62.0, account.msg, "|X" + "=" * 70 + "|n")
-    
-    # Actually create the new character after the sequence
-    delay(64.0, _create_restored_clone, account, old_character, session, backup_data)
-
-
-def _create_restored_clone(account, old_character, session, backup_data):
-    """Create the actual restored clone character."""
-    from typeclasses.cloning_pod import restore_from_clone
-    from evennia import search_object
-    
-    _log(f"CLONE_CREATE: Starting clone creation for {account.key}")
-    _log(f"CLONE_CREATE: backup_data keys: {list(backup_data.keys()) if backup_data else 'None'}")
-    
-    try:
-        # Get current session - the one passed in may be stale after 64 second delay
-        current_session = session
-        if account.sessions.count():
-            current_session = account.sessions.all()[0]
-        
-        _log(f"CLONE_CREATE: Session valid: {current_session is not None}")
-        
-        # Get clone spawn location - room #53 (clone decanting room)
-        try:
-            start_location = search_object("#53")[0]
-            _log(f"CLONE_CREATE: Using clone room #53")
-        except (IndexError, AttributeError):
-            # Fallback to regular start location
-            from commands.charcreate import get_start_location
-            start_location = get_start_location()
-            _log(f"CLONE_CREATE: Using fallback start location")
-        
-        # Use base_name directly - NO Roman numerals (death count is private meta info)
-        char_name = backup_data.get('base_name') if backup_data else None
-        if not char_name:
-            char_name = old_character.key if old_character else "Clone"
-        
-        # Strip any existing Roman numerals just in case
-        import re
-        roman_pattern = r'\s+(M{0,3}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3}))$'
-        char_name = re.sub(roman_pattern, '', char_name, flags=re.IGNORECASE).strip()
-        
-        _log(f"CLONE_CREATE: Using name '{char_name}'")
-        
-        # Remove old character from account (MAX_NR_CHARACTERS=1)
-        # Check by key name since the object reference might be stale
-        chars_to_remove = [c for c in account.characters if c.key == old_character.key or c == old_character]
-        for c in chars_to_remove:
-            account.characters.remove(c)
-            _log(f"CLONE_CREATE: Removed {c.key} from account.characters")
-        
-        _log(f"CLONE_CREATE: Account characters after removal: {[c.key for c in account.characters]}")
-        
-        # Delete the old dead character entirely to free up the name and prevent resurrection
-        # This ensures the old clone is not available if the player dies again
-        if old_character:
-            old_char_name = old_character.key
-            old_char_dbref = old_character.dbref
-            # Delete the old character object from the database
-            old_character.delete()
-            _log(f"CLONE_CREATE: Deleted old character '{old_char_name}' ({old_char_dbref})")
-        
-        # Create new character with same name
-        char, errors = account.create_character(
-            key=char_name,
-            location=start_location,
-            home=start_location,
-            typeclass="typeclasses.characters.Character"
-        )
-        
-        if errors:
-            _log(f"CLONE_CREATE: Creation errors: {errors}")
-            raise Exception(f"Clone restoration failed: {errors}")
-        
-        _log(f"CLONE_CREATE: Character created: {char.key} ({char.dbref})")
-        
-        # Restore from backup (stats, skills, appearance)
-        restore_from_clone(char, backup_data)
-        
-        # Unlock commands and OOC menu - awakening sequence is complete
-        if hasattr(account.ndb, '_clone_awakening_locked'):
-            del account.ndb._clone_awakening_locked
-        if current_session and hasattr(current_session.ndb, '_clone_awakening_locked'):
-            del current_session.ndb._clone_awakening_locked
-        
-        # Note: Chrome and inventory are NOT restored - they were lost
-        account.msg("|y[Note: Cybernetic implants and inventory were not backed up.|n")
-        account.msg("|y Your belongings remain with your previous body.]|n")
-        account.msg("")
-        
-        # Puppet the new character
-        account.puppet_object(current_session, char)
-        
-        # Final release message
-        char.msg("|xYou feel control returning to your limbs.|n")
-        char.msg("|xYour fingers twitch. Then curl. Then grip.|n")
-        char.msg("")
-        char.msg("|W\"Motor functions restored. You are free to proceed.\"|n")
-        char.msg("")
-        
-        if char.location:
-            char.location.msg_contents(
-                f"|x{char.key} stirs on the cold tile, biosynthetic fluid pooling beneath them, eyes slowly focusing.|n",
-                exclude=[char]
-            )
-        
-        _log(f"CLONE_RESTORE: {char_name} restored from backup for {account.key}")
-        
-    except Exception as e:
-        _log(f"CLONE_RESTORE_ERROR: {e}")
-        import traceback
-        _log(f"CLONE_RESTORE_TRACE: {traceback.format_exc()}")
-        
-        # Get current session for unlock
-        current_session = session
-        if account.sessions.count():
-            current_session = account.sessions.all()[0]
-        
-        # Unlock on failure
-        if hasattr(account.ndb, '_clone_awakening_locked'):
-            del account.ndb._clone_awakening_locked
-        if current_session and hasattr(current_session.ndb, '_clone_awakening_locked'):
-            del current_session.ndb._clone_awakening_locked
-        
-        # Show error and let them try again
-        account.msg("|rCLONE RESTORATION CRITICAL FAILURE.|n")
-        account.msg("|rPlease contact staff for assistance.|n")
-
-
-def _start_new_character(account, old_character, session):
-    """
-    Start character creation for the account (no clone backup).
-    Shows an unnerving clone malfunction cutscene before character creation.
-    """
-    from evennia.utils import delay
-    
-    # Lock commands during the cutscene
-    account.ndb._clone_awakening_locked = True
-    if session:
-        session.ndb._clone_awakening_locked = True
-    
-    # Play the clone malfunction cutscene
-    _play_clone_malfunction(account, old_character, session)
-
-
-def _play_clone_malfunction(account, old_character, session):
-    """Play the unnerving clone malfunction sequence before character creation."""
-    from evennia.utils import delay
-    
-    # Clear screen
-    account.msg("\n" * 5)
-    
-    # Start sequence - same initial pod experience
-    delay(0.5, account.msg, "|X" + "=" * 70 + "|n")
-    delay(1.0, account.msg, "")
-    delay(1.5, account.msg, "|xYou can't move.|n")
-    delay(2.5, account.msg, "|xYou can't see.|n")
-    delay(3.5, account.msg, "|xYou can't breathe.|n")
-    delay(5.0, account.msg, "")
-    delay(5.5, account.msg, "|xThere is pressure. All around you. Thick. Viscous.|n")
-    delay(7.0, account.msg, "|xYou are suspended in something warm and wet.|n")
-    delay(8.5, account.msg, "")
-    
-    # Something goes wrong
-    delay(9.5, account.msg, "|rA loud THUNK echoes through your skull.|n")
-    delay(11.0, account.msg, "|xThe liquid begins to drain.|n")
-    delay(12.5, account.msg, "|rBut something is... wrong.|n")
-    delay(14.0, account.msg, "")
-    
-    # Error state
-    delay(15.5, account.msg, "|R[ERROR KLAXON - Harsh, repeating]|n")
-    delay(17.0, account.msg, "")
-    delay(18.0, account.msg, "|r    \"CRITICAL ERROR. CRITICAL ERROR.\"|n")
-    delay(19.5, account.msg, "|r    \"CONSCIOUSNESS BACKUP NOT FOUND.\"|n")
-    delay(21.0, account.msg, "|r    \"NEURAL PATTERN INTEGRITY: 0%\"|n")
-    delay(22.5, account.msg, "")
-    delay(24.0, account.msg, "|xThe liquid drains completely.|n")
-    delay(25.5, account.msg, "|xYou gasp. Choke. Breathe.|n")
-    delay(27.0, account.msg, "")
-    delay(28.5, account.msg, "|xThe pod opens. Light floods in.|n")
-    delay(30.0, account.msg, "|xYou collapse onto cold tile.|n")
-    delay(31.5, account.msg, "")
-    
-    # The voice - cold, clinical
-    delay(33.0, account.msg, "|X" + "-" * 70 + "|n")
-    delay(34.0, account.msg, "")
-    delay(35.0, account.msg, "|c[SYSTEM VOICE - Cold, clinical]|n")
-    delay(36.5, account.msg, "")
-    delay(38.0, account.msg, "|W    \"Clone activation failed.\"|n")
-    delay(40.0, account.msg, "|W    \"No consciousness backup on file for this identity.\"|n")
-    delay(42.0, account.msg, "|W    \"Sleeve resources have been... reallocated.\"|n")
-    delay(44.0, account.msg, "")
-    delay(45.5, account.msg, "|W    \"A fresh identity will be assigned.\"|n")
-    delay(47.5, account.msg, "|W    \"Please stand by for neural imprinting.\"|n")
-    delay(49.5, account.msg, "")
-    delay(51.0, account.msg, "|X" + "-" * 70 + "|n")
-    delay(52.0, account.msg, "")
-    
-    # Final state
-    delay(53.5, account.msg, "|xYou lie there. Naked. Shivering. Empty.|n")
-    delay(55.0, account.msg, "|xYou don't remember who you were.|n")
-    delay(56.5, account.msg, "|xYou don't remember anything at all.|n")
-    delay(58.0, account.msg, "")
-    delay(59.0, account.msg, "|X" + "=" * 70 + "|n")
-    
-    # Start character creation after the cutscene
-    delay(61.0, _begin_character_creation, account, old_character, session)
-
-
 def _begin_character_creation(account, old_character, session):
-    """Actually begin character creation after the malfunction cutscene."""
-    # Unlock commands
-    if hasattr(account.ndb, '_clone_awakening_locked'):
-        del account.ndb._clone_awakening_locked
-    if session and hasattr(session.ndb, '_clone_awakening_locked'):
-        del session.ndb._clone_awakening_locked
-    
+    """Start new character creation after death."""
     # Delete the old character if marked for deletion (permanent death path)
     char_to_delete = getattr(account.ndb, '_character_to_delete', None)
     if char_to_delete:
@@ -887,16 +553,16 @@ def _begin_character_creation(account, old_character, session):
             del account.ndb._character_to_delete
     
     account.msg("")
-    account.msg("|y[Your previous character has died without a consciousness backup.|n")
-    account.msg("|y You must create a new character.]|n")
+    account.msg("|m[Your character has passed into The Watcher's Domain.|n")
+    account.msg("|m Your story has ended. A new one awaits.]|n")
     account.msg("")
     
     try:
         from commands.charcreate import start_character_creation
         start_character_creation(account, is_respawn=False, old_character=None)
     except ImportError:
-        account.msg("|yCharacter creation is under development.|n")
-        account.msg("|yPlease contact staff for a new character.|n")
+        account.msg("|mCharacter creation is under development.|n")
+        account.msg("|mPlease contact staff for a new character.|n")
 
 
 def cancel_death_progression(character):
