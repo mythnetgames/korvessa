@@ -151,25 +151,34 @@ def is_exit_passable_for_player(exit_obj, character, debug_channel=None):
             return False  # Door is locked
         return True  # Door is unlocked
     
-    # Check for regular door blocking
-    # NOTE: Closed doors are NOT a blocker - they can be opened during normal traversal
-    # Only housing doors with code locks should block pathfinding
-    # Also validate that the door actually exists before checking it
-    # direction = exit_obj.key.lower()
-    # room = exit_obj.location
-    # try:
-    #     from commands.door import find_door
-    #     door = find_door(room, direction) if find_door else None
-    #     # Validate door is actually in room contents (not a stale reference)
-    #     if door and door in room.contents and not getattr(door.db, "is_open", True):
-    #         try:
-    #             if debug_channel:
-    #                 debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - regular door is closed")
-    #         except Exception:
-    #             pass
-    #         return False  # Door is closed
-    # except (ImportError, Exception):
-    #     pass
+    # Check for exit-based doors (new system - door properties stored on exit)
+    if getattr(exit_obj.db, "has_door", False):
+        door_is_open = getattr(exit_obj.db, "door_is_open", False)
+        if not door_is_open:
+            try:
+                if debug_channel:
+                    debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - exit door is closed")
+            except Exception:
+                pass
+            return False  # Door is closed
+        return True  # Door is open
+    
+    # Check for legacy Door objects (old system - separate door objects in room)
+    direction = exit_obj.key.lower()
+    room = exit_obj.location
+    try:
+        from commands.door import find_door
+        door = find_door(room, direction) if find_door else None
+        # Validate door is actually in room contents (not a stale reference)
+        if door and door in room.contents and not getattr(door.db, "is_open", True):
+            try:
+                if debug_channel:
+                    debug_channel.msg(f"PASSABLE_BLOCK: {exit_key} - legacy door is closed")
+            except Exception:
+                pass
+            return False  # Door is closed
+    except (ImportError, Exception):
+        pass
     
     return True
 

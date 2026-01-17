@@ -60,8 +60,44 @@ class Exit(DefaultExit):
         """Check if this exit has a door."""
         return getattr(self.db, "has_door", False)
     
+    def _get_reverse_exit(self):
+        """Get the reverse exit in the destination room that leads back here."""
+        if not self.destination:
+            return None
+        
+        reverse_map = {
+            "north": "south", "south": "north", "east": "west", "west": "east",
+            "northeast": "southwest", "southwest": "northeast",
+            "northwest": "southeast", "southeast": "northwest",
+            "up": "down", "down": "up", "in": "out", "out": "in",
+            "n": "s", "s": "n", "e": "w", "w": "e",
+            "ne": "sw", "sw": "ne", "nw": "se", "se": "nw",
+            "u": "d", "d": "u"
+        }
+        
+        reverse_dir = reverse_map.get(self.key.lower())
+        
+        # First try the mapped reverse direction
+        if reverse_dir:
+            for ex in self.destination.exits:
+                if ex.key.lower() == reverse_dir or reverse_dir in [a.lower() for a in ex.aliases.all()]:
+                    return ex
+        
+        # Fallback: find any exit leading back to our source room
+        for ex in self.destination.exits:
+            if ex.destination == self.location:
+                return ex
+        
+        return None
+    
+    def _sync_reverse_door_state(self, is_open):
+        """Sync door state with the reverse exit."""
+        reverse_exit = self._get_reverse_exit()
+        if reverse_exit and getattr(reverse_exit.db, "has_door", False):
+            reverse_exit.db.door_is_open = is_open
+    
     def door_open(self, caller):
-        """Open the door on this exit."""
+        """Open the door on this exit and the reverse exit."""
         if not self.has_door():
             caller.msg("There is no door here.")
             return False
@@ -75,24 +111,52 @@ class Exit(DefaultExit):
         if getattr(self.db, "door_is_open", False):
             caller.msg("The door is already open.")
             return False
+        
+        # Open this door
         self.db.door_is_open = True
+        
+        # Sync reverse exit
+        self._sync_reverse_door_state(True)
+        
+        # Messages to caller's room
         caller.msg(f"You open the door to the {self.key}.")
         if caller.location:
             caller.location.msg_contents(f"{caller.key} opens the door to the {self.key}.", exclude=[caller])
+        
+        # Echo to destination room
+        if self.destination:
+            reverse_exit = self._get_reverse_exit()
+            if reverse_exit:
+                self.destination.msg_contents(f"The door to the {reverse_exit.key} opens from the other side.")
+        
         return True
     
     def door_close(self, caller):
-        """Close the door on this exit."""
+        """Close the door on this exit and the reverse exit."""
         if not self.has_door():
             caller.msg("There is no door here.")
             return False
         if not getattr(self.db, "door_is_open", False):
             caller.msg("The door is already closed.")
             return False
+        
+        # Close this door
         self.db.door_is_open = False
+        
+        # Sync reverse exit
+        self._sync_reverse_door_state(False)
+        
+        # Messages to caller's room
         caller.msg(f"You close the door to the {self.key}.")
         if caller.location:
             caller.location.msg_contents(f"{caller.key} closes the door to the {self.key}.", exclude=[caller])
+        
+        # Echo to destination room
+        if self.destination:
+            reverse_exit = self._get_reverse_exit()
+            if reverse_exit:
+                self.destination.msg_contents(f"The door to the {reverse_exit.key} closes from the other side.")
+        
         return True
     
     def door_lock(self, caller):
