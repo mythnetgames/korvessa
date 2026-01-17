@@ -122,7 +122,7 @@ def is_exit_passable_for_player(exit_obj, character):
     return True
 
 
-def find_path(start_room, end_room, character=None, max_depth=100, debug=False):
+def find_path(start_room, end_room, character=None, max_depth=100):
     """
     Find the shortest path between two rooms using BFS.
     Works across zones.
@@ -132,7 +132,6 @@ def find_path(start_room, end_room, character=None, max_depth=100, debug=False):
         end_room: Destination room object
         character: Character traveling (for passability checks)
         max_depth: Maximum path length to search
-        debug: If True, output debug info to Pathing channel
         
     Returns:
         list: List of (exit_obj, destination_room) tuples representing the path,
@@ -148,24 +147,33 @@ def find_path(start_room, end_room, character=None, max_depth=100, debug=False):
     
     def debug_msg(msg):
         if debug_channel:
-            debug_channel.msg(f"PATHFIND_DEBUG: {msg}")
+            try:
+                debug_channel.msg(f"PATHFIND: {msg}")
+            except Exception:
+                pass
     
     if not start_room or not end_room:
         debug_msg(f"Invalid rooms: start={start_room}, end={end_room}")
         return None
     
-    if start_room.dbref == end_room.dbref:
-        debug_msg("Already at destination")
+    # Get dbrefs safely
+    try:
+        start_dbref = start_room.dbref
+        end_dbref = end_room.dbref
+    except Exception as e:
+        debug_msg(f"Failed to get dbrefs: {e}")
+        return None
+    
+    if start_dbref == end_dbref:
         return []  # Already there
     
-    debug_msg(f"Finding path from {start_room.key}({start_room.dbref}) to {end_room.key}({end_room.dbref})")
+    debug_msg(f"START: {start_room.key}({start_dbref}) -> {end_room.key}({end_dbref})")
     
     # BFS queue: (current_room, path_so_far)
     queue = deque([(start_room, [])])
-    visited = {start_room.dbref}
+    visited = {start_dbref}
     
     rooms_checked = 0
-    exits_checked = 0
     exits_blocked = 0
     
     while queue:
@@ -177,50 +185,61 @@ def find_path(start_room, end_room, character=None, max_depth=100, debug=False):
             continue
         
         # Explore exits
-        if not hasattr(current_room, 'exits'):
-            debug_msg(f"Room {current_room.key} has no exits attribute")
+        try:
+            room_exits = current_room.exits
+        except Exception:
             continue
         
-        room_exits = current_room.exits
-        debug_msg(f"Checking {current_room.key}: {len(room_exits)} exits")
+        if not room_exits:
+            continue
             
         for exit_obj in room_exits:
-            exits_checked += 1
+            if not exit_obj:
+                continue
             
-            if not exit_obj or not hasattr(exit_obj, 'destination'):
-                debug_msg(f"  Exit {exit_obj} has no destination")
+            try:
+                dest_room = exit_obj.destination
+            except Exception:
                 continue
                 
-            dest_room = exit_obj.destination
             if not dest_room:
-                debug_msg(f"  Exit {exit_obj.key} destination is None")
+                continue
+            
+            # Get dest dbref safely
+            try:
+                dest_dbref = dest_room.dbref
+            except Exception:
                 continue
             
             # Skip already visited rooms
-            if dest_room.dbref in visited:
+            if dest_dbref in visited:
                 continue
             
             # Check passability
             if character:
-                passable = is_exit_passable_for_player(exit_obj, character)
+                try:
+                    passable = is_exit_passable_for_player(exit_obj, character)
+                except Exception as e:
+                    debug_msg(f"Passability check error: {e}")
+                    passable = True  # Default to passable on error
+                
                 if not passable:
                     exits_blocked += 1
-                    debug_msg(f"  Exit {exit_obj.key} to {dest_room.key} BLOCKED")
                     continue
             
             # Build new path
             new_path = path + [(exit_obj, dest_room)]
             
             # Check if we reached destination (compare by dbref for reliability)
-            if dest_room.dbref == end_room.dbref:
-                debug_msg(f"PATH FOUND: {len(new_path)} steps, checked {rooms_checked} rooms, {exits_checked} exits, {exits_blocked} blocked")
+            if dest_dbref == end_dbref:
+                debug_msg(f"FOUND: {len(new_path)} steps, {rooms_checked} rooms checked, {exits_blocked} exits blocked")
                 return new_path
             
             # Add to queue
-            visited.add(dest_room.dbref)
+            visited.add(dest_dbref)
             queue.append((dest_room, new_path))
     
-    debug_msg(f"NO PATH: checked {rooms_checked} rooms, {exits_checked} exits, {exits_blocked} blocked, visited {len(visited)} unique rooms")
+    debug_msg(f"NOT FOUND: {rooms_checked} rooms checked, {exits_blocked} blocked, {len(visited)} visited")
     return None  # No path found
 
 
