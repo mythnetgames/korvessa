@@ -634,6 +634,27 @@ def is_wielding_ranged_weapon(character):
     return False
 
 
+def is_ammo_compatible(ammo_type, weapon_ammo_type):
+    """
+    Check if an ammunition type is compatible with a weapon's ammo type.
+    
+    Args:
+        ammo_type (str): The ammunition type code
+        weapon_ammo_type (str): The weapon's required ammunition type
+        
+    Returns:
+        bool: True if compatible, False otherwise
+    """
+    if not ammo_type or not weapon_ammo_type:
+        return False
+    
+    # Normalize to lowercase for comparison
+    ammo_type = str(ammo_type).lower().strip()
+    weapon_ammo_type = str(weapon_ammo_type).lower().strip()
+    
+    return ammo_type == weapon_ammo_type
+
+
 def get_wielded_weapons(character):
     """
     Get all weapons a character is currently wielding.
