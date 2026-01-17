@@ -101,19 +101,27 @@ class Exit(DefaultExit):
         if not self.has_door():
             caller.msg("There is no door here.")
             return False
-        if getattr(self.db, "door_is_locked", False):
-            caller.msg("The door is locked.")
-            return False
-        # Check keypad
+        
+        # Check keypad first - if keypad exists and is not unlocked, reject
         if getattr(self.db, "door_keypad_code", None) and not getattr(self.db, "door_keypad_unlocked", False):
             caller.msg("The keypad is locked. Enter the correct code to unlock.")
             return False
+        
+        # If door is locked and no keypad unlocked it, reject
+        if getattr(self.db, "door_is_locked", False) and not getattr(self.db, "door_keypad_unlocked", False):
+            caller.msg("The door is locked.")
+            return False
+        
         if getattr(self.db, "door_is_open", False):
             caller.msg("The door is already open.")
             return False
         
         # Open this door
         self.db.door_is_open = True
+        
+        # Reset keypad unlocked flag after opening
+        if getattr(self.db, "door_keypad_unlocked", False):
+            self.db.door_keypad_unlocked = False
         
         # Sync reverse exit
         self._sync_reverse_door_state(True)
