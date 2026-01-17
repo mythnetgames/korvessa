@@ -1,5 +1,5 @@
 """
-Custom Look command that handles petitions viewing.
+Custom Look command that handles petitions viewing and housing door status indicators.
 """
 
 from evennia.commands.default.general import CmdLook as DefaultCmdLook
@@ -14,6 +14,10 @@ class CmdLook(DefaultCmdLook):
         look <object>
         look petitions     - View your petitions
         look pending       - View your pending petitions
+    
+    Door Status Indicators:
+        +north = door exists and is closed/locked
+        -north = door exists and is open/unlocked
     """
     
     aliases = ["l", "ls"]
@@ -32,6 +36,61 @@ class CmdLook(DefaultCmdLook):
         
         # Otherwise use default look
         super().func()
+    
+    def format_room_exits(self, room):
+        """
+        Format exits with housing door status indicators.
+        Overrides parent to show +direction for closed/locked doors, -direction for open/unlocked.
+        
+        Args:
+            room: The room to format exits for
+            
+        Returns:
+            str: Formatted exit string with indicators
+        """
+        exit_list = room.exits
+        
+        if not exit_list:
+            return ""
+        
+        # Get the caller for lock checking
+        caller = self.caller
+        
+        exit_strs = []
+        for exit_obj in exit_list:
+            # Check if this is a housing door (CubeDoor or PadDoor)
+            if exit_obj.is_typeclass("typeclasses.cube_housing.CubeDoor"):
+                # Use the door's formatted name with +/- indicator
+                formatted_name = exit_obj.get_formatted_exit_name()
+                exit_strs.append(formatted_name)
+            elif exit_obj.is_typeclass("typeclasses.pad_housing.PadDoor"):
+                # Use the door's formatted name with +/- indicator
+                formatted_name = exit_obj.get_formatted_exit_name()
+                exit_strs.append(formatted_name)
+            elif getattr(exit_obj.db, "has_door", False):
+                # Exit has a door attached directly - use its display method
+                if hasattr(exit_obj, "get_door_display_name"):
+                    exit_strs.append(exit_obj.get_door_display_name())
+                else:
+                    # Fallback: manual +/- indicator
+                    if not getattr(exit_obj.db, "door_is_open", False) or getattr(exit_obj.db, "door_is_locked", False):
+                        exit_strs.append(f"+{exit_obj.key}")
+                    else:
+                        exit_strs.append(f"-{exit_obj.key}")
+            else:
+                # Check if there's a legacy door object attached to this exit
+                exit_name = exit_obj.key
+                for obj in room.contents:
+                    if (obj.is_typeclass("typeclasses.doors.Door") and 
+                        getattr(obj.db, "exit_direction", None) == exit_obj.key):
+                        if hasattr(obj, "get_formatted_exit_name"):
+                            exit_name = obj.get_formatted_exit_name()
+                        break
+                exit_strs.append(exit_name)
+        
+        # Sort and format
+        exit_strs = ", ".join(exit_strs) if exit_strs else ""
+        return f"|cExits:|n {exit_strs}"
     
     def view_petitions(self, char):
         """Display active petitions for the character."""

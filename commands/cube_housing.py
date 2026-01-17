@@ -859,17 +859,28 @@ class CmdClearCubeRenter(Command):
 
 
 class CubeHousingCmdSet(CmdSet):
-    """Command set for cube housing commands."""
+    """
+    Command set for cube housing commands.
+    
+    Note: Player commands (enter, check, close door, open door, pay rent) are now 
+    handled by the PadHousingCmdSet which supports both cubes and pads.
+    This cmdset only contains cube-specific admin commands.
+    """
     
     key = "cube_housing"
     
     def at_cmdset_creation(self):
-        self.add(CmdEnter())
-        self.add(CmdCheck())
-        self.add(CmdCloseDoor())
-        self.add(CmdOpenDoor())
-        self.add(CmdPayRent())
+        # Player commands removed - now handled by PadHousingCmdSet
+        # which supports both cubes and pads
+        # self.add(CmdEnter())
+        # self.add(CmdCheck())
+        # self.add(CmdCloseDoor())
+        # self.add(CmdOpenDoor())
+        # self.add(CmdPayRent())
+        
+        # Keep cube-specific admin commands
         self.add(CmdCreateCube())
         self.add(CmdSetCubeRenter())
         self.add(CmdCubeInfo())
         self.add(CmdClearCubeRenter())
+

@@ -20,6 +20,14 @@ class Exit(DefaultExit):
     Exits are connectors between rooms. Exits are normal Objects except
     they define the `destination` property and override some hooks
     and methods to represent the exits.
+    
+    Door Properties (stored on exit.db):
+        has_door: bool - Whether this exit has a door attached
+        door_is_open: bool - Whether the door is open (True) or closed (False)
+        door_is_locked: bool - Whether the door is locked
+        door_desc: str - Description of the door
+        door_keypad_code: str - 8-digit keypad code (if keypad attached)
+        door_keypad_unlocked: bool - Whether keypad is currently unlocked
     """
 
     def announce_move_from(self, traversing_object, destination):
@@ -29,6 +37,188 @@ class Exit(DefaultExit):
     def announce_move_to(self, traversing_object, source_location):
         """Suppress default Evennia exit arrival message."""
         return ""
+
+    # --- DOOR PROPERTY METHODS ---
+    
+    def attach_door(self):
+        """Attach a door to this exit."""
+        self.db.has_door = True
+        self.db.door_is_open = False
+        self.db.door_is_locked = False
+        self.db.door_desc = "A sturdy door blocks the way."
+    
+    def remove_door(self):
+        """Remove the door from this exit."""
+        self.db.has_door = False
+        self.db.door_is_open = False
+        self.db.door_is_locked = False
+        self.db.door_desc = None
+        self.db.door_keypad_code = None
+        self.db.door_keypad_unlocked = False
+    
+    def has_door(self):
+        """Check if this exit has a door."""
+        return getattr(self.db, "has_door", False)
+    
+    def _get_reverse_exit(self):
+        """Get the reverse exit in the destination room that leads back here."""
+        if not self.destination:
+            return None
+        
+        reverse_map = {
+            "north": "south", "south": "north", "east": "west", "west": "east",
+            "northeast": "southwest", "southwest": "northeast",
+            "northwest": "southeast", "southeast": "northwest",
+            "up": "down", "down": "up", "in": "out", "out": "in",
+            "n": "s", "s": "n", "e": "w", "w": "e",
+            "ne": "sw", "sw": "ne", "nw": "se", "se": "nw",
+            "u": "d", "d": "u"
+        }
+        
+        reverse_dir = reverse_map.get(self.key.lower())
+        
+        # First try the mapped reverse direction
+        if reverse_dir:
+            for ex in self.destination.exits:
+                if ex.key.lower() == reverse_dir or reverse_dir in [a.lower() for a in ex.aliases.all()]:
+                    return ex
+        
+        # Fallback: find any exit leading back to our source room
+        for ex in self.destination.exits:
+            if ex.destination == self.location:
+                return ex
+        
+        return None
+    
+    def _sync_reverse_door_state(self, is_open):
+        """Sync door state with the reverse exit."""
+        reverse_exit = self._get_reverse_exit()
+        if reverse_exit and getattr(reverse_exit.db, "has_door", False):
+            reverse_exit.db.door_is_open = is_open
+    
+    def door_open(self, caller):
+        """Open the door on this exit and the reverse exit."""
+        if not self.has_door():
+            caller.msg("There is no door here.")
+            return False
+        
+        # Check keypad first - if keypad exists and is not unlocked, reject
+        if getattr(self.db, "door_keypad_code", None) and not getattr(self.db, "door_keypad_unlocked", False):
+            caller.msg("The keypad is locked. Enter the correct code to unlock.")
+            return False
+        
+        # If door is locked and no keypad unlocked it, reject
+        if getattr(self.db, "door_is_locked", False) and not getattr(self.db, "door_keypad_unlocked", False):
+            caller.msg("The door is locked.")
+            return False
+        
+        if getattr(self.db, "door_is_open", False):
+            caller.msg("The door is already open.")
+            return False
+        
+        # Open this door
+        self.db.door_is_open = True
+        
+        # Reset keypad unlocked flag after opening
+        if getattr(self.db, "door_keypad_unlocked", False):
+            self.db.door_keypad_unlocked = False
+        
+        # Sync reverse exit
+        self._sync_reverse_door_state(True)
+        
+        # Messages to caller's room
+        caller.msg(f"You open the door to the {self.key}.")
+        if caller.location:
+            caller.location.msg_contents(f"{caller.key} opens the door to the {self.key}.", exclude=[caller])
+        
+        # Echo to destination room
+        if self.destination:
+            reverse_exit = self._get_reverse_exit()
+            if reverse_exit:
+                self.destination.msg_contents(f"The door to the {reverse_exit.key} opens from the other side.")
+        
+        return True
+    
+    def door_close(self, caller):
+        """Close the door on this exit and the reverse exit."""
+        if not self.has_door():
+            caller.msg("There is no door here.")
+            return False
+        if not getattr(self.db, "door_is_open", False):
+            caller.msg("The door is already closed.")
+            return False
+        
+        # Close this door
+        self.db.door_is_open = False
+        
+        # Sync reverse exit
+        self._sync_reverse_door_state(False)
+        
+        # Messages to caller's room
+        caller.msg(f"You close the door to the {self.key}.")
+        if caller.location:
+            caller.location.msg_contents(f"{caller.key} closes the door to the {self.key}.", exclude=[caller])
+        
+        # Echo to destination room
+        if self.destination:
+            reverse_exit = self._get_reverse_exit()
+            if reverse_exit:
+                self.destination.msg_contents(f"The door to the {reverse_exit.key} closes from the other side.")
+        
+        return True
+    
+    def door_lock(self, caller):
+        """Lock the door on this exit."""
+        if not self.has_door():
+            caller.msg("There is no door here.")
+            return False
+        if getattr(self.db, "door_is_open", False):
+            caller.msg("Close the door first.")
+            return False
+        if getattr(self.db, "door_is_locked", False):
+            caller.msg("The door is already locked.")
+            return False
+        self.db.door_is_locked = True
+        caller.msg(f"You lock the door to the {self.key}.")
+        if caller.location:
+            caller.location.msg_contents(f"{caller.key} locks the door to the {self.key}.", exclude=[caller])
+        return True
+    
+    def door_unlock(self, caller):
+        """Unlock the door on this exit."""
+        if not self.has_door():
+            caller.msg("There is no door here.")
+            return False
+        if not getattr(self.db, "door_is_locked", False):
+            caller.msg("The door is not locked.")
+            return False
+        self.db.door_is_locked = False
+        caller.msg(f"You unlock the door to the {self.key}.")
+        if caller.location:
+            caller.location.msg_contents(f"{caller.key} unlocks the door to the {self.key}.", exclude=[caller])
+        return True
+    
+    def get_door_display_name(self):
+        """Get formatted exit name with +/- indicator for door status.
+        
+        Returns:
+            str: Exit key with + prefix if closed/locked, - prefix if open.
+                 Green color for keypad doors, yellow for normal doors.
+        """
+        if not self.has_door():
+            return self.key
+        
+        # Check if this door has a keypad attached (green) or is a normal door (yellow)
+        has_keypad = bool(getattr(self.db, "door_keypad_code", None))
+        color = "|g" if has_keypad else "|y"
+        
+        # + for closed/locked doors, - for open doors
+        if not getattr(self.db, "door_is_open", False) or getattr(self.db, "door_is_locked", False):
+            return f"{color}+|n{self.key}"
+        else:
+            return f"{color}-|n{self.key}"
+    
+    # --- END DOOR PROPERTY METHODS ---
 
     def at_object_creation(self):
         super().at_object_creation()
@@ -160,6 +350,26 @@ class Exit(DefaultExit):
         return reverses.get(direction.lower(), direction)
 
     def at_traverse(self, traversing_object, target_location):
+        # --- DOOR BLOCKING CHECK (must happen first!) ---
+        # First check if THIS exit has a door attached
+        if self.has_door():
+            if not getattr(self.db, "door_is_open", False):
+                traversing_object.msg(f"The door to the {self.key} is closed.")
+                return
+        else:
+            # Fallback: check for legacy Door objects in the room
+            direction = self.key.lower()
+            room = traversing_object.location
+            try:
+                from commands.door import find_door
+            except ImportError:
+                find_door = None
+            door = find_door(room, direction) if find_door else None
+            if door and not getattr(door.db, "is_open", True):
+                traversing_object.msg("The door to the %s is closed." % self.key)
+                return
+        # --- END DOOR BLOCKING CHECK ---
+        
         # --- STAMINA MOVEMENT SYSTEM ---
         # Only apply to characters with accounts
         try:
@@ -285,19 +495,6 @@ class Exit(DefaultExit):
             splattercast.msg(f"STAMINA_ERROR: {traversing_object.key} traversing {self.key}: {e}")
             # Fall through to normal traversal on error
         
-        # --- DOOR BLOCKING CHECK ---
-        direction = self.key.lower()
-        room = traversing_object.location
-        # Import find_door from commands.door
-        try:
-            from commands.door import find_door
-        except ImportError:
-            find_door = None
-        door = find_door(room, direction) if find_door else None
-        if door and not getattr(door.db, "is_open", True):
-            traversing_object.msg("The door to the %s is closed." % self.key)
-            return
-        # --- END DOOR BLOCKING CHECK ---
         splattercast = ChannelDB.objects.get_channel(SPLATTERCAST_CHANNEL)
         # Autopopulate coordinates for target room if missing
         src_room = traversing_object.location

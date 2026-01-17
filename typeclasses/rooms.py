@@ -813,7 +813,33 @@ class Room(ObjectParent, DefaultRoom):
         
         # Analyze each exit
         for exit_obj in exits:
-            direction = exit_obj.key
+            # Check if this is a housing door or regular door and get formatted name with +/- indicator
+            if (exit_obj.is_typeclass("typeclasses.cube_housing.CubeDoor") or 
+                exit_obj.is_typeclass("typeclasses.pad_housing.PadDoor")):
+                if hasattr(exit_obj, "get_formatted_exit_name"):
+                    direction = exit_obj.get_formatted_exit_name()
+                else:
+                    direction = exit_obj.key
+            elif getattr(exit_obj.db, "has_door", False):
+                # Exit has a door attached directly - use its display method
+                if hasattr(exit_obj, "get_door_display_name"):
+                    direction = exit_obj.get_door_display_name()
+                else:
+                    # Fallback: manual +/- indicator
+                    if not getattr(exit_obj.db, "door_is_open", False) or getattr(exit_obj.db, "door_is_locked", False):
+                        direction = f"+{exit_obj.key}"
+                    else:
+                        direction = f"-{exit_obj.key}"
+            else:
+                # Check if there's a legacy door object attached to this exit
+                direction = exit_obj.key
+                for obj in exit_obj.location.contents:
+                    if (obj.is_typeclass("typeclasses.doors.Door") and 
+                        getattr(obj.db, "exit_direction", None) == exit_obj.key):
+                        if hasattr(obj, "get_formatted_exit_name"):
+                            direction = obj.get_formatted_exit_name()
+                        break
+            
             aliases = exit_obj.aliases.all()
             alias = aliases[0] if aliases else None
             destination = exit_obj.destination

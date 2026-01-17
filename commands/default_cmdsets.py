@@ -20,6 +20,7 @@ from commands import CmdCharacter
 from commands import CmdInventory
 from commands.CmdInventory import CmdGet, CmdInventory as CmdInv, CmdGive, CmdDrop
 from commands import CmdAdmin
+from commands.admin_door_cleanup import CmdCleanupDoors
 from commands import CmdClothing
 from commands.CmdClothing import CmdWear, CmdRemove, CmdFreeHands
 from commands.CmdFightingStyle import CmdFightingStyle
@@ -172,7 +173,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add individual attach/remove/program/show commands for doors/locks/keypads
         from commands.door import (
             CmdAttachDoor, CmdAttachLock, CmdAttachKeypad, CmdRemoveDoor, CmdRemoveLock, CmdRemoveKeypad,
-            CmdProgramKeypad, CmdShowCombo, CmdSetDoorDesc, CmdSetDoorShortDesc
+            CmdProgramKeypad, CmdShowCombo, CmdSetDoorDesc, CmdSetDoorShortDesc,
+            CmdAddSecondaryCode, CmdRemoveSecondaryCode, CmdListSecondaryCodes
         )
         self.add(CmdAttachDoor())
         self.add(CmdAttachLock())
@@ -184,6 +186,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdShowCombo())
         self.add(CmdSetDoorDesc())
         self.add(CmdSetDoorShortDesc())
+        self.add(CmdAddSecondaryCode())
+        self.add(CmdRemoveSecondaryCode())
+        self.add(CmdListSecondaryCodes())
         # Add fix room typeclass admin command
         from commands.CmdFixRoomTypeclass import CmdFixRoomTypeclass
         self.add(CmdFixRoomTypeclass())
@@ -346,6 +351,8 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add autocoord command
         from commands.autocoord import CmdAutoCoord
         self.add(CmdAutoCoord())
+        # Add cleanup doors command
+        self.add(CmdCleanupDoors())
         # Add deletezone command
         from commands.deletezone import CmdDeleteZone
         self.add(CmdDeleteZone())
@@ -443,6 +450,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdStaminaStatus())     # Admin: check stamina system status
         # Add cube housing commands
         self.add(CubeHousingCmdSet())    # Housing: enter, close door, pay rent, createcube, etc.
+        # Add pad housing commands (replaces cube commands for unified housing)
+        from commands.pad_housing import PadHousingCmdSet
+        self.add(PadHousingCmdSet())     # Housing: enter, check, close door, pay rent, createpad, setrent, etc.
         # Add economy commands
         self.add(EconomyCmdSet())        # Economy: count, dropmoney, payday, spawncash, etc.
         # Add furniture interaction commands
