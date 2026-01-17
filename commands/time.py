@@ -1,11 +1,16 @@
 """
-Custom in-character time command that displays time from a nearby clock display.
-The clock can vary by up to 3 minutes (random seconds and minutes).
+Custom in-character time command that displays Korvessan calendar time.
+Shows date in Common Field Reckoning format with the six-day Turning.
 """
 
 from evennia import Command
-from evennia.utils import gametime
-import time as real_time
+from world.calendar import (
+    get_korvessan_date, 
+    format_date_full, 
+    format_time,
+    get_time_period_name,
+    get_colloquial_date
+)
 import random
 
 
@@ -17,7 +22,10 @@ class CmdTime(Command):
         time
     
     Shows you the current date and time as displayed on a nearby
-    chronometer or digital clock. The clock may be slightly fast or slow.
+    chronometer or sundial. The clock may be slightly imprecise.
+    
+    Dates are shown in Common Field Reckoning, the agrarian calendar
+    used throughout Korvessa. Years are counted in AH (After Harboring).
     """
     
     key = "time"
@@ -26,27 +34,34 @@ class CmdTime(Command):
     help_category = "General"
     
     def func(self):
-        """Display the current game time from a nearby clock."""
+        """Display the current game time in Korvessan calendar format."""
         caller = self.caller
         
-        # Get current game time in seconds
-        game_time_seconds = gametime.gametime()
+        # Get current Korvessan date
+        date = get_korvessan_date()
         
-        # Add random variation: -180 to +180 seconds (3 minutes range)
-        variation = random.randint(-180, 180)
-        display_time = game_time_seconds + variation
-        
-        # Convert to time struct for formatting
-        time_struct = real_time.gmtime(display_time)
+        # Add slight variation to minutes for flavor (imprecise timekeeping)
+        variation = random.randint(-5, 5)
+        adjusted_minute = max(0, min(59, date['minute'] + variation))
+        date['minute'] = adjusted_minute
         
         # Format the display
-        date_str = real_time.strftime("%A, %B %d, %Y", time_struct)
-        time_str = real_time.strftime("%H:%M:%S", time_struct)
+        full_date = format_date_full(date)
+        time_str = format_time(date)
+        time_period = get_time_period_name(date['hour'])
+        colloquial = get_colloquial_date(date)
         
-        # Display as a nearby clock reading
+        # Build the display
         caller.msg(f"\n|w{'-' * 60}|n")
-        caller.msg(f"|bA nearby chronometer display reads:|n")
+        caller.msg(f"|bA nearby sundial and calendar mark:|n")
         caller.msg(f"|w{'-' * 60}|n")
-        caller.msg(f"|yDate: |c{date_str}|n")
-        caller.msg(f"|yTime: |c{time_str}|n")
+        caller.msg(f"|y  Date:|n |c{full_date}|n")
+        caller.msg(f"|y  Time:|n |c{time_str}|n")
+        caller.msg(f"|w{'-' * 60}|n")
+        caller.msg(f"|xIt is {time_period}, {colloquial}.|n")
+        
+        # Show weekday significance if relevant
+        if date['weekday_dedication']:
+            caller.msg(f"|x{date['weekday_name']} is dedicated to {date['weekday_dedication']}.|n")
+        
         caller.msg(f"|w{'-' * 60}|n\n")

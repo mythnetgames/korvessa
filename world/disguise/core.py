@@ -614,6 +614,12 @@ def check_disguise_slip(character, trigger_type, **kwargs):
     
     base_chance = max(1, base_chance - skill_reduction)  # Never go below 1% chance
     
+    # Apply personality passive (Hidden - harder to slip disguise)
+    from world.personality_passives import get_disguise_slip_reduction
+    passive_mult = get_disguise_slip_reduction(character)
+    base_chance *= passive_mult
+    base_chance = max(1, base_chance)  # Still never go below 1%
+    
     # Check item-based anonymity first
     item, descriptor = get_anonymity_item(character)
     if splattercast:

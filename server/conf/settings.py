@@ -147,7 +147,8 @@ SESSION_DISCONNECT_TIMEOUT = 5  # 5 seconds to detect disconnect
 ######################################################################
 
 # Time factor: 1.0 = real time, >1 = faster, <1 = slower
-TIME_FACTOR = 1.0  # Real-time speed (x1)
+# Set to 3.0 so 1 real month = ~3 game months (Korvessan calendar)
+TIME_FACTOR = 3.0
 
 # Game time epoch in seconds since Unix epoch
 # Adjusted to match January 12, 1970 at current time (adding 10 minutes)

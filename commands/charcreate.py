@@ -19,7 +19,7 @@ import re
 # D&D 5e Point Buy Constants
 POINT_BUY_TOTAL = 27
 POINT_BUY_COSTS = {
-    8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
+    8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9, 16: 12
 }
 STAT_MIN = 8
 STAT_MAX = 15
@@ -224,26 +224,41 @@ def validate_stat_distribution(stats, personality_stat=None):
     Validate D&D 5e point buy stat distribution.
     Args:
         stats (dict): {stat_name: value}
-        personality_stat (str): The stat that gets personality bonus (e.g., 'wis') - allows range 9-16
+        personality_stat (str): The stat that gets personality bonus (e.g., 'wis') - allows range 9-16. Only applied if not None.
     Returns:
         tuple: (is_valid: bool, error_message: str or None)
     """
+    # Personality stat boost only applies if explicitly chosen (not None)
+    if not personality_stat:
+        # No personality stat chosen - all stats use standard range
+        stat_min = STAT_MIN  # 8
+        stat_max = STAT_MAX  # 15
+        for stat, value in stats.items():
+            if value < stat_min or value > stat_max:
+                return (False, f"{stat.upper()} must be between {stat_min}-{stat_max}.")
+            if value not in POINT_BUY_COSTS:
+                return (False, f"Invalid value {value} for {stat.upper()}.")
+    else:
+        # Personality stat chosen - that stat gets boosted range
+        for stat, value in stats.items():
+            # Determine min/max for this stat
+            if stat == personality_stat:
+                stat_min = 9  # Personality boost starts at 9
+                stat_max = 16  # Personality boost goes to 16
+            else:
+                stat_min = STAT_MIN  # 8
+                stat_max = STAT_MAX  # 15
+            
+            if value < stat_min:
+                return (False, f"{stat.upper()} must be at least {stat_min}.")
+            if value > stat_max:
+                return (False, f"{stat.upper()} cannot exceed {stat_max}.")
+            if value not in POINT_BUY_COSTS:
+                return (False, f"Invalid value {value} for {stat.upper()}.")
+    
+    # Calculate total cost
     total_cost = 0
     for stat, value in stats.items():
-        # Determine min/max for this stat
-        if stat == personality_stat:
-            stat_min = 9  # Personality boost starts at 9
-            stat_max = 16  # Personality boost goes to 16
-        else:
-            stat_min = STAT_MIN  # 8
-            stat_max = STAT_MAX  # 15
-        
-        if value < stat_min:
-            return (False, f"{stat.upper()} must be at least {stat_min}.")
-        if value > stat_max:
-            return (False, f"{stat.upper()} cannot exceed {stat_max}.")
-        if value not in POINT_BUY_COSTS:
-            return (False, f"Invalid value {value} for {stat.upper()}.")
         total_cost += POINT_BUY_COSTS[value]
     
     if total_cost != POINT_BUY_TOTAL:
@@ -1304,7 +1319,7 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
     race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
-    personality_stat = caller.ndb.charcreate_data.get('personality_stat', 'str')
+    personality_stat = caller.ndb.charcreate_data.get('personality_stat')  # None if not yet chosen
     stats = caller.ndb.charcreate_data.get('stats', {
         'str': 8,
         'dex': 8,
@@ -1330,12 +1345,12 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
     def calc_mod(value):
         return (value - 10) // 2
     
-    # Build stat display showing boosted range for personality stat
+    # Build stat display showing boosted range for personality stat (only if chosen)
     def stat_line(stat_key, color, name, desc):
         value = stats[stat_key]
-        is_bonus = stat_key == personality_stat
+        is_bonus = personality_stat and stat_key == personality_stat
         if is_bonus:
-            range_text = f"|y(9-16)|n"  # Boosted range
+            range_text = f"|y(9-16)|n"  # Boosted range for chosen personality stat
         else:
             range_text = f"(8-15)"
         return f"    |{color}{name}|n: {value:2d}  |w({calc_mod(value):+d})|n {range_text} - {desc}"
@@ -1348,9 +1363,9 @@ Race: |c{race.capitalize()}|n
 Sex: |c{sex.capitalize()}|n
 Personality: |c{p['name']}|n
 
-|wD&D 5e Point Buy:|n |y{POINT_BUY_TOTAL} points|n to spend.
-|wPoint costs:|n 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9
-|yYour personality boosts {stat_names.get(personality_stat, personality_stat.upper())} range to 9-16.|n
+|wPoint buy:|n |y{POINT_BUY_TOTAL} points|n to spend.
+|wPoint costs:|n 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9, 16=12
+{'|yYour personality boosts ' + stat_names.get(personality_stat, personality_stat.upper()) + ' range to 9-16.|n' if personality_stat else ''}
 
 |b----------------------------------------------------------------------|n
 {stat_line('str', 'r', 'STR (Strength)    ', 'Physical power, melee damage')}
@@ -1411,8 +1426,8 @@ Personality: |c{p['name']}|n
             except ValueError:
                 caller.msg("|rValue must be a number.|n")
                 return text, options
-            # Check range based on whether this stat gets personality bonus
-            is_bonus_stat = command == personality_stat
+            # Check range based on whether this stat gets personality bonus (only if chosen)
+            is_bonus_stat = personality_stat and command == personality_stat
             min_val = 9 if is_bonus_stat else 8
             max_val = 16 if is_bonus_stat else 15
             
@@ -1439,7 +1454,7 @@ def first_char_confirm(caller, raw_string, **kwargs):
     race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
-    personality_stat = caller.ndb.charcreate_data.get('personality_stat', 'str')
+    personality_stat = caller.ndb.charcreate_data.get('personality_stat')  # None if not yet chosen
     stats = caller.ndb.charcreate_data.get('stats', {
         'str': 8,
         'dex': 8,
@@ -2019,7 +2034,7 @@ def first_char_finalize(caller, raw_string, **kwargs):
     race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
-    personality_stat = caller.ndb.charcreate_data.get('personality_stat', 'str')
+    personality_stat = caller.ndb.charcreate_data.get('personality_stat')  # None if not yet chosen
     personality_secondary_skill = caller.ndb.charcreate_data.get('personality_secondary_skill', None)
     character_facts = caller.ndb.charcreate_data.get('character_facts', {})
     stats = caller.ndb.charcreate_data.get('stats', {

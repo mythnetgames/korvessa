@@ -302,7 +302,7 @@ def get_personality_display(personality_key):
     # Format skills
     primary = p['skills']['primary']
     secondary = p['skills']['secondary']
-    skill_text = f"{primary['skill'].replace('_', ' ').title()} +{primary['bonus']}%, {secondary['skill'].replace('_', ' ').title()} +{secondary['bonus']}%"
+    skill_text = f"{primary['skill'].replace('_', ' ').title()} 5%, {secondary['skill'].replace('_', ' ').title()} 5%"
     
     # Format standing shifts
     if p['standing_shifts']:
@@ -353,24 +353,29 @@ def apply_personality_to_character(character, personality_key, chosen_stat, seco
     if not character.db.skills:
         character.db.skills = {}
     
-    # Apply skill bonuses
+    # Apply skill bonuses - grant 5% starting proficiency
     primary = p['skills']['primary']
     secondary = p['skills']['secondary']
     
+    # Primary skill starts at 5%
     current_primary = character.db.skills.get(primary['skill'], 0)
-    character.db.skills[primary['skill']] = current_primary + primary['bonus']
+    character.db.skills[primary['skill']] = max(current_primary, 5.0)
     
-    # Handle secondary skill (Freehands can choose)
+    # Handle secondary skill (Freehands can choose) - also starts at 5%
     if secondary['skill'] == 'any' and secondary_skill:
         character.db.personality_secondary_skill = secondary_skill
         current_secondary = character.db.skills.get(secondary_skill, 0)
-        character.db.skills[secondary_skill] = current_secondary + secondary['bonus']
+        character.db.skills[secondary_skill] = max(current_secondary, 5.0)
     else:
         current_secondary = character.db.skills.get(secondary['skill'], 0)
-        character.db.skills[secondary['skill']] = current_secondary + secondary['bonus']
+        character.db.skills[secondary['skill']] = max(current_secondary, 5.0)
     
     # Store passive key
     character.db.personality_passive = p['passive']['key']
+    
+    # Apply passive skill bonuses (like Hidden's stealth bonus)
+    from world.personality_passives import apply_personality_skill_bonuses
+    apply_personality_skill_bonuses(character)
     
     # Apply standing shifts
     if not character.db.faction_standing:

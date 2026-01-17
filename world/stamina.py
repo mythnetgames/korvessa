@@ -190,23 +190,47 @@ class CharacterMovementStamina:
             return math.sqrt(self.body * self.dex)
         return 0
     
-    def _get_regen_multiplier(self):
+    def _get_regen_multiplier(self, character=None):
         """
-        Calculate the regen multiplier based on DEX.
+        Calculate the regen multiplier based on DEX and personality passives.
         
         Formula: regen_mult = 1 + 0.03 * DEX/100
+        Stalwart passive adds +15% to regen.
+        
+        Args:
+            character: Character object (optional, for personality bonuses)
         """
-        return 1.0 + (DEX_REGEN_BONUS * self.dex / 100.0)
+        base_mult = 1.0 + (DEX_REGEN_BONUS * self.dex / 100.0)
+        
+        # Apply personality passive bonus
+        if character:
+            from world.personality_passives import get_stamina_modifiers
+            passive_regen, _ = get_stamina_modifiers(character)
+            base_mult *= passive_regen
+        
+        return base_mult
     
-    def _get_drain_multiplier(self):
+    def _get_drain_multiplier(self, character=None):
         """
-        Calculate the drain multiplier based on BODY+DEX synergy.
+        Calculate the drain multiplier based on BODY+DEX synergy and personality passives.
         
         Formula: drain_mult = 1 / (1 + 0.04 * A/100)
         Lower is better (less drain).
+        Stalwart passive reduces drain by 15%.
+        
+        Args:
+            character: Character object (optional, for personality bonuses)
         """
         synergy = self._get_synergy()
-        return 1.0 / (1.0 + (DEX_DRAIN_REDUCTION * synergy / 100.0))
+        base_mult = 1.0 / (1.0 + (DEX_DRAIN_REDUCTION * synergy / 100.0))
+        
+        # Apply personality passive bonus
+        if character:
+            from world.personality_passives import get_stamina_modifiers
+            _, passive_drain = get_stamina_modifiers(character)
+            base_mult *= passive_drain
+        
+        return base_mult
     
     def _get_will_grace(self):
         """
@@ -405,7 +429,7 @@ class CharacterMovementStamina:
         self.current_tier = actual_tier
         return actual_tier
     
-    def update(self, dt):
+    def update(self, dt, character=None):
         """
         Update stamina and timers for the given time delta.
         
@@ -413,6 +437,7 @@ class CharacterMovementStamina:
         
         Args:
             dt: Time delta in seconds
+            character: Character object (optional, for personality bonuses)
         """
         if dt <= 0:
             return
@@ -435,7 +460,7 @@ class CharacterMovementStamina:
         
         if base_delta > 0:
             # Regenerating stamina
-            final_delta = base_delta * self._get_regen_multiplier()
+            final_delta = base_delta * self._get_regen_multiplier(character)
             
             # Apply fatigue penalty to regen
             if self.fatigue_timer > 0:
@@ -447,7 +472,7 @@ class CharacterMovementStamina:
                 
         elif base_delta < 0:
             # Draining stamina
-            final_delta = base_delta * self._get_drain_multiplier()
+            final_delta = base_delta * self._get_drain_multiplier(character)
             
             # Apply WILL grace at low stamina
             ratio = self._get_stamina_ratio()

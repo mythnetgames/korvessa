@@ -55,7 +55,7 @@ class StaminaTicker(DefaultScript):
                         stamina.stamina_current = float(effective_max)
                 
                 # Update stamina
-                stamina.update(self.interval)
+                stamina.update(self.interval, char)
                 
                 # Apply regen penalty (reduce any gains made)
                 if regen_mult < 1.0 and stamina.stamina_current > 0:

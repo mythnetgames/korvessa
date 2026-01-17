@@ -278,6 +278,20 @@ class Character(ObjectParent, DefaultCharacter):
     # Death tracking system
     death_count = AttributeProperty(1, category='mortality', autocreate=True)
     
+    def at_after_move(self, source_location, **kwargs):
+        """
+        Called after a move has been successfully performed.
+        
+        Triggers Sharp-Eyed automatic perception checks.
+        """
+        super().at_after_move(source_location, **kwargs)
+        
+        # Sharp-Eyed passive: automatic perception check on room entry
+        from world.personality_passives import should_auto_perceive
+        if should_auto_perceive(self):
+            self.execute_cmd("look")
+            # TODO: Add hidden object/character detection here when implemented
+    
     # Appearance attributes - stored in db but no auto-creation for optional features
     # skintone is set via @skintone command and stored as db.skintone
 

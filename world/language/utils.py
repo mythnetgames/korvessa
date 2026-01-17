@@ -319,6 +319,8 @@ def get_language_proficiency(character, language_code):
     """
     Get proficiency percentage (0-100) for a language.
     
+    Insightful personality passive allows reading any language.
+    
     Args:
         character: The character object
         language_code (str): Language code
@@ -326,6 +328,11 @@ def get_language_proficiency(character, language_code):
     Returns:
         float: Proficiency percentage (0-100)
     """
+    # Insightful passive: can read any language
+    from world.personality_passives import can_read_any_language
+    if can_read_any_language(character):
+        return 100.0
+    
     # Builder+ accounts understand all languages
     if hasattr(character, 'account') and character.account:
         if character.account.check_permstring("Builder"):

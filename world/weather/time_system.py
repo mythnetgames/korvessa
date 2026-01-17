@@ -2,15 +2,20 @@
 Time System
 
 Manages game time and provides current time period for weather system.
-Designed to be easily expandable for calendar systems and time-based events.
+Integrates with the Korvessan calendar (Common Field Reckoning).
 """
 
-import time
-from evennia.utils import gametime
+from world.calendar import (
+    get_korvessan_date,
+    get_time_period,
+    get_time_period_name,
+    get_season,
+    TIME_PERIODS
+)
 
 
-# Time periods for weather variation (12 granular periods)
-TIME_PERIODS = [
+# Re-export time periods for backward compatibility
+TIME_PERIOD_LIST = [
     'dawn',           # 5-6 AM
     'early_morning',  # 6-8 AM  
     'late_morning',   # 8-11 AM
@@ -25,7 +30,7 @@ TIME_PERIODS = [
     'pre_dawn'        # 3-5 AM
 ]
 
-# Hour ranges for each time period (24-hour format)
+# Hour ranges for each time period (24-hour format) - for backward compatibility
 TIME_RANGES = {
     'dawn': (5, 6),
     'early_morning': (6, 8),
@@ -46,13 +51,13 @@ class TimeSystem:
     """
     Manages game time and time-based calculations.
     
-    Provides current time period for weather system and other
-    time-dependent game mechanics.
+    Integrates with the Korvessan calendar for weather and
+    other time-dependent game mechanics.
     """
     
     def __init__(self):
         """Initialize time system."""
-        self.time_multiplier = 1  # Real time = game time for now
+        pass
         
     def get_current_hour(self):
         """
@@ -61,41 +66,47 @@ class TimeSystem:
         Returns:
             int: Current hour in 24-hour format
         """
-        # For now, use real-world time
-        # Future: implement accelerated game time
-        current_time = time.localtime()
-        return current_time.tm_hour
+        date = get_korvessan_date()
+        return date['hour']
         
     def get_current_time_period(self):
         """
         Get current time period for weather system.
         
         Returns:
-            str: Current time period from TIME_PERIODS
+            str: Current time period (e.g., 'dawn', 'midday', 'night')
         """
-        hour = self.get_current_hour()
-        
-        for period, (start, end) in TIME_RANGES.items():
-            if start <= end:
-                # Normal range (e.g., 6-8)
-                if start <= hour < end:
-                    return period
-            else:
-                # Wrap around midnight (e.g., 23-1)
-                if hour >= start or hour < end:
-                    return period
-                    
-        # Fallback
-        return 'midday'
-        
-    def set_time_multiplier(self, multiplier):
+        return get_time_period()
+    
+    def get_current_season(self):
         """
-        Set game time speed multiplier.
+        Get current season based on Korvessan calendar month.
         
-        Args:
-            multiplier: Time speed (1.0 = real time, 2.0 = double speed, etc.)
+        Returns:
+            str: Season name ('spring', 'summer', 'autumn', 'winter')
         """
-        self.time_multiplier = max(0.1, multiplier)
+        return get_season()
+    
+    def get_time_period_description(self):
+        """
+        Get a descriptive name for the current time period.
+        
+        Returns:
+            str: Descriptive time (e.g., 'the dead of night', 'early morning')
+        """
+        return get_time_period_name()
+
+
+# Singleton instance for easy access
+_time_system = None
+
+def get_time_system():
+    """Get or create the time system singleton."""
+    global _time_system
+    if _time_system is None:
+        _time_system = TimeSystem()
+    return _time_system
+
 
 
 # Global convenience function
