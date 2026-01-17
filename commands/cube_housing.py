@@ -86,7 +86,7 @@ class CmdEnter(Command):
         
         # Message to the room (others see them enter)
         caller.location.msg_contents(
-            f"{caller.key} enters a code in the door and the cube door swings open and they head inside.",
+            f"{caller.key} enters a code in the door and the cube door swings open before they head inside.",
             exclude=[caller]
         )
         
