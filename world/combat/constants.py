@@ -825,13 +825,13 @@ CORPSE_DECAY_COMPLETE = 1209600 # 2 weeks - complete decay and cleanup
 
 # Skill constants
 SKILL_BLADES = "blades"
-SKILL_PISTOLS = "pistols"
-SKILL_RIFLES = "rifles"
+SKILL_RANGED = "ranged"
 SKILL_MELEE = "melee"
 SKILL_BRAWLING = "brawling"
 SKILL_MARTIAL_ARTS = "martial_arts"
 SKILL_GRAPPLING = "grappling"
 SKILL_DODGE = "dodge"
+SKILL_PARRY = "parry"
 
 # Maps weapon types to their associated combat skill
 # Used for hit chance and damage calculations
@@ -860,44 +860,21 @@ WEAPON_SKILL_MAP = {
     "straight_razor": SKILL_BLADES,
     "tessen": SKILL_BLADES,           # iron war fan
     
-    # === PISTOLS (handguns and pistol-like weapons) ===
-    "flare_gun": SKILL_PISTOLS,
-    "heavy_pistol": SKILL_PISTOLS,
-    "heavy_revolver": SKILL_PISTOLS,
-    "light_pistol": SKILL_PISTOLS,
-    "light_revolver": SKILL_PISTOLS,
-    "machine_pistol": SKILL_PISTOLS,
-    "nail_gun": SKILL_PISTOLS,        # pistol-like tool
-    "stun_gun": SKILL_PISTOLS,
-    
-    # === RIFLES (long guns, shotguns, heavy weapons) ===
-    "anti-material_rifle": SKILL_RIFLES,
-    "assault_rifle": SKILL_RIFLES,
-    "bolt-action_rifle": SKILL_RIFLES,
-    "bowel_disruptor": SKILL_RIFLES,  # sci-fi long gun
-    "break-action_shotgun": SKILL_RIFLES,
-    "flamethrower": SKILL_RIFLES,     # long gun style
-    "heavy_machine_gun": SKILL_RIFLES,
-    "lever-action_rifle": SKILL_RIFLES,
-    "lever-action_shotgun": SKILL_RIFLES,
-    "pump-action_shotgun": SKILL_RIFLES,
-    "semi-auto_rifle": SKILL_RIFLES,
-    "semi-auto_shotgun": SKILL_RIFLES,
-    "submachine_gun": SKILL_RIFLES,
+    # === RANGED (bows, crossbows, throwing weapons) ===
+    "bow": SKILL_RANGED,
+    "longbow": SKILL_RANGED,
+    "shortbow": SKILL_RANGED,
+    "crossbow": SKILL_RANGED,
+    "sling": SKILL_RANGED,
+    "throwing_knife": SKILL_RANGED,
+    "throwing_axe": SKILL_RANGED,
+    "shuriken": SKILL_RANGED,
+    "javelin": SKILL_RANGED,
     
     # === MELEE (blunt weapons, improvised weapons, tools) ===
     "baseball_bat": SKILL_MELEE,
     "baton": SKILL_MELEE,
     "battle_axe": SKILL_MELEE,
-    "blowtorch": SKILL_MELEE,
-    "brick": SKILL_MELEE,
-    "broken_bottle": SKILL_MELEE,
-    "catchpole": SKILL_MELEE,
-    "cellphone": SKILL_MELEE,         # improvised
-    "chain": SKILL_MELEE,
-    "chainsaw": SKILL_MELEE,
-    "cricket_bat": SKILL_MELEE,
-    "crowbar": SKILL_MELEE,
     "fire_axe": SKILL_MELEE,
     "flare": SKILL_MELEE,
     "garden_shears": SKILL_MELEE,

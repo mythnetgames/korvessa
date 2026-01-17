@@ -377,17 +377,6 @@ class CmdInventory(Command):
     
     def _is_special_device(self, obj):
         """Check if item is a special device that shouldn't be classified as a weapon."""
-        # Gamebud communication device
-        if hasattr(obj, 'db') and getattr(obj.db, 'is_gamebud', False):
-            return True
-        # SafetyNet devices
-        if hasattr(obj, 'db') and getattr(obj.db, 'is_wristpad', False):
-            return True
-        if hasattr(obj, 'db') and getattr(obj.db, 'is_computer', False):
-            return True
-        # Proxy modules
-        if hasattr(obj, 'db') and getattr(obj.db, 'is_proxy', False):
-            return True
         return False
     
     def _is_weapon(self, obj):

@@ -158,11 +158,11 @@ def delete_furniture(furniture_id):
 # ============================================================================
 
 def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=False,
-            stats=None, skills=None, created_by="", primary_language="cantonese", known_languages=None):
+            stats=None, skills=None, created_by="", primary_language="common", known_languages=None, race="human"):
     """
     Add a new NPC template to storage.
     
-    Cantonese is the default primary language of Kowloon NPCs.
+    Common is the default primary language.
     
     Args:
         name: NPC name
@@ -170,65 +170,73 @@ def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=Fals
         faction: Faction ID this NPC belongs to
         wandering_zone: Zone ID for wandering, or empty string for static
         is_shopkeeper: Is this NPC a shopkeeper?
-        stats: Dictionary of stats (body, ref, dex, tech, smrt, will, edge, emp)
+        stats: Dictionary of D&D 5e stats (str, dex, con, int, wis, cha)
         skills: Dictionary of skills (brawling, blades, ranged, grapple, dodge, stealth, etc.)
         created_by: Character who created this
-        primary_language: Primary language code (defaults to Cantonese)
+        primary_language: Primary language code (defaults to Common)
         known_languages: List of language codes NPC knows
+        race: NPC race (human, elf, dwarf)
     
     Returns:
         dict: The created NPC data or None on failure
     """
     storage = get_builder_storage()
     
-    # Default stats and skills
+    # Default D&D 5e stats
     if stats is None:
         stats = {
-            "body": 1,
-            "ref": 1,
-            "dex": 1,
-            "tech": 1,
-            "smrt": 1,
-            "will": 1,
-            "edge": 1,
-            "emp": 1,
+            "str": 10,
+            "dex": 10,
+            "con": 10,
+            "int": 10,
+            "wis": 10,
+            "cha": 10,
         }
     
     if skills is None:
         skills = {
-            "chemical": 0,
-            "modern_medicine": 0,
-            "holistic_medicine": 0,
-            "surgery": 0,
-            "science": 0,
+            # Combat
             "dodge": 0,
+            "parry": 0,
             "blades": 0,
-            "pistols": 0,
-            "rifles": 0,
+            "ranged": 0,
             "melee": 0,
             "brawling": 0,
             "martial_arts": 0,
             "grappling": 0,
+            # Stealth/Subterfuge
             "snooping": 0,
             "stealing": 0,
             "hiding": 0,
             "sneaking": 0,
             "disguise": 0,
-            "tailoring": 0,
-            "tinkering": 0,
-            "manufacturing": 0,
-            "cooking": 0,
-            "forensics": 0,
-            "decking": 0,
-            "electronics": 0,
+            # Social
             "mercantile": 0,
+            "persuasion": 0,
             "streetwise": 0,
+            # Crafting
+            "carpentry": 0,
+            "blacksmithing": 0,
+            "herbalism": 0,
+            "tailoring": 0,
+            "cooking": 0,
+            # Survival
+            "tracking": 0,
+            "foraging": 0,
+            # Lore
+            "investigation": 0,
+            "lore": 0,
+            "appraise": 0,
+            # Medical
+            "first_aid": 0,
+            "chirurgy": 0,
+            # Creative
             "paint_draw_sculpt": 0,
             "instrument": 0,
         }
     
     if known_languages is None:
-        known_languages = ["cantonese"]
+        known_languages = ["common"]
     
     # Generate unique ID
     existing_ids = [n["id"] for n in storage.db.npcs]
@@ -246,6 +254,7 @@ def add_npc(name, desc, faction="neutral", wandering_zone="", is_shopkeeper=Fals
         "created_by": created_by,
         "primary_language": primary_language,
         "known_languages": known_languages,
+        "race": race,
     }
     
     storage.db.npcs.append(npc_data)
@@ -291,49 +300,69 @@ def migrate_npc_skills():
     old_to_new = {
         "brawling": "brawling",
         "blades": "blades",
-        "blunt": None,  # Remove - not in new system
-        "ranged": None,  # Remove - split into pistols/rifles
+        "blunt": "melee",  # Remap to melee
+        "ranged": "ranged",
         "grapple": "grappling",
         "dodge": "dodge",
         "stealth": "sneaking",
         "intimidate": None,  # Remove
-        "persuasion": None,  # Remove
-        "perception": None,  # Remove
+        "persuasion": "persuasion",
+        "perception": "investigation",  # Remap to investigation
         "athletics": None,  # Remove
-        "farming": None,  # Remove
+        "farming": "foraging",  # Remap to foraging
         "aeronautics": None,  # Remove
         "forgery": None,  # Remove
+        # Old cyberpunk skills mapped to new fantasy equivalents
+        "modern_medicine": "first_aid",
+        "holistic_medicine": "herbalism",
+        "surgery": "chirurgy",
+        "chemical": "herbalism",
+        "science": None,  # Remove
+        "tinkering": "carpentry",
+        "manufacturing": "blacksmithing",
+        "forensics": "investigation",
+        "decking": None,  # Remove
+        "electronics": None,  # Remove
     }
     
     # New skill defaults
     new_skills = {
-        "chemical": 0,
-        "modern_medicine": 0,
-        "holistic_medicine": 0,
-        "surgery": 0,
-        "science": 0,
+        # Combat
         "dodge": 0,
+        "parry": 0,
         "blades": 0,
-        "pistols": 0,
-        "rifles": 0,
+        "ranged": 0,
         "melee": 0,
         "brawling": 0,
         "martial_arts": 0,
         "grappling": 0,
+        # Stealth/Subterfuge
         "snooping": 0,
         "stealing": 0,
         "hiding": 0,
         "sneaking": 0,
         "disguise": 0,
-        "tailoring": 0,
-        "tinkering": 0,
-        "manufacturing": 0,
-        "cooking": 0,
-        "forensics": 0,
-        "decking": 0,
-        "electronics": 0,
+        # Social
         "mercantile": 0,
+        "persuasion": 0,
         "streetwise": 0,
+        # Crafting
+        "carpentry": 0,
+        "blacksmithing": 0,
+        "herbalism": 0,
+        "tailoring": 0,
+        "cooking": 0,
+        # Survival
+        "tracking": 0,
+        "foraging": 0,
+        # Lore
+        "investigation": 0,
+        "lore": 0,
+        "appraise": 0,
+        # Medical
+        "first_aid": 0,
+        "chirurgy": 0,
+        # Creative
         "paint_draw_sculpt": 0,
         "instrument": 0,
     }
@@ -383,7 +412,7 @@ def add_weapon(name, desc, weapon_type="melee", ammo_type="", damage_bonus=0,
         ammo_type: Type of ammo required (empty for melee, e.g., "9mm", "arrow")
         damage_bonus: Bonus damage
         accuracy_bonus: Bonus to accuracy rolls
-        skill: Combat skill used with this weapon (blades, pistols, rifles, melee, brawling, martial_arts, dodge, athletics)
+        skill: Combat skill used with this weapon (blades, ranged, melee, brawling, martial_arts, dodge, athletics)
         created_by: Character who created this
     
     Returns:

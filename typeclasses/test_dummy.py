@@ -20,12 +20,23 @@ DUMMY_STATS = [
 
 # All skills that can be set on the test dummy
 DUMMY_SKILLS = [
-    "chemical", "modern_medicine", "holistic_medicine", "surgery", "science",
-    "dodge", "blades", "pistols", "rifles", "melee", "brawling", "martial_arts",
-    "grappling", "snooping", "stealing", "hiding", "sneaking", "disguise",
-    "tailoring", "tinkering", "manufacturing", "cooking", "forensics",
-    "decking", "electronics", "mercantile", "streetwise", "paint_draw_sculpt",
-    "instrument"
+    # Combat
+    "dodge", "parry", "blades", "ranged", "melee", "brawling", "martial_arts",
+    "grappling",
+    # Stealth/Subterfuge
+    "snooping", "stealing", "hiding", "sneaking", "disguise",
+    # Social
+    "mercantile", "persuasion", "streetwise",
+    # Crafting
+    "carpentry", "blacksmithing", "herbalism", "tailoring", "cooking",
+    # Survival
+    "tracking", "foraging",
+    # Lore
+    "investigation", "lore", "appraise",
+    # Medical
+    "first_aid", "chirurgy",
+    # Creative
+    "paint_draw_sculpt", "instrument"
 ]
 
 
@@ -47,15 +58,14 @@ class TestDummy(NPC):
         # Mark as test dummy
         self.db.is_test_dummy = True
         
-        # Default stats (can be adjusted)
-        self.body = 3
-        self.ref = 3
-        self.dex = 3
-        self.tech = 3
-        self.smrt = 1
-        self.will = 1
-        self.edge = 1
-        self.emp = 2  # Auto-calculated as edge + will, but set explicitly
+        # Default D&D 5e stats (can be adjusted)
+        self.str = 10
+        self.dex = 10
+        self.con = 10
+        self.int = 8
+        self.wis = 8
+        self.cha = 8
+        self.race = 'human'
         
         # Test dummy specific
         self.db.is_active = True  # Whether dummy is actively fighting

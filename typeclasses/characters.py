@@ -19,31 +19,13 @@ class Character(ObjectParent, DefaultCharacter):
 
     def at_post_login(self, session=None, **kwargs):
         """
-        Called every time a player logs in. Enable mapper only if player has municipal wristpad.
+        Called every time a player logs in.
         Also checks if player is within 3 hours of an IP grant tick and grants missed IP if applicable.
         """
-        from world.safetynet.utils import has_municipal_wristpad
-        
-        # Only enable mapper if player has a municipal wristpad
-        if has_municipal_wristpad(self):
-            if self.account and hasattr(self.account, 'db'):
-                self.account.db.mapper_enabled = True
-            self.ndb.mapper_enabled = True
-        else:
-            if self.account and hasattr(self.account, 'db'):
-                self.account.db.mapper_enabled = False
-            self.ndb.mapper_enabled = False
-        
-        # Reset proxy active state on login - players must re-enable each session
-        from world.safetynet.utils import check_access_device
-        try:
-            device_type, device = check_access_device(self)
-            if device:
-                proxy = getattr(device.db, "slotted_proxy", None)
-                if proxy:
-                    proxy.db.is_active = False
-        except:
-            pass
+        # Enable mapper by default
+        if self.account and hasattr(self.account, 'db'):
+            self.account.db.mapper_enabled = True
+        self.ndb.mapper_enabled = True
         
         # Check for missed IP grant from login catch-up
         try:
@@ -191,21 +173,14 @@ class Character(ObjectParent, DefaultCharacter):
 
     def at_server_start(self):
         """
-        Called on every character at server reboot. Enable mapper only if player has municipal wristpad.
+        Called on every character at server reboot. Enable mapper by default.
         """
-        from world.safetynet.utils import has_municipal_wristpad
+        # Enable mapper by default
+        if self.account and hasattr(self.account, 'db'):
+            self.account.db.mapper_enabled = True
+        self.ndb.mapper_enabled = True
         
-        # Only enable mapper if player has a municipal wristpad
-        if has_municipal_wristpad(self):
-            if self.account and hasattr(self.account, 'db'):
-                self.account.db.mapper_enabled = True
-            self.ndb.mapper_enabled = True
-        else:
-            if self.account and hasattr(self.account, 'db'):
-                self.account.db.mapper_enabled = False
-            self.ndb.mapper_enabled = False
-        
-        # Force map display only if mapper is enabled
+        # Force map display if mapper is enabled
         if self.ndb.mapper_enabled:
             try:
                 from commands.mapper import CmdMapOn
@@ -225,46 +200,48 @@ class Character(ObjectParent, DefaultCharacter):
     # In this instance, we are also adding the new stat system attributes using AttributeProperty.
     # =========================================================================
     
-    # New Stat System Attributes
-    # Smarts, Willpower, Edge, Reflexes, Body, Dexterity, Empathy, Technique
-    smrt = AttributeProperty(1, category='stat', autocreate=True)
-    will = AttributeProperty(1, category='stat', autocreate=True)
-    edge = AttributeProperty(1, category='stat', autocreate=True)
-    ref = AttributeProperty(1, category='stat', autocreate=True)
-    body = AttributeProperty(1, category='stat', autocreate=True)
-    dex = AttributeProperty(1, category='stat', autocreate=True)
-    _emp = AttributeProperty(None, category='stat', autocreate=True)  # Override value, None = calculated
-    tech = AttributeProperty(1, category='stat', autocreate=True)
+    # D&D 5e Stat System Attributes
+    # Strength, Dexterity, Constitution, Intelligence, Wisdom, Charisma
+    str = AttributeProperty(10, category='stat', autocreate=True)
+    dex = AttributeProperty(10, category='stat', autocreate=True)
+    con = AttributeProperty(10, category='stat', autocreate=True)
+    int = AttributeProperty(10, category='stat', autocreate=True)
+    wis = AttributeProperty(10, category='stat', autocreate=True)
+    cha = AttributeProperty(10, category='stat', autocreate=True)
+    
+    # Race (human, elf, dwarf)
+    race = AttributeProperty("human", category="biology", autocreate=True)
     sex = AttributeProperty("ambiguous", category="biology", autocreate=True)
     
     @property
-    def emp(self):
-        """
-        Empathy is calculated as edge + willpower.
-        Can be overridden by admin setting _emp to a specific value.
-        Also applies room bonuses (e.g., +3 from OUTSIDE tag when sun is out).
-        """
-        base_emp = 0
-        if self._emp is not None:
-            base_emp = self._emp
-        else:
-            # Calculate from edge + willpower
-            edge_val = getattr(self, 'edge', 1)
-            will_val = getattr(self, 'will', 1)
-            base_emp = edge_val + will_val
-        
-        # Apply room bonuses if in a room
-        if self.location:
-            from world.room_tags import get_room_stat_bonuses
-            room_bonuses = get_room_stat_bonuses(self.location, self)
-            base_emp += room_bonuses.get("emp", 0)
-        
-        return base_emp
+    def str_mod(self):
+        """Calculate strength modifier."""
+        return (self.str - 10) // 2
     
-    @emp.setter
-    def emp(self, value):
-        """Set empathy override. Set to None to use calculated value."""
-        self._emp = value
+    @property
+    def dex_mod(self):
+        """Calculate dexterity modifier."""
+        return (self.dex - 10) // 2
+    
+    @property
+    def con_mod(self):
+        """Calculate constitution modifier."""
+        return (self.con - 10) // 2
+    
+    @property
+    def int_mod(self):
+        """Calculate intelligence modifier."""
+        return (self.int - 10) // 2
+    
+    @property
+    def wis_mod(self):
+        """Calculate wisdom modifier."""
+        return (self.wis - 10) // 2
+    
+    @property
+    def cha_mod(self):
+        """Calculate charisma modifier."""
+        return (self.cha - 10) // 2
     
     # Shop System Attributes
     is_merchant = AttributeProperty(False, category="shop", autocreate=True)
@@ -407,19 +384,11 @@ class Character(ObjectParent, DefaultCharacter):
         Notifies windows that observe the character's current room about departure.
         Blocks movement if character is in a TerraGroup Cloning Division pod procedure.
         Cancels auto-walk if this is a manual movement.
-        Cancels Gamebud typing if in progress.
         """
         # Block movement if in TerraGroup Cloning Division pod
         if getattr(self.ndb, '_movement_locked', False):
             self.msg("|yYou cannot move during the TerraGroup Cloning Division procedure.|n")
             return False
-        
-        # Cancel Gamebud typing if in progress (silent - no messages)
-        try:
-            from world.gamebud.core import cancel_gamebud_typing
-            cancel_gamebud_typing(self, silent=True)
-        except ImportError:
-            pass  # Gamebud module not available
         
         # Cancel auto-walk if this is a MANUAL movement (not auto-walk's own moves)
         if not getattr(self.ndb, '_is_auto_walk_move', False):
@@ -480,25 +449,16 @@ class Character(ObjectParent, DefaultCharacter):
         if hasattr(self.ndb, 'temp_place'):
             delattr(self.ndb, 'temp_place')
         
-        # Check if player has a municipal wristpad WORN - required for map display
-        from world.safetynet.utils import has_municipal_wristpad
-        has_wristpad = has_municipal_wristpad(self)
+        # Enable mapper by default
+        self.ndb.mapper_enabled = True
+        self.ndb.show_room_desc = False
         
-        # Sync ndb with persistent state based on wristpad
-        self.ndb.mapper_enabled = has_wristpad
-        self.ndb.show_room_desc = not has_wristpad
-        
-        if has_wristpad:
-            # Show map view (which includes room description)
-            from commands.mapper import CmdMap
-            cmd = CmdMap()
-            cmd.caller = self
-            cmd.args = ""
-            cmd.func()
-        else:
-            # Show plain room description without map
-            appearance = self.location.return_appearance(self, force_display=True)
-            self.msg(appearance)
+        # Show map view (which includes room description)
+        from commands.mapper import CmdMap
+        cmd = CmdMap()
+        cmd.caller = self
+        cmd.args = ""
+        cmd.func()
 
         # Notify windows that observe entry/exit in this room
         self._notify_window_observers('enter', source_location)
@@ -509,27 +469,18 @@ class Character(ObjectParent, DefaultCharacter):
         When looking at an object/character, shows their description.
         """
         if target is None or target == self.location:
-            # Looking at the room
-            # Check if player has a municipal wristpad WORN - required for map display
-            from world.safetynet.utils import has_municipal_wristpad
-            has_wristpad = has_municipal_wristpad(self)
+            # Looking at the room - show map view with room description
+            # Sync ndb with persistent state
+            self.ndb.mapper_enabled = True
+            self.ndb.show_room_desc = False
             
-            # Sync ndb with persistent state based on wristpad
-            self.ndb.mapper_enabled = has_wristpad
-            self.ndb.show_room_desc = not has_wristpad
-            
-            if has_wristpad:
-                # Show map view with room description on right side
-                from commands.mapper import CmdMap
-                cmd = CmdMap()
-                cmd.caller = self
-                cmd.args = ""
-                cmd.func()
-                return
-            else:
-                # No wristpad - show plain room description
-                appearance = self.location.return_appearance(self, force_display=True)
-                return appearance
+            # Show map view with room description on right side
+            from commands.mapper import CmdMap
+            cmd = CmdMap()
+            cmd.caller = self
+            cmd.args = ""
+            cmd.func()
+            return
         else:
             # Looking at an object/character - show their description
             return target.return_appearance(self)
@@ -743,7 +694,6 @@ class Character(ObjectParent, DefaultCharacter):
         
         Requires:
         - Combat prompt enabled (combat_prompt = True)
-        - Character has a municipal wristpad (without it, prompt cannot display)
         
         Args:
             text: The original message text
@@ -754,11 +704,6 @@ class Character(ObjectParent, DefaultCharacter):
         # Check if prompt is disabled (default is OFF - must be explicitly True)
         # Use explicit True check since unset attributes may return None
         if not getattr(self.db, 'combat_prompt', False) is True:
-            return text
-        
-        # Check if character has a municipal wristpad - cannot display prompt without it
-        from world.safetynet.utils import has_municipal_wristpad
-        if not has_municipal_wristpad(self):
             return text
         
         # Don't show during death, cloning, or revival sequences
@@ -2512,51 +2457,11 @@ class Character(ObjectParent, DefaultCharacter):
         coverage_map = self._build_clothing_coverage_map()
         nakeds = self.db.nakeds or {}
         
-        # Get installed chrome
-        installed_chrome = getattr(self.db, 'installed_chrome_list', None) or []
-        chrome_map = {}  # Map location -> chrome data
-        
-        # Slot to location mapping for chrome
-        chrome_slot_mapping = {
-            'head': ['head'],
-            'face': ['face'],
-            'eyes': ['leye', 'reye'],
-            'eye': ['leye'],  # Single eye (would need to check which one)
-            'ears': ['lear', 'rear'],
-            'arms': ['larm', 'rarm', 'lhand', 'rhand'],
-            'arm': ['larm'],  # Single arm
-            'legs': ['lthigh', 'rthigh', 'lshin', 'rshin'],
-            'leg': ['lthigh', 'rshin'],  # Single leg
-            'feet': ['lfoot', 'rfoot'],
-            'foot': ['lfoot'],  # Single foot
-        }
-        
-        for chrome in installed_chrome:
-            slot = chrome.get('slot')
-            if slot and chrome.get('type') == 'external':
-                # Map chrome slot to actual anatomical locations
-                locations = chrome_slot_mapping.get(slot, [])
-                for loc in locations:
-                    chrome_map[loc] = chrome
-        
         # Track which clothing items we've already added to avoid duplicates
         added_clothing_items = set()
         
         # Process in anatomical order
         for location in ANATOMICAL_DISPLAY_ORDER:
-            # Priority: chrome > clothing > nakeds
-            if location in chrome_map:
-                # Location covered by chrome - get the worn_desc from proto
-                chrome_data = chrome_map[location]
-                chrome_shortname = chrome_data.get('shortname')
-                
-                # Get prototype to find worn_desc
-                if chrome_shortname:
-                    proto = self._get_chrome_prototype(chrome_shortname)
-                    if proto and proto.get('worn_desc'):
-                        descriptions.append((location, proto['worn_desc']))
-                        continue
-            
             if location in coverage_map:
                 # Location covered by clothing - use outermost item's current worn_desc
                 clothing_item = coverage_map[location]
@@ -3114,13 +3019,3 @@ class Character(ObjectParent, DefaultCharacter):
         
         return result
 
-    def _get_chrome_prototype(self, shortname):
-        """Get chrome prototype definition by shortname."""
-        from world import chrome_prototypes
-        
-        # Get all prototype dictionaries from the module
-        for name in dir(chrome_prototypes):
-            obj = getattr(chrome_prototypes, name)
-            if isinstance(obj, dict) and obj.get("shortname", "").lower() == shortname.lower():
-                return obj
-        return None

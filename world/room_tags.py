@@ -51,14 +51,14 @@ ACTIVE_TAGS = {
 # Passive tags - informational/buff tags without active damage/effects
 PASSIVE_TAGS = {
     "MEDICAL": {
-        "desc": "Surgery+ Modern_Medicine+",
+        "desc": "Chirurgy+ First Aid+",
         "icon": "o",
-        "skill_bonuses": {"surgery": 15, "modern_medicine": 15},
+        "skill_bonuses": {"chirurgy": 15, "first_aid": 15},
     },
     "STERILE": {
-        "desc": "Science+ Chemical+",
+        "desc": "Herbalism+",
         "icon": "o",
-        "skill_bonuses": {"science": 10, "chemical": 10},
+        "skill_bonuses": {"herbalism": 10},
     },
     "STORE": {
         "desc": "Shop container available - use WARES/LIST to view",

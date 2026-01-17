@@ -40,77 +40,6 @@ def _log(msg):
 
 
 # ============================================================================
-# CHROME STAT HELPER FUNCTIONS
-# ============================================================================
-
-def _get_chrome_stat_bonuses(character):
-    """
-    Calculate total stat bonuses from all installed chrome.
-    
-    Args:
-        character: The character to check
-        
-    Returns:
-        dict: Dictionary of stat short names to total bonus amounts
-              e.g. {'body': 2, 'ref': 1, 'emp': -3}
-    """
-    bonuses = {}
-    
-    # Stat name mapping (prototype long name -> character short name)
-    stat_map = {
-        "smarts": "smrt",
-        "willpower": "will",
-        "edge": "edge",
-        "reflexes": "ref",
-        "body": "body",
-        "dexterity": "dex",
-        "empathy": "emp",
-        "technique": "tech",
-    }
-    
-    # Get installed chrome list
-    chrome_list = getattr(character.db, 'installed_chrome_list', None) or []
-    
-    for chrome_entry in chrome_list:
-        shortname = chrome_entry.get("shortname", "")
-        if not shortname:
-            continue
-            
-        # Get chrome prototype for buffs
-        proto = _get_chrome_prototype(shortname)
-        if not proto:
-            continue
-            
-        # Add buffs from this chrome
-        if proto.get("buffs") and isinstance(proto["buffs"], dict):
-            for stat, bonus in proto["buffs"].items():
-                short_stat = stat_map.get(stat.lower(), stat)
-                bonuses[short_stat] = bonuses.get(short_stat, 0) + bonus
-        
-        # Empathy cost reduces max_emp (and we track it separately)
-        empathy_cost = proto.get("empathy_cost", 0)
-        if empathy_cost:
-            # Empathy cost is a reduction to max, tracked as negative bonus
-            bonuses["emp_max_reduction"] = bonuses.get("emp_max_reduction", 0) + empathy_cost
-    
-    return bonuses
-
-
-def _get_chrome_prototype(shortname):
-    """Get chrome prototype definition by shortname."""
-    try:
-        from world import chrome_prototypes
-        
-        for name in dir(chrome_prototypes):
-            obj = getattr(chrome_prototypes, name)
-            if isinstance(obj, dict) and obj.get("shortname", "").lower() == shortname.lower():
-                return obj
-    except ImportError:
-        pass
-    return None
-
-
-# ============================================================================
 # CLONE BACKUP FUNCTIONS
 # ============================================================================
 
@@ -303,16 +232,13 @@ def restore_from_clone(new_character, backup_data):
     new_character.db.skintone = backup_data.get('skintone')
     new_character.sex = backup_data.get('sex', 'ambiguous')
     
-    # Clear installed chrome list (no chrome carried over)
-    new_character.db.installed_chrome_list = []
-    
     # IMPORTANT: Do NOT copy the old backup to the new character
     # The backup was CONSUMED when dying - they must make a new backup at the pod
     # This ensures clone backup is a one-time use per death
     new_character.db.clone_backup = None
     new_character.db.clone_backup_count = 0  # Reset update count for new sleeve
     
-    _log(f"CLONE_RESTORE: Restored {new_character.key} from backup (backup consumed, chrome cleared)")
+    _log(f"CLONE_RESTORE: Restored {new_character.key} from backup")
     
     return True
 

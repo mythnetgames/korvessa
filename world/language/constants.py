@@ -1,32 +1,19 @@
 """
 Language System Constants
 
-Centralized language definitions for the Kowloon MUD language system.
+Centralized language definitions for Korvessa fantasy MUD language system.
 
 LANGUAGE HIERARCHY:
 
-Core Everyday Languages (street-level reality):
-- Cantonese: The primary spoken language. Default oral language of daily life,
-  markets, gangs, families, neighborhoods. If people talk, they talk Cantonese.
-- English: Corporate + technical lingua franca. Used by corporations, hackers,
-  engineers. Signals education, money, or outside power.
+Common Languages:
+- Common: The universal trade language spoken by all civilized races.
+  Default language for most interactions.
 
-Secondary but Powerful Languages:
-- Mandarin: Political + mainland power language. Used by state officials, corporate
-  envoys, mainland migrants. Using Mandarin in Kowloon can imply authority, surveillance,
-  or outsider status.
-
-Underground & Subcultural Layers:
-- Tradeband: Mixed spoken register with Cantonese base, English tech verbs, Japanese
-  and Korean slang fragments. Where Kowloon flavor shines.
-- Japanese: Corporate influence, yakuza, media, design culture.
-- Korean: Entertainment, biotech, pop-tech crossover.
-
-Minority & Legacy Languages:
-- Vietnamese: Migrant labor, refugees, dock workers.
-- Russian: Organized crime, black market, underworld.
-- Arabic: Middle Eastern districts and markets.
-- Hindi: Indian immigrants and communities.
+Racial Languages:
+- Elvish: The flowing, melodic language of the elven people. Known for its
+  poetry and magical terminology.
+- Dwarvish: The harsh, guttural language of the dwarves. Rich in terms for
+  crafting, mining, and stonework.
 
 Builder+ Permission:
 - Builders with Builder+ permission gain access to all languages for NPC creation.
@@ -38,63 +25,21 @@ Builder+ Permission:
 # ===================================================================
 
 LANGUAGES = {
-    'cantonese': {
-        'name': 'Cantonese',
-        'description': 'The primary language of Kowloon.',
+    'common': {
+        'name': 'Common',
+        'description': 'The universal trade language spoken by all civilized races.',
         'native': False,
         'common': True,  # Default language
     },
-    'english': {
-        'name': 'English',
-        'description': 'Corporate + technical lingua franca. Used by a lot of Corpcits.',
-        'native': False,
-        'common': True,
-    },
-    'mandarin': {
-        'name': 'Mandarin Chinese',
-        'description': 'The older language of the mainland. Used by state officials, corporate envoys, mainland migrants.',
-        'native': False,
-        'common': True,
-    },
-    'tradeband': {
-        'name': 'Tradeband',
-        'description': 'A mixed language consisting of a Cantonese base + English tech verbs + Japanese and Korean slang.',
-        'native': False,
-        'common': True,
-    },
-    'japanese': {
-        'name': 'Japanese',
-        'description': 'Spoken by the shadowy Yakuza of Kowloon.',
+    'elvish': {
+        'name': 'Elvish',
+        'description': 'The flowing, melodic language of the elven people.',
         'native': False,
         'common': False,
     },
-    'korean': {
-        'name': 'Korean',
-        'description': 'From the peninsula of Korea. Popular in contemporary pop music.',
-        'native': False,
-        'common': False,
-    },
-    'vietnamese': {
-        'name': 'Vietnamese',
-        'description': 'Hailing from Vietnam, this language is spoken by many of the factory workers.',
-        'native': False,
-        'common': False,
-    },
-    'russian': {
-        'name': 'Russian',
-        'description': 'The cold, wintery language of the USSR.',
-        'native': False,
-        'common': False,
-    },
-    'arabic': {
-        'name': 'Arabic',
-        'description': 'A language from the Middle East',
-        'native': False,
-        'common': False,
-    },
-    'hindi': {
-        'name': 'Hindi',
-        'description': 'Spoken by the Indian laborers, merchants, and cultural enclaves.',
+    'dwarvish': {
+        'name': 'Dwarvish',
+        'description': 'The harsh, guttural language of the dwarves.',
         'native': False,
         'common': False,
     },
@@ -104,15 +49,22 @@ LANGUAGES = {
 # LANGUAGE SYSTEM CONSTANTS
 # ===================================================================
 
-DEFAULT_LANGUAGE = 'cantonese'
+DEFAULT_LANGUAGE = 'common'
 MAX_LANGUAGES = 10
-SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE = 7  # Characters with Smarts >= 7 get a second language choice
+# Removed SMARTS_THRESHOLD - language selection is now race-based
 
 # Common languages available to all builders
 COMMON_LANGUAGES = [code for code, info in LANGUAGES.items() if info.get('common', False)]
 
 # All languages available only to Builder+ users
 ALL_LANGUAGES = list(LANGUAGES.keys())
+
+# Race-based language bonuses
+RACE_LANGUAGES = {
+    'human': ['common'],  # Humans know Common, can pick one additional
+    'elf': ['common', 'elvish'],  # Elves know Common and Elvish
+    'dwarf': ['common', 'dwarvish'],  # Dwarves know Common and Dwarvish
+}
 
 
 # ===================================================================

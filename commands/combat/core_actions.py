@@ -67,13 +67,6 @@ class CmdAttack(Command):
             caller.msg(MSG_ATTACK_WHO)
             return
 
-        # Cancel Gamebud typing if in progress (silent - no messages)
-        try:
-            from world.gamebud.core import cancel_gamebud_typing
-            cancel_gamebud_typing(caller, silent=True)
-        except ImportError:
-            pass  # Gamebud module not available
-
         # --- SELF-TARGET CHECK (early) ---
         # Check if player is trying to target themselves with "me", "self", or "myself"
         if args.lower() in ["me", "myself", "self"]:

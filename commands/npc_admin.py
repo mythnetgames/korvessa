@@ -499,11 +499,14 @@ class CmdNPCSkill(Command):
       @npc-skill <npc>/remove=<skill>
     
     Valid skills:
-      chemical, modern medicine, holistic medicine, surgery, science,
-      dodge, blades, pistols, rifles, melee, brawling, martial arts,
-      grappling, snooping, stealing, hiding, sneaking, disguise,
-      tailoring, tinkering, manufacturing, cooking, forensics,
-      decking, electronics, mercantile, streetwise, paint/draw/sculpt, instrument
+      Combat: dodge, parry, blades, ranged, melee, brawling, martial arts, grappling
+      Stealth: snooping, stealing, hiding, sneaking, disguise
+      Social: mercantile, persuasion, streetwise
+      Crafting: carpentry, blacksmithing, herbalism, tailoring, cooking
+      Survival: tracking, foraging
+      Lore: investigation, lore, appraise
+      Medical: first aid, chirurgy
+      Creative: paint/draw/sculpt, instrument
     
     Examples:
       @npc-skill vendor=mercantile:5
@@ -518,11 +521,23 @@ class CmdNPCSkill(Command):
     
     # Valid skill names (display name -> attribute name)
     VALID_SKILLS = [
-        "chemical", "modern medicine", "holistic medicine", "surgery", "science",
-        "dodge", "blades", "pistols", "rifles", "melee", "brawling", "martial arts",
-        "grappling", "snooping", "stealing", "hiding", "sneaking", "disguise",
-        "tailoring", "tinkering", "manufacturing", "cooking", "forensics",
-        "decking", "electronics", "mercantile", "streetwise", "paint/draw/sculpt", "instrument"
+        # Combat
+        "dodge", "parry", "blades", "ranged", "melee", "brawling", "martial arts",
+        "grappling",
+        # Stealth/Subterfuge
+        "snooping", "stealing", "hiding", "sneaking", "disguise",
+        # Social
+        "mercantile", "persuasion", "streetwise",
+        # Crafting
+        "carpentry", "blacksmithing", "herbalism", "tailoring", "cooking",
+        # Survival
+        "tracking", "foraging",
+        # Lore
+        "investigation", "lore", "appraise",
+        # Medical
+        "first aid", "chirurgy",
+        # Creative
+        "paint/draw/sculpt", "instrument"
     ]
     
     def skill_to_attr(self, skill_name):

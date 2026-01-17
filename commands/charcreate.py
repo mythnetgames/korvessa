@@ -1,12 +1,12 @@
 """
-Character Creation System for Kowloon Walled City RPI
+Character Creation System for Korvessa Fantasy MUD
 
-This module handles both first-time character creation and respawn/flash cloning
-after death. It uses Evennia's EvMenu system for the interactive interface.
+This module handles both first-time character creation and respawn after death.
+It uses Evennia's EvMenu system for the interactive interface.
 
 Flow:
-1. First Character: Name input → Sex selection → GRIM distribution (300 points)
-2. Respawn: Choose from 3 random templates OR flash clone previous character
+1. First Character: Name input -> Race selection -> Sex selection -> D&D 5e Point Buy -> Language (if Human)
+2. Respawn: Choose from 3 random templates OR clone previous character
 """
 
 from evennia import create_object
@@ -15,6 +15,14 @@ from django.conf import settings
 import random
 import time
 import re
+
+# D&D 5e Point Buy Constants
+POINT_BUY_TOTAL = 27
+POINT_BUY_COSTS = {
+    8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9
+}
+STAT_MIN = 8
+STAT_MAX = 15
 
 
 def validate_name(name, account=None):
@@ -149,17 +157,20 @@ class CharCreateEvMenu(EvMenu):
 
 def generate_random_template():
     """
-    Generate a random character template with 300 GRIM points distributed.
+    Generate a random character template with D&D 5e point buy stats.
     
     Returns:
-        dict: Template with 'grit', 'resonance', 'intellect', 'motorics', 
-              'first_name', 'last_name'
+        dict: Template with stats, first_name, last_name, race
     """
     from world.namebank import FIRST_NAMES_MALE, FIRST_NAMES_FEMALE, LAST_NAMES
     
     # Randomly pick gender for name selection and character sex
     sex_choices = ['male', 'female', 'ambiguous']
     sex = random.choice(sex_choices)
+    
+    # Randomly pick race
+    race_choices = ['human', 'elf', 'dwarf']
+    race = random.choice(race_choices)
     
     # Use gendered names for male/female, random choice for ambiguous
     if sex == 'ambiguous':
@@ -170,75 +181,64 @@ def generate_random_template():
     first_name = random.choice(FIRST_NAMES_MALE if use_male else FIRST_NAMES_FEMALE)
     last_name = random.choice(LAST_NAMES)
     
-    # 8-stat system for Kowloon
-    STAT_NAMES = [
-        "body", "reflexes", "dexterity", "technique",
-        "smarts", "willpower", "edge", "empathy"
-    ]
-    STAT_MAX = {"empathy": 6, **{k: 10 for k in STAT_NAMES if k != "empathy"}}
-    STAT_MIN = 1
-    STAT_TOTAL = 68
-    points_left = STAT_TOTAL
-    stats = {}
-    for i, stat in enumerate(STAT_NAMES):
-        if i == len(STAT_NAMES) - 1:
-            val = points_left
-        else:
-            max_for_stat = min(STAT_MAX[stat], points_left - (len(STAT_NAMES) - i - 1) * STAT_MIN)
-            min_for_stat = STAT_MIN
-            val = random.randint(min_for_stat, max_for_stat)
-        stats[stat] = val
-        points_left -= val
+    # D&D 5e stat system with point buy
+    STAT_NAMES = ["str", "dex", "con", "int", "wis", "cha"]
+    
+    # Generate random valid point buy
+    stats = {stat: 8 for stat in STAT_NAMES}
+    points_remaining = POINT_BUY_TOTAL
+    
+    # Randomly distribute points
+    while points_remaining > 0:
+        stat = random.choice(STAT_NAMES)
+        current_val = stats[stat]
+        if current_val < STAT_MAX:
+            next_val = current_val + 1
+            cost_diff = POINT_BUY_COSTS[next_val] - POINT_BUY_COSTS[current_val]
+            if cost_diff <= points_remaining:
+                stats[stat] = next_val
+                points_remaining -= cost_diff
+        # Break if we can't raise any stat
+        can_raise = False
+        for s in STAT_NAMES:
+            if stats[s] < STAT_MAX:
+                next_v = stats[s] + 1
+                if POINT_BUY_COSTS[next_v] - POINT_BUY_COSTS[stats[s]] <= points_remaining:
+                    can_raise = True
+                    break
+        if not can_raise:
+            break
+    
     return {
         'first_name': first_name,
         'last_name': last_name,
         'name': f"{first_name} {last_name}",
         'sex': sex,
+        'race': race,
         **stats
     }
-    
-    # Basic profanity filter (expandable)
-    profanity_list = ['fuck', 'shit', 'damn', 'bitch', 'ass', 'cunt', 'dick', 'cock', 'pussy']
-    name_lower = name.lower()
-    for word in profanity_list:
-        if word in name_lower:
-            return (False, "That name is not allowed.")
-    
-    # Check uniqueness
-    from typeclasses.characters import Character
-    if Character.objects.filter(db_key__iexact=name).exists():
-        return (False, "That name is already taken.")
-    
-    return (True, None)
 
 
 def validate_stat_distribution(stats):
     """
-    Validate 8-stat distribution for character creation.
+    Validate D&D 5e point buy stat distribution.
     Args:
         stats (dict): {stat_name: value}
     Returns:
         tuple: (is_valid: bool, error_message: str or None)
     """
-    STAT_BASE = 5  # All stats start at 5
-    STAT_MAX = {k: 12 for k in stats if k != "empathy"}  # Max is 12
-    STAT_MIN = 1  # Can still go down to 1
-    DISTRIBUTION_POINTS = 12  # Points to distribute
-    
+    total_cost = 0
     for stat, value in stats.items():
-        if stat == "empathy":
-            continue
         if value < STAT_MIN:
-            return (False, f"{stat.capitalize()} must be at least {STAT_MIN}.")
-        if value > STAT_MAX[stat]:
-            return (False, f"{stat.capitalize()} cannot exceed 12.")
+            return (False, f"{stat.upper()} must be at least {STAT_MIN}.")
+        if value > STAT_MAX:
+            return (False, f"{stat.upper()} cannot exceed {STAT_MAX}.")
+        if value not in POINT_BUY_COSTS:
+            return (False, f"Invalid value {value} for {stat.upper()}.")
+        total_cost += POINT_BUY_COSTS[value]
     
-    # Calculate total distribution points used (total stats minus baseline)
-    # This counts points below base as freed-up allotment
-    total_stats = sum([v for k, v in stats.items() if k != "empathy"])
-    total_distribution = total_stats - (STAT_BASE * 7)
-    if total_distribution != DISTRIBUTION_POINTS:
-        return (False, f"You must distribute exactly {DISTRIBUTION_POINTS} points (current: {total_distribution}).")
+    if total_cost != POINT_BUY_TOTAL:
+        return (False, f"Point buy must use exactly {POINT_BUY_TOTAL} points (currently using {total_cost}).")
     return (True, None)
 
 
@@ -248,13 +248,14 @@ def create_character_from_template(account, template, sex="ambiguous"):
     
     Args:
         account: Account object
-        template (dict): Template with name and GRIM stats
+        template (dict): Template with name and D&D 5e stats
         sex (str): Biological sex
         
     Returns:
         Character: New character object
     """
     from typeclasses.characters import Character
+    from world.language.constants import RACE_LANGUAGES
     
     # Get spawn location
     start_location = get_start_location()
@@ -274,35 +275,38 @@ def create_character_from_template(account, template, sex="ambiguous"):
         # Handle creation errors
         raise Exception(f"Character creation failed: {errors}")
     
-    # Set stats from template (8-stat system)
-    char.body = template.get('body', 1)
-    char.ref = template.get('reflexes', 1)  # Template uses 'reflexes' for ref
-    char.dex = template.get('dexterity', 1)  # Template uses 'dexterity' for dex
-    char.tech = template.get('technique', 1)  # Template uses 'technique' for tech
-    char.smrt = template.get('smarts', 1)  # Template uses 'smarts' for smrt
-    char.will = template.get('willpower', 1)  # Template uses 'willpower' for will
-    char.edge = template.get('edge', 1)
+    # Set D&D 5e stats from template
+    char.str = template.get('str', 10)
+    char.dex = template.get('dex', 10)
+    char.con = template.get('con', 10)
+    char.int = template.get('int', 10)
+    char.wis = template.get('wis', 10)
+    char.cha = template.get('cha', 10)
     
     # Store baseline stats (for clone restoration)
     char.db.baseline_stats = {
-        'body': char.body,
-        'ref': char.ref,
+        'str': char.str,
         'dex': char.dex,
-        'tech': char.tech,
-        'smrt': char.smrt,
-        'will': char.will,
-        'edge': char.edge,
-        'emp': 1  # Empathy calculated, but store baseline as 1
+        'con': char.con,
+        'int': char.int,
+        'wis': char.wis,
+        'cha': char.cha,
     }
     
-    # Set sex
+    # Set sex and race
     char.sex = sex
+    char.race = template.get('race', 'human')
+    
+    # Set languages based on race
+    race_langs = RACE_LANGUAGES.get(char.race, ['common'])
+    char.db.primary_language = 'common'
+    char.db.known_languages = list(race_langs)
     
     # Debug: Verify sex was set correctly
     from evennia.comms.models import ChannelDB
     try:
         splattercast = ChannelDB.objects.get_channel("Splattercast")
-        splattercast.msg(f"CHARCREATE_SEX_SET: {char.key} sex set to '{sex}', current value: '{char.sex}', gender property: '{char.gender}'")
+        splattercast.msg(f"CHARCREATE_SEX_SET: {char.key} sex set to '{sex}', current value: '{char.sex}'")
     except:
         pass
     
@@ -315,8 +319,8 @@ def create_character_from_template(account, template, sex="ambiguous"):
 
 def create_flash_clone(account, old_character):
     """
-    Create a flash clone from a dead character.
-    Inherits: GRIM stats, longdesc, desc, sex, skintone
+    Create a clone from a dead character.
+    Inherits: D&D 5e stats, longdesc, desc, sex, race, skintone
     Name: Uses the base name (strips any existing Roman numerals, does NOT add new ones)
     
     Args:
@@ -360,41 +364,36 @@ def create_flash_clone(account, old_character):
         # Handle creation errors
         raise Exception(f"Flash clone creation failed: {errors}")
     
-    # INHERIT: Stats from baseline (not chrome-boosted stats)
+    # INHERIT: D&D 5e Stats from baseline (not boosted stats)
     # Use baseline_stats if available, otherwise fall back to current stats
     old_baseline = getattr(old_character.db, 'baseline_stats', None)
     if old_baseline:
-        char.body = old_baseline.get('body', 1)
-        char.ref = old_baseline.get('ref', 1)
-        char.dex = old_baseline.get('dex', 1)
-        char.tech = old_baseline.get('tech', 1)
-        char.smrt = old_baseline.get('smrt', 1)
-        char.will = old_baseline.get('will', 1)
-        char.edge = old_baseline.get('edge', 1)
-        char.emp = old_baseline.get('emp', 1)
+        char.str = old_baseline.get('str', 10)
+        char.dex = old_baseline.get('dex', 10)
+        char.con = old_baseline.get('con', 10)
+        char.int = old_baseline.get('int', 10)
+        char.wis = old_baseline.get('wis', 10)
+        char.cha = old_baseline.get('cha', 10)
         
         # Store baseline stats on new character
         char.db.baseline_stats = dict(old_baseline)
     else:
         # Fallback for legacy characters without baseline_stats
-        char.body = old_character.body if hasattr(old_character, 'body') and old_character.body is not None else 1
-        char.ref = old_character.ref if hasattr(old_character, 'ref') and old_character.ref is not None else 1
-        char.dex = old_character.dex if hasattr(old_character, 'dex') and old_character.dex is not None else 1
-        char.tech = old_character.tech if hasattr(old_character, 'tech') and old_character.tech is not None else 1
-        char.smrt = old_character.smrt if hasattr(old_character, 'smrt') and old_character.smrt is not None else 1
-        char.will = old_character.will if hasattr(old_character, 'will') and old_character.will is not None else 1
-        char.edge = old_character.edge if hasattr(old_character, 'edge') and old_character.edge is not None else 1
+        char.str = getattr(old_character, 'str', 10)
+        char.dex = getattr(old_character, 'dex', 10)
+        char.con = getattr(old_character, 'con', 10)
+        char.int = getattr(old_character, 'int', 10)
+        char.wis = getattr(old_character, 'wis', 10)
+        char.cha = getattr(old_character, 'cha', 10)
         
         # Store as baseline for this character
         char.db.baseline_stats = {
-            'body': char.body,
-            'ref': char.ref,
+            'str': char.str,
             'dex': char.dex,
-            'tech': char.tech,
-            'smrt': char.smrt,
-            'will': char.will,
-            'edge': char.edge,
-            'emp': 1
+            'con': char.con,
+            'int': char.int,
+            'wis': char.wis,
+            'cha': char.cha,
         }
     
     # INHERIT: Appearance
@@ -404,6 +403,7 @@ def create_flash_clone(account, old_character):
     
     # INHERIT: Biology
     char.sex = old_character.sex
+    char.race = getattr(old_character, 'race', 'human')
     if hasattr(old_character.db, 'skintone'):
         char.db.skintone = old_character.db.skintone
     
@@ -556,47 +556,45 @@ def respawn_welcome(caller, raw_string, **kwargs):
         templates = caller.ndb.charcreate_data['templates']
     
     text = """
-|r╔════════════════════════════════════════════════════════════════╗
-║  CONSCIOUSNESS BACKUP PROTOCOL INITIATED                       ║
-║  TERRAGROUP CLONING DIVISION - SLEEVE RESTORATION INITIATED    ║
+|b╔════════════════════════════════════════════════════════════════╗
+║  THE VEIL PARTS...                                             ║
+║  Your spirit stirs, seeking a new vessel.                      ║
 ╚════════════════════════════════════════════════════════════════╝|n
 
-|yYour previous sleeve has been terminated.|n
-|yMemory upload successful. Stack integrity: |g98.7%|n
-
-|wPreparing new sleeve for consciousness transfer...|n
+|yYour previous body has perished.|n
+|yYet death is not the end for those with unfinished business...|n
 
 |w╔════════════════════════════════════════════════════════════════╗
-║  AVAILABLE SLEEVES                                             ║
+║  AVAILABLE VESSELS                                             ║
 ╚════════════════════════════════════════════════════════════════╝|n
 
-Select a consciousness vessel:
+Select a new form:
 
 """
     
-    # Display templates
+    # Display templates with D&D stats
     for i, template in enumerate(templates, 1):
-        text += f"\n|w[{i}]|n |c{template['first_name']} {template['last_name']}|n\n"
-        text += f"    |gBODY:|n {template.get('body', 5):3d}  "
-        text += f"|yREF:|n {template.get('reflexes', 5):3d}  "
-        text += f"|bDEX:|n {template.get('dexterity', 5):3d}  "
-        text += f"|mTECH:|n {template.get('technique', 5):3d}\n"
-        text += f"    |cSMRT:|n {template.get('smarts', 5):3d}  "
-        text += f"|wWILL:|n {template.get('willpower', 5):3d}  "
-        text += f"|rEDGE:|n {template.get('edge', 5):3d}\n"
+        race = template.get('race', 'human').capitalize()
+        text += f"\n|w[{i}]|n |c{template['first_name']} {template['last_name']}|n ({race})\n"
+        text += f"    |rSTR:|n {template.get('str', 10):2d}  "
+        text += f"|gDEX:|n {template.get('dex', 10):2d}  "
+        text += f"|yCON:|n {template.get('con', 10):2d}  "
+        text += f"|bINT:|n {template.get('int', 10):2d}  "
+        text += f"|mWIS:|n {template.get('wis', 10):2d}  "
+        text += f"|cCHA:|n {template.get('cha', 10):2d}\n"
     
-    # Flash clone option
+    # Clone option
     old_char = caller.ndb.charcreate_old_character
     if old_char:
-        text += f"\n|w[4]|n |rFLASH CLONE|n - |c{old_char.key}|n (preserve current identity)\n"
-        text += f"    |gBODY:|n {getattr(old_char, 'body', 5):3d}  "
-        text += f"|yREF:|n {getattr(old_char, 'ref', 5):3d}  "
-        text += f"|bDEX:|n {getattr(old_char, 'dex', 5):3d}  "
-        text += f"|mTECH:|n {getattr(old_char, 'tech', 5):3d}\n"
-        text += f"    |cSMRT:|n {getattr(old_char, 'smrt', 5):3d}  "
-        text += f"|wWILL:|n {getattr(old_char, 'will', 5):3d}  "
-        text += f"|rEDGE:|n {getattr(old_char, 'edge', 5):3d}\n"
-        text += f"    |wInherits appearance, stats, and memories from previous incarnation|n\n"
+        race = getattr(old_char, 'race', 'human').capitalize()
+        text += f"\n|w[4]|n |rRESURRECTION|n - |c{old_char.key}|n ({race}) (preserve current identity)\n"
+        text += f"    |rSTR:|n {getattr(old_char, 'str', 10):2d}  "
+        text += f"|gDEX:|n {getattr(old_char, 'dex', 10):2d}  "
+        text += f"|yCON:|n {getattr(old_char, 'con', 10):2d}  "
+        text += f"|bINT:|n {getattr(old_char, 'int', 10):2d}  "
+        text += f"|mWIS:|n {getattr(old_char, 'wis', 10):2d}  "
+        text += f"|cCHA:|n {getattr(old_char, 'cha', 10):2d}\n"
+        text += f"    |wInherits appearance, stats, and memories from previous life|n\n"
     
     # Build prompt based on available options
     if old_char:
@@ -788,15 +786,20 @@ def first_char_welcome(caller, raw_string, **kwargs):
     """First character creation entry point."""
     
     text = """
-|bWelcome to |#d70000KOWLOON|w:                      
-         |#ffff00THE WALLED CITY|n
+|b═══════════════════════════════════════════════════════════════════|n
+|c                     WELCOME TO KORVESSA                           |n
+|b═══════════════════════════════════════════════════════════════════|n
 
-|wAfter years of isolation, the Walled City has reopened to outsiders.|n
+|wA world where danger lurks in every shadow,|n
+|wand reputation is earned through blood, sweat, and cunning.|n
 
-|wThe year is 197?.|n
-|wYou arrive at South Gate... but let's get some things cleared up first.|n
+|yThis is not a power fantasy.|n
+|wYou will struggle. You will fail. You will bear scars.|n
+|wBut every victory will be earned, and every choice will matter.|n
 
-Press |w<Enter>|n to begin character creation.
+|b----------------------------------------------------------------------|n
+
+Press |w<Enter>|n to begin your journey.
 """
     
     options = (
@@ -929,21 +932,21 @@ def first_char_display_name(caller, raw_string, **kwargs):
             # Return None to re-display current node
             return None
         
-        # Store display name and advance to next node
+        # Store display name and advance to race selection
         caller.ndb.charcreate_data['display_name'] = name
         # Call next node directly and return its result
-        return first_char_sex(caller, "", **kwargs)
+        return first_char_race(caller, "", **kwargs)
     
     # Display prompt (first time or after error)
     text = f"""
 Real Name: |c{first_name} {last_name}|n
 
-|wWhat is your DISPLAY NAME (handle/alias)?|n
+|wWhat is your DISPLAY NAME?|n
 
 This is what people will see and use to target you in emotes, combat, etc.
-You can use your real name or a street name/handle.
+You can use your real name or an alias.
 
-Examples: "{first_name}", "Razor", "Ghost", "Tank", "Doc"
+Examples: "{first_name}", "Thornwood", "Ashford", "Grim"
 
 (2-30 characters, letters only - first letter will be capitalized)
 
@@ -962,9 +965,11 @@ def first_char_sex(caller, raw_string, **kwargs):
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     display_name = caller.ndb.charcreate_data.get('display_name', '')
+    race = caller.ndb.charcreate_data.get('race', 'human')
     text = f"""
 Real Name: |c{first_name} {last_name}|n
 Display Name: |c{display_name}|n
+Race: |c{race.capitalize()}|n
 
 Select biological sex:
 
@@ -994,52 +999,132 @@ Select biological sex:
     return text, options
 
 
+def first_char_race(caller, raw_string, **kwargs):
+    """Select character race."""
+    from world.language.constants import RACE_LANGUAGES, LANGUAGES
+    
+    first_name = caller.ndb.charcreate_data.get('first_name', '')
+    last_name = caller.ndb.charcreate_data.get('last_name', '')
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    
+    # Build race descriptions with language info
+    race_info = {
+        'human': {
+            'desc': 'Versatile and adaptable, humans are found in every corner of the world.',
+            'bonus': 'May learn one additional language of their choice.'
+        },
+        'elf': {
+            'desc': 'Graceful and long-lived, elves possess keen senses and a natural affinity for magic.',
+            'bonus': 'Speaks Elvish in addition to Common.'
+        },
+        'dwarf': {
+            'desc': 'Stout and hardy, dwarves are master craftsmen with an enduring resilience.',
+            'bonus': 'Speaks Dwarvish in addition to Common.'
+        }
+    }
+    
+    text = f"""
+Real Name: |c{first_name} {last_name}|n
+Display Name: |c{display_name}|n
+
+|wSelect your race:|n
+
+|w[1]|n |cHuman|n
+    {race_info['human']['desc']}
+    |y{race_info['human']['bonus']}|n
+
+|w[2]|n |cElf|n
+    {race_info['elf']['desc']}
+    |y{race_info['elf']['bonus']}|n
+
+|w[3]|n |cDwarf|n
+    {race_info['dwarf']['desc']}
+    |y{race_info['dwarf']['bonus']}|n
+
+|wEnter choice:|n """
+
+    # Handle input
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip()
+        race_map = {'1': 'human', '2': 'elf', '3': 'dwarf'}
+        
+        if choice in race_map:
+            selected_race = race_map[choice]
+            caller.ndb.charcreate_data['race'] = selected_race
+            
+            # Set racial languages automatically
+            racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
+            caller.ndb.charcreate_data['languages'] = racial_langs.copy()
+            
+            caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
+            return first_char_sex(caller, "", **kwargs)
+        else:
+            caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
+            return None
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_race"},
+    )
+    
+    return text, options
+
+
 def first_char_stat_assign(caller, raw_string, **kwargs):
-    """Distribute 12 points among 7 assignable stats above base of 5 (empathy is auto-calculated)."""
+    """Distribute 27 points among 6 stats using D&D 5e standard point buy."""
     if 'sex' in kwargs:
         caller.ndb.charcreate_data['sex'] = kwargs['sex']
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     display_name = caller.ndb.charcreate_data.get('display_name', '')
+    race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     stats = caller.ndb.charcreate_data.get('stats', {
-        'body': 5,
-        'reflexes': 5,
-        'dexterity': 5,
-        'technique': 5,
-        'smarts': 5,
-        'willpower': 5,
-        'edge': 5
+        'str': 8,
+        'dex': 8,
+        'con': 8,
+        'int': 8,
+        'wis': 8,
+        'cha': 8
     })
-    empathy = stats['edge'] + stats['willpower']
-    # Calculate distribution points used (total stats minus baseline of 7*5)
-    # This counts points below base as freed-up allotment
-    STAT_BASE = 5
-    total_stats = sum([v for k, v in stats.items() if k != 'empathy'])
-    distribution_used = total_stats - (STAT_BASE * 7)
-    remaining = 12 - distribution_used
+    
+    # Calculate points spent using D&D 5e point buy costs
+    def calc_cost(value):
+        """Calculate point cost for a stat value."""
+        return POINT_BUY_COSTS.get(value, 0)
+    
+    points_spent = sum(calc_cost(v) for v in stats.values())
+    remaining = POINT_BUY_TOTAL - points_spent
+    
+    # Calculate modifiers
+    def calc_mod(value):
+        return (value - 10) // 2
+    
     text = f"""
-Let's assign your character's stats.
+|wAssign Your Ability Scores|n
 
 Display Name: |c{display_name}|n
+Race: |c{race.capitalize()}|n
 Sex: |c{sex.capitalize()}|n
 
-|wAll stats start at 5. Distribute |y12 points|w among them (max 12).|n
-    |wBody|n (1-12):        {stats['body']}
-    |wReflexes|n (1-12):    {stats['reflexes']}
-    |wDexterity|n (1-12):   {stats['dexterity']}
-    |wTechnique|n (1-12):   {stats['technique']}
-    |wSmarts|n (1-12):      {stats['smarts']}
-    |wWillpower|n (1-12):   {stats['willpower']}
-    |wEdge|n (1-12):        {stats['edge']}
-    |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
+|wD&D 5e Point Buy:|n |y{POINT_BUY_TOTAL} points|w to spend. Stats range from |y8|w to |y15|w.|n
+|wPoint costs:|n 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9
 
-|wDistribution points used:|n {distribution_used}/12  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|b----------------------------------------------------------------------|n
+    |rSTR|n (Strength):     {stats['str']:2d}  |w({calc_mod(stats['str']):+d})|n  - Physical power, melee damage
+    |gDEX|n (Dexterity):    {stats['dex']:2d}  |w({calc_mod(stats['dex']):+d})|n  - Agility, reflexes, ranged attacks
+    |yCON|n (Constitution): {stats['con']:2d}  |w({calc_mod(stats['con']):+d})|n  - Health, endurance, resilience
+    |bINT|n (Intelligence): {stats['int']:2d}  |w({calc_mod(stats['int']):+d})|n  - Reasoning, memory, analysis
+    |mWIS|n (Wisdom):       {stats['wis']:2d}  |w({calc_mod(stats['wis']):+d})|n  - Perception, insight, willpower
+    |cCHA|n (Charisma):     {stats['cha']:2d}  |w({calc_mod(stats['cha']):+d})|n  - Presence, persuasion, force of will
+|b----------------------------------------------------------------------|n
 
-Commands:
-    |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
-    |wreset|n           - Reset all stats to 5
-    |wdone|n            - Finalize character (when 12 points distributed)
+|wPoints spent:|n {points_spent}/{POINT_BUY_TOTAL}  {'|gREMAINING: ' + str(remaining) + '|n' if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+
+|wCommands:|n
+    |w<stat> <value>|n  - Set a stat (e.g., 'str 15' or 'dex 10')
+    |wreset|n           - Reset all stats to 8
+    |wdone|n            - Finalize (when exactly {POINT_BUY_TOTAL} points spent)
 
 |w>|n """
     options = (
@@ -1050,38 +1135,52 @@ Commands:
         if not args:
             return text, options
         command = args[0]
-        valid_stats = ['body', 'reflexes', 'dexterity', 'technique', 'smarts', 'willpower', 'edge']
+        valid_stats = ['str', 'dex', 'con', 'int', 'wis', 'cha']
+        
+        # Handle stat aliases
+        stat_aliases = {
+            'strength': 'str',
+            'dexterity': 'dex',
+            'constitution': 'con',
+            'intelligence': 'int',
+            'wisdom': 'wis',
+            'charisma': 'cha'
+        }
+        if command in stat_aliases:
+            command = stat_aliases[command]
+        
         if command == 'reset':
-            stats = {k: 5 for k in valid_stats}
+            stats = {k: 8 for k in valid_stats}
             caller.ndb.charcreate_data['stats'] = stats
-            # Immediately update display after reset
-            empathy = stats['edge'] + stats['willpower']
-            STAT_BASE = 5
-            total_stats = sum([v for k, v in stats.items() if k != 'empathy'])
-            distribution_used = total_stats - (STAT_BASE * 7)
-            remaining = 12 - distribution_used
+            caller.msg("|yAll stats reset to 8.|n")
+            # Immediately recalculate and redisplay
+            points_spent = sum(calc_cost(v) for v in stats.values())
+            remaining = POINT_BUY_TOTAL - points_spent
             text = f"""
-Let's assign your character's stats.
+|wAssign Your Ability Scores|n
 
-Name: |c{first_name} {last_name}|n
+Display Name: |c{display_name}|n
+Race: |c{race.capitalize()}|n
 Sex: |c{sex.capitalize()}|n
 
-|wAll stats start at 5. Distribute |y12 points|w among them (max 12).|n
-    |wBody|n (1-12):        {stats['body']}
-    |wReflexes|n (1-12):    {stats['reflexes']}
-    |wDexterity|n (1-12):   {stats['dexterity']}
-    |wTechnique|n (1-12):   {stats['technique']}
-    |wSmarts|n (1-12):      {stats['smarts']}
-    |wWillpower|n (1-12):   {stats['willpower']}
-    |wEdge|n (1-12):        {stats['edge']}
-    |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
+|wD&D 5e Point Buy:|n |y{POINT_BUY_TOTAL} points|w to spend. Stats range from |y8|w to |y15|w.|n
+|wPoint costs:|n 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9
 
-|wDistribution points used:|n {distribution_used}/12  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|b----------------------------------------------------------------------|n
+    |rSTR|n (Strength):     {stats['str']:2d}  |w({calc_mod(stats['str']):+d})|n  - Physical power, melee damage
+    |gDEX|n (Dexterity):    {stats['dex']:2d}  |w({calc_mod(stats['dex']):+d})|n  - Agility, reflexes, ranged attacks
+    |yCON|n (Constitution): {stats['con']:2d}  |w({calc_mod(stats['con']):+d})|n  - Health, endurance, resilience
+    |bINT|n (Intelligence): {stats['int']:2d}  |w({calc_mod(stats['int']):+d})|n  - Reasoning, memory, analysis
+    |mWIS|n (Wisdom):       {stats['wis']:2d}  |w({calc_mod(stats['wis']):+d})|n  - Perception, insight, willpower
+    |cCHA|n (Charisma):     {stats['cha']:2d}  |w({calc_mod(stats['cha']):+d})|n  - Presence, persuasion, force of will
+|b----------------------------------------------------------------------|n
 
-Commands:
-    |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
-    |wreset|n           - Reset all stats to 5
-    |wdone|n            - Finalize character (when 12 points distributed)
+|wPoints spent:|n {points_spent}/{POINT_BUY_TOTAL}  {'|gREMAINING: ' + str(remaining) + '|n' if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+
+|wCommands:|n
+    |w<stat> <value>|n  - Set a stat (e.g., 'str 15' or 'dex 10')
+    |wreset|n           - Reset all stats to 8
+    |wdone|n            - Finalize (when exactly {POINT_BUY_TOTAL} points spent)
 
 |w>|n """
             return text, options
@@ -1093,93 +1192,105 @@ Commands:
             return first_char_confirm(caller, "", **kwargs)
         if command in valid_stats:
             if len(args) < 2:
-                caller.msg("|rUsage: <stat> <value>  (e.g., 'body 10')|n")
+                caller.msg("|rUsage: <stat> <value>  (e.g., 'str 15')|n")
                 return text, options
             try:
                 value = int(args[1])
             except ValueError:
                 caller.msg("|rValue must be a number.|n")
                 return text, options
-            if value < 1 or value > 12:
-                caller.msg("|rValue must be 1-12.|n")
+            if value < 8 or value > 15:
+                caller.msg("|rValue must be 8-15 (D&D 5e point buy range).|n")
                 return text, options
             stats[command] = value
             caller.ndb.charcreate_data['stats'] = stats
             # Immediately update display after stat set
-            empathy = stats['edge'] + stats['willpower']
-            STAT_BASE = 5
-            total_stats = sum([v for k, v in stats.items() if k != 'empathy'])
-            distribution_used = total_stats - (STAT_BASE * 7)
-            remaining = 12 - distribution_used
+            points_spent = sum(calc_cost(v) for v in stats.values())
+            remaining = POINT_BUY_TOTAL - points_spent
             text = f"""
-Let's assign your character's stats.
+|wAssign Your Ability Scores|n
 
 Display Name: |c{display_name}|n
+Race: |c{race.capitalize()}|n
 Sex: |c{sex.capitalize()}|n
 
-|wAll stats start at 5. Distribute |y12 points|w among them (max 12).|n
-    |wBody|n (1-12):        {stats['body']}
-    |wReflexes|n (1-12):    {stats['reflexes']}
-    |wDexterity|n (1-12):   {stats['dexterity']}
-    |wTechnique|n (1-12):   {stats['technique']}
-    |wSmarts|n (1-12):      {stats['smarts']}
-    |wWillpower|n (1-12):   {stats['willpower']}
-    |wEdge|n (1-12):        {stats['edge']}
-    |wEmpathy|n (auto):     {empathy} (calculated: edge + willpower)
+|wD&D 5e Point Buy:|n |y{POINT_BUY_TOTAL} points|w to spend. Stats range from |y8|w to |y15|w.|n
+|wPoint costs:|n 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9
 
-|wDistribution points used:|n {distribution_used}/12  {'REMAINING: ' + str(remaining) if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|b----------------------------------------------------------------------|n
+    |rSTR|n (Strength):     {stats['str']:2d}  |w({calc_mod(stats['str']):+d})|n  - Physical power, melee damage
+    |gDEX|n (Dexterity):    {stats['dex']:2d}  |w({calc_mod(stats['dex']):+d})|n  - Agility, reflexes, ranged attacks
+    |yCON|n (Constitution): {stats['con']:2d}  |w({calc_mod(stats['con']):+d})|n  - Health, endurance, resilience
+    |bINT|n (Intelligence): {stats['int']:2d}  |w({calc_mod(stats['int']):+d})|n  - Reasoning, memory, analysis
+    |mWIS|n (Wisdom):       {stats['wis']:2d}  |w({calc_mod(stats['wis']):+d})|n  - Perception, insight, willpower
+    |cCHA|n (Charisma):     {stats['cha']:2d}  |w({calc_mod(stats['cha']):+d})|n  - Presence, persuasion, force of will
+|b----------------------------------------------------------------------|n
 
-Commands:
-    |w<stat> <value>|n  - Set a stat (e.g., 'body 8')
-    |wreset|n           - Reset all stats to 5
-    |wdone|n            - Finalize character (when 12 points distributed)
+|wPoints spent:|n {points_spent}/{POINT_BUY_TOTAL}  {'|gREMAINING: ' + str(remaining) + '|n' if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+
+|wCommands:|n
+    |w<stat> <value>|n  - Set a stat (e.g., 'str 15' or 'dex 10')
+    |wreset|n           - Reset all stats to 8
+    |wdone|n            - Finalize (when exactly {POINT_BUY_TOTAL} points spent)
 
 |w>|n """
             return text, options
+        else:
+            caller.msg(f"|rUnknown command. Valid stats: {', '.join(valid_stats)}|n")
     return text, options
 
 
 def first_char_confirm(caller, raw_string, **kwargs):
     """Final confirmation and character creation."""
+    from world.language.constants import LANGUAGES
+    
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     display_name = caller.ndb.charcreate_data.get('display_name', '')
+    race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     stats = caller.ndb.charcreate_data.get('stats', {
-        'body': 5,
-        'reflexes': 5,
-        'dexterity': 5,
-        'technique': 5,
-        'smarts': 5,
-        'willpower': 5,
-        'edge': 5
+        'str': 8,
+        'dex': 8,
+        'con': 8,
+        'int': 8,
+        'wis': 8,
+        'cha': 8
     })
-    empathy = stats['edge'] + stats['willpower']
-    STAT_BASE = 5
-    # Distribution = total all stats minus the baseline (7 stats * 5 base)
-    total_stats = sum([v for k, v in stats.items() if k != 'empathy'])
-    distribution_used = total_stats - (STAT_BASE * 7)
+    languages = caller.ndb.charcreate_data.get('languages', ['common'])
+    
+    # Calculate points spent
+    points_spent = sum(POINT_BUY_COSTS.get(v, 0) for v in stats.values())
+    
+    # Calculate modifiers
+    def calc_mod(value):
+        return (value - 10) // 2
+    
+    # Format languages
+    lang_names = [LANGUAGES.get(lang, {}).get('name', lang.capitalize()) for lang in languages]
+    
     text = f"""
-Just uh, let me know if everything looks good.
+|wReview Your Character|n
 
 |wReal Name:|n |c{first_name} {last_name}|n
 |wDisplay Name:|n |c{display_name}|n
+|wRace:|n |c{race.capitalize()}|n
 |wSex:|n |c{sex.capitalize()}|n
 
-|wStats:|n
-    |wBody:|n      {stats['body']}
-    |wReflexes:|n  {stats['reflexes']}
-    |wDexterity:|n {stats['dexterity']}
-    |wTechnique:|n {stats['technique']}
-    |wSmarts:|n    {stats['smarts']}
-    |wWillpower:|n {stats['willpower']}
-    |wEdge:|n      {stats['edge']}
-    |wEmpathy:|n   {empathy} (calculated: edge + willpower)
+|wAbility Scores:|n (Points spent: {points_spent}/{POINT_BUY_TOTAL})
+    |rSTR:|n {stats['str']:2d} ({calc_mod(stats['str']):+d})
+    |gDEX:|n {stats['dex']:2d} ({calc_mod(stats['dex']):+d})
+    |yCON:|n {stats['con']:2d} ({calc_mod(stats['con']):+d})
+    |bINT:|n {stats['int']:2d} ({calc_mod(stats['int']):+d})
+    |mWIS:|n {stats['wis']:2d} ({calc_mod(stats['wis']):+d})
+    |cCHA:|n {stats['cha']:2d} ({calc_mod(stats['cha']):+d})
 
-|wDistribution points used:|n {distribution_used}/12
+|wLanguages:|n {', '.join(lang_names)}
 
+|y----------------------------------------------------------------------|n
 |yOnce created, your name cannot be changed.|n
 |yStats can be modified through gameplay.|n
+|y----------------------------------------------------------------------|n
 
 Create this character?
 
@@ -1202,38 +1313,38 @@ Create this character?
          "auto_look": False},
     )
     return text, options
+    return text, options
 
 
 def first_char_select_language(caller, raw_string, **kwargs):
-    """Select primary language during character creation."""
-    from world.language.constants import (
-        LANGUAGES, SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE
-    )
+    """Select additional language during character creation (for humans)."""
+    from world.language.constants import LANGUAGES, RACE_LANGUAGES
     
-    stats = caller.ndb.charcreate_data.get('stats', {})
-    smarts = stats.get('smarts', 1)
-    primary_language = caller.ndb.charcreate_data.get('primary_language', 'cantonese')
-    secondary_languages = caller.ndb.charcreate_data.get('secondary_languages', [])
+    race = caller.ndb.charcreate_data.get('race', 'human')
+    languages = caller.ndb.charcreate_data.get('languages', ['common'])
     
-    # Determine if player can choose a second language
-    can_choose_second = smarts >= SMARTS_THRESHOLD_FOR_SECOND_LANGUAGE
+    # Non-humans already have their languages set, skip to finalize
+    if race != 'human':
+        return first_char_finalize(caller, "", **kwargs)
+    
+    # Humans pick one additional language
+    available_langs = [code for code in LANGUAGES.keys() if code not in languages]
     
     text = f"""
-|wChoose Your Primary Language|n
+|wChoose an Additional Language|n
 
-Your character will speak this language by default.
+As a human, you may learn one additional language beyond Common.
 
-|wSmarts:|n {smarts} {'(You may also choose a second language!)' if can_choose_second else ''}
+|wCurrent Languages:|n {', '.join(LANGUAGES.get(lang, {}).get('name', lang.capitalize()) for lang in languages)}
 
 |wAvailable Languages:|n
 """
     
-    # List all languages with their descriptions
+    # List available languages
     lang_list = []
-    for i, (code, info) in enumerate(sorted(LANGUAGES.items()), 1):
+    for i, code in enumerate(sorted(available_langs), 1):
+        info = LANGUAGES[code]
         lang_list.append(f"|w[{i}]|n |c{info['name']}|n - {info['description']}")
-        if code == primary_language:
-            lang_list[-1] += " |y(selected)|n"
     
     text += "\n".join(lang_list)
     
@@ -1248,175 +1359,58 @@ Your character will speak this language by default.
             return text, options
         
         command = args[0]
-        lang_codes = sorted(list(LANGUAGES.keys()))
+        sorted_langs = sorted(available_langs)
         
-        # Handle language selection
-        if command == 'done':
-            # Move to second language selection if eligible
-            if can_choose_second:
-                return first_char_select_second_language(caller, "", **kwargs)
-            else:
-                # Skip to finalize
-                return first_char_finalize(caller, "", **kwargs)
+        # Handle skipping (human can choose to only know Common)
+        if command in ['done', 'skip', 'none']:
+            caller.msg("|yProceeding with only Common.|n")
+            return first_char_finalize(caller, "", **kwargs)
         
         # Try to parse as a number (1-indexed)
         try:
             lang_index = int(command) - 1
-            if 0 <= lang_index < len(lang_codes):
-                selected_code = lang_codes[lang_index]
-                caller.ndb.charcreate_data['primary_language'] = selected_code
-                caller.msg(f"|gPrimary language set to |c{LANGUAGES[selected_code]['name']}|g.|n")
-                
-                # Show updated text
-                primary_language = selected_code
-                text = f"""
-|wChoose Your Primary Language|n
-
-Your character will speak this language by default.
-
-|wSmarts:|n {smarts} {'(You may also choose a second language!)' if can_choose_second else ''}
-
-|wAvailable Languages:|n
-"""
-                lang_list = []
-                for i, (code, info) in enumerate(sorted(LANGUAGES.items()), 1):
-                    lang_list.append(f"|w[{i}]|n |c{info['name']}|n - {info['description']}")
-                    if code == primary_language:
-                        lang_list[-1] += " |y(selected)|n"
-                
-                text += "\n".join(lang_list)
-                text += f"\n\n|wPrimary Language:|n |c{LANGUAGES[primary_language]['name']}|n"
-                if can_choose_second:
-                    text += f"\n\nType |wdone|n when ready to choose your second language, or select another language above."
-                else:
-                    text += f"\n\nType |wdone|n when ready to create your character."
-                text += "\n\n|w>|n"
-                return text, options
+            if 0 <= lang_index < len(sorted_langs):
+                selected_code = sorted_langs[lang_index]
+                languages.append(selected_code)
+                caller.ndb.charcreate_data['languages'] = languages
+                caller.msg(f"|gAdded |c{LANGUAGES[selected_code]['name']}|g to your languages.|n")
+                return first_char_finalize(caller, "", **kwargs)
         except ValueError:
             pass
         
-        caller.msg("|rInvalid selection. Please enter a number or 'done'.|n")
+        caller.msg("|rInvalid selection. Please enter a number, or 'skip' to continue with only Common.|n")
     
-    if primary_language:
-        text += f"\n\n|wPrimary Language:|n |c{LANGUAGES[primary_language]['name']}|n"
-    
-    if can_choose_second:
-        text += f"\n\nType |wdone|n when ready to choose your second language, or select another language above."
-    else:
-        text += f"\n\nType |wdone|n when ready to create your character."
-    
+    text += f"\n\nType a number to select a language, or |wskip|n to continue with only Common."
     text += "\n\n|w>|n"
     return text, options
 
 
 def first_char_select_second_language(caller, raw_string, **kwargs):
-    """Select secondary language if Smarts > 7."""
-    from world.language.constants import LANGUAGES
-    
-    stats = caller.ndb.charcreate_data.get('stats', {})
-    smarts = stats.get('smarts', 1)
-    primary_language = caller.ndb.charcreate_data.get('primary_language', 'cantonese')
-    secondary_languages = caller.ndb.charcreate_data.get('secondary_languages', [])
-    
-    text = f"""
-|wChoose Your Secondary Language|n
-
-Your Smarts of {smarts} allows you to learn a second language!
-
-|wAvailable Languages:|n
-"""
-    
-    # List all languages except primary
-    lang_list = []
-    lang_codes = sorted([code for code in LANGUAGES.keys() if code != primary_language])
-    for i, code in enumerate(lang_codes, 1):
-        info = LANGUAGES[code]
-        lang_list.append(f"|w[{i}]|n |c{info['name']}|n - {info['description']}")
-        if code in secondary_languages:
-            lang_list[-1] += " |y(selected)|n"
-    
-    text += "\n".join(lang_list)
-    
-    # Handle input
-    options = (
-        {"key": "_default", "goto": "first_char_select_second_language"},
-    )
-    
-    if raw_string and raw_string.strip():
-        args = raw_string.strip().lower().split()
-        if not args:
-            return text, options
-        
-        command = args[0]
-        lang_codes = sorted([code for code in LANGUAGES.keys() if code != primary_language])
-        
-        # Handle language selection
-        if command == 'done':
-            # Proceed to finalize
-            return first_char_finalize(caller, "", **kwargs)
-        
-        if command == 'skip':
-            # Skip second language
-            caller.msg("|ySkipping second language selection.|n")
-            return first_char_finalize(caller, "", **kwargs)
-        
-        # Try to parse as a number (1-indexed)
-        try:
-            lang_index = int(command) - 1
-            if 0 <= lang_index < len(lang_codes):
-                selected_code = lang_codes[lang_index]
-                caller.ndb.charcreate_data['secondary_languages'] = [selected_code]
-                caller.msg(f"|gSecondary language set to |c{LANGUAGES[selected_code]['name']}|g.|n")
-                
-                # Show updated text
-                text = f"""
-|wChoose Your Secondary Language|n
-
-Your Smarts of {smarts} allows you to learn a second language!
-
-|wAvailable Languages:|n
-"""
-                lang_list = []
-                for i, code in enumerate(lang_codes, 1):
-                    info = LANGUAGES[code]
-                    lang_list.append(f"|w[{i}]|n |c{info['name']}|n - {info['description']}")
-                    if code == selected_code:
-                        lang_list[-1] += " |y(selected)|n"
-                
-                text += "\n".join(lang_list)
-                text += f"\n\n|wSecondary Language:|n |c{LANGUAGES[selected_code]['name']}|n"
-                text += f"\n\nType |wdone|n to create your character, or select another language."
-                text += "\n\n|w>|n"
-                return text, options
-        except ValueError:
-            pass
-        
-        caller.msg("|rInvalid selection. Please enter a number, 'done', or 'skip'.|n")
-    
-    text += f"\n\n|wPrimary Language:|n |c{LANGUAGES[primary_language]['name']}|n"
-    text += f"\n\nType |wdone|n to create your character, |wskip|n to choose no second language, or select a language above."
-    text += "\n\n|w>|n"
-    return text, options
+    """Deprecated - kept for compatibility but redirects to finalize."""
+    return first_char_finalize(caller, "", **kwargs)
 
 
 def first_char_finalize(caller, raw_string, **kwargs):
     """Create the character and enter game."""
     from typeclasses.characters import Character
+    from world.language.constants import LANGUAGES
+    
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     display_name = caller.ndb.charcreate_data.get('display_name', '')
     full_real_name = f"{first_name} {last_name}"
+    race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
     stats = caller.ndb.charcreate_data.get('stats', {
-        'body': 5,
-        'reflexes': 5,
-        'dexterity': 5,
-        'technique': 5,
-        'smarts': 5,
-        'willpower': 5,
-        'edge': 5
+        'str': 8,
+        'dex': 8,
+        'con': 8,
+        'int': 8,
+        'wis': 8,
+        'cha': 8
     })
-    empathy = stats['edge'] + stats['willpower']
+    languages = caller.ndb.charcreate_data.get('languages', ['common'])
+    
     start_location = get_start_location()
     try:
         # Use display_name as character key (what people see/target)
@@ -1434,43 +1428,48 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.db.real_last_name = last_name
         char.db.real_full_name = full_real_name
         
-        # Set stats
-        char.body = stats['body']
-        char.ref = stats['reflexes']
-        char.dex = stats['dexterity']
-        char.tech = stats['technique']
-        char.smrt = stats['smarts']
-        char.will = stats['willpower']
-        char.edge = stats['edge']
-        char.emp = empathy
+        # Set D&D 5e stats
+        char.str = stats['str']
+        char.dex = stats['dex']
+        char.con = stats['con']
+        char.int = stats['int']
+        char.wis = stats['wis']
+        char.cha = stats['cha']
+        char.race = race
         char.sex = sex
         char.db.archived = False
+        
+        # Set languages
+        char.db.languages = languages
+        char.db.primary_language = languages[0] if languages else 'common'
         
         # Award starting IP
         char.db.ip = char.db.ip if hasattr(char.db, 'ip') and char.db.ip else 0
         char.db.ip += 200
         
         import uuid
-        char.db.stack_id = str(uuid.uuid4())
+        char.db.character_id = str(uuid.uuid4())
         char.db.original_creation = time.time()
-        char.db.current_sleeve_birth = time.time()
         caller.puppet_object(caller.sessions.all()[0], char)
+        
+        # Format languages for display
+        lang_names = [LANGUAGES.get(lang, {}).get('name', lang.capitalize()) for lang in languages]
+        
         char.msg("")
-        char.msg(f"|wWelcome to Kowloon, |c{char.key}|w.|n")
+        char.msg(f"|wWelcome to Korvessa, |c{char.key}|w.|n")
         char.msg("")
-        char.msg("|wPro tip? Don't trust anyone.|n")
-        char.msg("|wJust a little work north, and you're in the City.|n")
-        char.msg("")
+        char.msg("|wThe road ahead is perilous. Trust is earned, not given.|n")
         char.msg("")
         char.msg("|g=== Character Creation Complete ===|n")
+        char.msg("")
+        char.msg(f"|wRace:|n |c{race.capitalize()}|n")
+        char.msg(f"|wLanguages:|n |c{', '.join(lang_names)}|n")
         char.msg("")
         char.msg(f"|gYou have been awarded |c200 Investment Points (IP)|g.|n")
         char.msg(f"|cCurrent IP:|n |c{char.db.ip}|n")
         char.msg("")
-        char.msg("")
         char.msg("|wYou can spend IP to improve your skills and abilities.|n")
         char.msg("|wType |yhelp ip|w to learn more about the IP system.|n")
-        char.msg("")
         char.msg("")
         char.msg("|c=== Optional: Submit Your Background ===|n")
         char.msg("")
@@ -1478,7 +1477,6 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.msg("")
         char.msg("|wType |cbackground submit <text>|w to write your character's story.|n")
         char.msg("|wBackgrounds must be approved by staff but can be edited until approval.|n")
-        char.msg("")
         char.msg("")
         char.msg("|wType |ylook|w to examine your surroundings.|n")
         char.msg("")

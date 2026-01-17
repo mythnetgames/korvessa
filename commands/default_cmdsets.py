@@ -54,7 +54,7 @@ from commands.voice import CmdVoice
 from commands.petition import CmdPetition, CmdErasePetition, CmdStaffPetition
 from commands.pnote import CmdPnotes, CmdPnote, CmdPread, CmdPnoteDelete, CmdPlist
 from commands.notes import CmdAddNote, CmdNotes, CmdPagedNotes, CmdReadNote, CmdViewAllNotes, CmdReadStaffNote, CmdNextNote
-from commands.npc_admin import CmdCreateNPC, CmdNPCPuppet, CmdNPCUnpuppet, CmdNPCReaction, CmdNPCConfig, CmdNPCStat, CmdNPCSkill, CmdNPCChrome, CmdNPCNakeds, CmdNPCGender, CmdForceWander, CmdForcePath
+from commands.npc_admin import CmdCreateNPC, CmdNPCPuppet, CmdNPCUnpuppet, CmdNPCReaction, CmdNPCConfig, CmdNPCStat, CmdNPCSkill, CmdNPCNakeds, CmdNPCGender, CmdForceWander, CmdForcePath
 from commands.look import CmdLook
 from commands.shop import CmdBuy
 from commands.window import CmdAttachWindow, CmdRemoveWindow, CmdWindowCoord, CmdDebugWindows
@@ -67,7 +67,6 @@ from commands.stamina_admin import CmdStaminaStart, CmdStaminaStatus
 from commands.CmdFollow import CmdFollow, CmdUnfollow, CmdLose
 from commands.CmdSetRoomType import CmdSetRoomType
 from commands.CmdWeather import CmdWeatherRoom
-from commands.CmdRepairPulseWatch import CmdRepairPulseWatch
 from commands.inspect import CmdInspect
 from commands.cube_housing import CubeHousingCmdSet
 from commands.economy import EconomyCmdSet
@@ -231,19 +230,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdFightingStyle())
         # Add fix baseline stats command (admin)
         self.add(CmdFixBaselineStats())
-        # Add spawnchrome command (builder and up)
-        from commands.CmdSpawnChrome import CmdSpawnChrome
-        self.add(CmdSpawnChrome())
-        # Add chromelist command (info command for listing all chrome)
-        from commands.CmdChromeList import CmdChromeList
-        self.add(CmdChromeList())
         # Add spawnset command for armor sets (builder and up)
         from commands.CmdSpawnSet import CmdSpawnSet
         self.add(CmdSpawnSet())
-        # Add chrome install/uninstall commands (builder and up)
-        from commands.CmdChromeInstall import CmdChromeInstall, CmdChromeUninstall
-        self.add(CmdChromeInstall())
-        self.add(CmdChromeUninstall())
         # Add think command
         from commands.CmdThink import CmdThink
         self.add(CmdThink())
@@ -334,7 +323,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdNPCConfig())
         self.add(CmdNPCStat())
         self.add(CmdNPCSkill())
-        self.add(CmdNPCChrome())
         self.add(CmdNPCNakeds())
         self.add(CmdNPCGender())
         self.add(CmdForceWander())
@@ -437,8 +425,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdFollow())            # Player: follow another character
         self.add(CmdUnfollow())          # Player: stop following
         self.add(CmdLose())              # Player: shake off followers
-        # Add pulse watch repair command
-        self.add(CmdRepairPulseWatch())  # Player: repair severed pulse watch with Electronics skill
         # Add movement speed commands (stroll, walk, jog, run, sprint, pace)
         from commands.movement import MovementCmdSet
         self.add(MovementCmdSet())
@@ -481,14 +467,13 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         self.add(CmdManageFactions())     # Builder+: manage factions
         # Add new builder spawn commands
         from commands.builder_spawners import (
-            CmdSpawnFurniture, CmdSpawnNPC, CmdSpawnWeapon, CmdSpawnClothing, CmdSpawnArmor, CmdFixWeaponNames, CmdSpawnProxyModule
+            CmdSpawnFurniture, CmdSpawnNPC, CmdSpawnWeapon, CmdSpawnClothing, CmdSpawnArmor, CmdFixWeaponNames
         )
         self.add(CmdSpawnFurniture())     # Builder+: spawn furniture
         self.add(CmdSpawnNPC())           # Builder+: spawn NPCs
         self.add(CmdSpawnWeapon())        # Builder+: spawn weapons
         self.add(CmdSpawnClothing())      # Builder+: spawn clothing
         self.add(CmdSpawnArmor())         # Builder+: spawn armor
-        self.add(CmdSpawnProxyModule())   # Builder+: spawn proxy modules
         self.add(CmdFixWeaponNames())     # Builder+: fix weapon names
         # Add NPC wandering management command (admin+)
         from commands.cmd_npc_wander import CmdNPCWander
@@ -499,25 +484,6 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add diagnostic loop detection command (admin+)
         from commands.diagnose_loop import CmdDiagnoseLoop
         self.add(CmdDiagnoseLoop())       # Admin+: diagnose infinite loops/runaway scripts
-        # Add SafetyNet intranet social system commands
-        from commands.CmdSafetyNet import CmdSafetyNet, CmdSafetyNetAdmin
-        self.add(CmdSafetyNet())          # Player: SafetyNet social system
-        self.add(CmdSafetyNetAdmin())     # Builder+: SafetyNet admin commands
-        # Add Okama Gamebud communication system commands
-        from commands.CmdGamebud import CmdGamebud
-        self.add(CmdGamebud())            # Player: Gamebud peer-to-peer messaging
-        # Add slotting system commands
-        from commands.slotting import CmdSlot, CmdUnslot
-        self.add(CmdSlot())               # Player: slot items into devices
-        self.add(CmdUnslot())             # Player: unslot items from devices
-        # Add SafetyNet device spawning commands
-        from commands.CmdSpawnSafetyNet import (
-            CmdSpawnSafetyNetDevice, CmdSpawnWristpad, CmdSpawnComputer, CmdSpawnPortableComputer
-        )
-        self.add(CmdSpawnSafetyNetDevice())  # Builder+: spawn SafetyNet devices (@spawnsn)
-        self.add(CmdSpawnWristpad())        # Builder+: quick spawn wristpad (@wristpad)
-        self.add(CmdSpawnComputer())        # Builder+: quick spawn computer (@computer)
-        self.add(CmdSpawnPortableComputer())  # Builder+: quick spawn portable computer (@portablecomp)
         # Add inspect command (builder-friendly @examine alternative)
         self.add(CmdInspect())              # Builder+: inspect objects/rooms/characters
 

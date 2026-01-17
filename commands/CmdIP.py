@@ -31,43 +31,63 @@ from world.combat.utils import (
 
 # List of all skills in the game
 SKILL_LIST = [
-    "chemical", "modern_medicine", "holistic_medicine", "surgery", "science",
-    "dodge", "blades", "pistols", "rifles", "melee", "brawling", "martial_arts",
-    "grappling", "snooping", "stealing", "hiding", "sneaking", "disguise",
-    "tailoring", "tinkering", "manufacturing", "cooking", "forensics",
-    "decking", "electronics", "mercantile", "streetwise", "paint_draw_sculpt",
-    "instrument"
+    # Combat
+    "dodge", "parry", "blades", "ranged", "melee", "brawling", "martial_arts",
+    "grappling",
+    # Stealth/Subterfuge
+    "snooping", "stealing", "hiding", "sneaking", "disguise",
+    # Social
+    "mercantile", "persuasion", "streetwise",
+    # Crafting
+    "carpentry", "blacksmithing", "herbalism", "tailoring", "cooking",
+    # Survival
+    "tracking", "foraging",
+    # Lore
+    "investigation", "lore", "appraise",
+    # Medical
+    "first_aid", "chirurgy",
+    # Creative
+    "paint_draw_sculpt", "instrument"
 ]
 
 # Skill name display mapping (for pretty printing)
 SKILL_DISPLAY_NAMES = {
-    "chemical": "Chemical",
-    "modern_medicine": "Modern Medicine", 
-    "holistic_medicine": "Holistic Medicine",
-    "surgery": "Surgery",
-    "science": "Science",
+    # Combat
     "dodge": "Dodge",
+    "parry": "Parry",
     "blades": "Blades",
-    "pistols": "Pistols",
-    "rifles": "Rifles",
+    "ranged": "Ranged",
     "melee": "Melee",
     "brawling": "Brawling",
     "martial_arts": "Martial Arts",
     "grappling": "Grappling",
+    # Stealth/Subterfuge
     "snooping": "Snooping",
     "stealing": "Stealing",
     "hiding": "Hiding",
     "sneaking": "Sneaking",
     "disguise": "Disguise",
-    "tailoring": "Tailoring",
-    "tinkering": "Tinkering",
-    "manufacturing": "Manufacturing",
-    "cooking": "Cooking",
-    "forensics": "Forensics",
-    "decking": "Decking",
-    "electronics": "Electronics",
+    # Social
     "mercantile": "Mercantile",
+    "persuasion": "Persuasion",
     "streetwise": "Streetwise",
+    # Crafting
+    "carpentry": "Carpentry",
+    "blacksmithing": "Blacksmithing",
+    "herbalism": "Herbalism",
+    "tailoring": "Tailoring",
+    "cooking": "Cooking",
+    # Survival
+    "tracking": "Tracking",
+    "foraging": "Foraging",
+    # Lore
+    "investigation": "Investigation",
+    "lore": "Lore",
+    "appraise": "Appraise",
+    # Medical
+    "first_aid": "First Aid",
+    "chirurgy": "Chirurgy",
+    # Creative
     "paint_draw_sculpt": "Paint/Draw/Sculpt",
     "instrument": "Instrument"
 }

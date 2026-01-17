@@ -137,30 +137,30 @@ class CharacterCreateView(EvenniaCharacterCreateView):
                 # Test if we can access the character (it might be deleted/invalid)
                 _ = old_character.key
                 
-                # Safely check stats (with defaults for legacy characters using 8-stat system)
-                body = getattr(old_character, 'body', 5)
-                ref = getattr(old_character, 'ref', 5)
-                dex = getattr(old_character, 'dex', 5)
-                tech = getattr(old_character, 'tech', 5)
-                smrt = getattr(old_character, 'smrt', 5)
-                will = getattr(old_character, 'will', 5)
-                edge = getattr(old_character, 'edge', 5)
+                # Safely check D&D 5e stats (with defaults)
+                str_val = getattr(old_character, 'str', 10)
+                dex_val = getattr(old_character, 'dex', 10)
+                con_val = getattr(old_character, 'con', 10)
+                int_val = getattr(old_character, 'int', 10)
+                wis_val = getattr(old_character, 'wis', 10)
+                cha_val = getattr(old_character, 'cha', 10)
+                race = getattr(old_character, 'race', 'human')
                 
                 # Set attributes if they don't exist (legacy character fix)
-                if not hasattr(old_character, 'body'):
-                    old_character.body = body
-                if not hasattr(old_character, 'ref'):
-                    old_character.ref = ref
+                if not hasattr(old_character, 'str'):
+                    old_character.str = str_val
                 if not hasattr(old_character, 'dex'):
-                    old_character.dex = dex
-                if not hasattr(old_character, 'tech'):
-                    old_character.tech = tech
-                if not hasattr(old_character, 'smrt'):
-                    old_character.smrt = smrt
-                if not hasattr(old_character, 'will'):
-                    old_character.will = will
-                if not hasattr(old_character, 'edge'):
-                    old_character.edge = edge
+                    old_character.dex = dex_val
+                if not hasattr(old_character, 'con'):
+                    old_character.con = con_val
+                if not hasattr(old_character, 'int'):
+                    old_character.int = int_val
+                if not hasattr(old_character, 'wis'):
+                    old_character.wis = wis_val
+                if not hasattr(old_character, 'cha'):
+                    old_character.cha = cha_val
+                if not hasattr(old_character, 'race'):
+                    old_character.race = race
                 
                 # Ensure old character has sex attribute (legacy data fix)
                 if not hasattr(old_character, 'sex'):
@@ -328,25 +328,23 @@ class CharacterCreateView(EvenniaCharacterCreateView):
             return self.form_invalid(form)
         
         if character:
-            # Set stats (using AttributeProperty) - ensure integers
-            # Note: Web form may need to be updated to use new stat names
-            character.body = int(form.cleaned_data.get('body', form.cleaned_data.get('grit', 5)))
-            character.ref = int(form.cleaned_data.get('ref', form.cleaned_data.get('resonance', 5)))
-            character.dex = int(form.cleaned_data.get('dex', form.cleaned_data.get('intellect', 5)))
-            character.tech = int(form.cleaned_data.get('tech', form.cleaned_data.get('motorics', 5)))
-            character.smrt = int(form.cleaned_data.get('smrt', 5))
-            character.will = int(form.cleaned_data.get('will', 5))
-            character.edge = int(form.cleaned_data.get('edge', 5))
+            # Set D&D 5e stats (using AttributeProperty) - ensure integers
+            character.str = int(form.cleaned_data.get('str', 10))
+            character.dex = int(form.cleaned_data.get('dex', 10))
+            character.con = int(form.cleaned_data.get('con', 10))
+            character.int = int(form.cleaned_data.get('int', 10))
+            character.wis = int(form.cleaned_data.get('wis', 10))
+            character.cha = int(form.cleaned_data.get('cha', 10))
+            character.race = form.cleaned_data.get('race', 'human')
             
             # Set sex (using AttributeProperty)
             character.sex = sex
             
-            # Set Stack/clone tracking (matching telnet charcreate.py)
+            # Set character tracking
             import uuid
             import time
-            character.db.stack_id = str(uuid.uuid4())
+            character.db.character_id = str(uuid.uuid4())
             character.db.original_creation = time.time()
-            character.db.current_sleeve_birth = time.time()
             character.db.archived = False
             # death_count defaults to 1 via AttributeProperty in Character class
             

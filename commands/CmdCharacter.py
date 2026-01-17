@@ -469,142 +469,113 @@ class CmdStats(Command):
                 if matches:
                     target = matches[0]
 
-        # New stat system
-        smrt = getattr(target, 'smrt', 0)
-        will = getattr(target, 'will', 0)
-        edge = getattr(target, 'edge', 0)
-        ref = getattr(target, 'ref', 0)
-        body = getattr(target, 'body', 0)
-        dex = getattr(target, 'dex', 0)
-        emp = getattr(target, 'emp', 0)
-        tech = getattr(target, 'tech', 0)
-
-        smrt_desc = get_stat_descriptor("smrt", smrt)
-        will_desc = get_stat_descriptor("will", will)
-        edge_desc = get_stat_descriptor("edge", edge)
-        ref_desc = get_stat_descriptor("ref", ref)
-        body_desc = get_stat_descriptor("body", body)
-        dex_desc = get_stat_descriptor("dex", dex)
-        emp_desc = get_stat_descriptor("emp", emp)
-        tech_desc = get_stat_descriptor("tech", tech)
-
-        def stat_display(desc, val):
-            return f"|w[|n {val} |w]|n {desc}"
-
-        # Calculate starting empathy as EDGE + WILLPOWER
-        starting_emp = getattr(target, 'edge', 0) + getattr(target, 'will', 0)
-        # Deduct empathy cost from installed chrome if present
-        chrome = getattr(target.db, 'installed_chrome', None)
-        chrome_empathy_cost = chrome.get('empathy_cost', 0) if chrome else 0
-        def stat_line(label, base, current):
-            color = "|g" if current >= base else "|r"
-            return f"|y{label:<10}|n [ {base} / {color}{current}|n ]"
+        # D&D 5e stat system
+        str_val = getattr(target, 'str', 10)
+        dex_val = getattr(target, 'dex', 10)
+        con_val = getattr(target, 'con', 10)
+        int_val = getattr(target, 'int', 10)
+        wis_val = getattr(target, 'wis', 10)
+        cha_val = getattr(target, 'cha', 10)
+        
+        # Calculate modifiers
+        def calc_mod(val):
+            return (val - 10) // 2
+        
+        def stat_line_5e(label, abbrev, value):
+            mod = calc_mod(value)
+            mod_str = f"{mod:+d}"
+            return f"|y{label:<14}|n |w{abbrev}|n {value:2d} ({mod_str})"
 
         stat_labels = [
-            ("Smarts", 'smrt'),
-            ("Willpower", 'will'),
-            ("Edge", 'edge'),
-            ("Reflexes", 'ref'),
-            ("Body", 'body'),
-            ("Dexterity", 'dex'),
-            ("Empathy", 'emp'),
-            ("Technique", 'tech'),
+            ("Strength", "STR", str_val),
+            ("Dexterity", "DEX", dex_val),
+            ("Constitution", "CON", con_val),
+            ("Intelligence", "INT", int_val),
+            ("Wisdom", "WIS", wis_val),
+            ("Charisma", "CHA", cha_val),
         ]
-        # Split into two columns of 4
-        left_stats = stat_labels[:4]
-        right_stats = stat_labels[4:]
+        
+        # Display in two columns
+        left_stats = stat_labels[:3]
+        right_stats = stat_labels[3:]
         stat_rows = []
-        for i in range(4):
-            left_label, left_attr = left_stats[i]
-            right_label, right_attr = right_stats[i]
-            left_base = getattr(target, left_attr, 0)
-            left_current = getattr(target, left_attr, 0)
-            # Empathy: base is EDGE + WILL, final is base unless modified by chrome/drugs
-            if right_attr == 'emp':
-                right_base = starting_emp
-                # Apply chrome empathy cost
-                right_current = right_base + chrome_empathy_cost
-                # Check for additional drug modification
-                emp_mod = getattr(target, 'emp_mod', None)
-                if emp_mod is not None:
-                    right_current += emp_mod
-            else:
-                right_base = getattr(target, right_attr, 0)
-                right_current = getattr(target, right_attr, 0)
-            left_str = stat_line(left_label, left_base, left_current)
-            right_str = stat_line(right_label, right_base, right_current)
-            stat_rows.append(f"{left_str:<30}{right_str}")
+        for i in range(3):
+            left_label, left_abbrev, left_val = left_stats[i]
+            right_label, right_abbrev, right_val = right_stats[i]
+            left_str = stat_line_5e(left_label, left_abbrev, left_val)
+            right_str = stat_line_5e(right_label, right_abbrev, right_val)
+            stat_rows.append(f"{left_str:<35}{right_str}")
+        
+        # Add race display
+        race = getattr(target, 'race', 'human')
+        stat_rows.insert(0, f"|wRace:|n |c{race.capitalize()}|n\n")
         stat_table = "\n".join(stat_rows) + "\n\n"
 
-        # Chrome and Augmentations section
-        chrome = getattr(target.db, 'installed_chrome', None)
-        if chrome:
-            # Section header
-            chrome_block = "|[B|wChrome and Augmentations:|n\n"
-            # Two-column layout: Chrome Name (yellow), Buff/Ability (green)
-            name_label = "|yChrome Name:|n"
-            buff_label = "    |GBuff/Ability:|n"
-            name_val = f"|C{chrome.get('chrome_name', '')}|n"
-            buff_val = f"{chrome.get('chrome_ability', '')}"
-            # Pad columns for alignment
-            chrome_block += f"{name_label:<18}{buff_label:<18}\n{name_val:<18}{'    ' + buff_val:<18}\n\n"
-        else:
-            chrome_block = "|RNo chrome or augmentations.|n\n\n"
+        # Chrome section removed - no longer applicable to fantasy setting
+        chrome_block = ""
 
-        # No divider line between chrome and skills
+        # No divider line between stats and skills
         divider = ""
 
         # Skills table header with blue background, white underlined text
 
-        # --- SKILL DEPENDENCIES ---
+        # --- SKILL DEPENDENCIES (D&D 5e Stats) ---
+        # Stats: str (strength), dex (dexterity), con (constitution), 
+        #        int (intelligence), wis (wisdom), cha (charisma)
         SKILL_DEPENDENCIES = {
-            "Chemical": {"stats": ["tech"], "split": [1.0]},
-            "Modern Medicine": {"stats": ["smrt"], "split": [1.0]},
-            "Holistic Medicine": {"stats": ["emp", "smrt"], "split": [0.5, 0.5]},
-            "Surgery": {"stats": ["tech", "edge", "will"], "split": [0.33, 0.33, 0.34]},
-            "Science": {"stats": ["smrt", "will"], "split": [0.5, 0.5]},
-            "Dodge": {"stats": ["smrt", "dex"], "split": [0.5, 0.5]},
+            # Combat
+            "Dodge": {"stats": ["dex", "wis"], "split": [0.5, 0.5]},
+            "Parry": {"stats": ["dex", "str"], "split": [0.5, 0.5]},
             "Blades": {
-                "stats": ["dex", "will"], "split": [0.5, 0.5],
-                "tertiary": {"stat": "smrt", "type": "parry", "bonus_per": 3, "max_bonus": 0.5, "max_stat": 20}
+                "stats": ["dex", "wis"], "split": [0.5, 0.5],
+                "tertiary": {"stat": "int", "type": "parry", "bonus_per": 3, "max_bonus": 0.5, "max_stat": 20}
             },
-            "Pistols": {
-                "stats": ["smrt", "ref"], "split": [0.5, 0.5],
-                "tertiary": {"stat": "edge", "type": "hit", "bonus_per": 3, "max_bonus": 0.25, "max_stat": 20}
-            },
-            "Rifles": {
-                "stats": ["ref", "smrt", "will"], "split": [0.33, 0.33, 0.34],
-                "tertiary": {"stat": "edge", "type": "damage", "bonus_per": 3, "max_bonus": 0.25, "max_stat": 20}
+            "Ranged": {
+                "stats": ["dex", "wis"], "split": [0.5, 0.5],
+                "tertiary": {"stat": "cha", "type": "hit", "bonus_per": 3, "max_bonus": 0.25, "max_stat": 20}
             },
             "Melee": {
-                "stats": ["body", "dex"], "split": [0.5, 0.5],
-                "tertiary": {"stat": "smrt", "type": "parry", "bonus_per": 3, "max_bonus": 0.5, "max_stat": 20}
+                "stats": ["str", "dex"], "split": [0.5, 0.5],
+                "tertiary": {"stat": "int", "type": "parry", "bonus_per": 3, "max_bonus": 0.5, "max_stat": 20}
             },
             "Brawling": {
-                "stats": ["dex", "will"], "split": [0.5, 0.5],
-                "tertiary": {"stat": "body", "type": "damage", "bonus_per": 0, "max_bonus": 0, "max_stat": 0}
+                "stats": ["str", "con"], "split": [0.5, 0.5],
+                "tertiary": {"stat": "str", "type": "damage", "bonus_per": 0, "max_bonus": 0, "max_stat": 0}
             },
             "Martial Arts": {
-                "stats": ["will", "dex"], "split": [0.5, 0.5],
+                "stats": ["dex", "wis"], "split": [0.5, 0.5],
                 "tertiary": {"stat": "dex", "type": "damage", "bonus_per": 0, "max_bonus": 0, "max_stat": 0}
             },
-            "Grappling": {"stats": ["body", "dex"], "split": [0.5, 0.5]},
-            "Snooping": {"stats": ["ref", "smrt"], "split": [0.5, 0.5]},
-            "Stealing": {"stats": ["ref", "edge"], "split": [0.5, 0.5]},
-            "Hiding": {"stats": ["smrt", "edge"], "split": [0.5, 0.5]},
-            "Sneaking": {"stats": ["dex", "edge", "smrt"], "split": [0.33, 0.33, 0.34]},
-            "Disguise": {"stats": ["smrt", "edge"], "split": [0.5, 0.5]},
-            "Tailoring": {"stats": ["smrt", "tech"], "split": [0.5, 0.5]},
-            "Tinkering": {"stats": ["tech", "smrt"], "split": [0.5, 0.5]},
-            "Manufacturing": {"stats": ["tech", "will"], "split": [0.5, 0.5]},
-            "Cooking": {"stats": ["ref", "emp"], "split": [0.5, 0.5]},
-            "Forensics": {"stats": ["smrt", "edge"], "split": [0.5, 0.5]},
-            "Decking": {"stats": ["smrt", "tech"], "split": [0.5, 0.5]},
-            "Electronics": {"stats": ["smrt", "tech"], "split": [0.5, 0.5]},
-            "Mercantile": {"stats": ["edge", "smrt"], "split": [0.5, 0.5]},
-            "Streetwise": {"stats": ["edge", "emp", "smrt"], "split": [0.33, 0.33, 0.34]},
-            "Paint/Draw/Sculpt": {"stats": ["edge", "ref", "will"], "split": [0.33, 0.33, 0.34]},
-            "Instrument": {"stats": ["edge", "ref", "will"], "split": [0.33, 0.33, 0.34]},
+            "Grappling": {"stats": ["str", "dex"], "split": [0.5, 0.5]},
+            # Stealth/Subterfuge
+            "Snooping": {"stats": ["wis", "int"], "split": [0.5, 0.5]},
+            "Stealing": {"stats": ["dex", "cha"], "split": [0.5, 0.5]},
+            "Hiding": {"stats": ["dex", "wis"], "split": [0.5, 0.5]},
+            "Sneaking": {"stats": ["dex", "wis", "int"], "split": [0.33, 0.33, 0.34]},
+            "Disguise": {"stats": ["cha", "int"], "split": [0.5, 0.5]},
+            # Social
+            "Mercantile": {"stats": ["cha", "int"], "split": [0.5, 0.5]},
+            "Persuasion": {"stats": ["cha", "wis"], "split": [0.5, 0.5]},
+            "Streetwise": {"stats": ["cha", "wis", "int"], "split": [0.33, 0.33, 0.34]},
+            # Crafting
+            "Carpentry": {"stats": ["int", "dex"], "split": [0.5, 0.5]},
+            "Blacksmithing": {"stats": ["str", "int"], "split": [0.5, 0.5]},
+            "Herbalism": {"stats": ["int", "wis"], "split": [0.5, 0.5]},
+            "Tailoring": {"stats": ["dex", "int"], "split": [0.5, 0.5]},
+            "Cooking": {"stats": ["wis", "int"], "split": [0.5, 0.5]},
+            # Survival
+            "Tracking": {"stats": ["wis", "int"], "split": [0.5, 0.5]},
+            "Foraging": {"stats": ["wis", "con"], "split": [0.5, 0.5]},
+            # Lore
+            "Investigation": {"stats": ["int", "wis"], "split": [0.5, 0.5]},
+            "Lore": {"stats": ["int", "wis"], "split": [0.5, 0.5]},
+            "Appraise": {"stats": ["int", "cha"], "split": [0.5, 0.5]},
+            # Medical
+            "First Aid": {"stats": ["int", "wis"], "split": [0.5, 0.5]},
+            "Chirurgy": {"stats": ["int", "dex", "wis"], "split": [0.33, 0.33, 0.34]},
+            # Creative
+            "Paint/Draw/Sculpt": {"stats": ["dex", "cha", "wis"], "split": [0.33, 0.33, 0.34]},
+            "Instrument": {"stats": ["dex", "cha", "wis"], "split": [0.33, 0.33, 0.34]},
         }
 
         def calculate_skill_value(char, skill_name):

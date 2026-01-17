@@ -344,33 +344,42 @@ def npc_start(caller, raw_string, **kwargs):
             "edge": 1,
         },
         "skills": {
-            "chemical": 0,
-            "modern_medicine": 0,
-            "holistic_medicine": 0,
-            "surgery": 0,
-            "science": 0,
+            # Combat
             "dodge": 0,
+            "parry": 0,
             "blades": 0,
-            "pistols": 0,
-            "rifles": 0,
+            "ranged": 0,
             "melee": 0,
             "brawling": 0,
             "martial_arts": 0,
             "grappling": 0,
+            # Stealth/Subterfuge
             "snooping": 0,
             "stealing": 0,
             "hiding": 0,
             "sneaking": 0,
             "disguise": 0,
-            "tailoring": 0,
-            "tinkering": 0,
-            "manufacturing": 0,
-            "cooking": 0,
-            "forensics": 0,
-            "decking": 0,
-            "electronics": 0,
+            # Social
             "mercantile": 0,
+            "persuasion": 0,
             "streetwise": 0,
+            # Crafting
+            "carpentry": 0,
+            "blacksmithing": 0,
+            "herbalism": 0,
+            "tailoring": 0,
+            "cooking": 0,
+            # Survival
+            "tracking": 0,
+            "foraging": 0,
+            # Lore
+            "investigation": 0,
+            "lore": 0,
+            "appraise": 0,
+            # Medical
+            "first_aid": 0,
+            "chirurgy": 0,
+            # Creative
             "paint_draw_sculpt": 0,
             "instrument": 0,
         },
@@ -832,17 +841,28 @@ def npc_skills_menu(caller, raw_string, **kwargs):
         if choice == "b":
             return npc_properties(caller, "", **kwargs)
         
-        # Check if it's a skill number (1-29)
+        # Check if it's a skill number (1-31)
         try:
             skill_num = int(choice)
-            if 1 <= skill_num <= 29:
+            if 1 <= skill_num <= 31:
                 skill_names = [
-                    "chemical", "modern_medicine", "holistic_medicine", "surgery", "science",
-                    "dodge", "blades", "pistols", "rifles", "melee",
-                    "brawling", "martial_arts", "grappling", "snooping", "stealing",
-                    "hiding", "sneaking", "disguise", "tailoring", "tinkering",
-                    "manufacturing", "cooking", "forensics", "decking", "electronics",
-                    "mercantile", "streetwise", "paint_draw_sculpt", "instrument"
+                    # Combat
+                    "dodge", "parry", "blades", "ranged", "melee", "brawling", "martial_arts",
+                    "grappling",
+                    # Stealth/Subterfuge
+                    "snooping", "stealing", "hiding", "sneaking", "disguise",
+                    # Social
+                    "mercantile", "persuasion", "streetwise",
+                    # Crafting
+                    "carpentry", "blacksmithing", "herbalism", "tailoring", "cooking",
+                    # Survival
+                    "tracking", "foraging",
+                    # Lore
+                    "investigation", "lore", "appraise",
+                    # Medical
+                    "first_aid", "chirurgy",
+                    # Creative
+                    "paint_draw_sculpt", "instrument"
                 ]
                 skill_name = skill_names[skill_num - 1]
                 # Store the selected skill in ndb so edit function can access it
@@ -851,7 +871,7 @@ def npc_skills_menu(caller, raw_string, **kwargs):
         except ValueError:
             pass
         
-        caller.msg("|rInvalid choice. Enter 1-29 or b.|n")
+        caller.msg("|rInvalid choice. Enter 1-31 or b.|n")
         return npc_skills_menu(caller, "", **kwargs)  # Re-display menu
     
     # Display mode - show menu
@@ -861,41 +881,61 @@ def npc_skills_menu(caller, raw_string, **kwargs):
     
     skills = caller.ndb._npc_data["skills"]
     skill_names = [
-        "chemical", "modern_medicine", "holistic_medicine", "surgery", "science",
-        "dodge", "blades", "pistols", "rifles", "melee",
-        "brawling", "martial_arts", "grappling", "snooping", "stealing",
-        "hiding", "sneaking", "disguise", "tailoring", "tinkering",
-        "manufacturing", "cooking", "forensics", "decking", "electronics",
-        "mercantile", "streetwise", "paint_draw_sculpt", "instrument"
+        # Combat
+        "dodge", "parry", "blades", "ranged", "melee", "brawling", "martial_arts",
+        "grappling",
+        # Stealth/Subterfuge
+        "snooping", "stealing", "hiding", "sneaking", "disguise",
+        # Social
+        "mercantile", "persuasion", "streetwise",
+        # Crafting
+        "carpentry", "blacksmithing", "herbalism", "tailoring", "cooking",
+        # Survival
+        "tracking", "foraging",
+        # Lore
+        "investigation", "lore", "appraise",
+        # Medical
+        "first_aid", "chirurgy",
+        # Creative
+        "paint_draw_sculpt", "instrument"
     ]
     skill_display = {
-        "chemical": "Chemical",
-        "modern_medicine": "Modern Medicine",
-        "holistic_medicine": "Holistic Medicine",
-        "surgery": "Surgery",
-        "science": "Science",
+        # Combat
         "dodge": "Dodge",
+        "parry": "Parry",
         "blades": "Blades",
-        "pistols": "Pistols",
-        "rifles": "Rifles",
+        "ranged": "Ranged",
         "melee": "Melee",
         "brawling": "Brawling",
         "martial_arts": "Martial Arts",
         "grappling": "Grappling",
+        # Stealth/Subterfuge
         "snooping": "Snooping",
         "stealing": "Stealing",
         "hiding": "Hiding",
         "sneaking": "Sneaking",
         "disguise": "Disguise",
-        "tailoring": "Tailoring",
-        "tinkering": "Tinkering",
-        "manufacturing": "Manufacturing",
-        "cooking": "Cooking",
-        "forensics": "Forensics",
-        "decking": "Decking",
-        "electronics": "Electronics",
+        # Social
         "mercantile": "Mercantile",
+        "persuasion": "Persuasion",
         "streetwise": "Streetwise",
+        # Crafting
+        "carpentry": "Carpentry",
+        "blacksmithing": "Blacksmithing",
+        "herbalism": "Herbalism",
+        "tailoring": "Tailoring",
+        "cooking": "Cooking",
+        # Survival
+        "tracking": "Tracking",
+        "foraging": "Foraging",
+        # Lore
+        "investigation": "Investigation",
+        "lore": "Lore",
+        "appraise": "Appraise",
+        # Medical
+        "first_aid": "First Aid",
+        "chirurgy": "Chirurgy",
+        # Creative
         "paint_draw_sculpt": "Paint/Draw/Sculpt",
         "instrument": "Instrument",
     }
@@ -1137,18 +1177,17 @@ def weapon_skill_select(caller, raw_string, **kwargs):
         
         skills = {
             "1": "blades",
-            "2": "pistols",
-            "3": "rifles",
-            "4": "melee",
-            "5": "brawling",
-            "6": "martial_arts",
+            "2": "ranged",
+            "3": "melee",
+            "4": "brawling",
+            "5": "martial_arts",
         }
         
         if choice in skills:
             caller.ndb._weapon_data["skill"] = skills[choice]
             return weapon_properties(caller, "", **kwargs)
         else:
-            caller.msg("|rChoose 1-6:|n")
+            caller.msg("|rChoose 1-5:|n")
             return weapon_skill_select(caller, "", **kwargs)  # Re-display this node
     
     # Display mode - show prompt
@@ -1157,11 +1196,10 @@ def weapon_skill_select(caller, raw_string, **kwargs):
     text += f"Type: {caller.ndb._weapon_data['weapon_type'].capitalize()}\n\n"
     text += "Select the skill used with this weapon:\n\n"
     text += "|y1|n - Blades (knives, swords, edged weapons)\n"
-    text += "|y2|n - Pistols (handguns, revolvers)\n"
-    text += "|y3|n - Rifles (rifles, assault rifles)\n"
-    text += "|y4|n - Melee (clubs, hammers, blunt force)\n"
-    text += "|y5|n - Brawling (fists, unarmed combat)\n"
-    text += "|y6|n - Martial Arts (specialized hand-to-hand)\n"
+    text += "|y2|n - Ranged (bows, crossbows, thrown weapons)\n"
+    text += "|y3|n - Melee (clubs, hammers, blunt force)\n"
+    text += "|y4|n - Brawling (fists, unarmed combat)\n"
+    text += "|y5|n - Martial Arts (specialized hand-to-hand)\n"
     
     options = (
         {"key": "_default", "goto": "weapon_skill_select"},

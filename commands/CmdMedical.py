@@ -32,19 +32,13 @@ class CmdMedical(Command):
         """Execute the medical command."""
         caller = self.caller
         
-        # Check for Pulse watch
-        from world.safetynet.utils import has_municipal_wristpad
-        if not has_municipal_wristpad(caller):
-            caller.msg("You need a Pulse watch to access medical diagnostics.")
-            return
-        
-        # Check for Science or Modern Medicine skill (whichever is higher)
-        science = getattr(caller.db, 'science', 0)
-        modern_med = getattr(caller.db, 'modern_medicine', 0)
-        medical_skill = max(science, modern_med)
+        # Check for Herbalism or First Aid skill (whichever is higher)
+        herbalism = getattr(caller.db, 'herbalism', 0)
+        first_aid = getattr(caller.db, 'first_aid', 0)
+        medical_skill = max(herbalism, first_aid)
         
         if medical_skill == 0:
-            caller.msg("You need training in Science or Modern Medicine to access medical diagnostics.")
+            caller.msg("You need training in Herbalism or First Aid to access medical diagnostics.")
             return
         
         args = self.args.strip()
@@ -190,19 +184,13 @@ class CmdMedicalInfo(Command):
         """Execute the medical info command."""
         caller = self.caller
         
-        # Check for Pulse watch
-        from world.safetynet.utils import has_municipal_wristpad
-        if not has_municipal_wristpad(caller):
-            caller.msg("You need a Pulse watch to access medical diagnostics.")
-            return
-        
-        # Check for Science or Modern Medicine skill (whichever is higher)
-        science = getattr(caller.db, 'science', 0) or 0
-        modern_med = getattr(caller.db, 'modern_medicine', 0) or 0
-        medical_skill = max(science, modern_med)
+        # Check for Herbalism or First Aid skill (whichever is higher)
+        herbalism = getattr(caller.db, 'herbalism', 0) or 0
+        first_aid = getattr(caller.db, 'first_aid', 0) or 0
+        medical_skill = max(herbalism, first_aid)
         
         if medical_skill == 0:
-            caller.msg("You need training in Science or Modern Medicine to access medical diagnostics.")
+            caller.msg("You need training in Herbalism or First Aid to access medical diagnostics.")
             return
         
         args = self.args.strip()

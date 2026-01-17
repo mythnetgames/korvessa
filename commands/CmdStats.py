@@ -134,33 +134,42 @@ class CmdStats(Command):
         
         # Skill table with raw values showing hundredths
         skills = [
-            ("Chemical", "chemical"),
-            ("Modern Medicine", "modern_medicine"),
-            ("Holistic Medicine", "holistic_medicine"),
-            ("Surgery", "surgery"),
-            ("Science", "science"),
+            # Combat
             ("Dodge", "dodge"),
+            ("Parry", "parry"),
             ("Blades", "blades"),
-            ("Pistols", "pistols"),
-            ("Rifles", "rifles"),
+            ("Ranged", "ranged"),
             ("Melee", "melee"),
             ("Brawling", "brawling"),
             ("Martial Arts", "martial_arts"),
             ("Grappling", "grappling"),
+            # Stealth/Subterfuge
             ("Snooping", "snooping"),
             ("Stealing", "stealing"),
             ("Hiding", "hiding"),
             ("Sneaking", "sneaking"),
             ("Disguise", "disguise"),
-            ("Tailoring", "tailoring"),
-            ("Tinkering", "tinkering"),
-            ("Manufacturing", "manufacturing"),
-            ("Cooking", "cooking"),
-            ("Forensics", "forensics"),
-            ("Decking", "decking"),
-            ("Electronics", "electronics"),
+            # Social
             ("Mercantile", "mercantile"),
+            ("Persuasion", "persuasion"),
             ("Streetwise", "streetwise"),
+            # Crafting
+            ("Carpentry", "carpentry"),
+            ("Blacksmithing", "blacksmithing"),
+            ("Herbalism", "herbalism"),
+            ("Tailoring", "tailoring"),
+            ("Cooking", "cooking"),
+            # Survival
+            ("Tracking", "tracking"),
+            ("Foraging", "foraging"),
+            # Lore
+            ("Investigation", "investigation"),
+            ("Lore", "lore"),
+            ("Appraise", "appraise"),
+            # Medical
+            ("First Aid", "first_aid"),
+            ("Chirurgy", "chirurgy"),
+            # Creative
             ("Paint/Draw/Sculpt", "paint_draw_sculpt"),
             ("Instrument", "instrument"),
         ]
