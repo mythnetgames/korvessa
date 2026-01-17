@@ -281,18 +281,19 @@ def _process_death_choice(account, choice):
 def _handle_live_path(account, character, session):
     """Handle the LIVE choice - teleport to room #5 for admin intervention."""
     from evennia.utils import delay
-    from evennia.search_index import search_object
+    from evennia import search_object
     from world.medical.utils import full_heal
     
     account.msg("\n" * 2)
-    account.msg("|m" + "=" * 70 + "|n")
+    account.msg("=" * 70)
     account.msg("")
-    account.msg("|mThe Watcher observes your choice.|n")
+    account.msg("The Watcher observes your choice.")
     account.msg("")
     
     # Revive the character and teleport to room #5
     def _revive_and_teleport():
         if not character:
+            _log("LIVE_PATH: No character found")
             return
         
         # First, fully heal the character
@@ -305,28 +306,47 @@ def _handle_live_path(account, character, session):
         # Clear any death flags
         if hasattr(character.ndb, 'death_curtain_pending'):
             del character.ndb.death_curtain_pending
+        if hasattr(character.ndb, '_death_curtain_active'):
+            del character.ndb._death_curtain_active
+        if hasattr(character.ndb, '_death_progression_active'):
+            del character.ndb._death_progression_active
         if hasattr(character.db, 'death_processed'):
             del character.db.death_processed
         
         # Try to find room #5 by dbref
         try:
             admin_room = search_object("#5")
-            if admin_room:
+            if admin_room and len(admin_room) > 0:
+                old_loc = character.location
                 character.move_to(admin_room[0], quiet=True)
-                account.msg("|mYou are drawn through the veil of The Watcher's Domain.|n")
-                account.msg("|mWhen vision returns, you find yourself in an unfamiliar place.|n")
-                account.msg("|mA figure awaits, ready to speak about your fate.|n")
+                _log(f"LIVE_PATH: Moved {character.key} from {old_loc} to {admin_room[0].key}")
+                
+                # Puppet the character back so they can see the room
+                if session and account:
+                    account.puppet_object(session, character)
+                    _log(f"LIVE_PATH: Puppeted {character.key}")
+                
+                account.msg("You are drawn through the veil of The Watcher's Domain.")
+                account.msg("When vision returns, you find yourself in an unfamiliar place.")
+                account.msg("A figure awaits, ready to speak about your fate.")
+                account.msg("")
+                
+                # Force a look command so they see the room
+                delay(0.5, lambda: character.execute_cmd("look"))
             else:
+                _log("LIVE_PATH: Room #5 not found, using limbo")
                 # Fallback to limbo if room #5 doesn't exist
                 _move_to_limbo(character)
-                account.msg("|mYou are drawn into the void, waiting for judgment.|n")
+                account.msg("You are drawn into the void, waiting for judgment.")
         except Exception as e:
             _log(f"LIVE_PATH: Error teleporting {character.key}: {e}")
+            import traceback
+            _log(traceback.format_exc())
             _move_to_limbo(character)
     
     delay(2.0, _revive_and_teleport)
     delay(5.0, account.msg, "")
-    delay(6.0, account.msg, "|m" + "=" * 70 + "|n")
+    delay(6.0, account.msg, "=" * 70)
 
 
 def _handle_permanent_death_path(account, character, session, death_location):
@@ -689,43 +709,43 @@ def _get_messages():
     """Get the list of death progression messages."""
     return [
         {
-            "dying": "|nTime becomes elastic, stretched like chewing gum between your teeth. The edges of everything are soft now, melting like crayons left in a hot car. You're floating in warm red soup that tastes like copper pennies. The clock on the wall ticks backwards and each second is a small death, a tiny funeral for the person you were just a moment ago.|n\n",
-            "observer": "|n{name}'s eyes roll back, showing only whites.|n"
+            "dying": "|rYou feel The Watcher's attention settle upon you like a weight. Its gaze is cold, searching, dissecting every memory, every choice, every lie.|n\n",
+            "observer": "|n{name}'s eyes go wide, then vacant, as if looking into something vast and unknowable.|n"
         },
         {
-            "dying": "|nYou're sinking through the floor now, through layers of concrete and earth and forgotten promises. The voices above sound like they're speaking underwater. Everything tastes like iron and regret. Your body feels like it belongs to someone else, some stranger whose story you heard in a bar once but never really believed.|n\n",
-            "observer": "|n{name}'s breathing becomes shallow and erratic.|n"
+            "dying": "|rThe Watcher weighs your actions on scales you cannot see. Each moment of your life is lifted, examined, turned over in that terrible judgment. Nothing is hidden.|n\n",
+            "observer": "|n{name}'s body goes rigid, every muscle taut with invisible tension.|n"
         },
         {
-            "dying": "|nThe world is a television with bad reception and someone keeps changing the channels. Static. Your grandmother's kitchen. Static. That time you nearly drowned. Static. The taste of blood and birthday cake and the sound of someone crying who might be you but probably isn't.|n\n",
-            "observer": "|n{name} makes a low, rattling sound in their throat.|n"
+            "dying": "|rYou are being analyzed. Dissected. Your very soul laid bare before an intelligence that has watched ten thousand like you die, and will watch ten thousand more. You are neither unique nor memorable.|n\n",
+            "observer": "|n{name}'s breath comes in shallow, panicked gasps.|n"
         },
         {
-            "dying": "|nYou're watching yourself from the ceiling corner like a security camera recording the most boring crime ever committed. That body down there, that meat puppet with your face, is leaking life like a punctured water balloon. And you're thinking, this is it? This is the grand finale?|n\n",
-            "observer": "|n{name}'s skin takes on a waxy, gray pallor.|n"
+            "dying": "|rThe Watcher catalogs your failures. It sees the cruelty you hid. It sees the kindness you never offered. It sees exactly what you were beneath the flesh. There is no appeal. There is no mercy.|n\n",
+            "observer": "|n{name}'s skin pales to ashen gray as beads of cold sweat form on their brow.|n"
         },
         {
-            "dying": "|nMemory becomes a kaleidoscope where every piece is broken glass and every turn cuts deeper. You taste the last cigarette you ever smoked, feel the first hand you ever held, hear the last lie you ever told, and it's all happening simultaneously in this carnival of consciousness.|n\n",
-            "observer": "|n{name}'s fingers twitch spasmodically.|n"
+            "dying": "|rYour consciousness fractures under that scrutiny. Piece by piece, moment by moment, you are reduced to component parts. Everything you were is being sorted into the cosmic ledger.|n\n",
+            "observer": "|n{name}'s muscles twitch involuntarily, as if struck by invisible forces.|n"
         },
         {
-            "dying": "|nThe darkness isn't dark anymore; it's every color that doesn't have a name, every sound that was never made, every word that was never spoken. You're dissolving into the spaces between seconds, becoming the pause between heartbeats, the silence between screams.|n\n",
-            "observer": "|n{name}'s body convulses once, violently.|n"
+            "dying": "|rYou realize, with terrible clarity, that The Watcher knows you. Truly knows you. Every petty thought, every selfish act, every prayer that was never sincere. Nothing escapes that gaze.|n\n",
+            "observer": "|n{name}'s body convulses, a final spasm of resistance against the inevitable.|n"
         },
         {
-            "dying": "|nYou're a radio losing signal, static eating away at the song of yourself until there's nothing left but the spaces between the notes. The pain is gone now, replaced by this vast emptiness that feels like Sunday afternoons and unfinished conversations.|n\n",
-            "observer": "|n{name} lies perfectly still except for barely perceptible breathing.|n"
+            "dying": "|rThe weight of The Watcher's judgment presses down like gravity itself. Your mind becomes smaller, narrower, until there is nothing left but the crushing awareness of what you were and what you have failed to be.|n\n",
+            "observer": "|n{name} lies nearly still, only the faintest rise and fall of their chest remaining.|n"
         },
         {
-            "dying": "|nYou're becoming weather now, becoming the wind that carries other people's secrets, the rain that washes away their sins. You're evaporating into stories that will never be told, jokes that will never be finished, dreams that will never be dreamed.|n\n",
-            "observer": "|n{name}'s breathing has become so faint it's almost imperceptible.|n"
+            "dying": "|rThe Watcher's assessment is complete. You have been weighed, measured, and found... as all things are found. Your thread has been observed from first breath to last. Now comes the reckoning.|n\n",
+            "observer": "|n{name}'s breathing becomes barely perceptible, a whisper of life fading away.|n"
         },
         {
-            "dying": "|nThe last thoughts are like photographs burning in a fire, curling at the edges before disappearing into ash. You remember everything and nothing. You are everyone and no one. The boundary between self and not-self becomes as meaningless as the difference between Tuesday and the color blue.|n\n",
-            "observer": "|n{name}'s lips have turned blue.|n"
+            "dying": "|rIn the silence of The Watcher's presence, you understand finally: you were never in control. You were always just a story it was reading. And now that story is ending exactly as it was meant to.|n\n",
+            "observer": "|n{name}'s lips have gone pale, all color draining away like sand through an hourglass.|n"
         },
         {
-            "dying": "|n...so tired... ...so very... ...tired... ...the light is... ...warm... ...like being... ...held... ...you can hear... ...laughter... ...from somewhere... ...safe... ...you're not... ...scared anymore... ...just... ...tired...|n\n",
-            "observer": "|n{name} lies motionless, their body completely still.|n"
+            "dying": "|rYou surrender to The Watcher's gaze. There is nothing left to resist with. Only the final silence remains, and in that silence, The Watcher continues to watch.|n\n",
+            "observer": "|n{name} lies motionless, no longer struggling against what cannot be escaped.|n"
         }
     ]

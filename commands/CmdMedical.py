@@ -38,7 +38,7 @@ class CmdMedical(Command):
         medical_skill = max(herbalism, first_aid)
         
         if medical_skill == 0:
-            caller.msg("You need training in Herbalism or First Aid to access medical diagnostics.")
+            caller.msg("You need training in First Aid to access medical diagnostics.")
             return
         
         args = self.args.strip()
@@ -190,7 +190,7 @@ class CmdMedicalInfo(Command):
         medical_skill = max(herbalism, first_aid)
         
         if medical_skill == 0:
-            caller.msg("You need training in Herbalism or First Aid to access medical diagnostics.")
+            caller.msg("You need training in First Aid to access medical diagnostics.")
             return
         
         args = self.args.strip()
