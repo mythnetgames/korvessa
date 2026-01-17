@@ -265,11 +265,16 @@ class CmdSetSdesc(Command):
         
         target = targets[0]
         
-        # Validate
-        is_valid, error = validate_sdesc(sdesc)
+        # Validate (pass target to exclude from duplicate check)
+        is_valid, error = validate_sdesc(sdesc, exclude_character=target)
         if not is_valid:
             caller.msg(f"|r{error}|n")
             return
         
-        set_sdesc(target, sdesc)
+        # Set sdesc (now returns success/error tuple)
+        success, error = set_sdesc(target, sdesc)
+        if not success:
+            caller.msg(f"|r{error}|n")
+            return
+        
         caller.msg(f"|gSet {target.key}'s sdesc to:|n {sdesc}")

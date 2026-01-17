@@ -185,11 +185,22 @@ def set_sdesc(character, sdesc):
     """
     Set a character's short description.
     
+    Validates that the sdesc is unique across all characters (PCs and NPCs).
+    
     Args:
         character: The character to modify
         sdesc: The new short description (e.g., "a tall man")
+        
+    Returns:
+        tuple: (success: bool, error_message: str or None)
     """
+    # Validate format and uniqueness
+    is_valid, error = validate_sdesc(sdesc, exclude_character=character)
+    if not is_valid:
+        return False, error
+    
     character.db.sdesc = sdesc
+    return True, None
 
 
 def get_recog(viewer, target):
@@ -566,17 +577,66 @@ def get_display_name(character, viewer=None, capitalize=False, colorize=True):
     return name
 
 
-def validate_sdesc(sdesc):
+def check_sdesc_uniqueness(sdesc, exclude_character=None):
     """
-    Validate an sdesc for proper format.
+    Check if an sdesc already exists for another character.
+    
+    Args:
+        sdesc: The sdesc to check
+        exclude_character: Character to exclude from the check (e.g., when updating a character's own sdesc)
+        
+    Returns:
+        tuple: (is_unique, existing_character or None)
+    """
+    from evennia.objects.models import ObjectDB
+    from evennia.utils.utils import inherits_from
+    
+    if not sdesc:
+        return True, None
+    
+    sdesc_lower = sdesc.lower().strip()
+    
+    # Search all characters (both typeclass) for matching sdescs
+    try:
+        from typeclasses.characters import Character
+        from typeclasses.npcs import NPC
+    except ImportError:
+        return True, None
+    
+    # Check all objects that might have sdescs
+    for obj in ObjectDB.objects.all():
+        # Skip the character we're updating
+        if exclude_character and obj.id == exclude_character.id:
+            continue
+        
+        # Check if it's a character or NPC with an sdesc
+        if not hasattr(obj, 'db') or not hasattr(obj.db, 'sdesc'):
+            continue
+        
+        existing_sdesc = obj.db.sdesc
+        if not existing_sdesc:
+            continue
+        
+        # Case-insensitive comparison
+        if existing_sdesc.lower().strip() == sdesc_lower:
+            return False, obj
+    
+    return True, None
+
+
+def validate_sdesc(sdesc, exclude_character=None):
+    """
+    Validate an sdesc for proper format and uniqueness.
     
     Sdescs should:
     - Be 3-80 characters
     - Not contain special characters except basic punctuation
     - Not contain newlines
+    - Be unique (not already used by another character)
     
     Args:
         sdesc: The sdesc to validate
+        exclude_character: Character to exclude from uniqueness check
         
     Returns:
         tuple: (is_valid, error_message or None)
@@ -598,6 +658,14 @@ def validate_sdesc(sdesc):
     # Allow letters, numbers, spaces, and basic punctuation
     if not re.match(r'^[\w\s\-\',\.]+$', sdesc):
         return False, "Sdesc can only contain letters, numbers, spaces, and basic punctuation (- ' , .)."
+    
+    # Check for uniqueness
+    is_unique, existing_char = check_sdesc_uniqueness(sdesc, exclude_character)
+    if not is_unique:
+        if existing_char:
+            existing_name = existing_char.key if hasattr(existing_char, 'key') else "someone"
+            return False, f"That sdesc is already in use by {existing_name}. Please choose a different one."
+        return False, "That sdesc is already in use. Please choose a different one."
     
     return True, None
 

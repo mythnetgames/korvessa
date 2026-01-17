@@ -219,20 +219,29 @@ def generate_random_template():
     }
 
 
-def validate_stat_distribution(stats):
+def validate_stat_distribution(stats, personality_stat=None):
     """
     Validate D&D 5e point buy stat distribution.
     Args:
         stats (dict): {stat_name: value}
+        personality_stat (str): The stat that gets personality bonus (e.g., 'wis') - allows range 9-16
     Returns:
         tuple: (is_valid: bool, error_message: str or None)
     """
     total_cost = 0
     for stat, value in stats.items():
-        if value < STAT_MIN:
-            return (False, f"{stat.upper()} must be at least {STAT_MIN}.")
-        if value > STAT_MAX:
-            return (False, f"{stat.upper()} cannot exceed {STAT_MAX}.")
+        # Determine min/max for this stat
+        if stat == personality_stat:
+            stat_min = 9  # Personality boost starts at 9
+            stat_max = 16  # Personality boost goes to 16
+        else:
+            stat_min = STAT_MIN  # 8
+            stat_max = STAT_MAX  # 15
+        
+        if value < stat_min:
+            return (False, f"{stat.upper()} must be at least {stat_min}.")
+        if value > stat_max:
+            return (False, f"{stat.upper()} cannot exceed {stat_max}.")
         if value not in POINT_BUY_COSTS:
             return (False, f"Invalid value {value} for {stat.upper()}.")
         total_cost += POINT_BUY_COSTS[value]
@@ -1388,7 +1397,7 @@ Personality: |c{p['name']}|n
             caller.msg("|yAll stats reset to 8.|n")
             return None  # Re-display the screen
         if command in ['done', 'finish', 'finalize']:
-            is_valid, error = validate_stat_distribution(stats)
+            is_valid, error = validate_stat_distribution(stats, personality_stat)
             if not is_valid:
                 caller.msg(f"|r{error}|n")
                 return text, options
