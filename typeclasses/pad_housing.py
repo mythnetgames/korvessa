@@ -302,8 +302,18 @@ class PadRoom(Room):
     def at_object_creation(self):
         """Called when the pad room is first created."""
         super().at_object_creation()
-        # Tag for easy identification
-        self.tags.add("pad_room", category="housing")
+        # Tag for easy identification - defer tag addition to avoid _SaverList issues
+        # Tags will be added in at_init instead
+    
+    def at_init(self):
+        """Called after object is fully initialized."""
+        super().at_init()
+        # Add tag for easy identification
+        try:
+            self.tags.add("pad_room", category="housing")
+        except Exception:
+            # Silently ignore tag errors during initialization
+            pass
     
     def get_pad_door(self):
         """
