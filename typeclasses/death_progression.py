@@ -546,11 +546,19 @@ def _create_corpse(character, location=None):
             location=corpse_location
         )
         
-        # Transfer data
+        # Transfer core identification data
         corpse.db.original_character_name = character.key
         corpse.db.original_character_dbref = character.dbref
         corpse.db.death_time = time.time()
+        
+        # Store appearance data for identification
         corpse.db.physical_description = getattr(character.db, 'desc', 'A person.')
+        corpse.db.original_race = getattr(character, 'race', 'human')
+        corpse.db.original_gender = getattr(character.db, 'gender', 'neutral')
+        corpse.db.original_skintone = getattr(character.db, 'skintone', 'fair')
+        
+        # Store naked body part descriptions so corpse shows realistic body details
+        corpse.db.original_nakeds = getattr(character.db, 'nakeds', {})
         
         # Preserve worn items data before transferring
         worn_items_data = {}

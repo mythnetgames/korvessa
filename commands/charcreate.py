@@ -786,9 +786,9 @@ def first_char_welcome(caller, raw_string, **kwargs):
     """First character creation entry point."""
     
     text = """
-|b═══════════════════════════════════════════════════════════════════|n
+|b~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|n
 |c                     WELCOME TO KORVESSA                           |n
-|b═══════════════════════════════════════════════════════════════════|n
+|b~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|n
 
 |wA world where danger lurks in every shadow,|n
 |wand reputation is earned through blood, sweat, and cunning.|n
@@ -797,7 +797,7 @@ def first_char_welcome(caller, raw_string, **kwargs):
 |wYou will struggle. You will fail. You will bear scars.|n
 |wBut every victory will be earned, and every choice will matter.|n
 
-|b----------------------------------------------------------------------|n
+|b~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|n
 
 Press |w<Enter>|n to begin your journey.
 """
@@ -829,7 +829,7 @@ def first_char_name_first(caller, raw_string, **kwargs):
             return None
         
         """
-        Kowloon Walled City Character Creation System
+        KorvessaRPI Character Creation System
 
         Handles first-time character creation and respawn/clone after death.
         Uses Evennia's EvMenu for interactive menus.
@@ -1009,17 +1009,17 @@ def first_char_race(caller, raw_string, **kwargs):
     
     # Build race descriptions with language info
     race_info = {
-        'human': {
-            'desc': 'Versatile and adaptable, humans are found in every corner of the world.',
-            'bonus': 'May learn one additional language of their choice.'
-        },
-        'elf': {
-            'desc': 'Graceful and long-lived, elves possess keen senses and a natural affinity for magic.',
-            'bonus': 'Speaks Elvish in addition to Common.'
-        },
-        'dwarf': {
-            'desc': 'Stout and hardy, dwarves are master craftsmen with an enduring resilience.',
-            'bonus': 'Speaks Dwarvish in addition to Common.'
+'human': {
+    'desc': 'Commonborn and widespread, humans endure through adaptability, ambition, and social maneuvering. Their cultures are fragmented, shaped more by hardship and history than destiny.',
+    'bonus': 'Learns slightly faster.'
+},
+'elf': {
+    'desc': 'Long-lived and insular, elves are shaped by memory rather than progress. Their keen senses come from centuries of survival, not mysticism, and their traditions are slow to change.',
+    'bonus': 'Speaks Elvish in addition to Common.'
+},
+'dwarf': {
+    'desc': 'Enduring and tradition-bound, dwarves are defined by lineage, craft, and obligation. Their resilience is earned through labor, stone, and unyielding social codes.',
+    'bonus': 'Speaks Dwarvish in addition to Common.'
         }
     }
     
