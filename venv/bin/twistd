@@ -1,4 +1,4 @@
-#!/home/drcrow/kowloon/venv/bin/python
+#!/usr/bin/env python3
 import sys
 from twisted.scripts.twistd import run
 if __name__ == '__main__':
