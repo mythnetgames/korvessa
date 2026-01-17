@@ -147,8 +147,7 @@ class CubeDoor(Exit):
             from evennia.objects.models import ObjectDB
             try:
                 paired = ObjectDB.objects.get(id=paired_door_id)
-                if paired:
-                    paired = paired.typeclass
+                if paired and hasattr(paired, 'is_closed'):
                     is_closed = paired.is_closed
             except ObjectDB.DoesNotExist:
                 pass
