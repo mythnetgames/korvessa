@@ -1018,16 +1018,18 @@ def first_char_race(caller, raw_string, **kwargs):
     race_info = {
 'human': {
     'desc': 'Brief-lived and ever-changing, humans survive by adapting when things go wrong. They stumble, recover, and try again, often succeeding not through perfection, but persistence.',
-    'bonus': 'Once per hour, silently reroll a failed non-combat roll and accept the new result. Also speaks Common.'
+    'bonus': 'Humans are known for recovering quickly from missteps and adjusting their approach without drawing attention. Their shared tongue is spoken almost everywhere.'
 },
+
 'elf': {
     'desc': 'Deliberate and restrained, elves prefer quiet paths and indirect solutions. They act with patience, favoring misdirection and subtle influence over force or haste.',
-    'bonus': 'Gain advantage on non-combat Subterfuge rolls. Speak Common and Elvish.'
+    'bonus': 'Elves excel when working unseen or unheard, relying on subtlety and careful intent. They speak both the common trade tongue and the speech of their own people.'
 },
+
 'dwarf': {
     'desc': 'Stone-bred and enduring, dwarves are shaped by long labor and scarce provision. They move steadily through hardship, sustained by habit and discipline.',
-    'bonus': 'Hunger and thirst advance more slowly. Get drunk slower. Speak Common and Dwarvish.'
-        }
+    'bonus': 'Dwarves are slow to feel the pull of hunger, thirst, or drink, enduring conditions that would wear others down. Their voices carry both the common tongue and the deep speech of their halls.'
+}
     }
     
     text = f"""
