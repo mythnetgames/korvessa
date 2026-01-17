@@ -141,6 +141,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         Populates the cmdset
         """
         super().at_cmdset_creation()
+        # Remove default TIME and add custom Korvessan calendar version
+        self.remove("time")
+        from commands.time import CmdTime
+        self.add(CmdTime())
         # Remove default WHO and add custom one
         self.remove("who")
         self.add(CmdWho())
