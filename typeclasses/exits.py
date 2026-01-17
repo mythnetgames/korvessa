@@ -942,7 +942,10 @@ class Exit(DefaultExit):
         # Start with custom description if set (priority over atmospheric defaults)
         custom_desc = self.db.desc
         if custom_desc:
-            description_parts.append(custom_desc.strip())
+            from world.utils import process_escape_sequences
+            # Process escape sequences in custom door descriptions (admin flavor text)
+            processed_desc = process_escape_sequences(custom_desc).strip()
+            description_parts.append(processed_desc)
         
         # Generate atmospheric description based on exit analysis
         atmospheric_desc = self._get_atmospheric_description(looker)

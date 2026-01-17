@@ -273,6 +273,14 @@ class Room(ObjectParent, DefaultRoom):
         # Zone-aware mapping: only show exits and map info for rooms in the same zone
         appearance = super().return_appearance(looker, **kwargs)
         
+        # Process escape sequences in room description (admin flavor text)
+        from world.utils import process_escape_sequences
+        if self.db.desc:
+            processed_desc = process_escape_sequences(self.db.desc)
+            # Replace the original description with processed version in the appearance
+            if processed_desc and processed_desc != self.db.desc:
+                appearance = appearance.replace(self.db.desc, processed_desc, 1)
+        
         # Add room tags to the title line if they exist
         from world.room_tags import get_tag_display_string
         tag_display = get_tag_display_string(getattr(self, 'tags', []))
