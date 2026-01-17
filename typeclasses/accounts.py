@@ -29,20 +29,24 @@ class Account(DefaultAccount):
     def puppet_object(self, session, obj):
         """
         Called when this Account puppets a Character (obj) on a session.
-        Override to force @mapon logic and handle location following.
+        Preserves mapper_enabled setting from account db.
         """
         # Call the original Evennia logic
         super().puppet_object(session, obj)
         
-        # Force @mapon logic silently
+        # Restore mapper preference from account db (default to True for new accounts)
         if hasattr(self, 'db'):
-            self.db.mapper_enabled = True
+            mapper_state = getattr(self.db, 'mapper_enabled', True)
+        else:
+            mapper_state = True
+        
+        # Apply to all relevant objects
         if hasattr(self, 'ndb'):
-            self.ndb.mapper_enabled = True
+            self.ndb.mapper_enabled = mapper_state
         if session:
-            session.ndb.mapper_enabled = True
+            session.ndb.mapper_enabled = mapper_state
         if hasattr(obj, 'ndb'):
-            obj.ndb.mapper_enabled = True
+            obj.ndb.mapper_enabled = mapper_state
 
     def unpuppet_object(self, session):
         """
@@ -161,14 +165,13 @@ class Account(DefaultAccount):
                 session.ndb._clone_awakening_locked = True
             return  # Do not show OOC menu
         
-        # Force map display ON for every account and session on login
-        # Force @mapon logic on login, but do not echo any output or check coordinates
-        self.db.mapper_enabled = True
-        self.ndb.mapper_enabled = True
+        # Restore mapper preference (default to True for new accounts)
+        mapper_state = getattr(self.db, 'mapper_enabled', True)
+        self.ndb.mapper_enabled = mapper_state
         self.db.show_room_desc = True
         self.ndb.show_room_desc = True
         if session:
-            session.ndb.mapper_enabled = True
+            session.ndb.mapper_enabled = mapper_state
             session.ndb.show_room_desc = True
         # Use Evennia's account.characters (the _playable_characters list) - this is the authoritative source
         all_characters = self.characters.all()

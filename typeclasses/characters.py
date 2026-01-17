@@ -22,10 +22,13 @@ class Character(ObjectParent, DefaultCharacter):
         Called every time a player logs in.
         Also checks if player is within 3 hours of an IP grant tick and grants missed IP if applicable.
         """
-        # Enable mapper by default
+        # Restore mapper preference from account (default to True)
         if self.account and hasattr(self.account, 'db'):
-            self.account.db.mapper_enabled = True
-        self.ndb.mapper_enabled = True
+            mapper_state = getattr(self.account.db, 'mapper_enabled', True)
+            self.account.db.mapper_enabled = mapper_state
+        else:
+            mapper_state = True
+        self.ndb.mapper_enabled = mapper_state
         
         # Check for missed IP grant from login catch-up
         try:
@@ -173,12 +176,14 @@ class Character(ObjectParent, DefaultCharacter):
 
     def at_server_start(self):
         """
-        Called on every character at server reboot. Enable mapper by default.
+        Called on every character at server reboot. Restores mapper preference.
         """
-        # Enable mapper by default
+        # Restore mapper preference from account (default to True)
         if self.account and hasattr(self.account, 'db'):
-            self.account.db.mapper_enabled = True
-        self.ndb.mapper_enabled = True
+            mapper_state = getattr(self.account.db, 'mapper_enabled', True)
+        else:
+            mapper_state = True
+        self.ndb.mapper_enabled = mapper_state
         
         # Force map display if mapper is enabled
         if self.ndb.mapper_enabled:
@@ -449,16 +454,22 @@ class Character(ObjectParent, DefaultCharacter):
         if hasattr(self.ndb, 'temp_place'):
             delattr(self.ndb, 'temp_place')
         
-        # Enable mapper by default
-        self.ndb.mapper_enabled = True
+        # Respect mapper preference from account db
+        if self.account and hasattr(self.account, 'db'):
+            mapper_enabled = getattr(self.account.db, 'mapper_enabled', True)
+        else:
+            mapper_enabled = getattr(self.ndb, 'mapper_enabled', True)
+        self.ndb.mapper_enabled = mapper_enabled
+        
         self.ndb.show_room_desc = False
         
-        # Show map view (which includes room description)
-        from commands.mapper import CmdMap
-        cmd = CmdMap()
-        cmd.caller = self
-        cmd.args = ""
-        cmd.func()
+        # Show map view (which includes room description) if mapper is enabled
+        if self.ndb.mapper_enabled:
+            from commands.mapper import CmdMap
+            cmd = CmdMap()
+            cmd.caller = self
+            cmd.args = ""
+            cmd.func()
 
         # Notify windows that observe entry/exit in this room
         self._notify_window_observers('enter', source_location)
@@ -469,17 +480,22 @@ class Character(ObjectParent, DefaultCharacter):
         When looking at an object/character, shows their description.
         """
         if target is None or target == self.location:
-            # Looking at the room - show map view with room description
+            # Looking at the room - show map view with room description if mapper is enabled
             # Sync ndb with persistent state
-            self.ndb.mapper_enabled = True
+            if self.account and hasattr(self.account, 'db'):
+                mapper_enabled = getattr(self.account.db, 'mapper_enabled', True)
+            else:
+                mapper_enabled = getattr(self.ndb, 'mapper_enabled', True)
+            self.ndb.mapper_enabled = mapper_enabled
             self.ndb.show_room_desc = False
             
-            # Show map view with room description on right side
-            from commands.mapper import CmdMap
-            cmd = CmdMap()
-            cmd.caller = self
-            cmd.args = ""
-            cmd.func()
+            # Show map view with room description on right side (if mapper enabled)
+            if self.ndb.mapper_enabled:
+                from commands.mapper import CmdMap
+                cmd = CmdMap()
+                cmd.caller = self
+                cmd.args = ""
+                cmd.func()
             return
         else:
             # Looking at an object/character - show their description
