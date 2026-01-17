@@ -29,37 +29,21 @@ def connection_screen():
     Dynamic connection screen that adjusts based on settings.
     Thematic to Kowloon Walled City.
     """
-    # Build the create command line based on registration setting
+    # Color palette from image: #5f005f, #5f0087, #5f00af, #5f00d7, #5f00ff, #af00ff, #af00d7, #af00af, #af0087, #af005f
+    # Short, unsettling, and atmospheric
     if settings.NEW_ACCOUNT_REGISTRATION_ENABLED:
-      create_line = "__ Create  : |wcreate <email@address.com> <password>|n"
-      instructions = "\nStep into Korvessa. Begin your story, or reclaim a lost one."
+      prompt_line = "|#af00ffCreate|n: |wcreate <email@address.com> <password>|n"
     else:
-      create_line = "__ Connect : |wconnect <email@address.com> <password>|n"
-      instructions = "\nReturn to Korvessa. The city remembers."
+      prompt_line = "|#5f00ffConnect|n: |wconnect <email@address.com> <password>|n"
 
     return f"""
-  |#d75f00Year 160 After Herding|n
-  |#d75f00The world outside is ruin—storms, famine, and the memory of exile. Five cities endure, sealed by fate and faith.|n
-  |#d75f00You stand at the edge of Korvessa, where the Watcher’s eye is ever open.|n
+  |#5f005fKorvessa|n |#af00ffYear 160 AH|n
+  |#5f00afThe city is sealed. The Watcher sees all. The walls whisper. You are not alone.|n
+  |#af0087Factions hunger. Faith divides. The Sprinkling is near. Doors close behind you.|n
 
-  |#d75f00Here, the air is heavy with incense and old grudges. The walls remember the Herding, the Corralling, the Sprinklings—each a scar, each a lesson.|n
-  |#d75f00No one leaves the city’s bounds but once in a decade, and not all return whole.|n
-
-  |#d75f00Three great factions vie beneath the Watcher’s gaze:|n
-  |#d7af5f  Velorans|n   |#d75f00— order, sacrifice, duty|n
-  |#afd7ff  Feyliksians|n |#d75f00— chance, art, freedom|n
-  |#af5fff  Regalists|n   |#d75f00— ambition, strength, control|n
-  |#d75f00All claim the Watcher’s balance, all hunger for the city’s soul.|n
-
-  |#d70000Justice is a coin toss, a prayer, a blade in the dark. The Sprinkling draws near. Rumors whisper of a new Scholar’s Passage—one more chance to cross the unseen boundary.|n
-
-  |#d75f00Will you serve, rebel, or vanish into the city’s shadowed heart?|n
-
-  {create_line}
-  __ Connect : |wconnect <email@address.com> <password>|n
-  |g{instructions}|n
-  Character creation happens after login.
-  |whelp|n for more info. |wlook|n to see this again.
+  {prompt_line}
+  |#af00afAfter login, you will create your character.|n
+  |#af005fType |whelp|#af005f for info. |wlook|#af005f to see this again.|n
   """
 
 
