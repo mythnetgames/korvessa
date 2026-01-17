@@ -1,6 +1,7 @@
 """
 Custom in-character time command that displays Korvessan calendar time.
 Shows date in Common Field Reckoning format with the six-day Turning.
+Uses custom color palette for lore-appropriate theming.
 """
 
 from evennia import Command
@@ -14,6 +15,20 @@ from world.calendar import (
     get_holiday_today
 )
 import random
+
+# Color palette (hex codes)
+COLORS = {
+    'dark_blue': '|#0b0d47',
+    'light_purple': '|#a85fd7',
+    'blue': '|#0b37d7',
+    'cyan': '|#0ba5d7',
+    'dark_green': '|#0d7d07',
+    'bright_green': '|#0bff07',
+    'light_green': '|#5fff47',
+    'green': '|#5fd747',
+    'yellow_green': '|#5ffd47',
+    'reset': '|n'
+}
 
 
 class CmdTime(Command):
@@ -60,11 +75,21 @@ class CmdTime(Command):
         colloquial = get_colloquial_date(date)
         
         # Build the display
-        caller.msg(f"\n|w{'-' * 60}|n")
+        caller.msg(f"\n{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}")
         
         if is_bday:
-            # Rainbow birthday message
-            rainbow_colors = ["|r", "|y", "|g", "|c", "|b", "|m"]
+            # Rainbow birthday message with color palette
+            rainbow_colors = [
+                COLORS['dark_blue'],
+                COLORS['light_purple'],
+                COLORS['blue'],
+                COLORS['cyan'],
+                COLORS['dark_green'],
+                COLORS['bright_green'],
+                COLORS['light_green'],
+                COLORS['green'],
+                COLORS['yellow_green']
+            ]
             name = caller.db.real_full_name if hasattr(caller.db, 'real_full_name') else caller.key
             bday_msg = f"Happy Birthday, {name}!"
             
@@ -72,32 +97,32 @@ class CmdTime(Command):
             colored_msg = ""
             for i, char in enumerate(bday_msg):
                 if char != " ":
-                    colored_msg += f"{rainbow_colors[i % len(rainbow_colors)]}{char}|n"
+                    colored_msg += f"{rainbow_colors[i % len(rainbow_colors)]}{char}{COLORS['reset']}"
                 else:
                     colored_msg += " "
             
             caller.msg(colored_msg)
-            caller.msg("|w{} * {} * {}|n".format("*" * 20, "HAPPY BIRTHDAY", "*" * 20))
+            caller.msg(f"{COLORS['cyan']}{' * ' * 20}{COLORS['reset']}")
         elif holiday:
             # Holiday message
-            caller.msg(f"|yIt is the holiday of |c{holiday['name']}|y.|n")
-            caller.msg(f"|y({holiday['tradition']})|n")
+            caller.msg(f"{COLORS['light_green']}It is the holiday of {COLORS['cyan']}{holiday['name']}{COLORS['light_green']}.{COLORS['reset']}")
+            caller.msg(f"{COLORS['light_green']}({holiday['tradition']}){COLORS['reset']}")
         else:
-            caller.msg(f"|bA nearby sundial and calendar mark:|n")
+            caller.msg(f"{COLORS['bright_green']}A nearby sundial and calendar mark:{COLORS['reset']}")
         
-        caller.msg(f"|w{'-' * 60}|n")
-        caller.msg(f"|y  Date:|n |c{full_date}|n")
-        caller.msg(f"|y  Time:|n |c{time_str}|n")
-        caller.msg(f"|w{'-' * 60}|n")
-        caller.msg(f"|xIt is {time_period}, {colloquial}.|n")
+        caller.msg(f"{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}")
+        caller.msg(f"{COLORS['yellow_green']}  Date:{COLORS['reset']} {COLORS['cyan']}{full_date}{COLORS['reset']}")
+        caller.msg(f"{COLORS['yellow_green']}  Time:{COLORS['reset']} {COLORS['cyan']}{time_str}{COLORS['reset']}")
+        caller.msg(f"{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}")
+        caller.msg(f"{COLORS['light_green']}It is {time_period}, {colloquial}.{COLORS['reset']}")
         
         # Show weekday significance if relevant
         if date['weekday_dedication']:
-            caller.msg(f"|x{date['weekday_name']} is dedicated to {date['weekday_dedication']}.|n")
+            caller.msg(f"{COLORS['light_green']}{date['weekday_name']} is dedicated to {date['weekday_dedication']}.{COLORS['reset']}")
         
         # Show holiday explanation if present
         if holiday:
-            caller.msg(f"|w{'-' * 60}|n")
-            caller.msg(f"|y{holiday['desc']}|n")
+            caller.msg(f"{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}")
+            caller.msg(f"{COLORS['light_green']}{holiday['desc']}{COLORS['reset']}")
         
-        caller.msg(f"|w{'-' * 60}|n\n")
+        caller.msg(f"{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}\n")
