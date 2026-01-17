@@ -174,67 +174,63 @@ class CmdAttachLock(Command):
             audit_channel.msg(f"{caller.key} attached lock to exit '{direction}'.")
 
 class CmdAttachKeypad(Command):
-    """Attach a keypad lock to a door on an exit, and automatically create a matching keypad on the paired door."""
+    """
+    Attach a keypad lock to a door on an exit.
+    
+    Usage:
+        attachkeypad <direction>
+        
+    Attaches a keypad to the door on the specified exit. The keypad code
+    is stored on the exit itself and syncs with the reverse exit.
+    """
     key = "attachkeypad"
     locks = "cmd:perm(Builder)"
     help_category = "Building"
+    
     def func(self):
         caller = self.caller
         if not self.args:
             caller.msg("Usage: attachkeypad <direction>")
             return
         direction = self.args.strip().lower()
-        door = find_door(caller.location, direction)
-        if not door:
-            caller.msg(f"No door found for exit '{direction}'.")
+        
+        # Find the exit
+        exit_obj = find_exit_by_direction(caller.location, direction)
+        if not exit_obj:
+            caller.msg(f"No exit found in direction '{direction}'.")
             return
-        from typeclasses.doors import KeypadLock
-        keypad = KeypadLock()
-        keypad.save()
-        # Store all aliases for this exit (including key)
-        exit_aliases = [direction]
-        for ex in getattr(caller.location, "exits", []):
-            if ex.key.lower() == direction or direction in [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]:
-                exit_aliases = [ex.key.lower()]
-                if hasattr(ex.aliases, "all"):
-                    exit_aliases += [a.lower() for a in ex.aliases.all()]
-                break
-        keypad.db.exit_aliases = list(set(exit_aliases))
-        door.attach_keypad(keypad)
-        keypad.location = door
-        caller.msg(f"Keypad lock attached to door for exit '{direction}'.")
+        
+        # Check if exit has a door
+        if not getattr(exit_obj.db, "has_door", False):
+            caller.msg(f"No door on exit '{exit_obj.key}'. Use 'attachdoor {direction}' first.")
+            return
+        
+        # Check if keypad already exists
+        if getattr(exit_obj.db, "door_keypad_code", None):
+            caller.msg(f"Exit '{exit_obj.key}' already has a keypad.")
+            return
+        
+        # Attach keypad with default code
+        exit_obj.db.door_keypad_code = "00000000"
+        exit_obj.db.door_keypad_unlocked = False
+        
+        caller.msg(f"Keypad lock attached to door for exit '{exit_obj.key}'. Default code: 00000000")
+        
         audit_channel = get_audit_channel()
         if audit_channel:
-            audit_channel.msg(f"{caller.key} attached keypad to exit '{direction}'.")
-        # Attach matching keypad to paired door in destination room
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        dest_room = getattr(exit_obj, "destination", None) if exit_obj else None
+            audit_channel.msg(f"{caller.key} attached keypad to exit '{exit_obj.key}' in {caller.location.key}.")
+        
+        # Attach matching keypad to reverse exit
+        dest_room = getattr(exit_obj, "destination", None)
         if dest_room:
-            reverse_dir = None
-            reverse_map = {
-                "north": "south", "south": "north", "east": "west", "west": "east",
-                "northeast": "southwest", "southwest": "northeast", "northwest": "southeast", "southeast": "northwest",
-                "up": "down", "down": "up", "in": "out", "out": "in"
-            }
-            reverse_dir = reverse_map.get(direction, None)
-            if not reverse_dir:
-                for ex in getattr(dest_room, "exits", []):
-                    if getattr(ex, "destination", None) == caller.location:
-                        reverse_dir = ex.key.lower()
-                        break
-            rev_door = find_door(dest_room, reverse_dir) if reverse_dir else None
-            if rev_door and not rev_door.db.keypad:
-                rev_keypad = KeypadLock()
-                rev_keypad.save()
-                rev_keypad.db.combination = keypad.db.combination
-                rev_door.attach_keypad(rev_keypad)
-                if audit_channel:
-                    audit_channel.msg(f"Auto-attached matching keypad to door '{reverse_dir}' in {dest_room.key}.")
+            reverse_exit = exit_obj._get_reverse_exit()
+            if reverse_exit and getattr(reverse_exit.db, "has_door", False):
+                if not getattr(reverse_exit.db, "door_keypad_code", None):
+                    reverse_exit.db.door_keypad_code = "00000000"
+                    reverse_exit.db.door_keypad_unlocked = False
+                    if audit_channel:
+                        audit_channel.msg(f"Auto-attached matching keypad to exit '{reverse_exit.key}' in {dest_room.key}.")
+                    caller.msg(f"Also attached keypad to reverse exit '{reverse_exit.key}' in {dest_room.key}.")
 
 
 class CmdRemoveDoor(Command):
@@ -375,10 +371,16 @@ class CmdRemoveKeypad(Command):
             audit_channel.msg(f"{caller.key} removed keypad from exit '{direction}'.")
 
 class CmdProgramKeypad(Command):
-    """Set the keypad's 8-digit combination, and sync to paired keypad if present."""
+    """
+    Set the keypad's 8-digit combination.
+    
+    Usage:
+        programkeypad <direction> <combo>
+    """
     key = "programkeypad"
     locks = "cmd:perm(Builder)"
     help_category = "Building"
+    
     def func(self):
         caller = self.caller
         args = self.args.strip().split()
@@ -387,44 +389,42 @@ class CmdProgramKeypad(Command):
             return
         direction, combo = args
         direction = direction.strip().lower()
-        door = find_door(caller.location, direction)
-        if not door or not door.db.keypad:
-            caller.msg(f"No keypad found on door for exit '{direction}'.")
-            return
+        
         if len(combo) != 8 or not combo.isdigit():
             caller.msg("Combination must be 8 digits.")
             return
-        door.db.keypad.db.combination = combo
-        caller.msg(f"Keypad combo for exit '{direction}' set to {combo}.")
+        
+        # Find the exit
+        exit_obj = find_exit_by_direction(caller.location, direction)
+        if not exit_obj:
+            caller.msg(f"No exit found in direction '{direction}'.")
+            return
+        
+        # Check if exit has a door with keypad
+        if not getattr(exit_obj.db, "has_door", False):
+            caller.msg(f"No door on exit '{exit_obj.key}'.")
+            return
+        
+        if not getattr(exit_obj.db, "door_keypad_code", None):
+            caller.msg(f"No keypad on door for exit '{exit_obj.key}'. Use 'attachkeypad {direction}' first.")
+            return
+        
+        # Set the code
+        exit_obj.db.door_keypad_code = combo
+        caller.msg(f"Keypad combo for exit '{exit_obj.key}' set to {combo}.")
+        
         audit_channel = get_audit_channel()
         if audit_channel:
-            audit_channel.msg(f"{caller.key} programmed keypad combo for exit '{direction}' to {combo}.")
-        # Sync combo to paired keypad
-        exit_obj = None
-        for ex in getattr(caller.location, "exits", []):
-            aliases = [a.lower() for a in (ex.aliases.all() if hasattr(ex.aliases, "all") else [])]
-            if ex.key.lower() == direction or direction in aliases:
-                exit_obj = ex
-                break
-        dest_room = getattr(exit_obj, "destination", None) if exit_obj else None
+            audit_channel.msg(f"{caller.key} programmed keypad combo for exit '{exit_obj.key}' to {combo}.")
+        # Sync combo to paired keypad on reverse exit
+        dest_room = getattr(exit_obj, "destination", None)
         if dest_room:
-            reverse_dir = None
-            reverse_map = {
-                "north": "south", "south": "north", "east": "west", "west": "east",
-                "northeast": "southwest", "southwest": "northeast", "northwest": "southeast", "southeast": "northwest",
-                "up": "down", "down": "up", "in": "out", "out": "in"
-            }
-            reverse_dir = reverse_map.get(direction, None)
-            if not reverse_dir:
-                for ex in getattr(dest_room, "exits", []):
-                    if getattr(ex, "destination", None) == caller.location:
-                        reverse_dir = ex.key.lower()
-                        break
-            rev_door = find_door(dest_room, reverse_dir) if reverse_dir else None
-            if rev_door and rev_door.db.keypad:
-                rev_door.db.keypad.db.combination = combo
+            reverse_exit = exit_obj._get_reverse_exit()
+            if reverse_exit and getattr(reverse_exit.db, "door_keypad_code", None):
+                reverse_exit.db.door_keypad_code = combo
                 if audit_channel:
-                    audit_channel.msg(f"Auto-synced keypad combo for door '{reverse_dir}' in {dest_room.key}.")
+                    audit_channel.msg(f"Auto-synced keypad combo for exit '{reverse_exit.key}' in {dest_room.key}.")
+                caller.msg(f"Also synced code to reverse exit '{reverse_exit.key}' in {dest_room.key}.")
 
 class CmdShowCombo(Command):
     """Show the keypad combo (builder+ only)."""
@@ -843,30 +843,49 @@ KeypadLock.enter_combo = new_enter_combo
 # ...existing code...
 
 class CmdPushCombo(Command):
-    """Push a combo on a keypad lock for an exit."""
+    """
+    Push a combo on a keypad lock.
+    
+    Usage:
+        push <combo> on <direction>
+        press <combo> on <direction>
+    """
     key = "push"
     aliases = ["press"]
     locks = "cmd:all()"
     help_category = "General"
+    
     def func(self):
-            caller = self.caller
-            args = self.args.strip().split()
-            if len(args) < 3 or args[1] != "on":
-                caller.msg("Usage: push <combo> on <direction>")
-                return
-            combo = args[0]
-            direction = args[2].lower()
-            # Use find_door and find_keypad for alias-aware lookup
-            from commands.door import find_door, find_keypad
-            door_obj = find_door(caller.location, direction)
-            if not door_obj:
-                caller.msg(f"No door found for exit '{direction}'.")
-                return
-            keypad_obj = find_keypad(door_obj, direction)
-            if not keypad_obj:
-                caller.msg(f"No keypad found on door for exit '{direction}'.")
-                return
-            keypad_obj.enter_combo(combo, caller)
+        caller = self.caller
+        args = self.args.strip().split()
+        if len(args) < 3 or args[1] != "on":
+            caller.msg("Usage: push <combo> on <direction>")
+            return
+        combo = args[0]
+        direction = args[2].lower()
+        
+        # Find the exit
+        exit_obj = find_exit_by_direction(caller.location, direction)
+        if not exit_obj:
+            caller.msg(f"No exit found in direction '{direction}'.")
+            return
+        
+        # Check if exit has a door with keypad
+        if not getattr(exit_obj.db, "has_door", False):
+            caller.msg(f"No door on exit '{exit_obj.key}'.")
+            return
+        
+        keypad_code = getattr(exit_obj.db, "door_keypad_code", None)
+        if not keypad_code:
+            caller.msg(f"No keypad on door for exit '{exit_obj.key}'.")
+            return
+        
+        # Check the code
+        if combo == keypad_code:
+            exit_obj.db.door_keypad_unlocked = True
+            caller.msg("Keypad unlocked.")
+        else:
+            caller.msg("Incorrect combination.")
 
 class CmdUnlockExit(Command):
     """Unlock a door or keypad on an exit."""
