@@ -168,3 +168,38 @@ try:
     from server.conf.secret_settings import *
 except ImportError:
     print("secret_settings.py file not found or failed to import.")
+
+
+# Startup check: ensure SQLite database file (if used) is writable so the
+# server fails with a clear message instead of later raising a confusing
+# OperationalError during login or save operations.
+try:
+    from pathlib import Path
+    from django.conf import settings as _dj_settings
+
+    _db = getattr(_dj_settings, 'DATABASES', {}).get('default', {})
+    _engine = _db.get('ENGINE', '')
+    if _engine.endswith('sqlite3'):
+        _name = _db.get('NAME')
+        if _name and _name != ':memory:':
+            _path = Path(str(_name))
+            # Ensure parent directory exists
+            try:
+                _path.parent.mkdir(parents=True, exist_ok=True)
+            except Exception as _e:
+                print(f"FATAL: Could not ensure database directory exists: {_path.parent} ({_e})")
+                raise SystemExit("Database directory not writable or creatable. Fix permissions and restart.")
+
+            # Try opening the DB file for append (will create if missing). This tests write
+            # permission on the filesystem and will surface if the file or mount is read-only.
+            try:
+                with open(_path, 'a'):
+                    pass
+            except Exception as _e:
+                print(f"FATAL: SQLite database file is not writable: {_path} ({_e})")
+                print("Fix by adjusting ownership/permissions or moving the DB to a writable path.")
+                raise SystemExit("SQLite database not writable; aborting startup.")
+except Exception:
+    # Don't raise here if Django isn't fully configured yet; just allow startup to continue
+    # and let more specific errors surface during normal operation.
+    pass

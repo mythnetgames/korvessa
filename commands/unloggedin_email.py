@@ -8,6 +8,7 @@ from evennia.accounts.models import AccountDB
 from evennia.commands.default.muxcommand import MuxCommand
 from evennia.utils import class_from_module, utils
 from evennia.server.models import ServerConfig
+from django.db import utils as db_utils
 
 
 class CmdEmailConnect(MuxCommand):
@@ -64,7 +65,14 @@ class CmdEmailConnect(MuxCommand):
             return
 
         # Login successful
-        session.sessionhandler.login(session, account)
+        try:
+            session.sessionhandler.login(session, account)
+        except db_utils.OperationalError as e:
+            # Likely a filesystem permission problem with the database (e.g. readonly).
+            session.msg("|rLogin failed due to database write error. Please contact an administrator.|n")
+            # Log details to server stdout for admins
+            print("Database OperationalError during login:", e)
+            return
 
 
 class CmdEmailCreate(MuxCommand):
