@@ -16,6 +16,22 @@ class Door(DefaultObject):
         if direction:
             return f"door ({direction})"
         return "door"
+    
+    def get_formatted_exit_name(self):
+        """Get formatted exit name with +/- indicator for door status.
+        
+        Returns:
+            str: Exit key with + prefix if closed/locked, - prefix if open/unlocked
+        """
+        direction = getattr(self.db, "exit_direction", None)
+        if not direction:
+            return "door"
+        
+        # + for closed/locked doors, - for open/unlocked doors
+        if not self.db.is_open or self.db.is_locked:
+            return f"+{direction}"
+        else:
+            return f"-{direction}"
 
     def at_before_traverse(self, traverser, exit_obj):
         if not self.db.is_open:

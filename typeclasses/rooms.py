@@ -813,7 +813,7 @@ class Room(ObjectParent, DefaultRoom):
         
         # Analyze each exit
         for exit_obj in exits:
-            # Check if this is a housing door and get formatted name with +/- indicator
+            # Check if this is a housing door or regular door and get formatted name with +/- indicator
             if (exit_obj.is_typeclass("typeclasses.cube_housing.CubeDoor") or 
                 exit_obj.is_typeclass("typeclasses.pad_housing.PadDoor")):
                 if hasattr(exit_obj, "get_formatted_exit_name"):
@@ -821,7 +821,14 @@ class Room(ObjectParent, DefaultRoom):
                 else:
                     direction = exit_obj.key
             else:
+                # Check if there's a door object attached to this exit
                 direction = exit_obj.key
+                for obj in exit_obj.location.contents:
+                    if (obj.is_typeclass("typeclasses.doors.Door") and 
+                        getattr(obj.db, "exit_direction", None) == exit_obj.key):
+                        if hasattr(obj, "get_formatted_exit_name"):
+                            direction = obj.get_formatted_exit_name()
+                        break
             
             aliases = exit_obj.aliases.all()
             alias = aliases[0] if aliases else None

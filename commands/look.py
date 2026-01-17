@@ -68,8 +68,15 @@ class CmdLook(DefaultCmdLook):
                 formatted_name = exit_obj.get_formatted_exit_name()
                 exit_strs.append(formatted_name)
             else:
-                # Regular exit - use default display
-                exit_strs.append(exit_obj.key)
+                # Check if there's a door object attached to this exit
+                exit_name = exit_obj.key
+                for obj in room.contents:
+                    if (obj.is_typeclass("typeclasses.doors.Door") and 
+                        getattr(obj.db, "exit_direction", None) == exit_obj.key):
+                        if hasattr(obj, "get_formatted_exit_name"):
+                            exit_name = obj.get_formatted_exit_name()
+                        break
+                exit_strs.append(exit_name)
         
         # Sort and format
         exit_strs = ", ".join(exit_strs) if exit_strs else ""
