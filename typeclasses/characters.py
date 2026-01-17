@@ -480,8 +480,7 @@ class Character(ObjectParent, DefaultCharacter):
         When looking at an object/character, shows their description.
         """
         if target is None or target == self.location:
-            # Looking at the room - show map view with room description if mapper is enabled
-            # Sync ndb with persistent state
+            # Looking at the room - check if mapper is enabled
             if self.account and hasattr(self.account, 'db'):
                 mapper_enabled = getattr(self.account.db, 'mapper_enabled', True)
             else:
@@ -496,7 +495,9 @@ class Character(ObjectParent, DefaultCharacter):
                 cmd.caller = self
                 cmd.args = ""
                 cmd.func()
-            return
+            else:
+                # Mapper disabled - show regular room display
+                return super().at_look(target, **kwargs)
         else:
             # Looking at an object/character - show their description
             return target.return_appearance(self)
