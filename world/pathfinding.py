@@ -47,13 +47,18 @@ def is_exit_passable_for_player(exit_obj, character):
         target_is_sky = getattr(exit_obj.destination.db, "is_sky_room", False)
         if target_is_sky:
             # Check if character can fly
-            can_fly = getattr(character.db, "can_fly", False)
+            can_fly = getattr(character.db, "can_fly", False) if character else False
             if not can_fly:
                 return False
     
     # Check for housing doors (CubeDoor or PadDoor)
     # These can be passed if the door is open/unlocked OR if character is the renter
-    if exit_obj.is_typeclass("typeclasses.cube_housing.CubeDoor"):
+    try:
+        is_cube_door = exit_obj.is_typeclass("typeclasses.cube_housing.CubeDoor")
+    except Exception:
+        is_cube_door = False
+    
+    if is_cube_door:
         # Check if door is open (not closed)
         is_closed = getattr(exit_obj, 'is_closed', True)
         # Check paired door state too
@@ -75,7 +80,12 @@ def is_exit_passable_for_player(exit_obj, character):
             return False  # Door is locked
         return True  # Door is open
     
-    if exit_obj.is_typeclass("typeclasses.pad_housing.PadDoor"):
+    try:
+        is_pad_door = exit_obj.is_typeclass("typeclasses.pad_housing.PadDoor")
+    except Exception:
+        is_pad_door = False
+    
+    if is_pad_door:
         # Check if door is unlocked
         is_unlocked = getattr(exit_obj, 'is_unlocked', False)
         # Check paired door state too
@@ -106,13 +116,13 @@ def is_exit_passable_for_player(exit_obj, character):
         door = find_door(room, direction) if find_door else None
         if door and not getattr(door.db, "is_open", True):
             return False  # Door is closed
-    except ImportError:
+    except (ImportError, Exception):
         pass
     
     return True
 
 
-def find_path(start_room, end_room, character=None, max_depth=100):
+def find_path(start_room, end_room, character=None, max_depth=100, debug=False):
     """
     Find the shortest path between two rooms using BFS.
     Works across zones.
@@ -122,23 +132,45 @@ def find_path(start_room, end_room, character=None, max_depth=100):
         end_room: Destination room object
         character: Character traveling (for passability checks)
         max_depth: Maximum path length to search
+        debug: If True, output debug info to Pathing channel
         
     Returns:
         list: List of (exit_obj, destination_room) tuples representing the path,
               or None if no path found
     """
+    # Get debug channel
+    debug_channel = None
+    try:
+        from evennia.comms.models import ChannelDB
+        debug_channel = ChannelDB.objects.get_channel("Pathing")
+    except Exception:
+        pass
+    
+    def debug_msg(msg):
+        if debug_channel:
+            debug_channel.msg(f"PATHFIND_DEBUG: {msg}")
+    
     if not start_room or not end_room:
+        debug_msg(f"Invalid rooms: start={start_room}, end={end_room}")
         return None
     
-    if start_room == end_room:
+    if start_room.dbref == end_room.dbref:
+        debug_msg("Already at destination")
         return []  # Already there
+    
+    debug_msg(f"Finding path from {start_room.key}({start_room.dbref}) to {end_room.key}({end_room.dbref})")
     
     # BFS queue: (current_room, path_so_far)
     queue = deque([(start_room, [])])
     visited = {start_room.dbref}
     
+    rooms_checked = 0
+    exits_checked = 0
+    exits_blocked = 0
+    
     while queue:
         current_room, path = queue.popleft()
+        rooms_checked += 1
         
         # Check depth limit
         if len(path) >= max_depth:
@@ -146,14 +178,22 @@ def find_path(start_room, end_room, character=None, max_depth=100):
         
         # Explore exits
         if not hasattr(current_room, 'exits'):
+            debug_msg(f"Room {current_room.key} has no exits attribute")
             continue
+        
+        room_exits = current_room.exits
+        debug_msg(f"Checking {current_room.key}: {len(room_exits)} exits")
             
-        for exit_obj in current_room.exits:
+        for exit_obj in room_exits:
+            exits_checked += 1
+            
             if not exit_obj or not hasattr(exit_obj, 'destination'):
+                debug_msg(f"  Exit {exit_obj} has no destination")
                 continue
                 
             dest_room = exit_obj.destination
             if not dest_room:
+                debug_msg(f"  Exit {exit_obj.key} destination is None")
                 continue
             
             # Skip already visited rooms
@@ -161,20 +201,26 @@ def find_path(start_room, end_room, character=None, max_depth=100):
                 continue
             
             # Check passability
-            if character and not is_exit_passable_for_player(exit_obj, character):
-                continue
+            if character:
+                passable = is_exit_passable_for_player(exit_obj, character)
+                if not passable:
+                    exits_blocked += 1
+                    debug_msg(f"  Exit {exit_obj.key} to {dest_room.key} BLOCKED")
+                    continue
             
             # Build new path
             new_path = path + [(exit_obj, dest_room)]
             
-            # Check if we reached destination
-            if dest_room == end_room:
+            # Check if we reached destination (compare by dbref for reliability)
+            if dest_room.dbref == end_room.dbref:
+                debug_msg(f"PATH FOUND: {len(new_path)} steps, checked {rooms_checked} rooms, {exits_checked} exits, {exits_blocked} blocked")
                 return new_path
             
             # Add to queue
             visited.add(dest_room.dbref)
             queue.append((dest_room, new_path))
     
+    debug_msg(f"NO PATH: checked {rooms_checked} rooms, {exits_checked} exits, {exits_blocked} blocked, visited {len(visited)} unique rooms")
     return None  # No path found
 
 
