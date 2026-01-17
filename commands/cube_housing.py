@@ -221,7 +221,8 @@ class CmdCloseDoor(Command):
                 # Get the actual Evennia object, not the raw DB object
                 cube_door = incoming_doors.first()
                 if cube_door:
-                    cube_door = cube_door.typeclass
+                    # Use getattr for safe attribute access, fallback to object itself
+                    cube_door = getattr(cube_door, 'typeclass', cube_door)
             elif incoming_doors.count() > 1:
                 caller.msg("There are multiple cube doors leading here. This should not happen.")
                 return
@@ -317,7 +318,8 @@ class CmdOpenDoor(Command):
                 # Get the actual Evennia object, not the raw DB object
                 cube_door = incoming_doors.first()
                 if cube_door:
-                    cube_door = cube_door.typeclass
+                    # Use getattr for safe attribute access, fallback to object itself
+                    cube_door = getattr(cube_door, 'typeclass', cube_door)
             elif incoming_doors.count() > 1:
                 caller.msg("There are multiple cube doors leading here. This should not happen.")
                 return
