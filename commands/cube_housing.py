@@ -212,19 +212,20 @@ class CmdCloseDoor(Command):
             caller.msg("There is no door there to close.")
             return
         
-        # Set the door as closed
-        if hasattr(exit_to_close, 'is_closed'):
-            exit_to_close.is_closed = True
-            caller.msg("You pull the door shut. The keypad beeps once and the red indicator steadies.")
-            
-            # Message to others in the room
-            room.msg_contents(
-                f"{caller.key} pulls the door shut. The keypad beeps once.",
-                exclude=[caller]
-            )
-        else:
+        # Check if it's a CubeDoor
+        if not exit_to_close.is_typeclass("typeclasses.cube_housing.CubeDoor"):
             caller.msg("That is not a cube door.")
             return
+        
+        # Set the door as closed
+        exit_to_close.is_closed = True
+        caller.msg("You pull the door shut. The keypad beeps once and the red indicator steadies.")
+        
+        # Message to others in the room
+        room.msg_contents(
+            f"{caller.key} pulls the door shut. The keypad beeps once.",
+            exclude=[caller]
+        )
 
 
 class CmdOpenDoor(Command):
@@ -272,22 +273,23 @@ class CmdOpenDoor(Command):
             caller.msg("There is no door there to open.")
             return
         
-        # Open the door
-        if hasattr(exit_to_open, 'is_closed'):
-            if exit_to_open.is_closed:
-                exit_to_open.is_closed = False
-                caller.msg("You push the door open. The keypad beeps softly and the indicator dims.")
-                
-                # Message to others in the room
-                room.msg_contents(
-                    f"{caller.key} pushes the door open. The keypad beeps softly.",
-                    exclude=[caller]
-                )
-            else:
-                caller.msg("The door is already open.")
-        else:
+        # Check if it's a CubeDoor
+        if not exit_to_open.is_typeclass("typeclasses.cube_housing.CubeDoor"):
             caller.msg("That is not a cube door.")
             return
+        
+        # Open the door
+        if exit_to_open.is_closed:
+            exit_to_open.is_closed = False
+            caller.msg("You push the door open. The keypad beeps softly and the indicator dims.")
+            
+            # Message to others in the room
+            room.msg_contents(
+                f"{caller.key} pushes the door open. The keypad beeps softly.",
+                exclude=[caller]
+            )
+        else:
+            caller.msg("The door is already open.")
 
 
 class CmdPayRent(Command):
