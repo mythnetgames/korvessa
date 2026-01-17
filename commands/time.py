@@ -99,24 +99,24 @@ class CmdTime(Command):
             caller.msg(f"{COLORS['cyan']}{' * ' * 20}{COLORS['reset']}")
         elif holiday:
             # Holiday message
-            caller.msg(f"{COLORS['light_green']}It is the holiday of {COLORS['cyan']}{holiday['name']}{COLORS['light_green']}.{COLORS['reset']}")
-            caller.msg(f"{COLORS['light_green']}({holiday['tradition']}){COLORS['reset']}")
+            caller.msg(f"{COLORS['cyan']}It is the holiday of {COLORS['cyan']}{holiday['name']}{COLORS['reset']}.|n")
+            caller.msg(f"({holiday['tradition']})")
         else:
-            caller.msg(f"{COLORS['bright_green']}A nearby sundial and calendar mark:{COLORS['reset']}")
+            caller.msg(f"A nearby sundial and calendar mark:")
         
         caller.msg(f"{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}")
-        caller.msg(f"{COLORS['yellow_green']}  Date:{COLORS['reset']} {COLORS['cyan']}{full_date}{COLORS['reset']}")
-        caller.msg(f"{COLORS['yellow_green']}  Time:{COLORS['reset']} {COLORS['cyan']}{time_str}{COLORS['reset']}")
+        caller.msg(f"  Date: {COLORS['cyan']}{full_date}{COLORS['reset']}")
+        caller.msg(f"  Time: {COLORS['cyan']}{time_str}{COLORS['reset']}")
         caller.msg(f"{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}")
-        caller.msg(f"{COLORS['light_green']}It is {time_period}, {colloquial}.{COLORS['reset']}")
+        caller.msg(f"It is {time_period}, {colloquial}.")
         
         # Show weekday significance if relevant
         if date['weekday_dedication']:
-            caller.msg(f"{COLORS['light_green']}{date['weekday_name']} is dedicated to {date['weekday_dedication']}.{COLORS['reset']}")
+            caller.msg(f"{date['weekday_name']} is dedicated to {date['weekday_dedication']}.")
         
         # Show holiday explanation if present
         if holiday:
             caller.msg(f"{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}")
-            caller.msg(f"{COLORS['light_green']}{holiday['desc']}{COLORS['reset']}")
+            caller.msg(f"{holiday['desc']}")
         
         caller.msg(f"{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}\n")
