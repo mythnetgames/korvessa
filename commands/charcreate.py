@@ -1066,7 +1066,8 @@ Display Name: |c{display_name}|n
             caller.ndb.charcreate_data['languages'] = racial_langs.copy()
             
             caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
-            return first_char_sex(caller, "", **kwargs)
+            # Go to personality selection next
+            return first_char_personality(caller, "", **kwargs)
         else:
             caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
             return None
@@ -1079,8 +1080,215 @@ Display Name: |c{display_name}|n
     return text, options
 
 
+# =============================================================================
+# PERSONALITY SELECTION
+# =============================================================================
+
+def first_char_personality(caller, raw_string, **kwargs):
+    """Select character personality (class-like choice at chargen)."""
+    from world.personality_system import PERSONALITIES, get_personality_display
+    
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    race = caller.ndb.charcreate_data.get('race', 'human')
+    
+    text = f"""
+Display Name: |c{display_name}|n
+Race: |c{race.capitalize()}|n
+
+|w=== Select Your Personality ===|n
+
+Personalities shape your starting abilities and social standing.
+They define |ywho you are|n, not what you do for a living.
+
+"""
+    
+    # List all personalities
+    personality_keys = list(PERSONALITIES.keys())
+    for i, key in enumerate(personality_keys, 1):
+        p = get_personality_display(key)
+        text += f"""
+|w[{i}]|n |c{p['name']}|n
+    {p['desc']}
+    |yStats:|n {p['stat_bonus']}
+    |ySkills:|n {p['skill_bonus']}
+    |yPassive:|n {p['passive']}
+    |yStanding:|n {p['standing']}
+"""
+    
+    text += "\n|wEnter choice (1-8):|n "
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip()
+        
+        try:
+            choice_num = int(choice)
+            if 1 <= choice_num <= len(personality_keys):
+                selected_personality = personality_keys[choice_num - 1]
+                caller.ndb.charcreate_data['personality'] = selected_personality
+                
+                p = PERSONALITIES[selected_personality]
+                caller.msg(f"|gPersonality set to |c{p['name']}|g.|n")
+                
+                # If personality has multiple stat options, go to stat choice
+                if len(p['stat_options']) > 1:
+                    return first_char_personality_stat(caller, "", **kwargs)
+                else:
+                    # Single stat option - auto-select it
+                    caller.ndb.charcreate_data['personality_stat'] = p['stat_options'][0]
+                    
+                    # Freehands needs secondary skill selection
+                    if selected_personality == 'freehands':
+                        return first_char_personality_skill(caller, "", **kwargs)
+                    
+                    return first_char_sex(caller, "", **kwargs)
+            else:
+                caller.msg("|rInvalid choice. Please enter a number 1-8.|n")
+                return None
+        except ValueError:
+            caller.msg("|rInvalid choice. Please enter a number 1-8.|n")
+            return None
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality"},
+    )
+    
+    return text, options
+
+
+def first_char_personality_stat(caller, raw_string, **kwargs):
+    """Choose which stat bonus to take from personality."""
+    from world.personality_system import PERSONALITIES
+    
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    race = caller.ndb.charcreate_data.get('race', 'human')
+    personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
+    
+    p = PERSONALITIES[personality]
+    stat_options = p['stat_options']
+    
+    text = f"""
+Display Name: |c{display_name}|n
+Race: |c{race.capitalize()}|n
+Personality: |c{p['name']}|n
+
+|w=== Choose Your Stat Bonus ===|n
+
+Your personality grants |y+1|n to one of the following stats:
+
+"""
+    
+    stat_names = {
+        'str': ('Strength', 'Physical power and melee damage'),
+        'dex': ('Dexterity', 'Agility, reflexes, and finesse'),
+        'con': ('Constitution', 'Health and endurance'),
+        'int': ('Intelligence', 'Reasoning and memory'),
+        'wis': ('Wisdom', 'Perception and insight'),
+        'cha': ('Charisma', 'Presence and persuasion')
+    }
+    
+    for i, stat in enumerate(stat_options, 1):
+        name, desc = stat_names.get(stat, (stat.upper(), ''))
+        text += f"|w[{i}]|n |c{name}|n - {desc}\n"
+    
+    text += "\n|wEnter choice:|n "
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip()
+        
+        try:
+            choice_num = int(choice)
+            if 1 <= choice_num <= len(stat_options):
+                selected_stat = stat_options[choice_num - 1]
+                caller.ndb.charcreate_data['personality_stat'] = selected_stat
+                
+                name = stat_names.get(selected_stat, (selected_stat.upper(),))[0]
+                caller.msg(f"|gYou will receive +1 |c{name}|g.|n")
+                
+                # Freehands needs secondary skill selection
+                if personality == 'freehands':
+                    return first_char_personality_skill(caller, "", **kwargs)
+                
+                return first_char_sex(caller, "", **kwargs)
+            else:
+                caller.msg(f"|rInvalid choice. Please enter a number 1-{len(stat_options)}.|n")
+                return None
+        except ValueError:
+            caller.msg(f"|rInvalid choice. Please enter a number 1-{len(stat_options)}.|n")
+            return None
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality_stat"},
+    )
+    
+    return text, options
+
+
+def first_char_personality_skill(caller, raw_string, **kwargs):
+    """Choose secondary skill for Freehands personality."""
+    from world.personality_system import ALL_SKILLS
+    
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    race = caller.ndb.charcreate_data.get('race', 'human')
+    
+    # Common skills that make sense for Freehands
+    available_skills = [
+        'athletics', 'endurance', 'acrobatics', 'stealth', 'perception',
+        'persuasion', 'deception', 'streetwise', 'survival', 'crafting',
+        'medicine', 'investigation', 'lore', 'social'
+    ]
+    
+    text = f"""
+Display Name: |c{display_name}|n
+Race: |c{race.capitalize()}|n
+Personality: |cFreehands|n
+
+|w=== Choose Your Secondary Skill Bonus ===|n
+
+As a Freehands, you may apply your |y+5%|n secondary skill bonus
+to any skill of your choosing:
+
+"""
+    
+    for i, skill in enumerate(available_skills, 1):
+        text += f"|w[{i:2d}]|n {skill.replace('_', ' ').title()}\n"
+    
+    text += "\n|wEnter choice:|n "
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip()
+        
+        try:
+            choice_num = int(choice)
+            if 1 <= choice_num <= len(available_skills):
+                selected_skill = available_skills[choice_num - 1]
+                caller.ndb.charcreate_data['personality_secondary_skill'] = selected_skill
+                
+                caller.msg(f"|gYou will receive +5% |c{selected_skill.replace('_', ' ').title()}|g.|n")
+                return first_char_sex(caller, "", **kwargs)
+            else:
+                caller.msg(f"|rInvalid choice. Please enter a number 1-{len(available_skills)}.|n")
+                return None
+        except ValueError:
+            caller.msg(f"|rInvalid choice. Please enter a number 1-{len(available_skills)}.|n")
+            return None
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality_skill"},
+    )
+    
+    return text, options
+
+
 def first_char_stat_assign(caller, raw_string, **kwargs):
     """Distribute 27 points among 6 stats using D&D 5e standard point buy."""
+    from world.personality_system import PERSONALITIES
+    
     if 'sex' in kwargs:
         caller.ndb.charcreate_data['sex'] = kwargs['sex']
     first_name = caller.ndb.charcreate_data.get('first_name', '')
@@ -1088,6 +1296,8 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
     display_name = caller.ndb.charcreate_data.get('display_name', '')
     race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
+    personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
+    personality_stat = caller.ndb.charcreate_data.get('personality_stat', 'str')
     stats = caller.ndb.charcreate_data.get('stats', {
         'str': 8,
         'dex': 8,
@@ -1096,6 +1306,10 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
         'wis': 8,
         'cha': 8
     })
+    
+    # Get personality info
+    p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
+    stat_names = {'str': 'STR', 'dex': 'DEX', 'con': 'CON', 'int': 'INT', 'wis': 'WIS', 'cha': 'CHA'}
     
     # Calculate points spent using D&D 5e point buy costs
     def calc_cost(value):
@@ -1109,23 +1323,35 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
     def calc_mod(value):
         return (value - 10) // 2
     
+    # Build stat display showing boosted range for personality stat
+    def stat_line(stat_key, color, name, desc):
+        value = stats[stat_key]
+        is_bonus = stat_key == personality_stat
+        if is_bonus:
+            range_text = f"|y(9-16)|n"  # Boosted range
+        else:
+            range_text = f"(8-15)"
+        return f"    |{color}{name}|n: {value:2d}  |w({calc_mod(value):+d})|n {range_text} - {desc}"
+    
     text = f"""
 |wAssign Your Ability Scores|n
 
 Display Name: |c{display_name}|n
 Race: |c{race.capitalize()}|n
 Sex: |c{sex.capitalize()}|n
+Personality: |c{p['name']}|n
 
-|wD&D 5e Point Buy:|n |y{POINT_BUY_TOTAL} points|w to spend. Stats range from |y8|w to |y15|w.|n
+|wD&D 5e Point Buy:|n |y{POINT_BUY_TOTAL} points|n to spend.
 |wPoint costs:|n 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9
+|yYour personality boosts {stat_names.get(personality_stat, personality_stat.upper())} range to 9-16.|n
 
 |b----------------------------------------------------------------------|n
-    |rSTR|n (Strength):     {stats['str']:2d}  |w({calc_mod(stats['str']):+d})|n  - Physical power, melee damage
-    |gDEX|n (Dexterity):    {stats['dex']:2d}  |w({calc_mod(stats['dex']):+d})|n  - Agility, reflexes, ranged attacks
-    |yCON|n (Constitution): {stats['con']:2d}  |w({calc_mod(stats['con']):+d})|n  - Health, endurance, resilience
-    |bINT|n (Intelligence): {stats['int']:2d}  |w({calc_mod(stats['int']):+d})|n  - Reasoning, memory, analysis
-    |mWIS|n (Wisdom):       {stats['wis']:2d}  |w({calc_mod(stats['wis']):+d})|n  - Perception, insight, willpower
-    |cCHA|n (Charisma):     {stats['cha']:2d}  |w({calc_mod(stats['cha']):+d})|n  - Presence, persuasion, force of will
+{stat_line('str', 'r', 'STR (Strength)    ', 'Physical power, melee damage')}
+{stat_line('dex', 'g', 'DEX (Dexterity)   ', 'Agility, reflexes, ranged')}
+{stat_line('con', 'y', 'CON (Constitution)', 'Health, endurance')}
+{stat_line('int', 'b', 'INT (Intelligence)', 'Reasoning, memory')}
+{stat_line('wis', 'm', 'WIS (Wisdom)      ', 'Perception, insight')}
+{stat_line('cha', 'c', 'CHA (Charisma)    ', 'Presence, persuasion')}
 |b----------------------------------------------------------------------|n
 
 |wPoints spent:|n {points_spent}/{POINT_BUY_TOTAL}  {'|gREMAINING: ' + str(remaining) + '|n' if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
@@ -1162,37 +1388,7 @@ Sex: |c{sex.capitalize()}|n
             stats = {k: 8 for k in valid_stats}
             caller.ndb.charcreate_data['stats'] = stats
             caller.msg("|yAll stats reset to 8.|n")
-            # Immediately recalculate and redisplay
-            points_spent = sum(calc_cost(v) for v in stats.values())
-            remaining = POINT_BUY_TOTAL - points_spent
-            text = f"""
-|wAssign Your Ability Scores|n
-
-Display Name: |c{display_name}|n
-Race: |c{race.capitalize()}|n
-Sex: |c{sex.capitalize()}|n
-
-|wD&D 5e Point Buy:|n |y{POINT_BUY_TOTAL} points|w to spend. Stats range from |y8|w to |y15|w.|n
-|wPoint costs:|n 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9
-
-|b----------------------------------------------------------------------|n
-    |rSTR|n (Strength):     {stats['str']:2d}  |w({calc_mod(stats['str']):+d})|n  - Physical power, melee damage
-    |gDEX|n (Dexterity):    {stats['dex']:2d}  |w({calc_mod(stats['dex']):+d})|n  - Agility, reflexes, ranged attacks
-    |yCON|n (Constitution): {stats['con']:2d}  |w({calc_mod(stats['con']):+d})|n  - Health, endurance, resilience
-    |bINT|n (Intelligence): {stats['int']:2d}  |w({calc_mod(stats['int']):+d})|n  - Reasoning, memory, analysis
-    |mWIS|n (Wisdom):       {stats['wis']:2d}  |w({calc_mod(stats['wis']):+d})|n  - Perception, insight, willpower
-    |cCHA|n (Charisma):     {stats['cha']:2d}  |w({calc_mod(stats['cha']):+d})|n  - Presence, persuasion, force of will
-|b----------------------------------------------------------------------|n
-
-|wPoints spent:|n {points_spent}/{POINT_BUY_TOTAL}  {'|gREMAINING: ' + str(remaining) + '|n' if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
-
-|wCommands:|n
-    |w<stat> <value>|n  - Set a stat (e.g., 'str 15' or 'dex 10')
-    |wreset|n           - Reset all stats to 8
-    |wdone|n            - Finalize (when exactly {POINT_BUY_TOTAL} points spent)
-
-|w>|n """
-            return text, options
+            return None  # Re-display the screen
         if command in ['done', 'finish', 'finalize']:
             is_valid, error = validate_stat_distribution(stats)
             if not is_valid:
@@ -1208,42 +1404,18 @@ Sex: |c{sex.capitalize()}|n
             except ValueError:
                 caller.msg("|rValue must be a number.|n")
                 return text, options
-            if value < 8 or value > 15:
-                caller.msg("|rValue must be 8-15 (D&D 5e point buy range).|n")
+            # Check range based on whether this stat gets personality bonus
+            is_bonus_stat = command == personality_stat
+            min_val = 9 if is_bonus_stat else 8
+            max_val = 16 if is_bonus_stat else 15
+            
+            if value < min_val or value > max_val:
+                range_desc = f"{min_val}-{max_val}" if is_bonus_stat else "8-15"
+                caller.msg(f"|rValue must be {range_desc}.|n")
                 return text, options
             stats[command] = value
             caller.ndb.charcreate_data['stats'] = stats
-            # Immediately update display after stat set
-            points_spent = sum(calc_cost(v) for v in stats.values())
-            remaining = POINT_BUY_TOTAL - points_spent
-            text = f"""
-|wAssign Your Ability Scores|n
-
-Display Name: |c{display_name}|n
-Race: |c{race.capitalize()}|n
-Sex: |c{sex.capitalize()}|n
-
-|wD&D 5e Point Buy:|n |y{POINT_BUY_TOTAL} points|w to spend. Stats range from |y8|w to |y15|w.|n
-|wPoint costs:|n 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9
-
-|b----------------------------------------------------------------------|n
-    |rSTR|n (Strength):     {stats['str']:2d}  |w({calc_mod(stats['str']):+d})|n  - Physical power, melee damage
-    |gDEX|n (Dexterity):    {stats['dex']:2d}  |w({calc_mod(stats['dex']):+d})|n  - Agility, reflexes, ranged attacks
-    |yCON|n (Constitution): {stats['con']:2d}  |w({calc_mod(stats['con']):+d})|n  - Health, endurance, resilience
-    |bINT|n (Intelligence): {stats['int']:2d}  |w({calc_mod(stats['int']):+d})|n  - Reasoning, memory, analysis
-    |mWIS|n (Wisdom):       {stats['wis']:2d}  |w({calc_mod(stats['wis']):+d})|n  - Perception, insight, willpower
-    |cCHA|n (Charisma):     {stats['cha']:2d}  |w({calc_mod(stats['cha']):+d})|n  - Presence, persuasion, force of will
-|b----------------------------------------------------------------------|n
-
-|wPoints spent:|n {points_spent}/{POINT_BUY_TOTAL}  {'|gREMAINING: ' + str(remaining) + '|n' if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
-
-|wCommands:|n
-    |w<stat> <value>|n  - Set a stat (e.g., 'str 15' or 'dex 10')
-    |wreset|n           - Reset all stats to 8
-    |wdone|n            - Finalize (when exactly {POINT_BUY_TOTAL} points spent)
-
-|w>|n """
-            return text, options
+            return None  # Re-display the screen with updated stats
         else:
             caller.msg(f"|rUnknown command. Valid stats: {', '.join(valid_stats)}|n")
     return text, options
@@ -1252,12 +1424,15 @@ Sex: |c{sex.capitalize()}|n
 def first_char_confirm(caller, raw_string, **kwargs):
     """Final confirmation and character creation."""
     from world.language.constants import LANGUAGES
+    from world.personality_system import PERSONALITIES
     
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     display_name = caller.ndb.charcreate_data.get('display_name', '')
     race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
+    personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
+    personality_stat = caller.ndb.charcreate_data.get('personality_stat', 'str')
     stats = caller.ndb.charcreate_data.get('stats', {
         'str': 8,
         'dex': 8,
@@ -1268,15 +1443,23 @@ def first_char_confirm(caller, raw_string, **kwargs):
     })
     languages = caller.ndb.charcreate_data.get('languages', ['common'])
     
+    # Get personality info
+    p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
+    
     # Calculate points spent
     points_spent = sum(POINT_BUY_COSTS.get(v, 0) for v in stats.values())
     
-    # Calculate modifiers
+    # Calculate modifiers (including personality bonus)
     def calc_mod(value):
         return (value - 10) // 2
     
+    # Final stats already include personality bonus (from boosted range)
+    final_stats = stats.copy()
+    
     # Format languages
     lang_names = [LANGUAGES.get(lang, {}).get('name', lang.capitalize()) for lang in languages]
+    
+    stat_names = {'str': 'STR', 'dex': 'DEX', 'con': 'CON', 'int': 'INT', 'wis': 'WIS', 'cha': 'CHA'}
     
     text = f"""
 |wReview Your Character|n
@@ -1285,15 +1468,18 @@ def first_char_confirm(caller, raw_string, **kwargs):
 |wDisplay Name:|n |c{display_name}|n
 |wRace:|n |c{race.capitalize()}|n
 |wSex:|n |c{sex.capitalize()}|n
+|wPersonality:|n |c{p['name']}|n
 
 |wAbility Scores:|n (Points spent: {points_spent}/{POINT_BUY_TOTAL})
-    |rSTR:|n {stats['str']:2d} ({calc_mod(stats['str']):+d})
-    |gDEX:|n {stats['dex']:2d} ({calc_mod(stats['dex']):+d})
-    |yCON:|n {stats['con']:2d} ({calc_mod(stats['con']):+d})
-    |bINT:|n {stats['int']:2d} ({calc_mod(stats['int']):+d})
-    |mWIS:|n {stats['wis']:2d} ({calc_mod(stats['wis']):+d})
-    |cCHA:|n {stats['cha']:2d} ({calc_mod(stats['cha']):+d})
+    |rSTR:|n {final_stats['str']:2d} ({calc_mod(final_stats['str']):+d}){'  |y<-- Boosted Range|n' if personality_stat == 'str' else ''}
+    |gDEX:|n {final_stats['dex']:2d} ({calc_mod(final_stats['dex']):+d}){'  |y<-- Boosted Range|n' if personality_stat == 'dex' else ''}
+    |yCON:|n {final_stats['con']:2d} ({calc_mod(final_stats['con']):+d}){'  |y<-- Boosted Range|n' if personality_stat == 'con' else ''}
+    |bINT:|n {final_stats['int']:2d} ({calc_mod(final_stats['int']):+d}){'  |y<-- Boosted Range|n' if personality_stat == 'int' else ''}
+    |mWIS:|n {final_stats['wis']:2d} ({calc_mod(final_stats['wis']):+d}){'  |y<-- Boosted Range|n' if personality_stat == 'wis' else ''}
+    |cCHA:|n {final_stats['cha']:2d} ({calc_mod(final_stats['cha']):+d}){'  |y<-- Boosted Range|n' if personality_stat == 'cha' else ''}
 
+|wSkill Bonuses:|n {p['primary_skill'].replace('_', ' ').title()} |g+10%|n, {p['secondary_skill'].replace('_', ' ').title()} |g+5%|n
+|wPassive:|n {p['passive_desc']}
 |wLanguages:|n {', '.join(lang_names)}
 
 |y----------------------------------------------------------------------|n
@@ -1303,7 +1489,7 @@ def first_char_confirm(caller, raw_string, **kwargs):
 
 Create this character?
 
-|w[Y]|n Yes, finalize character
+|w[Y]|n Yes, proceed to Character Facts
 |w[N]|n No, go back to stat assignment
 
 |w>|n """
@@ -1322,7 +1508,6 @@ Create this character?
          "auto_look": False},
     )
     return text, options
-    return text, options
 
 
 def first_char_select_language(caller, raw_string, **kwargs):
@@ -1332,9 +1517,9 @@ def first_char_select_language(caller, raw_string, **kwargs):
     race = caller.ndb.charcreate_data.get('race', 'human')
     languages = caller.ndb.charcreate_data.get('languages', ['common'])
     
-    # Non-humans already have their languages set, skip to finalize
+    # Non-humans already have their languages set, skip to character facts
     if race != 'human':
-        return first_char_finalize(caller, "", **kwargs)
+        return first_char_facts_name(caller, "", **kwargs)
     
     # Humans pick one additional language
     available_langs = [code for code in LANGUAGES.keys() if code not in languages]
@@ -1373,7 +1558,7 @@ As a human, you may learn one additional language beyond Common.
         # Handle skipping (human can choose to only know Common)
         if command in ['done', 'skip', 'none']:
             caller.msg("|yProceeding with only Common.|n")
-            return first_char_finalize(caller, "", **kwargs)
+            return first_char_facts_name(caller, "", **kwargs)
         
         # Try to parse as a number (1-indexed)
         try:
@@ -1383,7 +1568,7 @@ As a human, you may learn one additional language beyond Common.
                 languages.append(selected_code)
                 caller.ndb.charcreate_data['languages'] = languages
                 caller.msg(f"|gAdded |c{LANGUAGES[selected_code]['name']}|g to your languages.|n")
-                return first_char_finalize(caller, "", **kwargs)
+                return first_char_facts_name(caller, "", **kwargs)
         except ValueError:
             pass
         
@@ -1395,14 +1580,436 @@ As a human, you may learn one additional language beyond Common.
 
 
 def first_char_select_second_language(caller, raw_string, **kwargs):
-    """Deprecated - kept for compatibility but redirects to finalize."""
-    return first_char_finalize(caller, "", **kwargs)
+    """Deprecated - kept for compatibility but redirects to facts."""
+    return first_char_facts_name(caller, "", **kwargs)
+
+
+# =============================================================================
+# CHARACTER FACTS - Public Knowledge Entry
+# =============================================================================
+
+def first_char_facts_name(caller, raw_string, **kwargs):
+    """Enter the name this character is known by publicly."""
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    
+    text = f"""
+|w=== Character Facts - Public Knowledge ===|n
+
+These facts represent what others may know about your character.
+They create RP hooks and can be discovered through skill rolls.
+
+|cThink about what a stranger might learn through gossip or observation.|n
+
+|b----------------------------------------------------------------------|n
+
+|w1. Name as Known|n
+
+How is your character publicly known? This could be:
+- Their full display name: |c{display_name}|n
+- A nickname or alias (e.g., "The Red", "Old Tom")
+- A title (e.g., "The Butcher's Son", "Lady Merchant")
+
+|wEnter the name your character is commonly known by:|n
+"""
+    
+    # Initialize character facts if not present
+    if 'character_facts' not in caller.ndb.charcreate_data:
+        caller.ndb.charcreate_data['character_facts'] = {}
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        known_name = raw_string.strip()
+        if len(known_name) < 2:
+            caller.msg("|rName must be at least 2 characters.|n")
+            return None
+        if len(known_name) > 80:
+            caller.msg("|rName cannot exceed 80 characters.|n")
+            return None
+        
+        caller.ndb.charcreate_data['character_facts']['name_as_known'] = known_name
+        caller.msg(f"|gSet 'Name as Known' to: |c{known_name}|n")
+        return first_char_facts_age(caller, "", **kwargs)
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_name"},
+    )
+    
+    return text, options
+
+
+def first_char_facts_age(caller, raw_string, **kwargs):
+    """Enter the character's apparent age."""
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    
+    text = f"""
+|w=== Character Facts - Public Knowledge ===|n
+
+|w2. Apparent Age|n
+
+How old does your character |yappear|n to be? This may differ from 
+their actual age. Consider your race:
+
+- |cHumans|n: Age as expected
+- |cElves|n: Often appear younger than they are
+- |cDwarves|n: May look weathered regardless of age
+
+Examples: "Young adult", "Middle-aged", "Elderly", "In their 30s",
+          "Appears 25 but with old eyes", "Youthful but worn"
+
+|wEnter your character's apparent age description:|n
+"""
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        apparent_age = raw_string.strip()
+        if len(apparent_age) < 3:
+            caller.msg("|rAge description must be at least 3 characters.|n")
+            return None
+        if len(apparent_age) > 100:
+            caller.msg("|rAge description cannot exceed 100 characters.|n")
+            return None
+        
+        caller.ndb.charcreate_data['character_facts']['apparent_age'] = apparent_age
+        caller.msg(f"|gSet 'Apparent Age' to: |c{apparent_age}|n")
+        return first_char_facts_appearance(caller, "", **kwargs)
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_age"},
+    )
+    
+    return text, options
+
+
+def first_char_facts_appearance(caller, raw_string, **kwargs):
+    """Enter notable appearance details."""
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    
+    text = f"""
+|w=== Character Facts - Public Knowledge ===|n
+
+|w3. Appearance Notes|n
+
+What stands out about your character's appearance? These are things
+someone would notice from a distance or remember after a brief meeting.
+
+Consider: Scars, unusual hair/eye color, distinctive clothing,
+posture, mannerisms, build, accessories, etc.
+
+|yKeep it to 1-3 notable features.|n
+
+Examples:
+- "Tall with a prominent facial scar and weather-worn hands"
+- "Slight build, always wears a blue headscarf, fidgets constantly"
+- "Heavyset with coal-dark skin and a gold tooth"
+
+|wEnter your character's notable appearance details:|n
+"""
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        appearance = raw_string.strip()
+        if len(appearance) < 10:
+            caller.msg("|rAppearance notes must be at least 10 characters.|n")
+            return None
+        if len(appearance) > 300:
+            caller.msg("|rAppearance notes cannot exceed 300 characters.|n")
+            return None
+        
+        caller.ndb.charcreate_data['character_facts']['appearance_notes'] = appearance
+        caller.msg(f"|gSet 'Appearance Notes'.|n")
+        return first_char_facts_rumors(caller, "", **kwargs)
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_appearance"},
+    )
+    
+    return text, options
+
+
+def first_char_facts_rumors(caller, raw_string, **kwargs):
+    """Enter common rumors about the character."""
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    
+    text = f"""
+|w=== Character Facts - Public Knowledge ===|n
+
+|w4. Common Rumors|n
+
+What do people say about your character? These are things that 
+|ymight be true, partially true, or completely false|n.
+
+Rumors spread through gossip and may be:
+- Based on past events
+- Misunderstandings
+- Deliberate misdirection
+- Local legends
+
+Examples:
+- "They say she killed a man in Eastport over a card game"
+- "Word is he's got family money but won't talk about it"
+- "People whisper she talks to herself when she thinks no one's watching"
+- "Nobody knows where he came from - just appeared one winter"
+
+|wEnter 1-2 rumors people might have heard about your character:|n
+"""
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        rumors = raw_string.strip()
+        if len(rumors) < 10:
+            caller.msg("|rRumors must be at least 10 characters.|n")
+            return None
+        if len(rumors) > 400:
+            caller.msg("|rRumors cannot exceed 400 characters.|n")
+            return None
+        
+        caller.ndb.charcreate_data['character_facts']['common_rumors'] = rumors
+        caller.msg(f"|gSet 'Common Rumors'.|n")
+        return first_char_facts_affiliations(caller, "", **kwargs)
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_rumors"},
+    )
+    
+    return text, options
+
+
+def first_char_facts_affiliations(caller, raw_string, **kwargs):
+    """Enter known affiliations."""
+    from world.personality_system import PERSONALITIES
+    
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
+    p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
+    
+    # Show which factions this personality has standing with
+    standing_info = []
+    for faction, amount in p['standing_shifts'].items():
+        sign = '+' if amount > 0 else ''
+        standing_info.append(f"{faction.replace('_', ' ').title()} ({sign}{amount})")
+    
+    text = f"""
+|w=== Character Facts - Public Knowledge ===|n
+
+|w5. Known Affiliations|n
+
+What groups, organizations, or social circles is your character 
+publicly associated with?
+
+|yYour personality (|c{p['name']}|y) gives starting standing with:|n
+{', '.join(standing_info) if standing_info else 'None'}
+
+Consider: Trade guilds, religious groups, noble houses, criminal
+organizations, ethnic communities, professions, etc.
+
+This is what |ypeople think|n you're affiliated with - not necessarily
+your actual loyalties.
+
+Examples:
+- "Known to work the docks for the Merchant Guild"
+- "Seen at Watcher services occasionally"
+- "Rumored to have ties to the Underbelly"
+- "Serves the household of a minor noble"
+- "No known affiliations - keeps to themselves"
+
+|wEnter your character's known (or suspected) affiliations:|n
+"""
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        affiliations = raw_string.strip()
+        if len(affiliations) < 5:
+            caller.msg("|rAffiliations must be at least 5 characters.|n")
+            return None
+        if len(affiliations) > 300:
+            caller.msg("|rAffiliations cannot exceed 300 characters.|n")
+            return None
+        
+        caller.ndb.charcreate_data['character_facts']['known_affiliations'] = affiliations
+        caller.msg(f"|gSet 'Known Affiliations'.|n")
+        return first_char_facts_reputation(caller, "", **kwargs)
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_affiliations"},
+    )
+    
+    return text, options
+
+
+def first_char_facts_reputation(caller, raw_string, **kwargs):
+    """Select reputation tier."""
+    from world.personality_system import REPUTATION_TIERS
+    
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    
+    text = f"""
+|w=== Character Facts - Public Knowledge ===|n
+
+|w6. Reputation Tier|n
+
+How well-known is your character? This determines how easy it is
+for others to learn about them through skill rolls.
+
+|w[1]|n |cMinor|n - {REPUTATION_TIERS['minor']['desc']}
+      Difficulty to discover facts: |gEasy|n
+
+|w[2]|n |cModerate|n - {REPUTATION_TIERS['moderate']['desc']}  
+      Difficulty to discover facts: |yMedium|n
+
+|w[3]|n |cStrong|n - {REPUTATION_TIERS['strong']['desc']}
+      Difficulty to discover facts: |rHard|n
+
+|yNote:|n A higher reputation means more people know who you are,
+but it also makes you harder to hide from.
+
+|wEnter choice (1-3):|n
+"""
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip()
+        
+        tier_map = {'1': 'minor', '2': 'moderate', '3': 'strong'}
+        if choice in tier_map:
+            selected_tier = tier_map[choice]
+            caller.ndb.charcreate_data['character_facts']['reputation_tier'] = selected_tier
+            tier_info = REPUTATION_TIERS[selected_tier]
+            caller.msg(f"|gSet 'Reputation Tier' to: |c{tier_info['name']}|n")
+            return first_char_facts_confirm(caller, "", **kwargs)
+        else:
+            caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
+            return None
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_reputation"},
+    )
+    
+    return text, options
+
+
+def first_char_facts_confirm(caller, raw_string, **kwargs):
+    """Review and confirm character facts before finalization."""
+    from world.personality_system import REPUTATION_TIERS
+    
+    display_name = caller.ndb.charcreate_data.get('display_name', '')
+    facts = caller.ndb.charcreate_data.get('character_facts', {})
+    
+    tier = facts.get('reputation_tier', 'minor')
+    tier_info = REPUTATION_TIERS.get(tier, REPUTATION_TIERS['minor'])
+    
+    text = f"""
+|w=== Review Your Character Facts ===|n
+
+|wName as Known:|n |c{facts.get('name_as_known', 'Unknown')}|n
+|wApparent Age:|n |c{facts.get('apparent_age', 'Unknown')}|n
+|wAppearance:|n |c{facts.get('appearance_notes', 'Nothing notable')}|n
+|wRumors:|n |c{facts.get('common_rumors', 'None')}|n
+|wAffiliations:|n |c{facts.get('known_affiliations', 'None')}|n
+|wReputation:|n |c{tier_info['name']}|n - {tier_info['desc']}
+
+|y----------------------------------------------------------------------|n
+|yThese facts can be edited later through staff request.|n
+|yOther characters can discover these through skill rolls.|n
+|y----------------------------------------------------------------------|n
+
+|w[Y]|n Yes, create my character
+|w[E]|n Edit a fact
+|w[N]|n Go back to the beginning
+
+|w>|n """
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_confirm"},
+    )
+    
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip().lower()
+        
+        if choice in ['y', 'yes']:
+            return first_char_finalize(caller, "", **kwargs)
+        elif choice in ['e', 'edit']:
+            caller.msg("|yWhich fact would you like to edit?|n")
+            caller.msg("|w[1]|n Name as Known")
+            caller.msg("|w[2]|n Apparent Age")
+            caller.msg("|w[3]|n Appearance Notes")
+            caller.msg("|w[4]|n Common Rumors")
+            caller.msg("|w[5]|n Known Affiliations")
+            caller.msg("|w[6]|n Reputation Tier")
+            return first_char_facts_edit_choice(caller, "", **kwargs)
+        elif choice in ['n', 'no']:
+            return first_char_name_first(caller, "", **kwargs)
+        else:
+            caller.msg("|rPlease enter Y, E, or N.|n")
+    
+    return text, options
+
+
+def first_char_facts_edit_choice(caller, raw_string, **kwargs):
+    """Choose which fact to edit."""
+    text = """
+|wWhich fact would you like to edit?|n
+
+|w[1]|n Name as Known
+|w[2]|n Apparent Age
+|w[3]|n Appearance Notes
+|w[4]|n Common Rumors
+|w[5]|n Known Affiliations
+|w[6]|n Reputation Tier
+|w[B]|n Back to review
+
+|w>|n """
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_edit_choice"},
+    )
+    
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip().lower()
+        
+        edit_map = {
+            '1': first_char_facts_name,
+            '2': first_char_facts_age,
+            '3': first_char_facts_appearance,
+            '4': first_char_facts_rumors,
+            '5': first_char_facts_affiliations,
+            '6': first_char_facts_reputation,
+        }
+        
+        if choice in edit_map:
+            # Clear the specific fact so they can re-enter
+            fact_keys = {
+                '1': 'name_as_known',
+                '2': 'apparent_age',
+                '3': 'appearance_notes',
+                '4': 'common_rumors',
+                '5': 'known_affiliations',
+                '6': 'reputation_tier',
+            }
+            # Don't clear - let them re-enter and it will overwrite
+            return edit_map[choice](caller, "", **kwargs)
+        elif choice in ['b', 'back']:
+            return first_char_facts_confirm(caller, "", **kwargs)
+        else:
+            caller.msg("|rPlease enter 1-6 or B.|n")
+    
+    return text, options
 
 
 def first_char_finalize(caller, raw_string, **kwargs):
     """Create the character and enter game."""
     from typeclasses.characters import Character
     from world.language.constants import LANGUAGES
+    from world.personality_system import (
+        PERSONALITIES, FACTIONS, apply_personality_to_character, apply_character_facts
+    )
     
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
@@ -1410,6 +2017,10 @@ def first_char_finalize(caller, raw_string, **kwargs):
     full_real_name = f"{first_name} {last_name}"
     race = caller.ndb.charcreate_data.get('race', 'human')
     sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
+    personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
+    personality_stat = caller.ndb.charcreate_data.get('personality_stat', 'str')
+    personality_secondary_skill = caller.ndb.charcreate_data.get('personality_secondary_skill', None)
+    character_facts = caller.ndb.charcreate_data.get('character_facts', {})
     stats = caller.ndb.charcreate_data.get('stats', {
         'str': 8,
         'dex': 8,
@@ -1419,6 +2030,9 @@ def first_char_finalize(caller, raw_string, **kwargs):
         'cha': 8
     })
     languages = caller.ndb.charcreate_data.get('languages', ['common'])
+    
+    # Note: personality stat bonus is already baked into the stats range (9-16 instead of 8-15)
+    # No need to add it again here
     
     start_location = get_start_location()
     try:
@@ -1448,6 +2062,16 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.sex = sex
         char.db.archived = False
         
+        # Set personality
+        char.db.personality = personality
+        char.db.personality_stat = personality_stat
+        
+        # Apply personality skill bonuses and standing
+        apply_personality_to_character(char, personality, personality_secondary_skill)
+        
+        # Apply character facts
+        apply_character_facts(char, character_facts)
+        
         # Set languages
         char.db.languages = languages
         char.db.primary_language = languages[0] if languages else 'common'
@@ -1461,8 +2085,18 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.db.original_creation = time.time()
         caller.puppet_object(caller.sessions.all()[0], char)
         
+        # Get personality info for display
+        p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
+        
         # Format languages for display
         lang_names = [LANGUAGES.get(lang, {}).get('name', lang.capitalize()) for lang in languages]
+        
+        # Format standing changes for display
+        standing_info = []
+        for faction, amount in p['standing_shifts'].items():
+            sign = '+' if amount > 0 else ''
+            faction_name = FACTIONS.get(faction, {}).get('name', faction.replace('_', ' ').title())
+            standing_info.append(f"{faction_name}: {sign}{amount}")
         
         char.msg("")
         char.msg(f"|wWelcome to Korvessa, |c{char.key}|w.|n")
@@ -1472,8 +2106,23 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.msg("|g=== Character Creation Complete ===|n")
         char.msg("")
         char.msg(f"|wRace:|n |c{race.capitalize()}|n")
+        char.msg(f"|wPersonality:|n |c{p['name']}|n")
         char.msg(f"|wLanguages:|n |c{', '.join(lang_names)}|n")
         char.msg("")
+        char.msg(f"|wSkill Bonuses:|n")
+        char.msg(f"  |c{p['primary_skill'].replace('_', ' ').title()}|n |g+10%|n")
+        if personality == 'freehands' and personality_secondary_skill:
+            char.msg(f"  |c{personality_secondary_skill.replace('_', ' ').title()}|n |g+5%|n")
+        else:
+            char.msg(f"  |c{p['secondary_skill'].replace('_', ' ').title()}|n |g+5%|n")
+        char.msg("")
+        char.msg(f"|wPassive Ability:|n {p['passive_desc']}")
+        char.msg("")
+        if standing_info:
+            char.msg(f"|wStarting Faction Standing:|n")
+            for info in standing_info:
+                char.msg(f"  |c{info}|n")
+            char.msg("")
         char.msg(f"|gYou have been awarded |c200 Investment Points (IP)|g.|n")
         char.msg(f"|cCurrent IP:|n |c{char.db.ip}|n")
         char.msg("")
@@ -1501,7 +2150,7 @@ def first_char_finalize(caller, raw_string, **kwargs):
             splattercast.msg(f"CHARCREATE_ERROR: {e}")
         except:
             pass
-        return "first_char_confirm"
+        return "first_char_facts_confirm"
 
 
 # =============================================================================

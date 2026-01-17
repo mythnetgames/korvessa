@@ -388,6 +388,12 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Add background command
         from commands.CmdBackground import CmdBackground
         self.add(CmdBackground())
+        # Add character facts commands (public knowledge system)
+        from commands.CmdCharacterFacts import CmdMyFacts, CmdFacts, CmdEditFacts, CmdViewFacts
+        self.add(CmdMyFacts())           # Player: view own character facts
+        self.add(CmdFacts())             # Player: view facts about others (direct access)
+        self.add(CmdEditFacts())         # Admin: edit character facts
+        self.add(CmdViewFacts())         # Admin: view character facts
         # Add cooking system commands
         from commands.CmdCooking import (
             CmdDesignRecipe, CmdCook, CmdEat, CmdDrink, CmdTaste, CmdSmellFood,
