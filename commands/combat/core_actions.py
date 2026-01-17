@@ -57,11 +57,19 @@ class CmdAttack(Command):
     key = "attack"
     aliases = ["kill"]
     locks = "cmd:all()"
+    
+    def _log_debug(self, channel, message):
+        """Safely log debug messages to Splattercast channel."""
+        if channel:
+            channel.msg(message)
 
     def func(self):
         caller = self.caller
         args = self.args.strip()
-        splattercast = ChannelDB.objects.get_channel("Splattercast")
+        try:
+            splattercast = ChannelDB.objects.get_channel("Splattercast")
+        except:
+            splattercast = None
 
         if not args:
             caller.msg(MSG_ATTACK_WHO)
@@ -84,13 +92,13 @@ class CmdAttack(Command):
             hands[next((h for h, w in hands.items() if w == weapon_obj))] = None
             caller.hands = hands
             caller.msg(f"|r[Error] Your {weapon_obj.key} is no longer in your possession!|n")
-            splattercast.msg(f"WEAPON_LOST: {caller.key} tried to attack with lost weapon {weapon_obj.key}")
+            self._log_debug(splattercast, f"WEAPON_LOST: {caller.key} tried to attack with lost weapon {weapon_obj.key}")
             weapon_obj = None  # Fall back to unarmed
         
         # Debug weapon detection
-        splattercast.msg(f"WEAPON_DETECT: {caller.key} hands={hands}, weapon_obj={weapon_obj.key if weapon_obj else 'None'}")
+        self._log_debug(splattercast, f"WEAPON_DETECT: {caller.key} hands={hands}, weapon_obj={weapon_obj.key if weapon_obj else 'None'}")
         if weapon_obj:
-            splattercast.msg(f"WEAPON_DETECT: {weapon_obj.key} has db={hasattr(weapon_obj, 'db')}, "
+            self._log_debug(splattercast, f"WEAPON_DETECT: {weapon_obj.key} has db={hasattr(weapon_obj, 'db')}, "
                            f"db.is_ranged={getattr(weapon_obj.db, 'is_ranged', 'MISSING') if hasattr(weapon_obj, 'db') else 'NO_DB'}, "
                            f"db.weapon_type={getattr(weapon_obj.db, 'weapon_type', 'MISSING') if hasattr(weapon_obj, 'db') else 'NO_DB'}")
         
@@ -98,7 +106,7 @@ class CmdAttack(Command):
         weapon_name_for_msg = weapon_obj.key if weapon_obj else "your fists"
         weapon_type_for_msg = (str(weapon_obj.db.weapon_type).lower() if weapon_obj and hasattr(weapon_obj, "db") and hasattr(weapon_obj.db, "weapon_type") and weapon_obj.db.weapon_type else "unarmed")
         
-        splattercast.msg(f"WEAPON_FINAL: {caller.key} is_ranged={is_ranged_weapon}, weapon_type={weapon_type_for_msg}")
+        self._log_debug(splattercast, f"WEAPON_FINAL: {caller.key} is_ranged={is_ranged_weapon}, weapon_type={weapon_type_for_msg}")
         # --- END WEAPON IDENTIFICATION ---
 
         target_room = caller.location

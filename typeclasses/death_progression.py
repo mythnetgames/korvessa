@@ -161,6 +161,9 @@ def _complete_death(character):
     # Now clear the curtain flag - no more messages needed
     character.ndb._death_curtain_active = False
     
+    # STORE THE DEATH LOCATION BEFORE ANY MOVEMENTS
+    death_location = character.location
+    
     # Send observer message
     if character.location:
         character.location.msg_contents(
@@ -177,6 +180,9 @@ def _complete_death(character):
     if not account or not session:
         _log(f"DEATH_PROG: No account/session for {character.key}")
         return
+    
+    # Store death location for later use if player chooses DIE
+    account.ndb._death_location = death_location
     
     # Present the choice (no backup data anymore - just ask LIVE or DIE)
     _present_death_choice(character, account, session)
@@ -252,12 +258,15 @@ def _process_death_choice(account, choice):
     
     # Get stored state
     character = getattr(account.ndb, '_death_choice_character', None)
+    death_location = getattr(account.ndb, '_death_location', None)
     
     # Clear the state
     if hasattr(account.ndb, '_death_choice_pending'):
         del account.ndb._death_choice_pending
     if hasattr(account.ndb, '_death_choice_character'):
         del account.ndb._death_choice_character
+    if hasattr(account.ndb, '_death_location'):
+        del account.ndb._death_location
     
     _log(f"DEATH_CHOICE: {account.key} chose {choice}")
     
@@ -265,8 +274,8 @@ def _process_death_choice(account, choice):
         # Player chose to live - teleport to room #5 for admin intervention
         _handle_live_path(account, character, session)
     else:
-        # Chose to die - show permanent death sequence
-        _handle_permanent_death_path(account, character, session)
+        # Chose to die - show permanent death sequence with corpse creation
+        _handle_permanent_death_path(account, character, session, death_location)
 
 
 def _handle_live_path(account, character, session):
@@ -304,7 +313,7 @@ def _handle_live_path(account, character, session):
     delay(6.0, account.msg, "|m" + "=" * 70 + "|n")
 
 
-def _handle_permanent_death_path(account, character, session):
+def _handle_permanent_death_path(account, character, session, death_location):
     """Handle the permanent death path (player chose DIE)."""
     from evennia.utils import delay
     
@@ -324,11 +333,17 @@ def _handle_permanent_death_path(account, character, session):
             account.db.deceased_character_names.append(base_name)
             _log(f"PERMANENT_DEATH: Added '{base_name}' to deceased names for {account.key}")
     
-    # Store character reference for deletion after cutscene
+    # Store character reference and death location for deletion after cutscene
     account.ndb._character_to_delete = character
+    account.ndb._corpse_location = death_location
     
-    # Create corpse first
-    corpse = _create_corpse(character)
+    # Create corpse NOW in the death location BEFORE moving character
+    if death_location and character:
+        try:
+            corpse = _create_corpse(character, death_location)
+            _log(f"PERMANENT_DEATH: Corpse created in {death_location.key} for {character.key}")
+        except Exception as e:
+            _log(f"PERMANENT_DEATH: Error creating corpse: {e}")
     
     # Move character to limbo
     _move_to_limbo(character)
@@ -469,18 +484,30 @@ def _handle_death_completion(character):
         _log(f"DEATH_PROG_TRACE: {traceback.format_exc()}")
 
 
-def _create_corpse(character):
-    """Create a corpse object from the dead character."""
+def _create_corpse(character, location=None):
+    """Create a corpse object from the dead character.
+    
+    Args:
+        character: The character object to create a corpse from
+        location: Optional specific location for corpse. If None, uses character.location
+    
+    Returns:
+        Corpse object or None if creation failed
+    """
     from evennia import create_object
     
-    if not character.location:
+    # Use provided location or character's current location
+    corpse_location = location or character.location
+    
+    if not corpse_location:
+        _log(f"DEATH_PROG_ERROR: No location for corpse of {character.key}")
         return None
     
     try:
         corpse = create_object(
             typeclass="typeclasses.corpse.Corpse",
             key="fresh corpse",
-            location=character.location
+            location=corpse_location
         )
         
         # Transfer data
@@ -493,8 +520,8 @@ def _create_corpse(character):
         worn_items_data = {}
         if hasattr(character.db, 'worn_items') and character.db.worn_items:
             # Copy worn items structure, mapping item dbrefs
-            for location, items in character.db.worn_items.items():
-                worn_items_data[location] = [item.dbref for item in items if item]
+            for location_key, items in character.db.worn_items.items():
+                worn_items_data[location_key] = [item.dbref for item in items if item]
         corpse.db.worn_items_data = worn_items_data
         
         # Preserve hands/wielded items data
@@ -515,11 +542,13 @@ def _create_corpse(character):
         if hasattr(character, 'hands'):
             character.hands = {"left": None, "right": None}
         
-        _log(f"DEATH_PROG: Corpse created for {character.key} with {len(list(corpse.contents))} items")
+        _log(f"DEATH_PROG: Corpse created for {character.key} in {corpse_location.key} with {len(list(corpse.contents))} items")
         return corpse
         
     except Exception as e:
-        _log(f"DEATH_PROG_ERROR: Corpse creation failed: {e}")
+        _log(f"DEATH_PROG_ERROR: Corpse creation failed for {character.key}: {e}")
+        import traceback
+        _log(f"DEATH_PROG_TRACE: {traceback.format_exc()}")
         return None
 
 
