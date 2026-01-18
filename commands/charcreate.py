@@ -1379,13 +1379,19 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
     
         # Build stat display showing boosted range for personality stat (only if chosen)
         def stat_line(stat_key, color, name, desc):
-            value = stats[stat_key]
-            is_bonus = personality_stat and stat_key == personality_stat
-            if is_bonus:
-                range_text = f"|y(9-16)|n"  # Boosted range for chosen personality stat
-            else:
-                range_text = f"(8-15)"
-            return f"    |{color}{name}|n: {value:2d}  |w({calc_mod(value):+d})|n {range_text} - {desc}"
+            try:
+                value = stats.get(stat_key, 8)
+                if not isinstance(value, int):
+                    value = 8
+                is_bonus = personality_stat and stat_key == personality_stat
+                if is_bonus:
+                    range_text = f"|y(9-16)|n"  # Boosted range for chosen personality stat
+                else:
+                    range_text = f"(8-15)"
+                return f"    |{color}{name}|n: {value:2d}  |w({calc_mod(value):+d})|n {range_text} - {desc}"
+            except Exception as e:
+                logger.log_err(f"Error in stat_line for {stat_key}: {e}")
+                return f"    |{color}{name}|n: ERR"
     
         # Build personality boost message safely
         if personality_stat and personality_stat in stat_names:
@@ -1431,6 +1437,8 @@ Personality: |c{p['name']}|n
         options = (
             {"key": "_default", "goto": "first_char_stat_assign"},
         )
+        
+        # Handle input
         if raw_string and raw_string.strip():
             args = raw_string.strip().lower().split()
             if not args:
@@ -1470,23 +1478,29 @@ Personality: |c{p['name']}|n
                 except ValueError:
                     caller.msg("|rValue must be a number.|n")
                     return text, options
+                    
+                # Validate value is an integer
+                if not isinstance(value, int):
+                    caller.msg("|rValue must be an integer.|n")
+                    return text, options
+                    
                 # Check range based on whether this stat gets personality bonus (only if chosen)
                 is_bonus_stat = personality_stat and command == personality_stat
                 min_val = 9 if is_bonus_stat else 8
                 max_val = 16 if is_bonus_stat else 15
             
                 if value < min_val or value > max_val:
-                    range_desc = f"{min_val}-{max_val}"
                     if not is_bonus_stat:
                         caller.msg(f"|rValue must be 8-15.|n")
                     else:
-                        caller.msg(f"|rValue must be 9-16.|n")
+                        caller.msg(f"|rValue must be 9-16 (your personality boosts {stat_names.get(command, command.upper())})|n")
                     return text, options
                 
-                # Update stats and save to NDB
+                # Update stats and save to NDB safely
                 try:
                     stats[command] = value
                     caller.ndb.charcreate_data['stats'] = stats
+                    caller.msg(f"|g{command.upper()} set to {value}.|n")
                 except Exception as e:
                     logger.log_err(f"Error updating stats for {caller}: {e}")
                     caller.msg("|rError saving stat. Please try again.|n")
@@ -1495,13 +1509,14 @@ Personality: |c{p['name']}|n
             else:
                 caller.msg(f"|rUnknown command. Valid stats: {', '.join(valid_stats)}|n")
         return text, options
+        
     except Exception as e:
         # Log the full error for debugging
         import traceback
         logger.log_err(f"Error in first_char_stat_assign: {e}\n{traceback.format_exc()}")
         caller.msg("|rAn unexpected error occurred. Please try again.|n")
         # Return a safe fallback
-        fallback_text = "|wStat Assignment|n\n\nAn error occurred. Type any stat command to continue (e.g., 'str 10').\n|w>|n "
+        fallback_text = "|wStat Assignment|n\n\nAn error occurred. Type any stat command to continue (e.g., 'str 10').\n\n|w>|n "
         fallback_options = ({"key": "_default", "goto": "first_char_stat_assign"},)
         return fallback_text, fallback_options
 
