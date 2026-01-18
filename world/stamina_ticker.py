@@ -32,16 +32,19 @@ class StaminaTicker(DefaultScript):
         from evennia import SESSION_HANDLER
         from evennia.comms.models import ChannelDB
         
+        splattercast = None
         try:
             splattercast = ChannelDB.objects.get_channel("Splattercast")
         except:
-            splattercast = None
+            pass
         
         try:
             # Get all active sessions and their puppets
             sessions = SESSION_HANDLER.get_sessions()
+            
+            # Always log that we're ticking (for debugging)
             if splattercast:
-                splattercast.msg(f"[STAMINA_TICKER] Ticking: {len(sessions)} active sessions")
+                splattercast.msg(f"[STAMINA_TICKER] Tick! Processing {len(sessions)} sessions")
             
             for session in sessions:
                 char = session.get_puppet()

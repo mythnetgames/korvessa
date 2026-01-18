@@ -475,15 +475,14 @@ class CharacterMovementStamina:
             return
         
         # --- Debug log ---
-        debug = False  # Set to True to enable debug output
+        debug = True  # Set to True to enable debug output
+        splattercast = None
         if debug and character:
             try:
                 from evennia.comms.models import ChannelDB
                 splattercast = ChannelDB.objects.get_channel("Splattercast")
             except:
                 splattercast = None
-        else:
-            splattercast = None
         
         # --- Update stamina buff timer ---
         if hasattr(self, 'ndb') and hasattr(self.ndb, 'stamina_buff_timer'):

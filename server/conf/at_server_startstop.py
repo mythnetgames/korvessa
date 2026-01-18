@@ -36,9 +36,13 @@ def at_server_start():
     
     ticker = ScriptDB.objects.filter(db_key="stamina_ticker").first()
     if not ticker:
-        StaminaTicker.create(key="stamina_ticker")
+        ticker = StaminaTicker.create(key="stamina_ticker")
+        print(f"[STARTUP] Created new stamina ticker: {ticker}")
     elif not ticker.is_active:
         ticker.start()
+        print(f"[STARTUP] Started existing stamina ticker: {ticker}")
+    else:
+        print(f"[STARTUP] Stamina ticker already running: {ticker}, active={ticker.is_active}")
     
     # Start the survival ticker (hunger/thirst/intoxication)
     from world.survival.script import start_survival_ticker
