@@ -469,6 +469,17 @@ class CharacterMovementStamina:
         if dt <= 0:
             return
         
+        # --- Debug log ---
+        debug = False  # Set to True to enable debug output
+        if debug and character:
+            try:
+                from evennia.comms.models import ChannelDB
+                splattercast = ChannelDB.objects.get_channel("Splattercast")
+            except:
+                splattercast = None
+        else:
+            splattercast = None
+        
         # --- Update stamina buff timer ---
         if hasattr(self, 'ndb') and hasattr(self.ndb, 'stamina_buff_timer'):
             self.ndb.stamina_buff_timer = max(0, self.ndb.stamina_buff_timer - dt)
@@ -487,7 +498,11 @@ class CharacterMovementStamina:
         
         if base_delta > 0:
             # Regenerating stamina
-            final_delta = base_delta * self._get_regen_multiplier(character)
+            regen_mult = self._get_regen_multiplier(character)
+            final_delta = base_delta * regen_mult
+            
+            if splattercast:
+                splattercast.msg(f"[STAMINA_UPDATE] {character.key}: REGEN base={base_delta:.2f}, mult={regen_mult:.4f}, delta={final_delta:.4f}")
             
             # Apply fatigue penalty to regen
             if self.fatigue_timer > 0:
@@ -496,10 +511,16 @@ class CharacterMovementStamina:
             # Apply regen delay - no regen while delay is active
             if self.regen_delay > 0:
                 final_delta = 0.0
+                if splattercast:
+                    splattercast.msg(f"[STAMINA_UPDATE] {character.key}: Regen delayed, delta -> 0")
                 
         elif base_delta < 0:
             # Draining stamina
-            final_delta = base_delta * self._get_drain_multiplier(character)
+            drain_mult = self._get_drain_multiplier(character)
+            final_delta = base_delta * drain_mult
+            
+            if splattercast:
+                splattercast.msg(f"[STAMINA_UPDATE] {character.key}: DRAIN base={base_delta:.2f}, mult={drain_mult:.4f}, delta={final_delta:.4f}")
             
             # Apply WILL grace at low stamina
             ratio = self._get_stamina_ratio()
@@ -507,6 +528,8 @@ class CharacterMovementStamina:
                 will_grace = self._get_will_grace()
                 # Reduce drain by will_grace (remember delta is negative)
                 final_delta *= (1.0 - will_grace)
+                if splattercast:
+                    splattercast.msg(f"[STAMINA_UPDATE] {character.key}: Low stamina grace={will_grace:.4f}")
             
             # Reset regen delay when draining
             self.regen_delay = REGEN_DELAY_SECONDS
