@@ -4,7 +4,12 @@ Stamina-based Movement System
 A movement stamina system where BODY determines capacity, DEX affects efficiency
 and recovery, and WILL provides subtle bonuses when pushing through exhaustion.
 
-All stats are on a 0-100 scale.
+Internally uses a 0-100 scale for stats. D&D 5e stats (8-16) from character
+attributes are converted to this scale by _get_or_create_stamina() in movement.py:
+  - D&D 5e stat 8 -> 0 stamina scale
+  - D&D 5e stat 10 (average) -> ~28.6 stamina scale
+  - D&D 5e stat 15 -> 100 stamina scale
+  - D&D 5e stat 16 (max with personality bonus) -> ~114 stamina scale
 """
 
 from enum import IntEnum

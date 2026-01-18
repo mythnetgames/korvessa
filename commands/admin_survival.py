@@ -133,8 +133,9 @@ class CmdSurvivalTest(Command):
                 return
             try:
                 con = int(value)
-                con = max(0, min(100, con))
-                target.db.con = con
+                # D&D 5e stats range from 8-16 (can be 17-18 with personality bonuses)
+                con = max(8, min(18, con))
+                target.con = con
                 modifier = _get_constitution_modifier(target)
                 caller.msg(f"|gSet {target.name}'s CON to {con} (hunger timer multiplier: {modifier:.2f}x).|n")
             except ValueError:
@@ -161,8 +162,8 @@ class CmdSurvivalTest(Command):
         
         lines = [f"|c=== Survival Status for {target.name} ===|n"]
         
-        # Constitution
-        con = target.db.con or 50
+        # Constitution (D&D 5e scale: 8-16, can be 17-18 with personality bonuses)
+        con = getattr(target, 'con', 10)
         con_mod = _get_constitution_modifier(target)
         lines.append(f"Constitution: {con} (hunger multiplier: {con_mod:.2f}x)")
         
