@@ -1117,27 +1117,6 @@ They define |ywho you are|n, not what you do for a living.
     # List all personalities
     personality_keys = list(PERSONALITIES.keys())
     for i, key in enumerate(personality_keys, 1):
-        p = get_personality_display(key)
-        text += f"""
-|w[{i}]|n |c{p['name']}|n
-    {p['desc']}
-    |yStats:|n {p['stat_bonus']}
-    |ySkills:|n {p['skill_bonus']}
-    |yPassive:|n {p['passive']}
-    |yStanding:|n {p['standing']}
-"""
-    
-    text += "\n|wEnter choice (1-8):|n "
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_personality"},
-    )
-    
-    # Handle input
-    if raw_string and raw_string.strip():
-        choice = raw_string.strip()
-        
         try:
             choice_num = int(choice)
             if 1 <= choice_num <= len(personality_keys):
@@ -1156,37 +1135,28 @@ They define |ywho you are|n, not what you do for a living.
                     
                     # Freehands needs secondary skill selection
                     if selected_personality == 'freehands':
-                        return first_char_personality_skill(caller, "", **kwargs)
-                    
-                    return first_char_sex(caller, "", **kwargs)
-            else:
-                caller.msg("|rInvalid choice. Please enter a number 1-8.|n")
-                return text, options
-        except ValueError:
-            caller.msg("|rInvalid choice. Please enter a number 1-8.|n")
-            return text, options
-    
-    return text, options
-
-
-def first_char_personality_stat(caller, raw_string, **kwargs):
-    """Choose which stat bonus to take from personality."""
-    from world.personality_system import PERSONALITIES
-    
-    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
-    race = caller.ndb.charcreate_data.get('race', 'human')
-    personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
-    
-    p = PERSONALITIES[personality]
-    stat_options = p['stat_options']
-    
-    text = f"""
-Sdesc: |c{sdesc}|n
-Race: |c{race.capitalize()}|n
-Personality: |c{p['name']}|n
-
-|w=== Choose Your Stat Bonus ===|n
-
+        try:
+            choice = None  # Always define choice
+            from world.language.constants import RACE_LANGUAGES, LANGUAGES
+            first_name = caller.ndb.charcreate_data.get('first_name', '')
+            last_name = caller.ndb.charcreate_data.get('last_name', '')
+            sdesc = caller.ndb.charcreate_data.get('sdesc', '')
+            # Build race descriptions with language info
+            race_info = {
+                'human': {
+                    'desc': 'Brief-lived and ever-changing, humans survive by adapting when things go wrong. They stumble, recover, and try again, often succeeding not through perfection, but persistence.',
+                    'bonus': 'Humans are known for recovering quickly from missteps and adjusting their approach without drawing attention. Their shared tongue is spoken almost everywhere.'
+                },
+                'elf': {
+                    'desc': 'Deliberate and restrained, elves prefer quiet paths and indirect solutions. They act with patience, favoring misdirection and subtle influence over force or haste.',
+                    'bonus': 'Elves excel when working unseen or unheard, relying on subtlety and careful intent. They speak both the common trade tongue and the speech of their own people.'
+                },
+                'dwarf': {
+                    'desc': 'Stone-bred and enduring, dwarves are shaped by long labor and scarce provision. They move steadily through hardship, sustained by habit and discipline.',
+                    'bonus': 'Dwarves are slow to feel the pull of hunger, thirst, or drink, enduring conditions that would wear others down. Their voices carry both the common tongue and the deep speech of their halls.'
+                }
+            }
+            text = f"""
 Your personality grants |y+1|n to one of the following stats:
 
 """
@@ -1205,6 +1175,35 @@ Your personality grants |y+1|n to one of the following stats:
         text += f"|w[{i}]|n |c{name}|n - {desc}\n"
     
     text += "\n|wEnter choice:|n "
+            # Handle input
+            if raw_string and raw_string.strip():
+                choice = raw_string.strip()
+            race_map = {'1': 'human', '2': 'elf', '3': 'dwarf'}
+            options = (
+                {"key": "_default",
+                 "goto": "first_char_race"},
+            )
+            if choice in race_map:
+                selected_race = race_map[choice]
+                caller.ndb.charcreate_data['race'] = selected_race
+                # Set racial languages automatically
+                racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
+                caller.ndb.charcreate_data['languages'] = racial_langs.copy()
+                caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
+                # Go to personality selection next
+                return first_char_personality(caller, "", **kwargs)
+            elif choice is not None:
+                caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
+                return text, options
+            return text, options
+        except Exception as e:
+            caller.msg(f"|rAn error occurred in race selection: {e}|n")
+            text = "|rA system error occurred. Please try again or contact staff.|n\n|wSelect your race:|n\n|w[1]|n Human\n|w[2]|n Elf\n|w[3]|n Dwarf\n|w>|n"
+            options = (
+                {"key": "_default",
+                 "goto": "first_char_race"},
+            )
+            return text, options
     
     options = (
         {"key": "_default",
@@ -1600,31 +1599,6 @@ Create this character?
 
 def first_char_select_language(caller, raw_string, **kwargs):
     """Select additional language during character creation (for humans)."""
-    from world.language.constants import LANGUAGES, RACE_LANGUAGES
-    
-    race = caller.ndb.charcreate_data.get('race', 'human')
-    languages = caller.ndb.charcreate_data.get('languages', ['common'])
-    
-    # Non-humans already have their languages set, skip to character facts
-    if race != 'human':
-        return first_char_facts_name(caller, "", **kwargs)
-    
-    # Humans pick one additional language
-    available_langs = [code for code in LANGUAGES.keys() if code not in languages]
-    
-    text = f"""
-|wChoose an Additional Language|n
-
-As a human, you may learn one additional language beyond Common.
-
-|wCurrent Languages:|n {', '.join(LANGUAGES.get(lang, {}).get('name', lang.capitalize()) for lang in languages)}
-
-|wAvailable Languages:|n
-"""
-    
-    # List available languages
-    lang_list = []
-    for i, code in enumerate(sorted(available_langs), 1):
         info = LANGUAGES[code]
         lang_list.append(f"|w[{i}]|n |c{info['name']}|n - {info['description']}")
     
@@ -1643,33 +1617,27 @@ As a human, you may learn one additional language beyond Common.
         command = args[0]
         sorted_langs = sorted(available_langs)
         
-        # Handle skipping (human can choose to only know Common)
-        if command in ['done', 'skip', 'none']:
-            caller.msg("|yProceeding with only Common.|n")
-            return first_char_facts_name(caller, "", **kwargs)
-        
-        # Try to parse as a number (1-indexed)
-        try:
-            lang_index = int(command) - 1
-            if 0 <= lang_index < len(sorted_langs):
-                selected_code = sorted_langs[lang_index]
-                languages.append(selected_code)
-                caller.ndb.charcreate_data['languages'] = languages
-                caller.msg(f"|gAdded |c{LANGUAGES[selected_code]['name']}|g to your languages.|n")
-                return first_char_facts_name(caller, "", **kwargs)
-        except ValueError:
-            pass
-        
-        caller.msg("|rInvalid selection. Please enter a number, or 'skip' to continue with only Common.|n")
-    
-    text += f"\n\nType a number to select a language, or |wskip|n to continue with only Common."
-    text += "\n\n|w>|n"
-    return text, options
-
-
-def first_char_select_second_language(caller, raw_string, **kwargs):
-    """Deprecated - kept for compatibility but redirects to facts."""
-    return first_char_facts_name(caller, "", **kwargs)
+    try:
+        from world.language.constants import RACE_LANGUAGES, LANGUAGES
+        first_name = caller.ndb.charcreate_data.get('first_name', '')
+        last_name = caller.ndb.charcreate_data.get('last_name', '')
+        sdesc = caller.ndb.charcreate_data.get('sdesc', '')
+        # Build race descriptions with language info
+        race_info = {
+            'human': {
+                'desc': 'Brief-lived and ever-changing, humans survive by adapting when things go wrong. They stumble, recover, and try again, often succeeding not through perfection, but persistence.',
+                'bonus': 'Humans are known for recovering quickly from missteps and adjusting their approach without drawing attention. Their shared tongue is spoken almost everywhere.'
+            },
+            'elf': {
+                'desc': 'Deliberate and restrained, elves prefer quiet paths and indirect solutions. They act with patience, favoring misdirection and subtle influence over force or haste.',
+                'bonus': 'Elves excel when working unseen or unheard, relying on subtlety and careful intent. They speak both the common trade tongue and the speech of their own people.'
+            },
+            'dwarf': {
+                'desc': 'Stone-bred and enduring, dwarves are shaped by long labor and scarce provision. They move steadily through hardship, sustained by habit and discipline.',
+                'bonus': 'Dwarves are slow to feel the pull of hunger, thirst, or drink, enduring conditions that would wear others down. Their voices carry both the common tongue and the deep speech of their halls.'
+            }
+        }
+        text = f"""
 
 
 # =============================================================================
@@ -1688,6 +1656,37 @@ These facts represent what others may know about your character.
 They create RP hooks and can be discovered through skill rolls.
 
 |cThink about what a stranger might learn through gossip or observation.|n
+        # Handle input
+        if raw_string and raw_string.strip():
+            choice = raw_string.strip()
+            race_map = {'1': 'human', '2': 'elf', '3': 'dwarf'}
+        else:
+            choice = None
+        options = (
+            {"key": "_default",
+             "goto": "first_char_race"},
+        )
+        if choice in race_map:
+            selected_race = race_map[choice]
+            caller.ndb.charcreate_data['race'] = selected_race
+            # Set racial languages automatically
+            racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
+            caller.ndb.charcreate_data['languages'] = racial_langs.copy()
+            caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
+            # Go to personality selection next
+            return first_char_personality(caller, "", **kwargs)
+        elif choice is not None:
+            caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
+            return text, options
+        return text, options
+    except Exception as e:
+        caller.msg(f"|rAn error occurred in race selection: {e}|n")
+        text = "|rA system error occurred. Please try again or contact staff.|n\n|wSelect your race:|n\n|w[1]|n Human\n|w[2]|n Elf\n|w[3]|n Dwarf\n|w>|n"
+        options = (
+            {"key": "_default",
+             "goto": "first_char_race"},
+        )
+        return text, options
 
 |b----------------------------------------------------------------------|n
 
@@ -2347,7 +2346,8 @@ def first_char_finalize(caller, raw_string, **kwargs):
             splattercast.msg(f"CHARCREATE_ERROR: {e}")
         except:
             pass
-        return "first_char_facts_confirm"
+        # Properly re-display the confirmation node after error
+        return first_char_facts_confirm(caller, "", **kwargs)
 
 
 # =============================================================================
