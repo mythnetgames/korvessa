@@ -1393,6 +1393,12 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
         else:
             boost_msg = ""
     
+        # Build the points display more safely
+        if remaining >= 0:
+            points_display = f"|gREMAINING: {remaining}|n"
+        else:
+            points_display = f"|rOVER BY: {abs(remaining)}|n"
+        
         text = f"""
 |wAssign Your Ability Scores|n
 
@@ -1414,7 +1420,7 @@ Personality: |c{p['name']}|n
 {stat_line('cha', 'c', 'CHA (Charisma)    ', 'Presence, persuasion')}
 |b----------------------------------------------------------------------|n
 
-|wPoints spent:|n {points_spent}/{POINT_BUY_TOTAL}  {'|gREMAINING: ' + str(remaining) + '|n' if remaining >= 0 else '|rOVER BY:|n ' + str(abs(remaining))}
+|wPoints spent:|n {points_spent}/{POINT_BUY_TOTAL}  {points_display}
 
 |wCommands:|n
     |w<stat> <value>|n  - Set a stat (e.g., 'str 15' or 'dex 10')
@@ -1470,11 +1476,21 @@ Personality: |c{p['name']}|n
                 max_val = 16 if is_bonus_stat else 15
             
                 if value < min_val or value > max_val:
-                    range_desc = f"{min_val}-{max_val}" if is_bonus_stat else "8-15"
-                    caller.msg(f"|rValue must be {range_desc}.|n")
+                    range_desc = f"{min_val}-{max_val}"
+                    if not is_bonus_stat:
+                        caller.msg(f"|rValue must be 8-15.|n")
+                    else:
+                        caller.msg(f"|rValue must be 9-16.|n")
                     return text, options
-                stats[command] = value
-                caller.ndb.charcreate_data['stats'] = stats
+                
+                # Update stats and save to NDB
+                try:
+                    stats[command] = value
+                    caller.ndb.charcreate_data['stats'] = stats
+                except Exception as e:
+                    logger.log_err(f"Error updating stats for {caller}: {e}")
+                    caller.msg("|rError saving stat. Please try again.|n")
+                    return text, options
                 return None  # Re-display the screen with updated stats
             else:
                 caller.msg(f"|rUnknown command. Valid stats: {', '.join(valid_stats)}|n")
