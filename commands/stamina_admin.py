@@ -53,20 +53,22 @@ class CmdStaminaStatus(Command):
     
     def func(self):
         from evennia.scripts.models import ScriptDB
-        from evennia.accounts.models import AccountDB
+        from evennia import SESSION_HANDLER
         
         # Check ticker
         ticker = ScriptDB.objects.filter(db_key="stamina_ticker").first()
         self.caller.msg(f"Stamina Ticker: {'RUNNING' if ticker and ticker.is_active else 'NOT RUNNING'}")
         
-        # Check connected characters
-        connected = AccountDB.objects.filter(db_is_connected=True)
-        self.caller.msg(f"\nConnected Accounts: {connected.count()}")
+        # Check connected characters via sessions
+        sessions = SESSION_HANDLER.get_sessions()
+        self.caller.msg(f"\nConnected Sessions: {len(sessions)}")
         
-        for account in connected:
-            char = account.db_puppet_character
+        for session in sessions:
+            char = session.get_puppet()
             if not char:
-                self.caller.msg(f"  {account.name}: No puppet character")
+                account = session.get_account()
+                account_name = account.key if account else "Unknown"
+                self.caller.msg(f"  {account_name}: No puppet character")
                 continue
             
             stamina = getattr(char.ndb, "stamina", None)
