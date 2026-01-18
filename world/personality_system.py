@@ -235,16 +235,22 @@ SKILL_GROUPS = {
 
 # All individual skills for reference
 ALL_SKILLS = [
-    'athletics', 'endurance', 'acrobatics', 'climbing', 'swimming',
-    'melee', 'ranged', 'unarmed', 'defense', 'tactics',
-    'stealth', 'sleight_of_hand', 'disguise', 'lockpicking',
-    'persuasion', 'intimidation', 'deception', 'social', 'performance',
-    'lore', 'history', 'religion', 'nature', 'arcana',
-    'perception', 'investigation', 'sense_motive', 'tracking',
-    'crafting', 'appraise', 'repair', 'cooking', 'alchemy',
-    'survival', 'medicine', 'animal_handling', 'navigation',
-    'streetwise', 'gambling', 'forgery', 'smuggling',
-    'ritual', 'meditation', 'adaptability'
+    # Combat
+    'dodge', 'parry', 'blades', 'ranged', 'melee', 'brawling', 'grappling',
+    # Stealth/Subterfuge
+    'lockpicking', 'stealing', 'stealth', 'disguise',
+    # Social
+    'haggle', 'persuasion', 'streetwise',
+    # Crafting
+    'carpentry', 'herbalism', 'tailoring', 'cooking',
+    # Survival
+    'tracking', 'foraging',
+    # Lore
+    'investigation', 'lore', 'appraise',
+    # Medical
+    'first_aid', 'chirurgy',
+    # Creative
+    'arts', 'instrument'
 ]
 
 # =============================================================================

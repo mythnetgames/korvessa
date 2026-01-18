@@ -1,0 +1,15 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/admin-custom.css' %}">
+    <style>
+        /* Google Fonts - Inter for better typography */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        }
+    </style>
+{% endblock %}
