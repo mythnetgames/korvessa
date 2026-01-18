@@ -56,26 +56,11 @@ h1, h2, h3 { color: #e8dcc8; font-family: 'Georgia', serif; letter-spacing: 1px;
   </a>
 </div>
 
-{% load static %}
-{% with holiday=None %}
-{% if holiday_today %}
-  {% with holiday=holiday_today %}
-{% endif %}
-{% if not holiday %}
-  {% comment %} Fallback to a sample holiday if not running live code {% endcomment %}
-  {% with holiday={
-    'name': 'Feast of Plenty',
-    'tradition': 'Feyliks',
-    'desc': 'Excess is permitted briefly. Those who abstain are assumed fearful or hiding loss.'
-  } %}
-  {% endwith %}
-{% endif %}
 <div class="card" style="margin: 24px auto; max-width: 600px; background: #2d1f0e; border-left: 6px solid #d4a574;">
-  <h3 style="margin: 0 0 8px 0; color: #e8dcc8; font-size: 1.3rem;">Today's Holiday: {{ holiday.name }}</h3>
-  <p style="margin: 0; color: #c19a6b; font-size: 1.05rem;">Tradition: <strong>{{ holiday.tradition }}</strong></p>
-  <p style="margin: 8px 0 0 0; color: #d4c5a9;">{{ holiday.desc }}</p>
+  <h3 style="margin: 0 0 8px 0; color: #e8dcc8; font-size: 1.3rem;">Today's Holiday: Feast of Plenty</h3>
+  <p style="margin: 0; color: #c19a6b; font-size: 1.05rem;">Tradition: <strong>Feyliks</strong></p>
+  <p style="margin: 8px 0 0 0; color: #d4c5a9;">Excess is permitted briefly. Those who abstain are assumed fearful or hiding loss.</p>
 </div>
-{% endwith %}
 
 <p>
   Korvessa is a walled farm community, built on the labor of its citizens and the rhythm of the land. Fields and gardens surround the city, and most families work together to grow, harvest, and share what they can. The city is known for its strong sense of cooperation and the cycles of planting and reaping that shape daily life. 
