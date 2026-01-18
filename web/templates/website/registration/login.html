@@ -17,7 +17,7 @@
           <div class="alert alert-info" role="alert">You are already logged in!</div>
           {% else %}
             {% if form.errors and request.method == 'POST' %}
-            <div class="alert alert-danger" role="alert">Your email and password are incorrect. Please try again.</div>
+            <div class="alert alert-danger" role="alert">Your account name and password are incorrect. Please try again.</div>
             {% endif %}
           {% endif %}
 
@@ -26,8 +26,9 @@
             {% csrf_token %}
 
             <div class="form-group">
-              <label for="id_username">Email:</label>
+              <label for="id_username">Account Name:</label>
               {{ form.username | addclass:"form-control" }}
+              <small class="form-text text-muted">Your public account name (shown on channels and in-game)</small>
             </div>
 
             <div class="form-group">

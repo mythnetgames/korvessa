@@ -1,7 +1,7 @@
 {% extends "website/base.html" %}
 
 {% block titleblock %}
-Register
+Create Account
 {% endblock %}
 
 {% block body %}
@@ -9,11 +9,18 @@ Register
 {% load addclass %}
 <div class="container main-content mt-4" id="main-copy">
   <div class="row">
-    <div class="col-lg-5 offset-lg-3 col-sm-12">
+    <div class="col-lg-6 offset-lg-3 col-sm-12">
       <div class="card mt-3">
         <div class="card-body">
-          <h1 class="card-title">Register</h1>
+          <h1 class="card-title">Create Account</h1>
           <hr />
+          <div class="alert alert-info" role="alert">
+            <strong>Two Identifiers:</strong>
+            <ul class="mb-0">
+              <li><strong>Account Name:</strong> Your public identity (visible on channels and in-game)</li>
+              <li><strong>Email:</strong> Private - used only for password resets and admin purposes</li>
+            </ul>
+          </div>
           {% if user.is_authenticated %}
           <div class="alert alert-info" role="alert">You are already registered!</div>
           {% else %}
@@ -64,11 +71,13 @@ Register
                 <div class="form-group">
                   <input class="form-control btn btn-outline-secondary" 
                          type="submit" 
-                         value="Register" 
+                         value="Create Account" 
                          id="submit-button" />
                   <input type="hidden" name="next" value="{{ next }}" />
                 </div>
               </form>
+              <hr />
+              <p class="text-center small"><a href="{% url 'login' %}">Already have an account? Log in here.</a></p>
             {% else %}
               <p>Registration is currently disabled.</p>
             {% endif %}

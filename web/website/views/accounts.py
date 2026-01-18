@@ -63,7 +63,7 @@ class TurnstileAccountCreateView(EvenniaAccountCreateView):
                 form.add_error(None, "CAPTCHA verification failed. Please try again.")
                 return self.form_invalid(form)
         
-        # Validate email and username uniqueness
+        # Validate username and email uniqueness
         # This provides defense-in-depth since Evennia's parent class
         # bypasses Django's standard form validation flow
         email = form.cleaned_data.get('email', '').strip()
@@ -76,7 +76,7 @@ class TurnstileAccountCreateView(EvenniaAccountCreateView):
             
         # Check username uniqueness (case-insensitive)
         if username and AccountDB.objects.filter(username__iexact=username).exists():
-            form.add_error('username', "An account with this username already exists.")
+            form.add_error('username', "An account with this account name already exists. Please choose a different name.")
             return self.form_invalid(form)
         
         # All validations passed - proceed with account creation

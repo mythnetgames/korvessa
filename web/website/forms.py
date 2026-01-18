@@ -260,7 +260,9 @@ class TurnstileAccountForm(EvenniaAccountForm):
     Adds a hidden field to capture the Turnstile response token,
     which is validated server-side in the view.
     
-    Overrides email field to make it required (critical for password resets).
+    Overrides username and email fields to clarify their purposes:
+    - Username: Public-facing account name (shown on channels, in-game)
+    - Email: Private contact info for password resets and admin purposes only
     """
     
     # Hidden field to store Turnstile response token
@@ -274,11 +276,21 @@ class TurnstileAccountForm(EvenniaAccountForm):
     )
     
     def __init__(self, *args, **kwargs):
-        """Override email field to make it required."""
+        """Override username and email fields with clearer labels and help text."""
         super().__init__(*args, **kwargs)
+        
+        # Update username field
+        self.fields['username'].label = "Account Name"
+        self.fields['username'].help_text = "Your public-facing account name. This is what other players will see on channels and in-game. Can contain letters, numbers, and underscores."
+        self.fields['username'].error_messages = {
+            'required': 'Account name is required.',
+            'invalid': 'Please enter a valid account name.'
+        }
+        
         # Make email required and update help text
         self.fields['email'].required = True
-        self.fields['email'].help_text = "A valid email address. Required for login and password resets."
+        self.fields['email'].label = "Email Address"
+        self.fields['email'].help_text = "Your private email address. Used for password resets and admin purposes only. Will never be visible to other players."
         self.fields['email'].error_messages = {
             'required': 'Email address is required.',
             'invalid': 'Please enter a valid email address.'

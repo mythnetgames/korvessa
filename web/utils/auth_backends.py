@@ -1,8 +1,9 @@
 """
-Custom authentication backend for email-based login.
+Custom authentication backend for username-based login.
 
-This allows users to log into the website using their email address
-instead of their username, matching the telnet email-based login system.
+This allows users to log into the website using their account name (username),
+which is a public-facing identifier separate from their private email address.
+Email is stored for admin/password reset purposes only.
 """
 
 from django.contrib.auth.backends import ModelBackend
@@ -11,19 +12,19 @@ from evennia.accounts.models import AccountDB
 
 class EmailAuthenticationBackend(ModelBackend):
     """
-    Authenticate using email address instead of username.
+    Authenticate using account name (username).
     
-    This backend allows the Django web login to accept email addresses,
-    aligning with the telnet email-based login system.
+    This backend allows the Django web login to accept account names,
+    keeping email addresses private for admin and password reset purposes only.
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
         """
-        Authenticate user by email address.
+        Authenticate user by account name (username).
         
         Args:
             request: The HTTP request object
-            username: Actually contains the email address from the login form
+            username: The account name from the login form
             password: User's password
             
         Returns:
@@ -33,8 +34,8 @@ class EmailAuthenticationBackend(ModelBackend):
             return None
             
         try:
-            # Try to find account by email (case-insensitive)
-            account = AccountDB.objects.get(email__iexact=username)
+            # Try to find account by username (case-insensitive for convenience)
+            account = AccountDB.objects.get(username__iexact=username)
             
             # Check password
             if account.check_password(password):
@@ -45,10 +46,10 @@ class EmailAuthenticationBackend(ModelBackend):
                 return None
                 
         except AccountDB.DoesNotExist:
-            # Email not found - return None
+            # Username not found - return None
             return None
         except AccountDB.MultipleObjectsReturned:
-            # Multiple accounts with same email - shouldn't happen but handle it
+            # Multiple accounts with same username - shouldn't happen but handle it
             return None
 
     def get_user(self, user_id):
