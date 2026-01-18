@@ -15,27 +15,32 @@ import math
 # =============================================================================
 
 # --- Stamina Pool ---
+# Pools are now smaller due to D&D 5e stats (8-16) being converted to 0-100 scale
+# Average D&D 10 = 28.6 units, compared to old average of ~50 units (57% scale)
+# All movement costs and regen/drain rates have been scaled down accordingly
 STAMINA_BASE = 100              # Base stamina everyone starts with
 STAMINA_BODY_MULT = 0.7         # How much BODY adds to max stamina
 STAMINA_SYNERGY_MULT = 0.3      # How much BODY+DEX synergy adds to max stamina
 
 # --- Base Stamina Delta per Second by Tier ---
 # Positive = regeneration, Negative = drain (when standing still)
+# Scaled for smaller stamina pools from D&D 5e conversion
 BASE_DELTA = {
-    "STROLL": 3.0,
-    "WALK": 1.0,
-    "JOG": -0.2,
-    "RUN": -2.0,
-    "SPRINT": -5.0,
+    "STROLL": 1.7,               # +1.7/sec (was 3.0)
+    "WALK": 0.6,                 # +0.6/sec (was 1.0)
+    "JOG": -0.1,                 # -0.1/sec (was -0.2)
+    "RUN": -1.1,                 # -1.1/sec (was -2.0)
+    "SPRINT": -2.9,              # -2.9/sec (was -5.0)
 }
 
 # --- Movement Costs (stamina per room move) ---
+# Scaled for smaller stamina pools from D&D 5e conversion
 MOVE_COST = {
-    "STROLL": 2.0,      # Very light exertion
-    "WALK": 3.0,        # Light exertion
-    "JOG": 5.0,         # Moderate exertion
-    "RUN": 8.0,         # Heavy exertion
-    "SPRINT": 12.0,     # Very heavy exertion
+    "STROLL": 1.1,               # Very light exertion (was 2.0)
+    "WALK": 1.7,                 # Light exertion (was 3.0)
+    "JOG": 2.9,                  # Moderate exertion (was 5.0)
+    "RUN": 4.6,                  # Heavy exertion (was 8.0)
+    "SPRINT": 6.9,               # Very heavy exertion (was 12.0)
 }
 
 # --- Movement Delay (seconds per room move) ---
@@ -167,6 +172,25 @@ class CharacterMovementStamina:
         # Initialize stamina to max
         self.recalc_stamina_max()
         self.stamina_current = float(self.stamina_max)
+    
+    def update_stats(self, body=None, dex=None, will=None):
+        """
+        Update character stats and recalculate stamina pool.
+        
+        Args:
+            body: New BODY value (clamped 0-100) or None to keep current
+            dex: New DEX value (clamped 0-100) or None to keep current
+            will: New WILL value (clamped 0-100) or None to keep current
+        """
+        if body is not None:
+            self.body = clamp(body, 0, 100)
+        if dex is not None:
+            self.dex = clamp(dex, 0, 100)
+        if will is not None:
+            self.will = clamp(will, 0, 100)
+        
+        # Recalculate max stamina with new stats
+        self.recalc_stamina_max()
     
     def recalc_stamina_max(self):
         """

@@ -9,6 +9,18 @@ from evennia import Command, CmdSet
 from world.stamina import MovementTier, CharacterMovementStamina, TIER_NAMES
 
 
+def invalidate_stamina_cache(character):
+    """
+    Clear the cached stamina component when stats change.
+    This forces recalculation on next access to use updated stats.
+    
+    Args:
+        character: The character whose stamina cache should be cleared
+    """
+    if hasattr(character.ndb, "stamina"):
+        character.ndb.stamina = None
+
+
 class CmdStroll(Command):
     """
     Move at a leisurely stroll - fastest stamina recovery.
@@ -173,17 +185,33 @@ def _get_or_create_stamina(character):
     Get the character's stamina component, creating it if needed.
 
     The stamina component is stored in character.ndb.stamina for the session.
-    Stats are pulled from the character's attributes.
+    Stats are pulled from the character's D&D 5e attributes and converted to stamina scale.
     """
     # Always check if stamina exists AND is valid
     existing = getattr(character.ndb, "stamina", None)
     if existing is not None:
         return existing
     
-    # Get stats from character - default to 50 if not set
-    body = getattr(character, "body", None) or getattr(character.db, "body", None) or 50
-    dex = getattr(character, "dexterity", None) or getattr(character.db, "dexterity", None) or 50
-    will = getattr(character, "willpower", None) or getattr(character.db, "willpower", None) or 50
+    # Convert D&D 5e stats (8-15 range) to stamina system (0-100 scale)
+    # Formula: (stat - 8) * (100 / 7) to map 8->0, 15->100
+    # For personality-boosted stats (up to 16): 16->114
+    def d5e_to_stamina_scale(d5e_stat):
+        """Convert D&D 5e stat (8-16) to stamina scale (0-100+)."""
+        return (d5e_stat - 8) * (100.0 / 7.0)
+
+    # Get D&D 5e stats from character, with fallback to default of 10 (middle of range)
+    str_val = getattr(character, "str", 10) or 10
+    dex_val = getattr(character, "dex", 10) or 10
+    con_val = getattr(character, "con", 10) or 10
+    wis_val = getattr(character, "wis", 10) or 10
+    
+    # In stamina system:
+    # body = CON (affects stamina pool and max capacity)
+    # dex = DEX (affects movement efficiency and recovery)
+    # will = WIS (provides subtle bonuses in low-stamina situations)
+    body = int(d5e_to_stamina_scale(con_val))
+    dex = int(d5e_to_stamina_scale(dex_val))
+    will = int(d5e_to_stamina_scale(wis_val))
 
     # Create stamina component
     stamina = CharacterMovementStamina(

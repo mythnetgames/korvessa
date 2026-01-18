@@ -341,6 +341,10 @@ class CharacterCreateView(EvenniaCharacterCreateView):
             character.wis = int(form.cleaned_data.get('willpower', 10))  # Wisdom = Willpower
             character.cha = int(form.cleaned_data.get('edge', 10))  # Charisma = Edge (force of personality/luck)
             
+            # Invalidate stamina cache to force recalculation with new stats
+            from commands.movement import invalidate_stamina_cache
+            invalidate_stamina_cache(character)
+            
             # Set sex (using AttributeProperty)
             character.sex = sex
             

@@ -188,40 +188,28 @@ def restore_from_clone(new_character, backup_data):
     if not backup_data:
         return False
     
-    # Restore stats (these are BASELINE stats without chrome bonuses)
-    new_character.body = backup_data.get('body', 1)
-    new_character.ref = backup_data.get('ref', 1)
-    new_character.dex = backup_data.get('dex', 1)
-    new_character.tech = backup_data.get('tech', 1)
-    new_character.smrt = backup_data.get('smrt', 1)
-    new_character.will = backup_data.get('will', 1)
-    new_character.edge = backup_data.get('edge', 1)
-    # Empathy: set to None so it auto-calculates from edge + willpower
-    new_character._emp = None
+    # Restore D&D 5e stats from backup
+    # Check for new-style stats first, then fall back to old stats
+    new_character.str = backup_data.get('str', backup_data.get('body', 10))
+    new_character.dex = backup_data.get('dex', backup_data.get('dex', 10))
+    new_character.con = backup_data.get('con', backup_data.get('body', 10))
+    new_character.int = backup_data.get('int', backup_data.get('smrt', 10))
+    new_character.wis = backup_data.get('wis', backup_data.get('will', 10))
+    new_character.cha = backup_data.get('cha', backup_data.get('edge', 10))
+    
+    # Invalidate stamina cache to force recalculation with restored stats
+    from commands.movement import invalidate_stamina_cache
+    invalidate_stamina_cache(new_character)
     
     # Store baseline stats on new character (for future clone backups)
     new_character.db.baseline_stats = {
-        'body': backup_data.get('body', 1),
-        'ref': backup_data.get('ref', 1),
-        'dex': backup_data.get('dex', 1),
-        'tech': backup_data.get('tech', 1),
-        'smrt': backup_data.get('smrt', 1),
-        'will': backup_data.get('will', 1),
-        'edge': backup_data.get('edge', 1),
-        'emp': backup_data.get('emp', 1)
+        'str': new_character.str,
+        'dex': new_character.dex,
+        'con': new_character.con,
+        'int': new_character.int,
+        'wis': new_character.wis,
+        'cha': new_character.cha
     }
-    
-    # Set max stats to baseline values (no chrome bonuses)
-    # Max stats should match the current baseline stats
-    new_character.max_body = backup_data.get('body', 1)
-    new_character.max_ref = backup_data.get('ref', 1)
-    new_character.max_dex = backup_data.get('dex', 1)
-    new_character.max_tech = backup_data.get('tech', 1)
-    new_character.max_smrt = backup_data.get('smrt', 1)
-    new_character.max_will = backup_data.get('will', 1)
-    new_character.max_edge = backup_data.get('edge', 1)
-    # Empathy max: calculate from edge + willpower baseline
-    new_character.max_emp = backup_data.get('edge', 1) + backup_data.get('will', 1)
     
     # Restore skills
     new_character.db.skills = dict(backup_data.get('skills', {}))

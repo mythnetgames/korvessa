@@ -307,6 +307,10 @@ def create_character_from_template(account, template, sex="ambiguous"):
     char.wis = template.get('wis', 10)
     char.cha = template.get('cha', 10)
     
+    # Invalidate stamina cache to force recalculation with new stats
+    from commands.movement import invalidate_stamina_cache
+    invalidate_stamina_cache(char)
+    
     # Store baseline stats (for clone restoration)
     char.db.baseline_stats = {
         'str': char.str,
