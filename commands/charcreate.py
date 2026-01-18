@@ -1313,52 +1313,83 @@ to |yany|n skill of your choosing. Enter the skill name exactly as shown:
 def first_char_stat_assign(caller, raw_string, **kwargs):
     """Distribute 27 points among 6 stats using D&D 5e standard point buy."""
     from world.personality_system import PERSONALITIES
+    from evennia import logger
     
-    if 'sex' in kwargs:
-        caller.ndb.charcreate_data['sex'] = kwargs['sex']
-    first_name = caller.ndb.charcreate_data.get('first_name', '')
-    last_name = caller.ndb.charcreate_data.get('last_name', '')
-    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
-    race = caller.ndb.charcreate_data.get('race', 'human')
-    sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
-    personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
-    personality_stat = caller.ndb.charcreate_data.get('personality_stat')  # None if not yet chosen
-    stats = caller.ndb.charcreate_data.get('stats', {
-        'str': 8,
-        'dex': 8,
-        'con': 8,
-        'int': 8,
-        'wis': 8,
-        'cha': 8
-    })
+    # Ensure charcreate_data exists
+    if not hasattr(caller.ndb, 'charcreate_data') or caller.ndb.charcreate_data is None:
+        caller.ndb.charcreate_data = {}
     
-    # Get personality info
-    p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
-    stat_names = {'str': 'STR', 'dex': 'DEX', 'con': 'CON', 'int': 'INT', 'wis': 'WIS', 'cha': 'CHA'}
+    try:
+        if 'sex' in kwargs:
+            caller.ndb.charcreate_data['sex'] = kwargs['sex']
+        first_name = caller.ndb.charcreate_data.get('first_name', '')
+        last_name = caller.ndb.charcreate_data.get('last_name', '')
+        sdesc = caller.ndb.charcreate_data.get('sdesc', '')
+        race = caller.ndb.charcreate_data.get('race', 'human')
+        sex = caller.ndb.charcreate_data.get('sex', 'ambiguous')
+        personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
+        personality_stat = caller.ndb.charcreate_data.get('personality_stat')  # None if not yet chosen
+        
+        # Ensure personality_stat is a valid string or None
+        if personality_stat is not None and not isinstance(personality_stat, str):
+            logger.log_warn(f"Invalid personality_stat type: {type(personality_stat)}")
+            personality_stat = None
+        
+        default_stats = {
+            'str': 8,
+            'dex': 8,
+            'con': 8,
+            'int': 8,
+            'wis': 8,
+            'cha': 8
+        }
+        stats = caller.ndb.charcreate_data.get('stats', default_stats)
+        
+        # Validate stats dict structure
+        if not isinstance(stats, dict):
+            logger.log_warn(f"Invalid stats type: {type(stats)}, resetting")
+            stats = default_stats.copy()
+            caller.ndb.charcreate_data['stats'] = stats
+        
+        # Ensure all stat keys exist with valid integer values
+        for stat_key in default_stats:
+            if stat_key not in stats or not isinstance(stats.get(stat_key), int):
+                stats[stat_key] = default_stats[stat_key]
+        caller.ndb.charcreate_data['stats'] = stats
     
-    # Calculate points spent using D&D 5e point buy costs
-    def calc_cost(value):
-        """Calculate point cost for a stat value."""
-        return POINT_BUY_COSTS.get(value, 0)
+        # Get personality info
+        p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
+        stat_names = {'str': 'STR', 'dex': 'DEX', 'con': 'CON', 'int': 'INT', 'wis': 'WIS', 'cha': 'CHA'}
     
-    points_spent = sum(calc_cost(v) for v in stats.values())
-    remaining = POINT_BUY_TOTAL - points_spent
+        # Calculate points spent using D&D 5e point buy costs
+        def calc_cost(value):
+            """Calculate point cost for a stat value."""
+            return POINT_BUY_COSTS.get(value, 0)
     
-    # Calculate modifiers
-    def calc_mod(value):
-        return (value - 10) // 2
+        points_spent = sum(calc_cost(v) for v in stats.values())
+        remaining = POINT_BUY_TOTAL - points_spent
     
-    # Build stat display showing boosted range for personality stat (only if chosen)
-    def stat_line(stat_key, color, name, desc):
-        value = stats[stat_key]
-        is_bonus = personality_stat and stat_key == personality_stat
-        if is_bonus:
-            range_text = f"|y(9-16)|n"  # Boosted range for chosen personality stat
+        # Calculate modifiers
+        def calc_mod(value):
+            return (value - 10) // 2
+    
+        # Build stat display showing boosted range for personality stat (only if chosen)
+        def stat_line(stat_key, color, name, desc):
+            value = stats[stat_key]
+            is_bonus = personality_stat and stat_key == personality_stat
+            if is_bonus:
+                range_text = f"|y(9-16)|n"  # Boosted range for chosen personality stat
+            else:
+                range_text = f"(8-15)"
+            return f"    |{color}{name}|n: {value:2d}  |w({calc_mod(value):+d})|n {range_text} - {desc}"
+    
+        # Build personality boost message safely
+        if personality_stat and personality_stat in stat_names:
+            boost_msg = f"|yYour personality boosts {stat_names[personality_stat]} range to 9-16.|n"
         else:
-            range_text = f"(8-15)"
-        return f"    |{color}{name}|n: {value:2d}  |w({calc_mod(value):+d})|n {range_text} - {desc}"
+            boost_msg = ""
     
-    text = f"""
+        text = f"""
 |wAssign Your Ability Scores|n
 
 Sdesc: |c{sdesc}|n
@@ -1368,7 +1399,7 @@ Personality: |c{p['name']}|n
 
 |wPoint buy:|n |y{POINT_BUY_TOTAL} points|n to spend.
 |wPoint costs:|n 8=0, 9=1, 10=2, 11=3, 12=4, 13=5, 14=7, 15=9, 16=12
-{'|yYour personality boosts ' + stat_names.get(personality_stat, personality_stat.upper()) + ' range to 9-16.|n' if personality_stat else ''}
+{boost_msg}
 
 |b----------------------------------------------------------------------|n
 {stat_line('str', 'r', 'STR (Strength)    ', 'Physical power, melee damage')}
@@ -1387,63 +1418,72 @@ Personality: |c{p['name']}|n
     |wdone|n            - Finalize (when exactly {POINT_BUY_TOTAL} points spent)
 
 |w>|n """
-    options = (
-        {"key": "_default", "goto": "first_char_stat_assign"},
-    )
-    if raw_string and raw_string.strip():
-        args = raw_string.strip().lower().split()
-        if not args:
-            return text, options
-        command = args[0]
-        valid_stats = ['str', 'dex', 'con', 'int', 'wis', 'cha']
+        options = (
+            {"key": "_default", "goto": "first_char_stat_assign"},
+        )
+        if raw_string and raw_string.strip():
+            args = raw_string.strip().lower().split()
+            if not args:
+                return text, options
+            command = args[0]
+            valid_stats = ['str', 'dex', 'con', 'int', 'wis', 'cha']
         
-        # Handle stat aliases
-        stat_aliases = {
-            'strength': 'str',
-            'dexterity': 'dex',
-            'constitution': 'con',
-            'intelligence': 'int',
-            'wisdom': 'wis',
-            'charisma': 'cha'
-        }
-        if command in stat_aliases:
-            command = stat_aliases[command]
+            # Handle stat aliases
+            stat_aliases = {
+                'strength': 'str',
+                'dexterity': 'dex',
+                'constitution': 'con',
+                'intelligence': 'int',
+                'wisdom': 'wis',
+                'charisma': 'cha'
+            }
+            if command in stat_aliases:
+                command = stat_aliases[command]
         
-        if command == 'reset':
-            stats = {k: 8 for k in valid_stats}
-            caller.ndb.charcreate_data['stats'] = stats
-            caller.msg("|yAll stats reset to 8.|n")
-            return None  # Re-display the screen
-        if command in ['done', 'finish', 'finalize']:
-            is_valid, error = validate_stat_distribution(stats, personality_stat)
-            if not is_valid:
-                caller.msg(f"|r{error}|n")
-                return text, options
-            return first_char_confirm(caller, "", **kwargs)
-        if command in valid_stats:
-            if len(args) < 2:
-                caller.msg("|rUsage: <stat> <value>  (e.g., 'str 15')|n")
-                return text, options
-            try:
-                value = int(args[1])
-            except ValueError:
-                caller.msg("|rValue must be a number.|n")
-                return text, options
-            # Check range based on whether this stat gets personality bonus (only if chosen)
-            is_bonus_stat = personality_stat and command == personality_stat
-            min_val = 9 if is_bonus_stat else 8
-            max_val = 16 if is_bonus_stat else 15
+            if command == 'reset':
+                stats = {k: 8 for k in valid_stats}
+                caller.ndb.charcreate_data['stats'] = stats
+                caller.msg("|yAll stats reset to 8.|n")
+                return None  # Re-display the screen
+            if command in ['done', 'finish', 'finalize']:
+                is_valid, error = validate_stat_distribution(stats, personality_stat)
+                if not is_valid:
+                    caller.msg(f"|r{error}|n")
+                    return text, options
+                return first_char_confirm(caller, "", **kwargs)
+            if command in valid_stats:
+                if len(args) < 2:
+                    caller.msg("|rUsage: <stat> <value>  (e.g., 'str 15')|n")
+                    return text, options
+                try:
+                    value = int(args[1])
+                except ValueError:
+                    caller.msg("|rValue must be a number.|n")
+                    return text, options
+                # Check range based on whether this stat gets personality bonus (only if chosen)
+                is_bonus_stat = personality_stat and command == personality_stat
+                min_val = 9 if is_bonus_stat else 8
+                max_val = 16 if is_bonus_stat else 15
             
-            if value < min_val or value > max_val:
-                range_desc = f"{min_val}-{max_val}" if is_bonus_stat else "8-15"
-                caller.msg(f"|rValue must be {range_desc}.|n")
-                return text, options
-            stats[command] = value
-            caller.ndb.charcreate_data['stats'] = stats
-            return None  # Re-display the screen with updated stats
-        else:
-            caller.msg(f"|rUnknown command. Valid stats: {', '.join(valid_stats)}|n")
-    return text, options
+                if value < min_val or value > max_val:
+                    range_desc = f"{min_val}-{max_val}" if is_bonus_stat else "8-15"
+                    caller.msg(f"|rValue must be {range_desc}.|n")
+                    return text, options
+                stats[command] = value
+                caller.ndb.charcreate_data['stats'] = stats
+                return None  # Re-display the screen with updated stats
+            else:
+                caller.msg(f"|rUnknown command. Valid stats: {', '.join(valid_stats)}|n")
+        return text, options
+    except Exception as e:
+        # Log the full error for debugging
+        import traceback
+        logger.log_err(f"Error in first_char_stat_assign: {e}\n{traceback.format_exc()}")
+        caller.msg("|rAn unexpected error occurred. Please try again.|n")
+        # Return a safe fallback
+        fallback_text = "|wStat Assignment|n\n\nAn error occurred. Type any stat command to continue (e.g., 'str 10').\n|w>|n "
+        fallback_options = ({"key": "_default", "goto": "first_char_stat_assign"},)
+        return fallback_text, fallback_options
 
 
 def first_char_confirm(caller, raw_string, **kwargs):
