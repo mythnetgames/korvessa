@@ -2,93 +2,47 @@
 
 {% block client %}
 
-<!-- Toolbar with game title and buttons -->
-<div id="toolbar">
-  <span class="game-title">Korvessa</span>
-  <div class="toolbar-buttons">
-    <button class="toolbar-btn" onclick="window.open('/', '_blank')">Home</button>
-    <button class="toolbar-btn" onclick="showHelp()">Help</button>
-  </div>
-</div>
+<!-- Toolbar - keep exact structure expected by Evennia -->
+<div id="toolbar"></div>
 
-<!-- Main message area -->
+<!-- Main message window - keep exact structure expected by Evennia -->
 <div id="main" class="split split-vertical" data-role-default>
   <div id="main-sub" class="split-sub">
     <div id="messagewindow"></div>
   </div>
 </div>
 
-<!-- Input area -->
+<!-- Input area - keep exact structure expected by Evennia -->
 <div id="input" class="split split-vertical" data-role-input data-update-append>
   <div id="inputform" class="wrapper">
     <div id="prompt" class="prompt"></div>
     <div id="inputcontrol" class="input-group">
-      <textarea id="inputfield" type="text" class="form-control" placeholder="Enter command..."></textarea>
-      <button class="btn" id="inputsend" type="button" value="" style="display:none;">&gt;</button>
+      <textarea id="inputfield" type="text" class="form-control" placeholder="Type commands here..."></textarea>
+      <span class="input-group-btn">
+        <button class="btn btn-large btn-outline-primary" id="inputsend" type="button" value="">&gt;</button>
+      </span>
     </div>
   </div>
 </div>
 
-<script>
-  // Handle Enter key to send commands
-  document.addEventListener('DOMContentLoaded', function() {
-    var inputfield = document.getElementById('inputfield');
-    
-    if (inputfield) {
-      inputfield.addEventListener('keydown', function(e) {
-        // Send on Enter, allow Shift+Enter for newlines
-        if (e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          
-          // Trigger the send button click if it exists, or call the command directly
-          var sendBtn = document.getElementById('inputsend');
-          if (sendBtn) {
-            sendBtn.click();
-          }
-          
-          return false;
-        }
-      });
-    }
-  });
-
-  // Simple help display
-  function showHelp() {
-    var helpText = "\n=== Korvessa Webclient Help ===\n" +
-                   "Type 'help' to see available commands.\n" +
-                   "Type 'look' to see your surroundings.\n" +
-                   "Use Up/Down arrows for command history.\n" +
-                   "Press Enter to send commands (Shift+Enter for newlines).\n" +
-                   "===============================\n";
-    
-    var msgwin = document.getElementById('messagewindow');
-    if (msgwin) {
-      var helpDiv = document.createElement('div');
-      helpDiv.className = 'sys';
-      helpDiv.style.whiteSpace = 'pre-wrap';
-      helpDiv.textContent = helpText;
-      msgwin.appendChild(helpDiv);
-      msgwin.scrollTop = msgwin.scrollHeight;
-    }
-  }
-
-  // Auto-scroll to bottom when new messages arrive
-  var observer = new MutationObserver(function(mutations) {
-    var msgwin = document.getElementById('messagewindow');
-    if (msgwin) {
-      msgwin.scrollTop = msgwin.scrollHeight;
-    }
-  });
-
-  document.addEventListener('DOMContentLoaded', function() {
-    var msgwin = document.getElementById('messagewindow');
-    if (msgwin) {
-      observer.observe(msgwin, { childList: true, subtree: true });
-    }
-  });
-</script>
-
 {% endblock %}
 
 {% block scripts %}
+<!-- Korvessa custom enhancements -->
+<script>
+  $(document).ready(function() {
+    // Add Korvessa branding to toolbar
+    $('#toolbar').html('<span class="game-title">Korvessa - Year 160 AH</span>');
+    
+    // Auto-scroll message window to bottom
+    var msgWindow = $('#messagewindow');
+    var observer = new MutationObserver(function() {
+      msgWindow.scrollTop(msgWindow[0].scrollHeight);
+    });
+    
+    if (msgWindow[0]) {
+      observer.observe(msgWindow[0], { childList: true, subtree: true });
+    }
+  });
+</script>
 {% endblock %}
