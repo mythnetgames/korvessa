@@ -1243,60 +1243,12 @@ def first_char_personality_skill(caller, raw_string, **kwargs):
     from world.personality_system import ALL_SKILLS
     
     sdesc = caller.ndb.charcreate_data.get('sdesc', '')
-    race = caller.ndb.charcreate_data.get('race', 'human')
-    
-    text = f"""
-Sdesc: |c{sdesc}|n
-Race: |c{race.capitalize()}|n
-Personality: |cFreehands|n
-
-|w=== Choose Your Secondary Skill Bonus ===|n
-
-As a Freehands, you may apply your |y+5%|n secondary skill bonus
-to |yany|n skill of your choosing. Enter the skill name exactly as shown:
-
-"""
-    
-    # Display all available skills in columns
-    for i, skill in enumerate(ALL_SKILLS, 1):
-        text += f"|w[{i:2d}]|n {skill.replace('_', ' ').title():20} "
-        if i % 3 == 0:
-            text += "\n"
-    
-    text += "\n\n|wEnter choice (number or skill name):|n "
-    
-    options = (
-        {"key": "_default",
          "goto": "first_char_personality_skill"},
-    )
-    
-    # Handle input
-    if raw_string and raw_string.strip():
-        choice = raw_string.strip()
-        
-        try:
-            # Try numeric choice first
-            choice_num = int(choice)
-            if 1 <= choice_num <= len(ALL_SKILLS):
-                selected_skill = ALL_SKILLS[choice_num - 1]
-                caller.ndb.charcreate_data['personality_secondary_skill'] = selected_skill
-                caller.msg(f"|gYou will receive +5% |c{selected_skill.replace('_', ' ').title()}|g.|n")
-                return first_char_sex(caller, "", **kwargs)
-            else:
-                caller.msg(f"|rInvalid choice. Please enter a number 1-{len(ALL_SKILLS)} or a skill name.|n")
-                return text, options
-        except ValueError:
-            # Try matching skill name
-            choice_lower = choice.lower().replace(' ', '_')
-            if choice_lower in ALL_SKILLS:
-                caller.ndb.charcreate_data['personality_secondary_skill'] = choice_lower
-                caller.msg(f"|gYou will receive +5% |c{choice_lower.replace('_', ' ').title()}|g.|n")
-                return first_char_sex(caller, "", **kwargs)
-            else:
-                caller.msg(f"|rSkill not found. Please enter a valid skill name or number 1-{len(ALL_SKILLS)}.|n")
-                return text, options
-    
-    return text, options
+                    # Freehands needs secondary skill selection
+                    if selected_personality == 'freehands':
+                        return first_char_personality_skill(caller, "", **kwargs)
+                    # Otherwise, proceed to race selection
+                    return first_char_race(caller, "", **kwargs)
 
 
 def first_char_stat_assign(caller, raw_string, **kwargs):
