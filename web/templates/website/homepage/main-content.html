@@ -45,6 +45,7 @@ h1, h2, h3 { color: #e8dcc8; font-family: 'Georgia', serif; letter-spacing: 1px;
 </style>
 <h1 style="text-align: center; margin-bottom: 24px; font-size: 2.5rem;">Welcome to Korvessa</h1>
 
+
 <p style="text-align: center; font-size: 1.1rem; margin-bottom: 16px; color: #c19a6b;">
   <em>May He Watch over you.</em>
 </p>
@@ -55,12 +56,37 @@ h1, h2, h3 { color: #e8dcc8; font-family: 'Georgia', serif; letter-spacing: 1px;
   </a>
 </div>
 
+{% load static %}
+{% with holiday=None %}
+{% if holiday_today %}
+  {% with holiday=holiday_today %}
+{% endif %}
+{% if not holiday %}
+  {% comment %} Fallback to a sample holiday if not running live code {% endcomment %}
+  {% with holiday={
+    'name': 'Feast of Plenty',
+    'tradition': 'Feyliks',
+    'desc': 'Excess is permitted briefly. Those who abstain are assumed fearful or hiding loss.'
+  } %}
+  {% endwith %}
+{% endif %}
+<div class="card" style="margin: 24px auto; max-width: 600px; background: #2d1f0e; border-left: 6px solid #d4a574;">
+  <h3 style="margin: 0 0 8px 0; color: #e8dcc8; font-size: 1.3rem;">Today's Holiday: {{ holiday.name }}</h3>
+  <p style="margin: 0; color: #c19a6b; font-size: 1.05rem;">Tradition: <strong>{{ holiday.tradition }}</strong></p>
+  <p style="margin: 8px 0 0 0; color: #d4c5a9;">{{ holiday.desc }}</p>
+</div>
+{% endwith %}
+
 <p>
-  One hundred and sixty years ago, divine cataclysms drove humanity into five sacred cities. Since The Herding, Korvessa has endured beneath the watchful eye of the Watcher—isolated, protected, bound by law and faith. The boundaries beyond the city remain deadly; none who venture beyond and attempt to escape return alive.
+  Korvessa is a walled farm community, built on the labor of its citizens and the rhythm of the land. Fields and gardens surround the city, and most families work together to grow, harvest, and share what they can. The city is known for its strong sense of cooperation and the cycles of planting and reaping that shape daily life. 
 </p>
 
 <p>
-  For sixty years, the Watcher's hooded emissaries have delivered rare gifts and sacred texts through the Sprinkling—a yearly rite that anchors the city's survival and belief. But five years ago, the Sprinkling did not come. Now, as faith fractures and factions vie for influence, whispers speak of another Scholar's Passage—a once-a-decade journey beyond the walls, guided by the Watcher's unseen hand.
+  Every year, the city gathers for the Sprinkling—a holiday marking the end of the planting season and the beginning of the harvest. Neighbors share food, stories, and music in the central square, and children run through the fields with ribbons and bells. The Sprinkling is a time of hope and gratitude, a reminder that survival depends on both luck and hard work. Five years ago, the Sprinkling was interrupted, and since then, the city has faced new uncertainties and shifting alliances.
+</p>
+
+<p>
+  One hundred and sixty years ago, cataclysms drove humanity into five sacred cities. Since The Herding, Korvessa has endured—isolated, protected, and bound by law and tradition. The boundaries beyond the city remain deadly; none who venture beyond and attempt to escape return alive.
 </p>
 
 <p>
@@ -69,48 +95,36 @@ h1, h2, h3 { color: #e8dcc8; font-family: 'Georgia', serif; letter-spacing: 1px;
 
 <hr style="border-color: #8b4513; margin: 24px 0;">
 
-<h2 style="text-align: center; margin: 24px 0;">The Watcher and the Children</h2>
+
+<h2 style="text-align: center; margin: 24px 0;">Paths in Korvessa</h2>
 
 <p style="line-height: 1.8; color: #d4c5a9; margin: 16px 0; font-style: italic; padding: 16px; border-left: 2px solid #8b4513;">
-  The Watcher is beyond comprehension—an eldritch presence that perceives all possible outcomes simultaneously, neither he nor she, but something that exists in angles the mind cannot quite hold. Every road is already walked. Every decision already made. Contradictions coexist without conflict in its infinite sight. It does not cause fate; it simply knows it, sees it, contains it. To be fully seen by it is to be stripped of narrative—you are not a person but a convergence of predetermined echoes. Most mortals cannot bear to think too long on what gazes back from the spaces between stars.
-</p>
-
-<p style="line-height: 1.8; color: #d4c5a9; margin: 16px 0;">
-  The Children embody the mercy of narrow sight: they cannot see everything at once, which is not a weakness but an act of defiance, for each child imposes a constraint on reality and through that constraint, choice becomes real. They do not deny the Watcher's vision; they refuse to live inside it.
+  Korvessa is a city of choices, constraints, and consequences. Every citizen must decide what kind of story they want to live, and what risks, duties, or ambitions they are willing to accept. The walls keep out the unknown, but inside, every day is shaped by the paths people choose and the limits they embrace.
 </p>
 
 <div class="faction-card faction-velora">
-  <h3 style="color: #d4a574; margin: 0 0 12px 0; font-size: 1.4rem; letter-spacing: 0.5px;">Velora - The Path of Chosen Order</h3>
+  <h3 style="color: #d4a574; margin: 0 0 12px 0; font-size: 1.4rem; letter-spacing: 0.5px;">Order and Commitment</h3>
   <p style="margin: 0 0 12px 0; line-height: 1.6; color: #d4c5a9;">
-    Velora collapses infinite possibility into duty, teaching mortals to choose a code, accept limitation, and act as though meaning must be earned. Where the Watcher sees all moral outcomes at once, Velora says to pick one and carry it to the end, for virtue is not optimal but chosen. By committing to order, mortals deny the paralysis of infinite outcomes. Knights, healers, and the steadfast find meaning in this sacred refusal.
-  </p>
-  <p style="margin: 0; line-height: 1.6; color: #c19a6b; font-style: italic;">
-    <em>"If every outcome already exists in the Watcher's sight, can choosing a single path still matter? Or does choosing a code grant meaning precisely because it rejects the comfort of knowing all possibilities?"</em>
+    Some in Korvessa find meaning in discipline, service, and the pursuit of virtue. They choose codes, accept limitations, and believe that meaning is earned by carrying a single story to its end. What does it mean to commit to a path when other options remain open? Is virtue found in the act of choosing, or in the endurance to see it through?
   </p>
 </div>
 
 <div class="faction-card faction-feyliks">
-  <h3 style="color: #c5a572; margin: 0 0 12px 0; font-size: 1.4rem; letter-spacing: 0.5px;">Feyliks - The Path of Graceful Ignorance</h3>
+  <h3 style="color: #c5a572; margin: 0 0 12px 0; font-size: 1.4rem; letter-spacing: 0.5px;">Chance and Risk</h3>
   <p style="margin: 0 0 12px 0; line-height: 1.6; color: #d4c5a9;">
-    Feyliks fractures inevitability, treating luck, chance, and risk not as randomness but as refusals to accept foreknowledge. When a mortal flips a coin or takes a gamble, they declare they do not care what could happen—only what does, embracing ignorance in a way that is heresy to the Watcher's cult. If the outcome is not known until it happens, total vision loses its meaning. Gamblers, performers, and those who dance with risk find freedom here.
-  </p>
-  <p style="margin: 0; line-height: 1.6; color: #c19a6b; font-style: italic;">
-    <em>"What is freedom worth if you know the end before you begin? Does not the act of risking what cannot be predicted become the only true rebellion?"</em>
+    Others embrace luck, risk, and the thrill of uncertainty. They gamble, perform, and take chances, believing that freedom is found in not knowing the outcome until it happens. Is true rebellion found in risking what cannot be predicted? What is the value of freedom if you know the end before you begin?
   </p>
 </div>
 
 <div class="faction-card faction-regalus">
-  <h3 style="color: #8b4513; margin: 0 0 12px 0; font-size: 1.4rem; letter-spacing: 0.5px;">Regalus - The Path of Self-Authorship</h3>
+  <h3 style="color: #8b4513; margin: 0 0 12px 0; font-size: 1.4rem; letter-spacing: 0.5px;">Ambition and Self-Authorship</h3>
   <p style="margin: 0 0 12px 0; line-height: 1.6; color: #d4c5a9;">
-    Regalus offers the hardest defiance: to assert a single outcome. If the Watcher sees all possible futures, then one should choose the one they will force into being, using strength, ambition, and autonomy as tools to collapse possibility—not as tyranny but as self-authorship. Even if the Watcher already knows the result, the act of choosing still matters. Warriors and those who hunger for power find authority here, earned not through inherited right but through the will to seize it.
-  </p>
-  <p style="margin: 0; line-height: 1.6; color: #c19a6b; font-style: italic;">
-    <em>"If all futures are already known, does the power to choose between them—and to force your choice into existence through will alone—become the only real freedom? Or is that simply another path the Watcher already accounted for?"</em>
+    Some seek to assert their will, shape their own fate, and bend the world to their vision. They believe that the act of choosing and forcing a single outcome is the only real freedom. Is power simply the ability to choose and persist, or is it another kind of constraint? What does it mean to author your own story in a world full of other ambitions?
   </p>
 </div>
 
 <p style="line-height: 1.8; color: #d4c5a9; margin: 24px 0; padding: 16px; border-left: 2px solid #8b4513;">
-  The most unsettling part is why the Watcher allows this: he does not stop the children, and some theologians believe he cannot, others that he will not, and still others that he already accounted for their defiance. Darker whispers suggest that the Watcher watches the children too and still lets them pretend. This is why cultists of the Watcher despise the children—not because they are false, but because they make ignorance feel holy. The children do not promise better outcomes; they promise a single story you can live inside, and in Korvessa, that is the closest thing to freedom anyone has.
+  In Korvessa, most citizens cannot explain the philosophies behind their choices, but they live them every day—swearing oaths, taking risks, seizing control, and sometimes simply surviving. The city does not promise better outcomes; it promises a single story you can live inside, and that is the closest thing to freedom anyone has.
 </p>
 
 <hr style="border-color: #8b4513; margin: 24px 0;">
