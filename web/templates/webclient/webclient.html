@@ -24,19 +24,40 @@
     <div id="prompt" class="prompt"></div>
     <div id="inputcontrol" class="input-group">
       <textarea id="inputfield" type="text" class="form-control" placeholder="Enter command..."></textarea>
-      <button class="btn" id="inputsend" type="button" value="">&gt;</button>
     </div>
   </div>
 </div>
 
 <script>
+  // Handle Enter key to send commands
+  document.addEventListener('DOMContentLoaded', function() {
+    var inputfield = document.getElementById('inputfield');
+    
+    if (inputfield) {
+      inputfield.addEventListener('keydown', function(e) {
+        // Send on Enter, allow Shift+Enter for newlines
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          
+          // Trigger the send button click if it exists, or call the command directly
+          var sendBtn = document.getElementById('inputsend');
+          if (sendBtn) {
+            sendBtn.click();
+          }
+          
+          return false;
+        }
+      });
+    }
+  });
+
   // Simple help display
   function showHelp() {
     var helpText = "\n=== Korvessa Webclient Help ===\n" +
                    "Type 'help' to see available commands.\n" +
                    "Type 'look' to see your surroundings.\n" +
                    "Use Up/Down arrows for command history.\n" +
-                   "Press Enter to send commands.\n" +
+                   "Press Enter to send commands (Shift+Enter for newlines).\n" +
                    "===============================\n";
     
     var msgwin = document.getElementById('messagewindow');
