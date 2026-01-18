@@ -53,11 +53,13 @@ MOVE_DELAY = {
 }
 
 # --- DEX Modifiers ---
-DEX_REGEN_BONUS = 0.03          # Regen multiplier bonus per DEX point (scaled)
-DEX_DRAIN_REDUCTION = 0.04      # Drain reduction factor from DEX+BODY synergy
+# Scaled for D&D 5e stat conversion where average DEX ≈ 28.6 instead of 50
+DEX_REGEN_BONUS = 0.053          # Regen multiplier bonus per DEX point (was 0.03, scaled 1.75x)
+DEX_DRAIN_REDUCTION = 0.07       # Drain reduction factor from DEX+BODY synergy (was 0.04, scaled 1.75x)
 
 # --- Movement Cost Modifiers ---
-DEX_MOVE_COST_REDUCTION = 0.03  # How much DEX reduces movement costs
+# Scaled for D&D 5e stat conversion where average DEX ≈ 28.6 instead of 50
+DEX_MOVE_COST_REDUCTION = 0.053  # How much DEX reduces movement costs (was 0.03, scaled 1.75x)
 
 # --- Fatigue System ---
 FATIGUE_BASE_SECONDS = 7.0      # Base fatigue duration after leaving sprint
@@ -260,11 +262,12 @@ class CharacterMovementStamina:
         """
         Calculate WILL grace factor for low stamina situations.
         
-        Formula: will_grace = clamp(0, 0.20, 0.25 * WILL/(WILL+50))
+        Formula: will_grace = clamp(0, 0.20, 0.25 * WILL/(WILL+28.5))
+        Scaled for D&D 5e where average WILL ≈ 28.6 instead of 50
         """
         if self.will <= 0:
             return 0.0
-        raw_grace = WILL_GRACE_FACTOR * self.will / (self.will + 50)
+        raw_grace = WILL_GRACE_FACTOR * self.will / (self.will + 28.5)
         return clamp(raw_grace, 0.0, WILL_GRACE_MAX)
     
     def _get_move_cost_multiplier(self):
