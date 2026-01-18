@@ -179,9 +179,12 @@ def _get_constitution_modifier(character):
     Higher CON = can go longer without food/drink.
     Dwarves get an additional 0.5x multiplier on top of this.
     
-    CON 0:   1.0x (normal - go hungry in 24h)
-    CON 50:  1.0x (normal baseline)
-    CON 100: 1.5x (50% longer between meals)
+    D&D 5e Stats (8-16 scale):
+    CON 8:   0.85x (faster hunger/thirst)
+    CON 10:  1.0x (normal - go hungry in 24h)
+    CON 12:  1.15x 
+    CON 14:  1.3x
+    CON 16:  1.45x (45% longer between meals)
     
     Dwarf racial bonus: x0.5 (e.g., 1.0x becomes 0.5x, so they go hungry in 12h instead of 24h)
     
@@ -189,16 +192,23 @@ def _get_constitution_modifier(character):
         float: multiplier for hunger/thirst timers
     """
     try:
-        # Try to get Constitution stat
-        con = getattr(character, 'con', None) or getattr(character.db, 'con', None) or 50
-        con = max(0, min(100, con))  # Clamp to 0-100
+        # Try to get Constitution stat (D&D 5e scale: 8-16)
+        con = getattr(character, 'con', None) or getattr(character.db, 'con', None) or 10
         
-        # Formula: 1.0 + (CON - 50) * 0.01 = 1.0 to 1.5
-        modifier = 1.0 + ((con - 50) * 0.01)
+        # Handle both old 0-100 scale and new 8-16 D&D 5e scale
+        if con > 20:
+            # Old 0-100 scale - convert to 8-16
+            # 0 -> 8, 50 -> 12, 100 -> 16
+            con = 8 + (con / 100.0) * 8
+        
+        con = max(8, min(16, con))  # Clamp to 8-16
+        
+        # Formula: 1.0 + (CON - 10) * 0.075 gives ~0.85 to 1.45 range
+        modifier = 1.0 + ((con - 10) * 0.075)
         
         # Dwarf racial bonus: need hunger/thirst twice as often (0.5x multiplier)
-        race = getattr(character, 'race', 'human').lower()
-        if race == 'dwarf':
+        race = getattr(character, 'race', 'human')
+        if race and str(race).lower() == 'dwarf':
             modifier *= 0.5
         
         return modifier
