@@ -576,8 +576,8 @@ def _respawn_process_choice(caller, raw_string, **kwargs):
         return "respawn_flash_clone"
     else:
         caller.msg("|rInvalid choice. Please enter a number from the available options.|n")
-        # Return None to re-display current node
-        return None
+        # Return to respawn_welcome to re-display the menu
+        return "respawn_welcome"
 
 
 def respawn_welcome(caller, raw_string, **kwargs):
@@ -848,37 +848,7 @@ Press |w<Enter>|n to begin your journey.
 def first_char_name_first(caller, raw_string, **kwargs):
     """Get first name."""
     
-    # If input provided, validate it
-    if raw_string and raw_string.strip():
-        name = raw_string.strip()
-        
-        # Validate format (not uniqueness yet - need full name)
-        if len(name) < 2 or len(name) > 30:
-            caller.msg(f"|rInvalid name: Name must be 2-30 characters.|n")
-            # Return None to re-display current node
-            return None
-        
-        if not re.match(r"^[a-zA-Z][a-zA-Z\-']*[a-zA-Z]$", name):
-            caller.msg(f"|rInvalid name: Only letters, hyphens, and apostrophes allowed.|n")
-            # Return None to re-display current node
-            return None
-        
-        """
-        KorvessaRPI Character Creation System
-
-        Handles first-time character creation and respawn/clone after death.
-        Uses Evennia's EvMenu for interactive menus.
-
-        Flow:
-        1. First Character: Name input → Sex selection → Stat assignment (68 points, 8 stats)
-        2. Respawn: Choose from 3 random templates OR flash clone previous character
-        """
-        # Store first name and advance to next node
-        caller.ndb.charcreate_data['first_name'] = name
-        # Call next node directly and return its result
-        return first_char_name_last(caller, "", **kwargs)
-    
-    # Display prompt (first time or after error)
+    # Display prompt text
     text = """
 |wWhat is your FIRST name?|n
 
@@ -891,6 +861,24 @@ def first_char_name_first(caller, raw_string, **kwargs):
          "goto": "first_char_name_first"},
     )
     
+    # If input provided, validate it
+    if raw_string and raw_string.strip():
+        name = raw_string.strip()
+        
+        # Validate format (not uniqueness yet - need full name)
+        if len(name) < 2 or len(name) > 30:
+            caller.msg(f"|rInvalid name: Name must be 2-30 characters.|n")
+            return text, options
+        
+        if not re.match(r"^[a-zA-Z][a-zA-Z\-']*[a-zA-Z]$", name):
+            caller.msg(f"|rInvalid name: Only letters, hyphens, and apostrophes allowed.|n")
+            return text, options
+        
+        # Store first name and advance to next node
+        caller.ndb.charcreate_data['first_name'] = name
+        # Call next node directly and return its result
+        return first_char_name_last(caller, "", **kwargs)
+    
     return text, options
 
 
@@ -899,26 +887,7 @@ def first_char_name_last(caller, raw_string, **kwargs):
     
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     
-    # If input provided, validate it
-    if raw_string and raw_string.strip():
-        name = raw_string.strip()
-        
-        if len(name) < 2 or len(name) > 30:
-            caller.msg(f"|rInvalid name: Name must be 2-30 characters.|n")
-            # Return None to re-display current node
-            return None
-        
-        if not re.match(r"^[a-zA-Z][a-zA-Z\-']*[a-zA-Z]$", name):
-            caller.msg(f"|rInvalid name: Only letters, hyphens, and apostrophes allowed.|n")
-            # Return None to re-display current node
-            return None
-        
-        # Store last name and advance to sdesc step
-        caller.ndb.charcreate_data['last_name'] = name
-        # Call next node directly and return its result
-        return first_char_sdesc(caller, "", **kwargs)
-    
-    # Display prompt (first time or after error)
+    # Display prompt
     text = f"""
 First name: |c{first_name}|n
 
@@ -934,6 +903,23 @@ First name: |c{first_name}|n
          "goto": "first_char_name_last"},
     )
     
+    # If input provided, validate it
+    if raw_string and raw_string.strip():
+        name = raw_string.strip()
+        
+        if len(name) < 2 or len(name) > 30:
+            caller.msg(f"|rInvalid name: Name must be 2-30 characters.|n")
+            return text, options
+        
+        if not re.match(r"^[a-zA-Z][a-zA-Z\-']*[a-zA-Z]$", name):
+            caller.msg(f"|rInvalid name: Only letters, hyphens, and apostrophes allowed.|n")
+            return text, options
+        
+        # Store last name and advance to sdesc step
+        caller.ndb.charcreate_data['last_name'] = name
+        # Call next node directly and return its result
+        return first_char_sdesc(caller, "", **kwargs)
+    
     return text, options
 
 
@@ -944,22 +930,7 @@ def first_char_sdesc(caller, raw_string, **kwargs):
     first_name = caller.ndb.charcreate_data.get('first_name', '')
     last_name = caller.ndb.charcreate_data.get('last_name', '')
     
-    # If input provided, validate it
-    if raw_string and raw_string.strip():
-        sdesc = raw_string.strip().lower()  # Sdescs are lowercase
-        
-        # Validate sdesc
-        is_valid, error = validate_sdesc(sdesc)
-        if not is_valid:
-            caller.msg(f"|r{error}|n")
-            return None
-        
-        # Store sdesc and advance to race selection
-        caller.ndb.charcreate_data['sdesc'] = sdesc
-        # Call next node directly and return its result
-        return first_char_race(caller, "", **kwargs)
-    
-    # Display prompt (first time or after error)
+    # Display prompt
     text = f"""
 Real Name: |c{first_name} {last_name}|n
 
@@ -989,6 +960,21 @@ in room descriptions and emotes.
         {"key": "_default",
          "goto": "first_char_sdesc"},
     )
+    
+    # If input provided, validate it
+    if raw_string and raw_string.strip():
+        sdesc = raw_string.strip().lower()  # Sdescs are lowercase
+        
+        # Validate sdesc
+        is_valid, error = validate_sdesc(sdesc)
+        if not is_valid:
+            caller.msg(f"|r{error}|n")
+            return text, options
+        
+        # Store sdesc and advance to race selection
+        caller.ndb.charcreate_data['sdesc'] = sdesc
+        # Call next node directly and return its result
+        return first_char_race(caller, "", **kwargs)
     
     return text, options
 
@@ -1083,25 +1069,25 @@ Sdesc: |c{sdesc}|n
         choice = raw_string.strip()
         race_map = {'1': 'human', '2': 'elf', '3': 'dwarf'}
         
-        if choice in race_map:
-            selected_race = race_map[choice]
-            caller.ndb.charcreate_data['race'] = selected_race
-            
-            # Set racial languages automatically
-            racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
-            caller.ndb.charcreate_data['languages'] = racial_langs.copy()
-            
-            caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
-            # Go to personality selection next
-            return first_char_personality(caller, "", **kwargs)
-        else:
-            caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
-            return None
-    
     options = (
         {"key": "_default",
          "goto": "first_char_race"},
     )
+    
+    if choice in race_map:
+        selected_race = race_map[choice]
+        caller.ndb.charcreate_data['race'] = selected_race
+        
+        # Set racial languages automatically
+        racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
+        caller.ndb.charcreate_data['languages'] = racial_langs.copy()
+        
+        caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
+        # Go to personality selection next
+        return first_char_personality(caller, "", **kwargs)
+    else:
+        caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
+        return text, options
     
     return text, options
 
@@ -1143,6 +1129,11 @@ They define |ywho you are|n, not what you do for a living.
     
     text += "\n|wEnter choice (1-8):|n "
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality"},
+    )
+    
     # Handle input
     if raw_string and raw_string.strip():
         choice = raw_string.strip()
@@ -1170,15 +1161,10 @@ They define |ywho you are|n, not what you do for a living.
                     return first_char_sex(caller, "", **kwargs)
             else:
                 caller.msg("|rInvalid choice. Please enter a number 1-8.|n")
-                return None
+                return text, options
         except ValueError:
             caller.msg("|rInvalid choice. Please enter a number 1-8.|n")
-            return None
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_personality"},
-    )
+            return text, options
     
     return text, options
 
@@ -1220,6 +1206,11 @@ Your personality grants |y+1|n to one of the following stats:
     
     text += "\n|wEnter choice:|n "
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality_stat"},
+    )
+    
     # Handle input
     if raw_string and raw_string.strip():
         choice = raw_string.strip()
@@ -1240,15 +1231,10 @@ Your personality grants |y+1|n to one of the following stats:
                 return first_char_sex(caller, "", **kwargs)
             else:
                 caller.msg(f"|rInvalid choice. Please enter a number 1-{len(stat_options)}.|n")
-                return None
+                return text, options
         except ValueError:
             caller.msg(f"|rInvalid choice. Please enter a number 1-{len(stat_options)}.|n")
-            return None
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_personality_stat"},
-    )
+            return text, options
     
     return text, options
 
@@ -1280,6 +1266,11 @@ to |yany|n skill of your choosing. Enter the skill name exactly as shown:
     
     text += "\n\n|wEnter choice (number or skill name):|n "
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality_skill"},
+    )
+    
     # Handle input
     if raw_string and raw_string.strip():
         choice = raw_string.strip()
@@ -1294,7 +1285,7 @@ to |yany|n skill of your choosing. Enter the skill name exactly as shown:
                 return first_char_sex(caller, "", **kwargs)
             else:
                 caller.msg(f"|rInvalid choice. Please enter a number 1-{len(ALL_SKILLS)} or a skill name.|n")
-                return None
+                return text, options
         except ValueError:
             # Try matching skill name
             choice_lower = choice.lower().replace(' ', '_')
@@ -1304,12 +1295,7 @@ to |yany|n skill of your choosing. Enter the skill name exactly as shown:
                 return first_char_sex(caller, "", **kwargs)
             else:
                 caller.msg(f"|rSkill not found. Please enter a valid skill name or number 1-{len(ALL_SKILLS)}.|n")
-                return None
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_personality_skill"},
-    )
+                return text, options
     
     return text, options
 
@@ -1462,7 +1448,8 @@ Personality: |c{p['name']}|n
                 stats = {k: 8 for k in valid_stats}
                 caller.ndb.charcreate_data['stats'] = stats
                 caller.msg("|yAll stats reset to 8.|n")
-                return None  # Re-display the screen
+                # Re-call to display updated screen
+                return first_char_stat_assign(caller, "", **kwargs)
             if command in ['done', 'finish', 'finalize']:
                 is_valid, error = validate_stat_distribution(stats, personality_stat)
                 if not is_valid:
@@ -1505,7 +1492,8 @@ Personality: |c{p['name']}|n
                     logger.log_err(f"Error updating stats for {caller}: {e}")
                     caller.msg("|rError saving stat. Please try again.|n")
                     return text, options
-                return None  # Re-display the screen with updated stats
+                # Re-call to display updated screen
+                return first_char_stat_assign(caller, "", **kwargs)
             else:
                 caller.msg(f"|rUnknown command. Valid stats: {', '.join(valid_stats)}|n")
         return text, options
@@ -1717,24 +1705,24 @@ How is your character publicly known? This could be:
     if 'character_facts' not in caller.ndb.charcreate_data:
         caller.ndb.charcreate_data['character_facts'] = {}
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_name"},
+    )
+    
     # Handle input
     if raw_string and raw_string.strip():
         known_name = raw_string.strip()
         if len(known_name) < 2:
             caller.msg("|rName must be at least 2 characters.|n")
-            return None
+            return text, options
         if len(known_name) > 80:
             caller.msg("|rName cannot exceed 80 characters.|n")
-            return None
+            return text, options
         
         caller.ndb.charcreate_data['character_facts']['name_as_known'] = known_name
         caller.msg(f"|gSet 'Name as Known' to: |c{known_name}|n")
         return first_char_facts_age(caller, "", **kwargs)
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_facts_name"},
-    )
     
     return text, options
 
@@ -1760,24 +1748,24 @@ Examples: "Young adult", "Middle-aged", "Elderly", "In their 30s",
 |wEnter your character's apparent age description:|n
 """
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_age"},
+    )
+    
     # Handle input
     if raw_string and raw_string.strip():
         apparent_age = raw_string.strip()
         if len(apparent_age) < 3:
             caller.msg("|rAge description must be at least 3 characters.|n")
-            return None
+            return text, options
         if len(apparent_age) > 100:
             caller.msg("|rAge description cannot exceed 100 characters.|n")
-            return None
+            return text, options
         
         caller.ndb.charcreate_data['character_facts']['apparent_age'] = apparent_age
         caller.msg(f"|gSet 'Apparent Age' to: |c{apparent_age}|n")
         return first_char_facts_actual_age(caller, "", **kwargs)
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_facts_age"},
-    )
     
     return text, options
 
@@ -1795,12 +1783,17 @@ birthday celebrations and age calculations.
 |wEnter your character's age (e.g., 23, 18, 45):|n
 """
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_actual_age"},
+    )
+    
     if raw_string and raw_string.strip():
         try:
             age = int(raw_string.strip())
             if age < 1 or age > 120:
                 caller.msg("|rAge must be between 1 and 120.|n")
-                return None
+                return text, options
             
             caller.ndb.charcreate_data['age'] = age
             caller.msg(f"|gSet age to: |c{age}|n")
@@ -1809,12 +1802,7 @@ birthday celebrations and age calculations.
             return first_char_facts_birthday_month(caller, "", **kwargs)
         except ValueError:
             caller.msg("|rPlease enter a valid number.|n")
-            return None
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_facts_actual_age"},
-    )
+            return text, options
     
     return text, options
 
@@ -1834,12 +1822,17 @@ def first_char_facts_birthday_month(caller, raw_string, **kwargs):
 |wEnter the number of your birth month:|n
 """
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_birthday_month"},
+    )
+    
     if raw_string and raw_string.strip():
         try:
             month_num = int(raw_string.strip()) - 1
             if month_num < 0 or month_num >= len(MONTHS):
                 caller.msg("|rPlease enter a valid month number (1-12).|n")
-                return None
+                return text, options
             
             caller.ndb.charcreate_data['birthday_month'] = month_num
             caller.msg(f"|gSet birth month to: |c{MONTHS[month_num]['name']}|n")
@@ -1847,12 +1840,7 @@ def first_char_facts_birthday_month(caller, raw_string, **kwargs):
             return first_char_facts_birthday_day(caller, "", **kwargs)
         except ValueError:
             caller.msg("|rPlease enter a valid number.|n")
-            return None
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_facts_birthday_month"},
-    )
+            return text, options
     
     return text, options
 
@@ -1866,12 +1854,17 @@ def first_char_facts_birthday_day(caller, raw_string, **kwargs):
 Enter the day of the month you were born (1-30):
 """
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_birthday_day"},
+    )
+    
     if raw_string and raw_string.strip():
         try:
             day = int(raw_string.strip())
             if day < 1 or day > 30:
                 caller.msg("|rPlease enter a day between 1 and 30.|n")
-                return None
+                return text, options
             
             caller.ndb.charcreate_data['birthday_day'] = day
             from world.calendar import MONTHS
@@ -1881,12 +1874,7 @@ Enter the day of the month you were born (1-30):
             return first_char_facts_appearance(caller, "", **kwargs)
         except ValueError:
             caller.msg("|rPlease enter a valid number.|n")
-            return None
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_facts_birthday_day"},
-    )
+            return text, options
     
     return text, options
 
@@ -1915,24 +1903,24 @@ Examples:
 |wEnter your character's notable appearance details:|n
 """
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_appearance"},
+    )
+    
     # Handle input
     if raw_string and raw_string.strip():
         appearance = raw_string.strip()
         if len(appearance) < 10:
             caller.msg("|rAppearance notes must be at least 10 characters.|n")
-            return None
+            return text, options
         if len(appearance) > 300:
             caller.msg("|rAppearance notes cannot exceed 300 characters.|n")
-            return None
+            return text, options
         
         caller.ndb.charcreate_data['character_facts']['appearance_notes'] = appearance
         caller.msg(f"|gSet 'Appearance Notes'.|n")
         return first_char_facts_rumors(caller, "", **kwargs)
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_facts_appearance"},
-    )
     
     return text, options
 
@@ -1963,24 +1951,24 @@ Examples:
 |wEnter 1-2 rumors people might have heard about your character:|n
 """
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_rumors"},
+    )
+    
     # Handle input
     if raw_string and raw_string.strip():
         rumors = raw_string.strip()
         if len(rumors) < 10:
             caller.msg("|rRumors must be at least 10 characters.|n")
-            return None
+            return text, options
         if len(rumors) > 400:
             caller.msg("|rRumors cannot exceed 400 characters.|n")
-            return None
+            return text, options
         
         caller.ndb.charcreate_data['character_facts']['common_rumors'] = rumors
         caller.msg(f"|gSet 'Common Rumors'.|n")
         return first_char_facts_affiliations(caller, "", **kwargs)
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_facts_rumors"},
-    )
     
     return text, options
 
@@ -2025,24 +2013,24 @@ Examples:
 |wEnter your character's known (or suspected) affiliations:|n
 """
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_affiliations"},
+    )
+    
     # Handle input
     if raw_string and raw_string.strip():
         affiliations = raw_string.strip()
         if len(affiliations) < 5:
             caller.msg("|rAffiliations must be at least 5 characters.|n")
-            return None
+            return text, options
         if len(affiliations) > 300:
             caller.msg("|rAffiliations cannot exceed 300 characters.|n")
-            return None
+            return text, options
         
         caller.ndb.charcreate_data['character_facts']['known_affiliations'] = affiliations
         caller.msg(f"|gSet 'Known Affiliations'.|n")
         return first_char_facts_reputation(caller, "", **kwargs)
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_facts_affiliations"},
-    )
     
     return text, options
 
@@ -2074,6 +2062,11 @@ but it also makes you harder to hide from.
 |wEnter choice (1-3):|n
 """
     
+    options = (
+        {"key": "_default",
+         "goto": "first_char_facts_reputation"},
+    )
+    
     # Handle input
     if raw_string and raw_string.strip():
         choice = raw_string.strip()
@@ -2087,12 +2080,7 @@ but it also makes you harder to hide from.
             return first_char_facts_confirm(caller, "", **kwargs)
         else:
             caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
-            return None
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_facts_reputation"},
-    )
+            return text, options
     
     return text, options
 
