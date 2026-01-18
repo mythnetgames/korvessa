@@ -1,0 +1,72 @@
+{% extends "webclient/base.html" %}
+
+{% block client %}
+
+<!-- Toolbar with game title and buttons -->
+<div id="toolbar">
+  <span class="game-title">Korvessa</span>
+  <div class="toolbar-buttons">
+    <button class="toolbar-btn" onclick="window.open('/', '_blank')">Home</button>
+    <button class="toolbar-btn" onclick="showHelp()">Help</button>
+  </div>
+</div>
+
+<!-- Main message area -->
+<div id="main" class="split split-vertical" data-role-default>
+  <div id="main-sub" class="split-sub">
+    <div id="messagewindow"></div>
+  </div>
+</div>
+
+<!-- Input area -->
+<div id="input" class="split split-vertical" data-role-input data-update-append>
+  <div id="inputform" class="wrapper">
+    <div id="prompt" class="prompt"></div>
+    <div id="inputcontrol" class="input-group">
+      <textarea id="inputfield" type="text" class="form-control" placeholder="Enter command..."></textarea>
+      <button class="btn" id="inputsend" type="button" value="">&gt;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Simple help display
+  function showHelp() {
+    var helpText = "\n=== Korvessa Webclient Help ===\n" +
+                   "Type 'help' to see available commands.\n" +
+                   "Type 'look' to see your surroundings.\n" +
+                   "Use Up/Down arrows for command history.\n" +
+                   "Press Enter to send commands.\n" +
+                   "===============================\n";
+    
+    var msgwin = document.getElementById('messagewindow');
+    if (msgwin) {
+      var helpDiv = document.createElement('div');
+      helpDiv.className = 'sys';
+      helpDiv.style.whiteSpace = 'pre-wrap';
+      helpDiv.textContent = helpText;
+      msgwin.appendChild(helpDiv);
+      msgwin.scrollTop = msgwin.scrollHeight;
+    }
+  }
+
+  // Auto-scroll to bottom when new messages arrive
+  var observer = new MutationObserver(function(mutations) {
+    var msgwin = document.getElementById('messagewindow');
+    if (msgwin) {
+      msgwin.scrollTop = msgwin.scrollHeight;
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var msgwin = document.getElementById('messagewindow');
+    if (msgwin) {
+      observer.observe(msgwin, { childList: true, subtree: true });
+    }
+  });
+</script>
+
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}

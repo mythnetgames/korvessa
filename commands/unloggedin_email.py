@@ -13,12 +13,13 @@ from django.db import utils as db_utils
 
 class CmdEmailConnect(MuxCommand):
     """
-    Connect to the game using email address.
+    Connect to the game using your account name.
 
     Usage (at login screen):
-        connect <email@address.com> <password>
+        connect <account_name> <password>
 
-    Use your registered email address to connect.
+    Use your account name (public identifier) to connect.
+    Your email address is kept private for password resets only.
     """
 
     key = "connect"
@@ -26,26 +27,26 @@ class CmdEmailConnect(MuxCommand):
     locks = "cmd:all()"
 
     def func(self):
-        """Email-based connection logic"""
+        """Account name-based connection logic"""
         session = self.caller
         address = session.address
         arglist = self.arglist
 
         if not arglist or len(arglist) < 2:
-            session.msg("\n\r Usage: connect <email@address.com> <password>")
+            session.msg("\n\r Usage: connect <account_name> <password>")
             return
             
-        email = arglist[0].lower().strip()
+        username = arglist[0].lower().strip()
         password = arglist[1]
 
-        # Look up account by email
+        # Look up account by username (case-insensitive)
         try:
-            account = AccountDB.objects.filter(email__iexact=email).first()
+            account = AccountDB.objects.filter(username__iexact=username).first()
         except AccountDB.DoesNotExist:
             account = None
         
         if not account:
-            session.msg(f"No account found with email '{email}'.")
+            session.msg(f"No account found with name '{username}'.")
             session.msg("Use 'create' to make a new account.")
             return
             
@@ -77,12 +78,13 @@ class CmdEmailConnect(MuxCommand):
 
 class CmdEmailCreate(MuxCommand):
     """
-    Create a new account with email only.
+    Create a new account with account name and email.
 
     Usage (at login screen):
-        create <email@address.com> <password>
+        create <account_name> <password> <email@address.com>
 
-    Creates a new account using only your email address.
+    Your account name is public (shown on channels and in-game).
+    Your email address is private and used for password resets only.
     Character creation happens after login.
     """
 
@@ -91,7 +93,7 @@ class CmdEmailCreate(MuxCommand):
     locks = "cmd:all()"
 
     def func(self):
-        """Email-only account creation"""
+        """Account creation with name and email"""
         session = self.caller
         address = session.address
         arglist = self.arglist
@@ -102,48 +104,51 @@ class CmdEmailCreate(MuxCommand):
             session.msg("Contact an administrator if you need an account.")
             return
 
-        if not arglist or len(arglist) < 2:
-            session.msg("\n\r Usage: create <email@address.com> <password>")
+        if not arglist or len(arglist) < 3:
+            session.msg("\n\r Usage: create <account_name> <password> <email@address.com>")
             return
             
-        email = arglist[0].lower().strip()
+        username = arglist[0].lower().strip()
         password = arglist[1]
+        email = arglist[2].lower().strip()
+        
+        # Validate account name (no spaces, letters/numbers/underscores)
+        import re
+        if not re.match(r"^[a-z0-9_]{3,20}$", username):
+            session.msg("Account name must be 3-20 characters (letters, numbers, underscores only).")
+            return
         
         # Validate email format
         if not utils.validate_email_address(email):
             session.msg(f"'{email}' is not a valid email address.")
             return
 
+        # Check if username already exists
+        existing_username = AccountDB.objects.filter(username__iexact=username).first()
+        if existing_username:
+            session.msg(f"Account name '{username}' is already taken.")
+            session.msg("Please choose a different account name.")
+            return
+
         # Check if email already exists
-        existing_account = AccountDB.objects.filter(email__iexact=email).first()
-        if existing_account:
+        existing_email = AccountDB.objects.filter(email__iexact=email).first()
+        if existing_email:
             session.msg(f"An account with email '{email}' already exists.")
             session.msg("Use 'connect' to log in to your existing account.")
             return
 
-        # Generate username from email (for internal use)
-        # This is just for the database - users never see/use this
-        base_username = email.split('@')[0]
-        username = base_username
-        counter = 1
-        
-        # Ensure username uniqueness (though users won't see this)
-        while AccountDB.objects.filter(username=username).exists():
-            username = f"{base_username}_{counter}"
-            counter += 1
-
         # Create account
         Account = class_from_module(settings.BASE_ACCOUNT_TYPECLASS)
         account, errors = Account.create(
-            username=username,  # Internal identifier
-            email=email,        # What users actually use
+            username=username,  # Public account name
+            email=email,        # Private email
             password=password, 
             ip=address
         )
         
         if account:
             session.msg(f"|gAccount created successfully!|n")
-            session.msg(f"You can now connect with: |wconnect {email} <password>|n")
+            session.msg(f"You can now connect with: |wconnect {username} <password>|n")
             session.msg("Character creation will happen after you log in.")
         else:
             session.msg(f"|rAccount creation failed:|n {'; '.join(errors)}")
