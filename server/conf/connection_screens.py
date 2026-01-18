@@ -27,14 +27,14 @@ from evennia import utils
 def connection_screen():
     """
     Dynamic connection screen that adjusts based on settings.
-    Thematic to Kowloon Walled City.
+    Explains the two-identifier account system: account name (public) and email (private).
     """
-    # Color palette from image: #5f005f, #5f0087, #5f00af, #5f00d7, #5f00ff, #af00ff, #af00d7, #af00af, #af0087, #af005f
-    # Short, unsettling, and atmospheric
     if settings.NEW_ACCOUNT_REGISTRATION_ENABLED:
-      prompt_line = "|#af00ffCreate|n: |wcreate <email@address.com> <password>|n"
+      prompt_line = "|#af00ffCreate|n: |wcreate <account_name> <password> <email@address.com>|n"
+      create_info = "|#af00afYour account name is public (shown on channels and in-game).|n\n  |#af00afYour email is private and used for password resets only.|n"
     else:
-      prompt_line = "|#5f00ffConnect|n: |wconnect <email@address.com> <password>|n"
+      prompt_line = "|#5f00ffConnect|n: |wconnect <account_name> <password>|n"
+      create_info = ""
 
     return f"""
   |#5f005fKorvessa|n |#af00ffYear 160 AH|n
@@ -42,6 +42,7 @@ def connection_screen():
   |#af0087Factions hunger. Faith divides. The Sprinkling is near. Doors close behind you.|n
 
   {prompt_line}
+  {create_info}
   |#af00afAfter login, you will create your character.|n
   |#af005fType |whelp|#af005f for info. |wlook|#af005f to see this again.|n
   """
@@ -52,15 +53,15 @@ CONNECTION_SCREEN = """
 
 |g{} the Walled City |n Enter your ID {} |
 
-YEAR: 198?
-LOCATION: Kowloon Walled City
+YEAR: 160 AH
+LOCATION: Korvessa
  
 
+__ Connect : |wconnect <account_name> <password>|n
+__ Create  : |wcreate <account_name> <password> <email@address.com>|n
 
-__ Connect : |wconnect <email@address.com> <password>|n
-__ Create  : |wcreate <email@address.com> <password>|n
-
-Use your email address to connect or create a new account.
+Your account name is public (shown on channels and in-game).
+Your email address is private and used for password resets only.
 Character creation happens after login.
 Enter |whelp|n for more info. |wlook|n will re-show this screen.
 
