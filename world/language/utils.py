@@ -422,24 +422,30 @@ def increase_language_proficiency(character, language_code, amount):
 
 def get_language_learning_speed(character):
     """
-    Calculate learning speed multiplier based on Smarts stat.
+    Calculate learning speed multiplier based on Intelligence modifier.
     
-    Smarts stat ranges 1-10, with 1 being baseline (1x speed).
-    Each point of Smarts above 1 gives 0.15x multiplier.
+    Learning speed scales with INT modifier:
+    - INT 8 (mod -1): 0.75x speed
+    - INT 10 (mod 0): 1.0x speed (base)
+    - INT 12 (mod +1): 1.25x speed
+    - INT 14 (mod +2): 1.5x speed
+    - INT 16+ (mod +3): 1.75x speed
     
     Args:
         character: The character object
         
     Returns:
-        float: Learning speed multiplier (minimum 1.0)
+        float: Learning speed multiplier (minimum 0.5x)
     """
     try:
         # Stats are accessed directly on character, not character.db
-        smarts = getattr(character, 'smrt', 1)
-        if not isinstance(smarts, (int, float)) or smarts is None:
-            smarts = 1
-        multiplier = 1.0 + (max(0, smarts - 1) * 0.15)
-        return max(1.0, multiplier)
+        int_stat = getattr(character, 'int', 10)
+        if not isinstance(int_stat, (int, float)) or int_stat is None:
+            int_stat = 10
+        int_mod = (int_stat - 10) // 2
+        # Calculate multiplier: base 1.0 + (INT_mod * 0.25)
+        multiplier = 1.0 + (int_mod * 0.25)
+        return max(0.5, multiplier)
     except:
         return 1.0
 
@@ -606,7 +612,7 @@ def spend_ip_on_language(character, language_code, ip_amount):
     # 50 IP = 1% proficiency (0.02% per IP)
     proficiency_gain = ip_to_spend * 0.02
     
-    # Apply learning speed multiplier based on Smarts
+    # Apply learning speed multiplier based on Intelligence modifier
     learning_speed = get_language_learning_speed(character)
     proficiency_gain *= learning_speed
     

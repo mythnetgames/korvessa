@@ -331,8 +331,12 @@ def create_character_from_template(account, template, sex="ambiguous"):
     
     # Set languages based on race
     race_langs = RACE_LANGUAGES.get(char.race, ['common'])
-    char.db.primary_language = 'common'
-    char.db.known_languages = list(race_langs)
+    char.db.primary_language = race_langs[0] if race_langs else 'common'
+    char.db.known_languages = set(race_langs)
+    
+    # Initialize language proficiency (sets all known languages to 100%)
+    from world.language.utils import initialize_language_proficiency
+    initialize_language_proficiency(char)
     
     # Apply racial mechanics (reroll, language fluency, etc.)
     try:
@@ -445,6 +449,27 @@ def create_flash_clone(account, old_character):
     char.race = getattr(old_character, 'race', 'human')
     if hasattr(old_character.db, 'skintone'):
         char.db.skintone = old_character.db.skintone
+    
+    # INHERIT: Languages from old character (or set based on race if missing)
+    old_known_langs = getattr(old_character.db, 'known_languages', None)
+    if old_known_langs:
+        char.db.known_languages = set(old_known_langs) if not isinstance(old_known_langs, set) else old_known_langs.copy()
+        char.db.primary_language = getattr(old_character.db, 'primary_language', 'common')
+        # Copy proficiency dict if it exists
+        old_proficiency = getattr(old_character.db, 'language_proficiency', None)
+        if old_proficiency:
+            char.db.language_proficiency = dict(old_proficiency)
+        else:
+            from world.language.utils import initialize_language_proficiency
+            initialize_language_proficiency(char)
+    else:
+        # No languages on old character - set based on race
+        from world.language.constants import RACE_LANGUAGES
+        from world.language.utils import initialize_language_proficiency
+        race_langs = RACE_LANGUAGES.get(char.race, ['common'])
+        char.db.known_languages = set(race_langs)
+        char.db.primary_language = race_langs[0] if race_langs else 'common'
+        initialize_language_proficiency(char)
     
     # Debug: Verify sex was inherited correctly
     from evennia.comms.models import ChannelDB

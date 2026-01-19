@@ -135,11 +135,11 @@ class CmdSpeak(Command):
         
         text += "-" * 60 + "\n"
         
-        # Show learning speed
+        # Show learning speed based on Intelligence
         learning_speed = get_language_learning_speed(caller)
-        # Stats are accessed directly on character, not character.db
-        smarts = getattr(caller, 'smrt', 1)
-        text += f"\nSmarts: {smarts} | Learning Speed: {learning_speed:.2f}x\n"
+        int_stat = getattr(caller, 'int', 10)
+        int_mod = (int_stat - 10) // 2
+        text += f"\nIntelligence: {int_stat} (Modifier: {int_mod:+d}) | Learning Speed: {learning_speed:.2f}x\n"
         text += f"You learn languages {learning_speed:.0%} faster than normal.\n"
         
         caller.msg(text)
