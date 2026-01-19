@@ -23,7 +23,7 @@ class CmdLook(DefaultCmdLook):
     aliases = ["l", "ls"]
     
     def func(self):
-        """Override look to handle petitions and force room display."""
+        """Override look to handle petitions, force room display, and sdesc keyword matching."""
         caller = self.caller
         
         # Check if looking at petitions
@@ -46,6 +46,26 @@ class CmdLook(DefaultCmdLook):
             appearance = location.return_appearance(caller, force_display=True)
             caller.msg(appearance)
             return
+        
+        # If looking at something specific, try sdesc keyword matching first for characters
+        target = self.args.strip()
+        location = caller.location
+        
+        if location:
+            # Try to find a character by sdesc keywords
+            from world.sdesc_system import find_character_by_sdesc
+            matches = find_character_by_sdesc(location, target, caller)
+            
+            if matches:
+                if len(matches) == 1:
+                    # Found exactly one match - look at them
+                    match = matches[0]
+                    appearance = match.return_appearance(caller) if hasattr(match, 'return_appearance') else match.get_detail_view(caller) if hasattr(match, 'get_detail_view') else str(match)
+                    caller.msg(appearance)
+                    return
+                else:
+                    # Multiple matches - use default Evennia search which will ask for disambiguation
+                    pass
         
         # Otherwise use default look for specific objects
         super().func()

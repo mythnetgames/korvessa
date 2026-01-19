@@ -45,6 +45,9 @@ LANGUAGE_SPEECH_REGEX = re.compile(r'(\w+)"([^"]*)"')
 # Object highlight color (bright blue)
 OBJECT_COLOR = "|#0087ff"
 
+# Sdesc color (purple)
+SDESC_COLOR = "|#5f00d7"
+
 
 def get_skintone_color(character):
     """
@@ -69,19 +72,35 @@ def get_skintone_color(character):
 
 def colorize_name(name, character):
     """
-    Apply skintone color to a character's displayed name.
+    Apply color to a character's displayed name.
+    
+    Uses sdesc color for sdescs, skintone color for recognized names.
     
     Args:
         name: The name/sdesc to colorize
         character: The character (for skintone lookup)
         
     Returns:
-        str: Colorized name or plain name if no skintone
+        str: Colorized name or plain name if no color applies
     """
-    color = get_skintone_color(character)
-    if color:
-        return f"{color}{name}|n"
-    return name
+    # Check if this is a recognized name (recog) - if so, use skintone
+    # Otherwise use sdesc color for sdescs
+    skintone_color = get_skintone_color(character)
+    
+    # If name is the actual sdesc (has articles like "a", "an", "the"), use sdesc color
+    # Otherwise it's likely a recog name, so use skintone if available
+    name_lower = name.lower()
+    has_article = name_lower.startswith(('a ', 'an ', 'the '))
+    
+    if has_article:
+        # This is an sdesc - use sdesc color
+        return f"{SDESC_COLOR}{name}|n"
+    elif skintone_color:
+        # This is a recog name - use skintone color
+        return f"{skintone_color}{name}|n"
+    else:
+        # No special color, return plain
+        return name
 
 
 def colorize_object(name):
@@ -265,15 +284,41 @@ def clear_recog(viewer, target):
     set_recog(viewer, target, None)
 
 
+def extract_sdesc_keywords(sdesc):
+    """
+    Extract searchable keywords from an sdesc.
+    
+    Removes articles (a, an, the) and returns individual words.
+    
+    Args:
+        sdesc: The sdesc string to extract keywords from
+        
+    Returns:
+        list: List of lowercase keywords
+    """
+    if not sdesc:
+        return []
+    
+    # Split into words and convert to lowercase
+    words = sdesc.lower().split()
+    
+    # Remove articles
+    articles = {'a', 'an', 'the'}
+    keywords = [w for w in words if w not in articles]
+    
+    return keywords
+
+
 def find_character_by_sdesc(location, search_term, searcher=None):
     """
     Find a character (PC or NPC) in location by partial sdesc match.
     
     Used for parsing emote targets like /tall.
+    Matches either the full sdesc substring or individual keywords.
     
     Args:
         location: The room to search in
-        search_term: The partial term to match (e.g., "tall")
+        search_term: The partial term to match (e.g., "tall", "dwarven")
         searcher: The character doing the search (for recog lookups)
         
     Returns:
@@ -302,8 +347,14 @@ def find_character_by_sdesc(location, search_term, searcher=None):
             matches.append(obj)
             continue
         
-        # Check sdesc
+        # Check sdesc - both substring match and keyword match
         if search_term in sdesc:
+            matches.append(obj)
+            continue
+        
+        # Check individual sdesc keywords (excluding articles)
+        keywords = extract_sdesc_keywords(sdesc)
+        if any(search_term in keyword for keyword in keywords):
             matches.append(obj)
             continue
         
