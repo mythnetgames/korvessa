@@ -209,6 +209,9 @@ class CmdEmote(DefaultCmdPose):
         simple_quote_pattern = r'(["\'])([^"\']*)\1'
         
         # Track speech segments with their languages for garbling
+        # Store (start_pos, end_pos, language_code, original_speech, processed_speech)
+        speech_segments = []
+        
         # First, find language-prefixed speech and replace with processed version
         def process_lang_speech(match):
             language = match.group(1).lower()
@@ -232,6 +235,7 @@ class CmdEmote(DefaultCmdPose):
                 pass
             
             # Process the speech
+            original_speech = speech
             speech = fix_speech_grammar(speech)
             if speech:
                 speech = speech[0].upper() + speech[1:] if len(speech) > 1 else speech.upper()
@@ -246,6 +250,14 @@ class CmdEmote(DefaultCmdPose):
                 pass
             
             lang_name = LANGUAGES[language]['name']
+            
+            # Track this speech segment with its language for garbling
+            speech_segments.append({
+                'language': language,
+                'lang_name': lang_name,
+                'speech': speech,
+            })
+            
             if voice:
                 return f'"*speaking {lang_name} in a {voice}* {speech}"'
             else:
@@ -280,15 +292,19 @@ class CmdEmote(DefaultCmdPose):
             from world.language.constants import LANGUAGES
             lang_name = LANGUAGES.get(primary_language, {}).get('name', primary_language.title())
             
+            # Track this speech segment with its language for garbling
+            speech_segments.append({
+                'language': primary_language,
+                'lang_name': lang_name,
+                'speech': speech,
+            })
+            
             if voice:
                 return f'{quote}*speaking {lang_name} in a {voice}* {speech}{quote}'
             else:
                 return f'{quote}*speaking {lang_name}* {speech}{quote}'
         
         emote_text = re.sub(simple_quote_pattern, process_simple_speech, emote_text_processed)
-        
-        # Re-extract speech matches for garbling (now with language tags)
-        speech_matches = list(re.finditer(simple_quote_pattern, emote_text))
         
         # Get caller's sdesc for the pose (uses sdesc system which respects disguises)
         from world.sdesc_system import get_sdesc
@@ -318,24 +334,45 @@ class CmdEmote(DefaultCmdPose):
                 message = pose_template.replace("{caller}", ensure_sentence_case(viewer_sees_caller) if viewer_sees_caller else caller.key)
                 message = personalize_text(message, char_targets, obj_targets, char, caller)
                 
-                # Apply language garbling to speech if present
-                if speech_matches:
-                    proficiency = get_language_proficiency(char, primary_language)
-                    
-                    if proficiency < 100.0:
-                        # Process each quoted section with garbling
-                        for match in reversed(speech_matches):  # Reverse to maintain positions
-                            quote_char = match.group(1)
-                            speech_text = match.group(2)
-                            start, end = match.span()
-                            
-                            # Garble the speech
-                            garbled_speech = garble_text_by_proficiency(speech_text, proficiency)
-                            
-                            # Replace in message
-                            message = message[:start] + quote_char + f'*in a {voice}* {garbled_speech}' + quote_char + message[end:] if voice else message[:start] + quote_char + garbled_speech + quote_char + message[end:]
+                # Apply language garbling to each speech segment based on viewer's proficiency
+                if speech_segments:
+                    for segment in speech_segments:
+                        lang_code = segment['language']
+                        lang_name = segment['lang_name']
+                        original_speech = segment['speech']
                         
-                        # Apply passive learning
-                        apply_passive_language_learning(char, primary_language)
+                        # Get viewer's proficiency in this specific language
+                        proficiency = get_language_proficiency(char, lang_code)
+                        
+                        if proficiency >= 100.0:
+                            # Perfect understanding - no changes needed, message already has clear text
+                            pass
+                        else:
+                            # Garble based on proficiency
+                            garbled_speech = garble_text_by_proficiency(original_speech, proficiency)
+                            
+                            # Build the pattern to find and replace in the message
+                            # The original format includes quotes: "*speaking {LangName}* {speech}" or "*speaking {LangName} in a {voice}* {speech}"
+                            if voice:
+                                old_pattern = f'"*speaking {lang_name} in a {voice}* {original_speech}"'
+                                if proficiency > 0:
+                                    # Partial understanding - show language name with "in" prefix
+                                    new_text = f'"*in {lang_name}, in a {voice}* {garbled_speech}"'
+                                else:
+                                    # No understanding - just garbled text, no language identification
+                                    new_text = f'"*in a {voice}* {garbled_speech}"'
+                            else:
+                                old_pattern = f'"*speaking {lang_name}* {original_speech}"'
+                                if proficiency > 0:
+                                    # Partial understanding - show language name with "in" prefix
+                                    new_text = f'"*in {lang_name}* {garbled_speech}"'
+                                else:
+                                    # No understanding - just garbled text, no language identification
+                                    new_text = f'"{garbled_speech}"'
+                            
+                            message = message.replace(old_pattern, new_text)
+                            
+                            # Apply passive learning for this language
+                            apply_passive_language_learning(char, lang_code)
                 
                 char.msg(message)
