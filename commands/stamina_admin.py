@@ -37,11 +37,10 @@ class CmdStaminaStart(Command):
             self.caller.msg("Stopped old stamina ticker.")
         
         # Create new ticker with proper initialization
-        ticker = StaminaTicker.create(key="stamina_ticker", persistent=True)
+        ticker, _ = StaminaTicker.create(key="stamina_ticker", persistent=True)
         if ticker:
             # Explicitly start the script
             ticker.start()
-            
             # Verify it's running
             if ticker.is_active:
                 self.caller.msg(f"Stamina ticker started successfully: {ticker.key} (active={ticker.is_active}, next_repeat={ticker.next_repeat})")

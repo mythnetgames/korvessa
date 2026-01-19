@@ -84,7 +84,7 @@ def start_stamina_ticker():
     
     ticker = ScriptDB.objects.filter(db_key="stamina_ticker").first()
     if not ticker:
-        ticker = StaminaTicker.create(key="stamina_ticker")
+        ticker, _ = StaminaTicker.create(key="stamina_ticker")
         if ticker and not ticker.is_active:
             ticker.start()
         return ticker

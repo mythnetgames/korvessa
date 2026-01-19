@@ -36,7 +36,7 @@ def at_server_start():
     
     ticker = ScriptDB.objects.filter(db_key="stamina_ticker").first()
     if not ticker:
-        ticker = StaminaTicker.create(key="stamina_ticker")
+        ticker, _ = StaminaTicker.create(key="stamina_ticker")
         if ticker and not ticker.is_active:
             ticker.start()
         print(f"[STARTUP] Created new stamina ticker: {ticker}")
