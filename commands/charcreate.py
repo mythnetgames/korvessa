@@ -1234,7 +1234,6 @@ def first_char_personality_skill(caller, raw_string, **kwargs):
     from world.personality_system import ALL_SKILLS
     
     sdesc = caller.ndb.charcreate_data.get('sdesc', '')
-         "goto": "first_char_personality_skill"},
                     # Freehands needs secondary skill selection
                     if selected_personality == 'freehands':
                         return first_char_personality_skill(caller, "", **kwargs)
