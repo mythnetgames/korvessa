@@ -1200,24 +1200,35 @@ return text, options
         {"key": "_default",
          "goto": "first_char_personality_stat"},
     )
-    
+
+    stat_names = {
+        'str': ('Strength', 'Physical power and melee damage'),
+        'dex': ('Dexterity', 'Agility, reflexes, and finesse'),
+        'con': ('Constitution', 'Health and endurance'),
+        'int': ('Intelligence', 'Reasoning and memory'),
+        'wis': ('Wisdom', 'Perception and insight'),
+        'cha': ('Charisma', 'Presence and persuasion')
+    }
+
+    text = f"Your personality grants |y+1|n to one of the following stats:\n\n"
+    for i, stat in enumerate(stat_options, 1):
+        name, desc = stat_names.get(stat, (stat.upper(), ''))
+        text += f"|w[{i}]|n |c{name}|n - {desc}\n"
+    text += "\n|wEnter choice:|n "
+
     # Handle input
     if raw_string and raw_string.strip():
         choice = raw_string.strip()
-        
         try:
             choice_num = int(choice)
             if 1 <= choice_num <= len(stat_options):
                 selected_stat = stat_options[choice_num - 1]
                 caller.ndb.charcreate_data['personality_stat'] = selected_stat
-                
                 name = stat_names.get(selected_stat, (selected_stat.upper(),))[0]
                 caller.msg(f"|gYou will receive +1 |c{name}|g.|n")
-                
                 # Freehands needs secondary skill selection
                 if personality == 'freehands':
                     return first_char_personality_skill(caller, "", **kwargs)
-                
                 return first_char_sex(caller, "", **kwargs)
             else:
                 caller.msg(f"|rInvalid choice. Please enter a number 1-{len(stat_options)}.|n")
@@ -1225,7 +1236,6 @@ return text, options
         except ValueError:
             caller.msg(f"|rInvalid choice. Please enter a number 1-{len(stat_options)}.|n")
             return text, options
-    
     return text, options
 
 
