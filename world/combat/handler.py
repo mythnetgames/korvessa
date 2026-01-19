@@ -1617,8 +1617,8 @@ class CombatHandler(DefaultScript):
         target_dodge_skill = getattr(target.db, "dodge", 0) or 0
         
         # Get base stats (REF for attack, REF for defense) - stats are 1-10, scaled to add to skill
-        attacker_ref = get_numeric_stat(attacker, "ref", 1)
-        target_ref = get_numeric_stat(target, "ref", 1)
+        attacker_dex = get_numeric_stat(attacker, "dex", 10)
+        target_dex = get_numeric_stat(target, "dex", 10)
         
         # NEW 0-100 SKILL SYSTEM with exponential scaling
         # Uses combat_roll() which applies exponential bonus from skills
@@ -1626,8 +1626,8 @@ class CombatHandler(DefaultScript):
         roll_result = combat_roll(
             attacker_skill=attacker_weapon_skill,
             defender_skill=target_dodge_skill,
-            attacker_stat=attacker_ref,
-            defender_stat=target_ref
+            attacker_stat=attacker_dex,
+            defender_stat=target_dex
         )
         attacker_roll = roll_result['attacker_roll']
         target_roll = roll_result['defender_roll']
@@ -1681,9 +1681,9 @@ class CombatHandler(DefaultScript):
             # Make precision roll for organ targeting within the location
             precision_roll = randint(1, 20)
             # Mix DEX (70%) and SMRT (30%) for precision skill
-            attacker_dex = get_numeric_stat(attacker, "dex", 1)
-            attacker_smrt = get_numeric_stat(attacker, "smrt", 1)
-            precision_skill = int((attacker_dex * 0.7) + (attacker_smrt * 0.3))
+            attacker_dex = get_numeric_stat(attacker, "dex", 10)
+            attacker_int = get_numeric_stat(attacker, "int", 10)
+            precision_skill = int((attacker_dex * 0.7) + (attacker_int * 0.3))
             
             # Select specific target organ within the hit location
             target_organ = select_target_organ(hit_location, precision_roll, precision_skill)

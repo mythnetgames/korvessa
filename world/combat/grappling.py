@@ -322,24 +322,29 @@ def resolve_grapple_initiate(char_entry, combatants_list, handler):
         attacker_grappling = ((brawling_val or 0) // 3) if brawling_val else 0  # Only 1/3 effectiveness
         using_brawling_fallback = True
     
-    attacker_body = getattr(char.db, "body", None) or 1
-    attacker_dex = getattr(char.db, "dexterity", None) or 1
+    # Use D&D 5e stats: CON for physical strength, DEX for agility
+    attacker_con = getattr(char.db, "con", 10) or 10
+    attacker_dex = getattr(char.db, "dex", 10) or 10
     
-    # Defender stats - dodge skill with SMRT/DEX
-    defender_smarts = getattr(target.db, "smarts", None) or 1
-    defender_dex = getattr(target.db, "dexterity", None) or 1
+    # Defender stats - dodge skill with WIS (awareness) and DEX (body control)
+    defender_wis = getattr(target.db, "wis", 10) or 10
+    defender_dex = getattr(target.db, "dex", 10) or 10
     
     defender_dodge = getattr(target.db, "dodge", None) or 0
     if defender_dodge == 0:
         # Fallback: treat 0 dodge as skill level 1 if they didn't invest
         defender_dodge = 1
     
-    # Calculate combined stat bonuses (simple average)
-    # For grappler: average of BODY and DEX (both important for catching and holding)
-    attacker_combined_stat = (attacker_body + attacker_dex) * 0.5  # Use multiplication instead of division
+    # Calculate combined stat bonuses (D&D modifier scale: 8-16 range, average 10, modifier = (stat-10)/2)
+    # For grappler: average of CON and DEX modifiers (strength and agility for grappling)
+    attacker_con_mod = (attacker_con - 10) // 2
+    attacker_dex_mod = (attacker_dex - 10) // 2
+    attacker_combined_stat = (attacker_con_mod + attacker_dex_mod) * 0.5
     
-    # For defender: average of SMRT and DEX (spatial awareness + body control)
-    defender_combined_stat = (defender_smarts + defender_dex) * 0.5
+    # For defender: average of WIS and DEX modifiers (awareness and agility for escape)
+    defender_wis_mod = (defender_wis - 10) // 2
+    defender_dex_mod = (defender_dex - 10) // 2
+    defender_combined_stat = (defender_wis_mod + defender_dex_mod) * 0.5
     
     grapple_result = combat_roll(
         attacker_skill=attacker_grappling,

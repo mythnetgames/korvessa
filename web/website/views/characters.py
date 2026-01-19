@@ -197,51 +197,32 @@ class CharacterCreateView(EvenniaCharacterCreateView):
             return super().post(request, *args, **kwargs)
     
     def handle_respawn_submission(self, request, account):
-        """Process respawn template/flash clone selection."""
-        from commands.charcreate import create_flash_clone, create_character_from_template
+        """Process respawn template selection (no flash cloning - themes to low magic)."""
+        from commands.charcreate import create_character_from_template, generate_random_template
         
         choice = request.POST.get('sleeve_choice')
         
         try:
-            if choice == 'flash_clone':
-                # Create flash clone
-                old_character = account.db.last_character
-                if not old_character:
-                    messages.error(request, "Flash clone source not found.")
-                    return HttpResponseRedirect(self.success_url)
-                
-                # Flash clone inherits sex from old character automatically
-                # No need to override - create_flash_clone() handles inheritance
-                character = create_flash_clone(account, old_character)
-                
-                messages.success(
-                    request,
-                    f"Flash clone '{character.name}' decanted successfully! "
-                    f"Consciousness transfer complete."
-                )
-                
-            else:
-                # Create from template
-                # Regenerate templates (they're not persisted between requests)
-                from commands.charcreate import generate_random_template
-                templates = [generate_random_template() for _ in range(3)]
-                
-                template_idx = int(choice.split('_')[1])
-                if template_idx >= len(templates):
-                    messages.error(request, "Invalid template selection.")
-                    return HttpResponseRedirect(self.success_url)
-                
-                template = templates[template_idx]
-                # Use the template's pre-assigned sex (not user selection)
-                template_sex = template.get('sex', 'ambiguous')
-                character = create_character_from_template(account, template, template_sex)
-                
-                messages.success(
-                    request,
-                    f"Character '{character.name}' decanted successfully! "
-                    f"Stats: BODY {character.body}, REF {character.ref}, "
-                    f"DEX {character.dex}, TECH {character.tech}"
-                )
+            # Create from template only - no flash cloning
+            # Regenerate templates (they're not persisted between requests)
+            templates = [generate_random_template() for _ in range(3)]
+            
+            template_idx = int(choice.split('_')[1])
+            if template_idx >= len(templates):
+                messages.error(request, "Invalid template selection.")
+                return HttpResponseRedirect(self.success_url)
+            
+            template = templates[template_idx]
+            # Use the template's pre-assigned sex (not user selection)
+            template_sex = template.get('sex', 'ambiguous')
+            character = create_character_from_template(account, template, template_sex)
+            
+            messages.success(
+                request,
+                f"Character '{character.name}' created successfully! "
+                f"Stats: STR {character.str}, DEX {character.dex}, "
+                f"CON {character.con}, INT {character.int}, WIS {character.wis}, CHA {character.cha}"
+            )
             
             # WEB-CREATED CHARACTERS: Make invisible until puppeted
             # Set location to None (standard Evennia unpuppet behavior)

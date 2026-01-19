@@ -54,58 +54,14 @@ Return to the City
             </div>
             {% endfor %}
             
-            {% if old_character %}
-            <div class="mt-4 mb-3 flash-clone-warning">
-              <div class="text-center py-3">
-                <h5 class="mb-1" style="color: #e6c547; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;">⚠ Reclaim Your Existence</h5>
-                <small style="color: #999;">Restore your previous form exactly as it was</small>
-                <div class="mt-2">
-                  <small style="color: #e6c547;">
-                    <strong>NOTE:</strong> Restoring your old existence carries risks. Memories may be fragmented,
-                    and the city changes quickly. You may not be exactly as you left it.
-                  </small>
-                </div>
-              </div>
-            </div>
+            <!-- Flash cloning removed for low magic fantasy setting -->
+            <!-- All respawns use template-based character creation -->
             
-            <div class="card mb-3 sleeve-option flash-clone-option">
-              <div class="card-body">
-                <div class="form-check">
-                  <input 
-                    class="form-check-input" 
-                    type="radio" 
-                    name="sleeve_choice" 
-                    id="flash_clone" 
-                    value="flash_clone"
-                  >
-                  <label class="form-check-label" for="flash_clone">
-                    <h5>{{ old_character.name }} <small class="text-muted">({{ old_character.sex|title }})</small></h5>
-                  </label>
-                </div>
-                <div class="ml-4 mt-2">
-                  <div class="row">
-                    <div class="col-md-3">
-                      <strong>Grit:</strong> {{ old_character.grit }}
-                    </div>
-                    <div class="col-md-3">
-                      <strong>Resonance:</strong> {{ old_character.resonance }}
-                    </div>
-                    <div class="col-md-3">
-                      <strong>Intellect:</strong> {{ old_character.intellect }}
-                    </div>
-                    <div class="col-md-3">
-                      <strong>Motorics:</strong> {{ old_character.motorics }}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {% endif %}
           </div>
           
           <hr />
           <div class="form-group">
-            <input id="decant-button" class="form-control btn btn-outline-secondary" type="submit" value="Enter the City" />
+            <input id="decant-button" class="form-control btn btn-outline-secondary" type="submit" value="Enter the World" />
           </div>
         </form>
         
@@ -115,17 +71,7 @@ Return to the City
 </div>
 
 <style>
-/* Flash clone warning box */
-.flash-clone-warning {
-  background-color: #2a2a2a;
-  border-top: 2px solid #e6c547;
-  border-bottom: 1px solid #404040;
-}
-
-.flash-clone-warning > div {
-  background-color: transparent;
-}
-
+/* Respawn template styling */
 .sleeve-option {
   border: 2px solid #404040;
   background-color: #2a2a2a;
@@ -151,39 +97,6 @@ Return to the City
   box-shadow: 0 0 12px rgba(95, 211, 141, 0.4);
 }
 
-/* Caution stripe border for flash clone */
-.flash-clone-option {
-  border: 8px solid;
-  border-image: repeating-linear-gradient(
-    45deg,
-    #e6c547 0px,
-    #e6c547 20px,
-    #1a1a1a 20px,
-    #1a1a1a 40px
-  ) 8;
-  background-color: #2a2a2a;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.flash-clone-option .card-body {
-  background-color: #2a2a2a;
-  border: none;
-  transition: all 0.2s ease;
-}
-
-.flash-clone-option:hover {
-  box-shadow: 0 0 8px rgba(230, 197, 71, 0.3);
-}
-
-.flash-clone-option:has(input[type="radio"]:checked) {
-  box-shadow: 0 0 12px rgba(230, 197, 71, 0.4);
-}
-
-.flash-clone-option:has(input[type="radio"]:checked) input[type="radio"]:checked ~ label {
-  color: #e6c547;
-}
-
 /* Decant button styling */
 #decant-button {
   background-color: #2a2a2a;
@@ -199,18 +112,6 @@ Return to the City
   background-color: rgba(95, 211, 141, 0.1);
   box-shadow: 0 0 12px rgba(95, 211, 141, 0.4);
   text-shadow: 0 0 8px rgba(95, 211, 141, 0.6);
-}
-
-/* Red hover for submit button when flash clone selected */
-#decant-button.flash-clone-selected {
-  border-color: #e6c547;
-  color: #e6c547;
-}
-
-#decant-button.flash-clone-selected:hover {
-  background-color: rgba(230, 197, 71, 0.1);
-  box-shadow: 0 0 12px rgba(230, 197, 71, 0.4);
-  text-shadow: 0 0 8px rgba(230, 197, 71, 0.6);
 }
 </style>
 

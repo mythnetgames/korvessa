@@ -187,17 +187,15 @@ def select_hit_location(character, success_margin=0, attacker=None):
     
     # Track weapon skill info for debug logging
     weapon_skill_bonus = 0
-    weapon_skill_applied = False
-    
     # Apply skill-based vital area targeting bonuses
     if attacker:
-        # Get attacker stats
-        attacker_body = getattr(attacker.db, "body", 1) if hasattr(attacker, 'db') else 1
-        attacker_body = attacker_body if isinstance(attacker_body, (int, float)) else 1
-        attacker_ref = getattr(attacker.db, "ref", 1) if hasattr(attacker, 'db') else 1
-        attacker_ref = attacker_ref if isinstance(attacker_ref, (int, float)) else 1
-        attacker_tech = getattr(attacker.db, "tech", 1) if hasattr(attacker, 'db') else 1
-        attacker_tech = attacker_tech if isinstance(attacker_tech, (int, float)) else 1
+        # Get attacker stats (D&D 5e: CON for physical toughness, DEX for reflexes, INT for technical skill)
+        attacker_con = getattr(attacker.db, "con", 10) if hasattr(attacker, 'db') else 10
+        attacker_con = attacker_con if isinstance(attacker_con, (int, float)) else 10
+        attacker_dex = getattr(attacker.db, "dex", 10) if hasattr(attacker, 'db') else 10
+        attacker_dex = attacker_dex if isinstance(attacker_dex, (int, float)) else 10
+        attacker_int = getattr(attacker.db, "int", 10) if hasattr(attacker, 'db') else 10
+        attacker_int = attacker_int if isinstance(attacker_int, (int, float)) else 10
         
         # Get weapon skill - check for melee or firearms (common naming conventions)
         weapon_skill = getattr(attacker.db, "melee", 1) if hasattr(attacker, 'db') else 1
@@ -206,15 +204,16 @@ def select_hit_location(character, success_margin=0, attacker=None):
         else:
             weapon_skill = 1
         
-        # BODY + REF determines ability to target vital areas effectively
-        vital_targeting_skill = int(attacker_body) + int(attacker_ref)
+        # CON (physical toughness) + DEX (coordination) determines ability to target vital areas effectively
+        # Normalized from 8-16 range to 0-8 combat scale
+        vital_targeting_skill = int((attacker_con - 8) / 2) + int((attacker_dex - 8) / 2)
         
         # Calculate vital area bias based on physical combat skill
-        if vital_targeting_skill <= 4:
+        if vital_targeting_skill <= 1:
             vital_bonus = 20   # +20% to vital areas (low skill)
-        elif vital_targeting_skill <= 6:
+        elif vital_targeting_skill <= 2:
             vital_bonus = 40   # +40% to vital areas (moderate)
-        elif vital_targeting_skill <= 8:
+        elif vital_targeting_skill <= 3:
             vital_bonus = 60   # +60% to vital areas (good)
         else:
             vital_bonus = 80   # +80% to vital areas (excellent)

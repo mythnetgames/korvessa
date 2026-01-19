@@ -1,18 +1,18 @@
 """
 Admin Command: Adjust Character Stats and Skills
 
-Allows admins to modify character stats and skills on the fly.
+Allows admins to modify character D&D 5e stats on the fly.
 """
 
 from evennia import Command
 from world.combat.constants import (
-    STAT_BODY, STAT_REF, STAT_DEX, STAT_TECH, STAT_SMRT, STAT_WILL, STAT_EDGE, STAT_EMP
+    STAT_STR, STAT_DEX, STAT_CON, STAT_INT, STAT_WIS, STAT_CHA
 )
 
 
 class CmdStatAdjust(Command):
     """
-    Adjust a character's stats or skills.
+    Adjust a character's D&D 5e stats or skills.
     
     Usage:
         statadj <character> <stat> <value>        - Set a stat to an exact value
@@ -22,12 +22,12 @@ class CmdStatAdjust(Command):
         statadj/list <character>                  - List all stats and skills
         statadj/help                              - Show available stats
     
-    Available stats: body, ref, dex, tech, smrt, will, edge, emp
+    Available stats: str, dex, con, int, wis, cha (D&D 5e 8-16 range, average 10)
     
     Examples:
-        statadj dalao body 5          - Set body to 5
-        statadj dalao smrt +2         - Increase smrt by 2
-        statadj dalao dex -1          - Decrease dex by 1
+        statadj dalao con 14          - Set constitution to 14
+        statadj dalao dex +1          - Increase dexterity by 1
+        statadj dalao wis -1          - Decrease wisdom by 1
         statadj/list dalao            - Show all stats
     """
     key = "statadj"
@@ -36,14 +36,12 @@ class CmdStatAdjust(Command):
     help_category = "Admin"
     
     VALID_STATS = {
-        "body": STAT_BODY,
-        "ref": STAT_REF,
+        "str": STAT_STR,
         "dex": STAT_DEX,
-        "tech": STAT_TECH,
-        "smrt": STAT_SMRT,
-        "will": STAT_WILL,
-        "edge": STAT_EDGE,
-        "emp": STAT_EMP,
+        "con": STAT_CON,
+        "int": STAT_INT,
+        "wis": STAT_WIS,
+        "cha": STAT_CHA,
     }
     
     def func(self):
@@ -93,12 +91,12 @@ class CmdStatAdjust(Command):
         try:
             if value_str.startswith("+"):
                 adjustment = int(value_str[1:])
-                current = getattr(target.db, stat_name, 1)
+                current = getattr(target, stat_name, 10)
                 new_value = current + adjustment
                 op_desc = f"increased by {adjustment}"
             elif value_str.startswith("-"):
                 adjustment = int(value_str[1:])
-                current = getattr(target.db, stat_name, 1)
+                current = getattr(target, stat_name, 10)
                 new_value = current - adjustment
                 op_desc = f"decreased by {adjustment}"
             else:
@@ -108,13 +106,16 @@ class CmdStatAdjust(Command):
             self.caller.msg("Value must be a number, +number, or -number.")
             return
         
-        # Ensure non-negative
-        if new_value < 0:
-            new_value = 0
-            self.caller.msg(f"Value clamped to 0 (cannot be negative).")
+        # Clamp D&D 5e stats to 8-16 range
+        if new_value < 8:
+            new_value = 8
+            self.caller.msg(f"Value clamped to 8 (D&D 5e minimum).")
+        elif new_value > 16:
+            new_value = 16
+            self.caller.msg(f"Value clamped to 16 (D&D 5e maximum).")
         
-        # Set the stat
-        setattr(target.db, stat_name, new_value)
+        # Set the stat (using AttributeProperty on character)
+        setattr(target, stat_name, new_value)
         
         # Force save to ensure persistence
         if hasattr(target, 'save'):
@@ -125,7 +126,7 @@ class CmdStatAdjust(Command):
     
     def _show_stat(self, target, stat_name):
         """Show a single stat value."""
-        current_value = getattr(target.db, stat_name, 1)
+        current_value = getattr(target, stat_name, 10)
         self.caller.msg(f"{target.key}'s {stat_name.upper()}: {current_value}")
     
     def _list_stats(self, target_name):
@@ -135,28 +136,27 @@ class CmdStatAdjust(Command):
             self.caller.msg(f"Character '{target_name}' not found.")
             return
         
-        self.caller.msg(f"|y=== Stats for {target.key} ===|n")
+        self.caller.msg(f"|y=== D&D 5e Stats for {target.key} ===|n")
         for stat_name in self.VALID_STATS.keys():
-            value = getattr(target.db, stat_name, 1)
-            self.caller.msg(f"  {stat_name.upper():6} : {value}")
+            value = getattr(target, stat_name, 10)
+            mod = (value - 10) // 2
+            self.caller.msg(f"  {stat_name.upper():6} : {value} (modifier: {mod:+d})")
     
     def _show_help(self):
         """Show help information."""
         self.caller.msg("""
-|yAvailable Stats:|n
-  body     - Physical durability and health
-  ref      - Reflexes and reaction time
-  dex      - Dexterity and hand-eye coordination
-  tech     - Technical knowledge and crafting
-  smrt     - Intelligence and reasoning
-  will     - Willpower and mental fortitude
-  edge     - Luck and chance
-  emp      - Empathy and social skills
+|yAvailable D&D 5e Stats (8-16 range, average 10):|n
+  str      - Strength: Physical power and melee damage
+  dex      - Dexterity: Agility, reflexes, ranged attacks
+  con      - Constitution: Health, stamina, endurance
+  int      - Intelligence: Reasoning, technical knowledge
+  wis      - Wisdom: Perception, intuition, willpower
+  cha      - Charisma: Personality, social influence
 
 |yExamples:|n
-  statadj dalao body 5       - Set body to 5
-  statadj dalao smrt +2      - Increase smrt by 2
-  statadj dalao dex -1       - Decrease dex by 1
+  statadj dalao con 14       - Set constitution to 14
+  statadj dalao dex +1       - Increase dexterity by 1
+  statadj dalao wis -1       - Decrease wisdom by 1
   statadj/list dalao         - Show all stats
-  statadj dalao body ?       - Show current body value
+  statadj dalao str ?        - Show current strength value
         """)

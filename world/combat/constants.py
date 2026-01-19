@@ -10,33 +10,28 @@ logical grouping.
 """
 
 # ===================================================================
-# CHARACTER ATTRIBUTES & DEFAULTS
+# CHARACTER ATTRIBUTES & DEFAULTS (D&D 5E STATS)
 # ===================================================================
 
+# D&D 5e stat defaults (8-16 range, average 10)
+DEFAULT_STR = 10
+DEFAULT_DEX = 10
+DEFAULT_CON = 10
+DEFAULT_INT = 10
+DEFAULT_WIS = 10
+DEFAULT_CHA = 10
 
-# New stat system defaults
-DEFAULT_BODY = 1
-DEFAULT_REF = 1
-DEFAULT_DEX = 1
-DEFAULT_TECH = 1
-DEFAULT_SMRT = 1
-DEFAULT_WILL = 1
-DEFAULT_EDGE = 1
-DEFAULT_EMP = 1
-
-# New stat names (for attribute access)
-STAT_BODY = "body"
-STAT_REF = "ref"
+# D&D 5e stat names (for attribute access)
+STAT_STR = "str"
 STAT_DEX = "dex"
-STAT_TECH = "tech"
-STAT_SMRT = "smrt"
-STAT_WILL = "will"
-STAT_EDGE = "edge"
-STAT_EMP = "emp"
+STAT_CON = "con"
+STAT_INT = "int"
+STAT_WIS = "wis"
+STAT_CHA = "cha"
 
-# Health system
+# Health system (based on CON)
 DEFAULT_HP = 10
-HP_BODY_MULTIPLIER = 2
+HP_CON_MULTIPLIER = 1  # HP = 10 + (CON modifier * level), simplified to base
 
 # Equipment defaults
 DEFAULT_HANDS = {"left": None, "right": None}
@@ -746,70 +741,35 @@ COMBAT_SCRIPT_KEY = "combat_handler_script"  # Will need to verify this from act
 
 # Stat descriptors for the alphabetical tier system (A-Z, 6-point ranges)
 STAT_DESCRIPTORS = {
-    "body": {
-        150: "Titanic", 144: "Colossal", 138: "Massive", 132: "Sturdy", 126: "Tough",
-        120: "Resilient", 114: "Robust", 108: "Solid", 102: "Hardy", 96: "Durable",
-        90: "Rugged", 84: "Stocky", 78: "Average", 72: "Normal", 66: "Ordinary",
-        60: "Passable", 54: "Soft", 48: "Tender", 42: "Fragile", 36: "Weak",
-        30: "Feeble", 24: "Vulnerable", 18: "Delicate", 12: "Brittle", 6: "Yielding", 0: "Zero"
-    },
-    "ref": {
-        150: "Lightning", 144: "Blinding", 138: "Swift", 132: "Quick", 126: "Agile",
-        120: "Sharp", 114: "Reactive", 108: "Alert", 102: "Responsive", 96: "Keen",
-        90: "Ready", 84: "Steady", 78: "Average", 72: "Normal", 66: "Ordinary",
-        60: "Passable", 54: "Slow", 48: "Sluggish", 42: "Delayed", 36: "Dull",
-        30: "Unready", 24: "Vacant", 18: "Unaware", 12: "Numb", 6: "Yearning", 0: "Zero"
+    "str": {
+        16: "Herculean", 15: "Exceptional", 14: "Excellent", 13: "Very Good", 12: "Good",
+        11: "Above Average", 10: "Average", 9: "Below Average", 8: "Poor"
     },
     "dex": {
-        150: "Acrobatic", 144: "Gymnastic", 138: "Nimble", 132: "Balanced", 126: "Flexible",
-        120: "Coordinated", 114: "Graceful", 108: "Mobile", 102: "Agile", 96: "Limber",
-        90: "Active", 84: "Steady", 78: "Average", 72: "Normal", 66: "Ordinary",
-        60: "Passable", 54: "Clumsy", 48: "Awkward", 42: "Stiff", 36: "Trembling",
-        30: "Unsteady", 24: "Vacant", 18: "Wobbly", 12: "Xyloid", 6: "Yielding", 0: "Zero"
+        16: "Acrobatic", 15: "Nimble", 14: "Graceful", 13: "Agile", 12: "Coordinated",
+        11: "Deft", 10: "Average", 9: "Clumsy", 8: "Awkward"
     },
-    "tech": {
-        150: "Masterful", 144: "Expert", 138: "Skilled", 132: "Adept", 126: "Competent",
-        120: "Handy", 114: "Capable", 108: "Proficient", 102: "Practiced", 96: "Trained",
-        90: "Functional", 84: "Basic", 78: "Average", 72: "Normal", 66: "Ordinary",
-        60: "Passable", 54: "Unskilled", 48: "Inept", 42: "Clumsy", 36: "Trembling",
-        30: "Unsteady", 24: "Vacant", 18: "Wobbly", 12: "Xyloid", 6: "Yielding", 0: "Zero"
+    "con": {
+        16: "Unbreakable", 15: "Robust", 14: "Hardy", 13: "Sturdy", 12: "Resilient",
+        11: "Healthy", 10: "Average", 9: "Frail", 8: "Fragile"
     },
-    "smrt": {
-        150: "Genius", 144: "Brilliant", 138: "Clever", 132: "Wise", 126: "Insightful",
-        120: "Perceptive", 114: "Aware", 108: "Intelligent", 102: "Judicious", 96: "Logical",
-        90: "Thoughtful", 84: "Reasonable", 78: "Average", 72: "Normal", 66: "Ordinary",
-        60: "Passable", 54: "Questioning", 48: "Rough", 42: "Slow", 36: "Troubled",
-        30: "Unclear", 24: "Vacant", 18: "Wandering", 12: "Xeric", 6: "Yearning", 0: "Zero"
+    "int": {
+        16: "Genius", 15: "Brilliant", 14: "Clever", 13: "Intelligent", 12: "Bright",
+        11: "Sharp", 10: "Average", 9: "Dull", 8: "Slow"
     },
-    "will": {
-        150: "Unbreakable", 144: "Resolute", 138: "Determined", 132: "Stubborn", 126: "Courageous",
-        120: "Bold", 114: "Brave", 108: "Tenacious", 102: "Persistent", 96: "Steadfast",
-        90: "Strong", 84: "Firm", 78: "Average", 72: "Normal", 66: "Ordinary",
-        60: "Passable", 54: "Questionable", 48: "Rough", 42: "Soft", 36: "Tender",
-        30: "Unstable", 24: "Vulnerable", 18: "Weak", 12: "Xerotic", 6: "Yielding", 0: "Zero"
+    "wis": {
+        16: "Enlightened", 15: "Perceptive", 14: "Insightful", 13: "Observant", 12: "Aware",
+        11: "Attentive", 10: "Average", 9: "Absent-minded", 8: "Oblivious"
     },
-    "edge": {
-        150: "Legendary", 144: "Magnetic", 138: "Charismatic", 132: "Cool", 126: "Impressive",
-        120: "Confident", 114: "Stylish", 108: "Charming", 102: "Persuasive", 96: "Influential",
-        90: "Likeable", 84: "Friendly", 78: "Average", 72: "Normal", 66: "Ordinary",
-        60: "Passable", 54: "Quiet", 48: "Reserved", 42: "Stiff", 36: "Tense",
-        30: "Uncomfortable", 24: "Vacant", 18: "Withdrawn", 12: "Xenophobic", 6: "Yearning", 0: "Zero"
-    },
-    "emp": {
-        150: "Saintly", 144: "Compassionate", 138: "Empathetic", 132: "Caring", 126: "Sensitive",
-        120: "Kind", 114: "Considerate", 108: "Understanding", 102: "Intuitive", 96: "Jovial",
-        90: "Warm", 84: "Friendly", 78: "Average", 72: "Normal", 66: "Ordinary",
-        60: "Passable", 54: "Quiet", 48: "Reserved", 42: "Stiff", 36: "Tense",
-        30: "Uncomfortable", 24: "Vacant", 18: "Withdrawn", 12: "Xenophobic", 6: "Yearning", 0: "Zero"
+    "cha": {
+        16: "Legendary", 15: "Captivating", 14: "Charming", 13: "Personable", 12: "Likeable",
+        11: "Pleasant", 10: "Average", 9: "Dull", 8: "Awkward"
     }
 }
 
-# Stat tiers for easy lookup (maps numeric ranges to descriptive words)
+# Stat tiers for easy lookup (D&D 5e: 8-16 range)
 STAT_TIER_RANGES = [
-    (145, 150), (139, 144), (133, 138), (127, 132), (121, 126), (115, 120),
-    (109, 114), (103, 108), (97, 102), (91, 96), (85, 90), (79, 84),
-    (73, 78), (67, 72), (61, 66), (55, 60), (49, 54), (43, 48),
-    (37, 42), (31, 36), (25, 30), (19, 24), (13, 18), (7, 12), (1, 6), (0, 0)
+    (15, 16), (13, 14), (11, 12), (10, 10), (9, 9), (8, 8)
 ]
 
 # ===================================================================
