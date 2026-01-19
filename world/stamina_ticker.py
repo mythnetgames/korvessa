@@ -52,24 +52,26 @@ class StaminaTicker(DefaultScript):
                 except Exception as e:
                     # Log errors but don't crash the ticker
                     import traceback
+                    error_msg = f"[STAMINA_ERROR] {char.key if char else 'unknown'}: {str(e)}\n{traceback.format_exc()}"
                     try:
                         from evennia.comms.models import ChannelDB
                         splattercast = ChannelDB.objects.get_channel("Splattercast")
                         if splattercast:
-                            splattercast.msg(f"[STAMINA_ERROR] {char.key}: {e}")
+                            splattercast.msg(error_msg)
                     except:
-                        pass
+                        print(error_msg)
         
         except Exception as e:
             # Critical error - log it
             import traceback
+            error_msg = f"[STAMINA_TICKER] CRITICAL ERROR: {str(e)}\n{traceback.format_exc()}"
             try:
                 from evennia.comms.models import ChannelDB
                 splattercast = ChannelDB.objects.get_channel("Splattercast")
                 if splattercast:
-                    splattercast.msg(f"[STAMINA_TICKER] CRITICAL ERROR: {e}")
+                    splattercast.msg(error_msg)
             except:
-                pass
+                print(error_msg)
 
 
 def start_stamina_ticker():

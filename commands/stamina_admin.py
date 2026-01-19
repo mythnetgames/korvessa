@@ -26,15 +26,27 @@ class CmdStaminaStart(Command):
         # Always remove existing ticker and create fresh one
         existing = ScriptDB.objects.filter(db_key="stamina_ticker").first()
         if existing:
-            existing.stop()
-            existing.delete()
+            try:
+                existing.stop()
+            except:
+                pass
+            try:
+                existing.delete()
+            except:
+                pass
             self.caller.msg("Stopped old stamina ticker.")
         
-        # Create new ticker
-        ticker = StaminaTicker.create(key="stamina_ticker")
+        # Create new ticker with proper initialization
+        ticker = StaminaTicker.create(key="stamina_ticker", persistent=True)
         if ticker:
+            # Explicitly start the script
             ticker.start()
-            self.caller.msg(f"Stamina ticker started: {ticker.key}")
+            
+            # Verify it's running
+            if ticker.is_active:
+                self.caller.msg(f"Stamina ticker started successfully: {ticker.key} (active={ticker.is_active}, next_repeat={ticker.next_repeat})")
+            else:
+                self.caller.msg(f"WARNING: Ticker created but not active! next_repeat={ticker.next_repeat}")
         else:
             self.caller.msg("Failed to create stamina ticker.")
 
