@@ -1135,6 +1135,7 @@ They define |ywho you are|n, not what you do for a living.
                     
                     # Freehands needs secondary skill selection
                     if selected_personality == 'freehands':
+                        pass
         try:
             choice = None  # Always define choice
             from world.language.constants import RACE_LANGUAGES, LANGUAGES
