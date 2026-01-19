@@ -1132,11 +1132,9 @@ They define |ywho you are|n, not what you do for a living.
                 else:
                     # Single stat option - auto-select it
                     caller.ndb.charcreate_data['personality_stat'] = p['stat_options'][0]
-                    
                     # Freehands needs secondary skill selection
                     if selected_personality == 'freehands':
                         pass
-        try:
             choice = None  # Always define choice
             from world.language.constants import RACE_LANGUAGES, LANGUAGES
             first_name = caller.ndb.charcreate_data.get('first_name', '')
