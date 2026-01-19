@@ -85,6 +85,13 @@ class Character(ObjectParent, DefaultCharacter):
 
             self.location.for_contents(message, exclude=[self], from_obj=self)
         
+        # Initialize stamina component on login (for movement system regen)
+        try:
+            from commands.movement import _get_or_create_stamina
+            _get_or_create_stamina(self)
+        except Exception:
+            pass  # Stamina system not critical - don't break login
+        
         # Track login for survival system (starvation tracking)
         try:
             from world.survival.core import update_login_tracking

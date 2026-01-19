@@ -714,6 +714,26 @@ STAMINA_EXHAUSTED_MSG = "|rYou are too exhausted to attack! Rest or flee.|n"
 STAMINA_FLEE_EXHAUSTED_MSG = "|rYou are too exhausted to flee! You stumble and fail to escape.|n"
 
 # ===================================================================
+# STAMINA REGENERATION CONSTANTS (Out of Combat)
+# ===================================================================
+
+# Base passive regen when standing idle/walking (stamina points per second)
+STAMINA_REGEN_IDLE = 2.0            # Regen rate when completely idle
+STAMINA_REGEN_WALK = 1.2            # Regen rate when walking casually
+STAMINA_REGEN_STANDING = 1.8        # Regen rate when standing (resting)
+
+# CON stat modifier for regen (scales based on CON from 8-16)
+STAMINA_REGEN_CON_BONUS = 0.15      # Bonus regen per scaled CON point
+
+# Regen delay after intense exertion (seconds)
+STAMINA_REGEN_DELAY_AFTER_COMBAT = 2.0  # Delay before regen starts after combat
+STAMINA_REGEN_DELAY_AFTER_SPRINT = 1.5  # Delay after sprinting/running
+
+# Thirst penalties (applied by survival system)
+STAMINA_REGEN_THIRST_PENALTY = 0.75     # 25% slower when thirsty
+STAMINA_REGEN_DEHYDRATION_PENALTY = 0.5 # 50% slower when severely dehydrated
+
+# ===================================================================
 # SCRIPT & HANDLER CONSTANTS
 # ===================================================================
 
