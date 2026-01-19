@@ -49,6 +49,20 @@ def at_server_start():
     # Start the survival ticker (hunger/thirst/intoxication)
     from world.survival.script import start_survival_ticker
     start_survival_ticker()
+    
+    # Start the IP grant script if not already running
+    from scripts.ip_grant_script import IPGrantScript
+    ip_grant = ScriptDB.objects.filter(db_key="ip_grant_script").first()
+    if not ip_grant:
+        ip_grant, _ = IPGrantScript.create(key="ip_grant_script")
+        if ip_grant and not ip_grant.is_active:
+            ip_grant.start()
+        print(f"[STARTUP] Created new IP grant script: {ip_grant}")
+    elif not ip_grant.is_active:
+        ip_grant.start()
+        print(f"[STARTUP] Started existing IP grant script: {ip_grant}")
+    else:
+        print(f"[STARTUP] IP grant script already running: {ip_grant}, active={ip_grant.is_active}")
 
 
 def at_server_stop():
