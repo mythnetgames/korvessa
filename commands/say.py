@@ -236,20 +236,21 @@ class CmdSay(DefaultCmdSay):
                 proficiency = get_language_proficiency(observer, primary_language)
                 
                 # Build message based on whether observer understands the language
+                # IMPORTANT: NEVER show language name unless proficiency is 100%+
                 if proficiency >= 100.0:
-                    # Observer knows the language - show language name
+                    # Observer is fluent - show language name and clear speech
                     if voice:
                         observer_msg = f'{observer_sdesc} says, "*speaking {language_name} in a {voice}* {garbled_speech}"|n'
                     else:
                         observer_msg = f'{observer_sdesc} says, "*speaking {language_name}* {garbled_speech}"|n'
                 elif proficiency > 0:
-                    # Observer partially understands - show garbled with language hint
+                    # Observer partially understands - show language hint but garbled speech
                     if voice:
                         observer_msg = f'{observer_sdesc} says, "*in {language_name}, in a {voice}* {garbled_speech}"|n'
                     else:
                         observer_msg = f'{observer_sdesc} says, "*in {language_name}* {garbled_speech}"|n'
                 else:
-                    # Observer doesn't understand - just show garbled speech, no language
+                    # Observer doesn't understand - NEVER show language name, just garbled speech
                     if voice:
                         observer_msg = f'{observer_sdesc} says, "*in a {voice}* {garbled_speech}"|n'
                     else:

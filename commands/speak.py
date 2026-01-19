@@ -134,14 +134,6 @@ class CmdSpeak(Command):
                 text += f"{lang_name:30} {bar} {proficiency:6.2f}%\n"
         
         text += "-" * 60 + "\n"
-        
-        # Show learning speed based on Intelligence
-        learning_speed = get_language_learning_speed(caller)
-        int_stat = getattr(caller, 'int', 10)
-        int_mod = (int_stat - 10) // 2
-        text += f"\nIntelligence: {int_stat} (Modifier: {int_mod:+d}) | Learning Speed: {learning_speed:.2f}x\n"
-        text += f"You learn languages {learning_speed:.0%} faster than normal.\n"
-        
         caller.msg(text)
     
     def find_language(self, input_str):
