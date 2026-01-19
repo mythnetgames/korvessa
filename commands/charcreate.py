@@ -259,7 +259,11 @@ def validate_stat_distribution(stats, personality_stat=None):
     # Calculate total cost
     total_cost = 0
     for stat, value in stats.items():
-        total_cost += POINT_BUY_COSTS[value]
+        base_cost = POINT_BUY_COSTS[value]
+        # If this is the personality stat and value > 8, reduce cost by 1
+        if personality_stat and stat == personality_stat and value > 8:
+            base_cost = max(0, base_cost - 1)
+        total_cost += base_cost
     
     if total_cost != POINT_BUY_TOTAL:
         return (False, f"Point buy must use exactly {POINT_BUY_TOTAL} points (currently using {total_cost}).")
@@ -1323,11 +1327,16 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
         stat_names = {'str': 'STR', 'dex': 'DEX', 'con': 'CON', 'int': 'INT', 'wis': 'WIS', 'cha': 'CHA'}
     
         # Calculate points spent using D&D 5e point buy costs
-        def calc_cost(value):
-            """Calculate point cost for a stat value."""
-            return POINT_BUY_COSTS.get(value, 0)
+        # The personality stat bonus reduces cost by 1 (you get a free +1, so reaching that high score costs less)
+        def calc_cost(stat_key, value):
+            """Calculate point cost for a stat value, accounting for personality bonus."""
+            base_cost = POINT_BUY_COSTS.get(value, 0)
+            # If this is the personality stat and value > 8, reduce cost by 1
+            if personality_stat and stat_key == personality_stat and value > 8:
+                return max(0, base_cost - 1)
+            return base_cost
     
-        points_spent = sum(calc_cost(v) for v in stats.values())
+        points_spent = sum(calc_cost(stat_key, v) for stat_key, v in stats.items())
         remaining = POINT_BUY_TOTAL - points_spent
     
         # Calculate modifiers
@@ -1352,7 +1361,7 @@ def first_char_stat_assign(caller, raw_string, **kwargs):
     
         # Build personality boost message safely
         if personality_stat and personality_stat in stat_names:
-            boost_msg = f"|yYour personality boosts {stat_names[personality_stat]} range to 9-16.|n"
+            boost_msg = f"|yYour personality boosts {stat_names[personality_stat]} range to 9-16 and reduces its cost by 1.|n"
         else:
             boost_msg = ""
     
