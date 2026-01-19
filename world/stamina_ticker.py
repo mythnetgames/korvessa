@@ -19,6 +19,7 @@ class StaminaTicker(DefaultScript):
         self.key = "stamina_ticker"
         self.desc = "Updates character stamina every tick"
         self.interval = 1  # Run every 1 second
+        self.repeats = -1  # Repeat infinitely
         self.persistent = True  # Survive server restart
         self.start_delay = False  # Start immediately on first tick
     
