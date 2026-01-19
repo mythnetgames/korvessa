@@ -389,7 +389,7 @@ def get_character_stat(character, stat_name, default=1):
     return int(stat_value)
 
 
-def roll_stat(character, stat_name, default=DEFAULT_BODY):
+def roll_stat(character, stat_name, default=DEFAULT_CON):
     """
     Roll a die based on a character's stat value using the new 0-100 skill system.
     
