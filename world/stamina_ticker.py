@@ -86,7 +86,8 @@ class StaminaTicker(DefaultScript):
                     stamina.update(self.interval, char)
                     
                     # For characters NOT in combat and not moving, apply bonus idle regen
-                    if not in_combat:
+                    # BUT: Only if regen delay has expired (no regen immediately after sprint/combat)
+                    if not in_combat and stamina.regen_delay <= 0:
                         # Only apply if stamina is not already at max
                         if stamina.stamina_current < stamina.stamina_max:
                             # Apply regen based on CON
