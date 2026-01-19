@@ -196,7 +196,17 @@ def get_sdesc_with_pose(character, viewer=None, colorize=True):
     pose = override_place or temp_place or look_place
     
     if pose:
-        return f"{sdesc} {pose}"
+        # Ensure pose starts with a verb (is/are/was/were) unless it already does
+        # Common verbs that might start a pose
+        verbs = ['is ', 'are ', 'was ', 'were ', 'am ']
+        has_verb = any(pose.lower().startswith(verb) for verb in verbs)
+        
+        if not has_verb:
+            # Add "is" as the default linking verb
+            return f"{sdesc} is {pose}"
+        else:
+            # Already has a verb, use as-is
+            return f"{sdesc} {pose}"
     return sdesc
 
 

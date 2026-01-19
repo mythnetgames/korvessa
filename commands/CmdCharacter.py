@@ -458,14 +458,14 @@ class CmdLookPlace(Command):
         
         if not self.args:
             # Show current setting
-            current = caller.look_place or "is standing here."
+            current = caller.look_place or "standing here."
             caller.msg(f"Your current look_place: '{current}'")
             return
         
         # Handle 'clear' command
         if self.args.strip().lower() in ('clear', 'none', 'remove'):
-            caller.look_place = "is standing here."
-            caller.msg("Your look_place has been cleared and reset to 'is standing here.'")
+            caller.look_place = "standing here."
+            caller.msg("Your look_place has been cleared and reset to 'standing here.'")
             return
         
         # Parse the description with smart 'is' handling
