@@ -253,6 +253,11 @@ ALL_SKILLS = [
     'arts', 'instrument'
 ]
 
+# Skill domains - domains are placeholders that require player choice
+SKILL_DOMAINS = {
+    'crafting': ['carpentry', 'herbalism', 'tailoring', 'cooking']
+}
+
 # =============================================================================
 # REPUTATION TIERS
 # =============================================================================
@@ -331,7 +336,7 @@ def get_personality_display(personality_key):
     }
 
 
-def apply_personality_to_character(character, personality_key, chosen_stat, secondary_skill=None):
+def apply_personality_to_character(character, personality_key, chosen_stat, secondary_skill=None, primary_domain_skill=None, secondary_domain_skill=None):
     """
     Apply a personality's bonuses to a character.
     
@@ -340,6 +345,8 @@ def apply_personality_to_character(character, personality_key, chosen_stat, seco
         personality_key: The personality chosen
         chosen_stat: Which stat bonus they picked (from stat_options)
         secondary_skill: For Freehands, which skill they pick for +5%
+        primary_domain_skill: If primary skill is a domain, which specific skill to boost
+        secondary_domain_skill: If secondary skill is a domain, which specific skill to boost
     """
     if personality_key not in PERSONALITIES:
         return False
@@ -363,18 +370,34 @@ def apply_personality_to_character(character, personality_key, chosen_stat, seco
     primary = p['skills']['primary']
     secondary = p['skills']['secondary']
     
-    # Primary skill starts at 5%
-    current_primary = character.db.skills.get(primary['skill'], 0)
-    character.db.skills[primary['skill']] = max(current_primary, 5.0)
+    # Primary skill - handle domain skills
+    primary_skill_key = primary['skill']
+    if primary_skill_key in SKILL_DOMAINS and primary_domain_skill:
+        primary_skill_key = primary_domain_skill
+        character.db.personality_primary_domain_skill = primary_domain_skill
     
-    # Handle secondary skill (Freehands can choose) - also starts at 5%
+    current_primary = character.db.skills.get(primary_skill_key, 0)
+    # Apply bonus based on skill type
+    if primary['bonus'] == 10:
+        character.db.skills[primary_skill_key] = max(current_primary, 10.0)
+    else:
+        character.db.skills[primary_skill_key] = max(current_primary, 5.0)
+    
+    # Secondary skill handling
     if secondary['skill'] == 'any' and secondary_skill:
+        # Freehands can choose any skill
         character.db.personality_secondary_skill = secondary_skill
         current_secondary = character.db.skills.get(secondary_skill, 0)
         character.db.skills[secondary_skill] = max(current_secondary, 5.0)
     else:
-        current_secondary = character.db.skills.get(secondary['skill'], 0)
-        character.db.skills[secondary['skill']] = max(current_secondary, 5.0)
+        # Regular secondary skill - handle domain skills
+        secondary_skill_key = secondary['skill']
+        if secondary_skill_key in SKILL_DOMAINS and secondary_domain_skill:
+            secondary_skill_key = secondary_domain_skill
+            character.db.personality_secondary_domain_skill = secondary_domain_skill
+        
+        current_secondary = character.db.skills.get(secondary_skill_key, 0)
+        character.db.skills[secondary_skill_key] = max(current_secondary, 5.0)
     
     # Store passive key
     character.db.personality_passive = p['passive']['key']

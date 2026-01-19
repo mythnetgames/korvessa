@@ -1156,8 +1156,14 @@ They define |ywho you are|n, not what you do for a living.
                     else:
                         # Single stat option - auto-select it
                         caller.ndb.charcreate_data['personality_stat'] = stat_options[0]
+                        
+                        # Check if primary skill is a domain
+                        from world.personality_system import SKILL_DOMAINS
+                        primary_skill = p['skills']['primary']['skill']
+                        if primary_skill in SKILL_DOMAINS:
+                            return first_char_personality_primary_domain(caller, "", **kwargs)
                         # Freehands needs secondary skill selection
-                        if selected_personality == 'freehands':
+                        elif selected_personality == 'freehands':
                             return first_char_personality_skill(caller, "", **kwargs)
                         # Otherwise, proceed to sex selection
                         return first_char_sex(caller, "", **kwargs)
@@ -1216,8 +1222,15 @@ def first_char_personality_stat(caller, raw_string, **kwargs):
                 caller.ndb.charcreate_data['personality_stat'] = selected_stat
                 name = stat_names.get(selected_stat, (selected_stat.upper(),))[0]
                 caller.msg(f"|gYou will receive +1 |c{name}|g.|n")
+                
+                # Check if primary skill is a domain
+                from world.personality_system import SKILL_DOMAINS
+                p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
+                primary_skill = p['skills']['primary']['skill']
+                if primary_skill in SKILL_DOMAINS:
+                    return first_char_personality_primary_domain(caller, "", **kwargs)
                 # Freehands needs secondary skill selection
-                if personality == 'freehands':
+                elif personality == 'freehands':
                     return first_char_personality_skill(caller, "", **kwargs)
                 return first_char_sex(caller, "", **kwargs)
             else:
@@ -1270,6 +1283,113 @@ As a Freehands personality, you may choose any skill as your secondary bonus.
                 return text, options
         except ValueError:
             caller.msg(f"|rInvalid choice. Please enter a number 1-{len(skill_list)}.|n")
+            return text, options
+    
+    return text, options
+
+
+def first_char_personality_primary_domain(caller, raw_string, **kwargs):
+    """Choose which skill within a domain for primary personality bonus."""
+    from world.personality_system import PERSONALITIES, SKILL_DOMAINS
+    
+    personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
+    p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
+    primary_skill = p['skills']['primary']['skill']
+    
+    if primary_skill not in SKILL_DOMAINS:
+        # Not a domain, shouldn't be here
+        return first_char_personality_secondary_domain(caller, "", **kwargs)
+    
+    domain_skills = SKILL_DOMAINS[primary_skill]
+    
+    text = f"|w=== Choose {primary_skill.capitalize()} Specialization ===|n\n"
+    text += f"Select which {primary_skill} skill to boost by |y+10%|n:\n\n"
+    
+    for i, skill in enumerate(domain_skills, 1):
+        text += f"|w[{i}]|n {skill.replace('_', ' ').title()}\n"
+    
+    text += "\n|wEnter choice:|n "
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality_primary_domain"},
+    )
+    
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip()
+        try:
+            choice_num = int(choice)
+            if 1 <= choice_num <= len(domain_skills):
+                selected_skill = domain_skills[choice_num - 1]
+                caller.ndb.charcreate_data['personality_primary_domain_skill'] = selected_skill
+                caller.msg(f"|gPrimary skill set to |c{selected_skill.replace('_', ' ').title()}|g.|n")
+                
+                # Check if secondary is also a domain
+                secondary_skill = p['skills']['secondary']['skill']
+                if secondary_skill in SKILL_DOMAINS:
+                    return first_char_personality_secondary_domain(caller, "", **kwargs)
+                else:
+                    # Freehands gets secondary skill selection
+                    if personality == 'freehands':
+                        return first_char_personality_skill(caller, "", **kwargs)
+                    return first_char_sex(caller, "", **kwargs)
+            else:
+                caller.msg(f"|rInvalid choice. Please enter a number 1-{len(domain_skills)}.|n")
+                return text, options
+        except ValueError:
+            caller.msg(f"|rInvalid choice. Please enter a number 1-{len(domain_skills)}.|n")
+            return text, options
+    
+    return text, options
+
+
+def first_char_personality_secondary_domain(caller, raw_string, **kwargs):
+    """Choose which skill within a domain for secondary personality bonus."""
+    from world.personality_system import PERSONALITIES, SKILL_DOMAINS
+    
+    personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
+    p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
+    secondary_skill = p['skills']['secondary']['skill']
+    
+    if secondary_skill not in SKILL_DOMAINS:
+        # Not a domain, shouldn't be here - go to next step
+        if personality == 'freehands':
+            return first_char_personality_skill(caller, "", **kwargs)
+        return first_char_sex(caller, "", **kwargs)
+    
+    domain_skills = SKILL_DOMAINS[secondary_skill]
+    
+    text = f"|w=== Choose {secondary_skill.capitalize()} Specialization ===|n\n"
+    text += f"Select which {secondary_skill} skill to boost by |y+5%|n:\n\n"
+    
+    for i, skill in enumerate(domain_skills, 1):
+        text += f"|w[{i}]|n {skill.replace('_', ' ').title()}\n"
+    
+    text += "\n|wEnter choice:|n "
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality_secondary_domain"},
+    )
+    
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip()
+        try:
+            choice_num = int(choice)
+            if 1 <= choice_num <= len(domain_skills):
+                selected_skill = domain_skills[choice_num - 1]
+                caller.ndb.charcreate_data['personality_secondary_domain_skill'] = selected_skill
+                caller.msg(f"|gSecondary skill set to |c{selected_skill.replace('_', ' ').title()}|g.|n")
+                
+                # Freehands gets secondary skill selection
+                if personality == 'freehands':
+                    return first_char_personality_skill(caller, "", **kwargs)
+                return first_char_sex(caller, "", **kwargs)
+            else:
+                caller.msg(f"|rInvalid choice. Please enter a number 1-{len(domain_skills)}.|n")
+                return text, options
+        except ValueError:
+            caller.msg(f"|rInvalid choice. Please enter a number 1-{len(domain_skills)}.|n")
             return text, options
     
     return text, options
@@ -2179,6 +2299,8 @@ def first_char_finalize(caller, raw_string, **kwargs):
     personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
     personality_stat = caller.ndb.charcreate_data.get('personality_stat')  # None if not yet chosen
     personality_secondary_skill = caller.ndb.charcreate_data.get('personality_secondary_skill', None)
+    personality_primary_domain_skill = caller.ndb.charcreate_data.get('personality_primary_domain_skill', None)
+    personality_secondary_domain_skill = caller.ndb.charcreate_data.get('personality_secondary_domain_skill', None)
     character_facts = caller.ndb.charcreate_data.get('character_facts', {})
     stats = caller.ndb.charcreate_data.get('stats', {
         'str': 8,
@@ -2227,7 +2349,8 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.db.personality_stat = personality_stat
         
         # Apply personality skill bonuses and standing
-        apply_personality_to_character(char, personality, personality_stat, personality_secondary_skill)
+        apply_personality_to_character(char, personality, personality_stat, personality_secondary_skill,
+                                     personality_primary_domain_skill, personality_secondary_domain_skill)
         
         # Apply character facts
         apply_character_facts(char, character_facts)
@@ -2275,12 +2398,23 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.msg(f"|wLanguages:|n |c{', '.join(lang_names)}|n")
         char.msg("")
         char.msg(f"|wSkill Bonuses:|n")
-        primary_skill_name = p.get('skills', {}).get('primary', {}).get('skill', 'unknown').replace('_', ' ').title()
+        
+        # Use domain skill if selected, otherwise use the defined skill
+        primary_skill = p.get('skills', {}).get('primary', {}).get('skill', 'unknown')
+        if personality_primary_domain_skill:
+            primary_skill_name = personality_primary_domain_skill.replace('_', ' ').title()
+        else:
+            primary_skill_name = primary_skill.replace('_', ' ').title()
         char.msg(f"  |c{primary_skill_name}|n |g+10%|n")
+        
         if personality == 'freehands' and personality_secondary_skill:
             char.msg(f"  |c{personality_secondary_skill.replace('_', ' ').title()}|n |g+5%|n")
         else:
-            secondary_skill_name = p.get('skills', {}).get('secondary', {}).get('skill', 'unknown').replace('_', ' ').title()
+            secondary_skill = p.get('skills', {}).get('secondary', {}).get('skill', 'unknown')
+            if personality_secondary_domain_skill:
+                secondary_skill_name = personality_secondary_domain_skill.replace('_', ' ').title()
+            else:
+                secondary_skill_name = secondary_skill.replace('_', ' ').title()
             char.msg(f"  |c{secondary_skill_name}|n |g+5%|n")
         char.msg("")
         passive_ability = p.get('passive', {}).get('desc', 'Unknown passive ability')
