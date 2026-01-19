@@ -16,6 +16,24 @@ from world.sdesc_system import (
 )
 
 
+def ensure_sentence_case(text):
+    """
+    Ensure text starts with a capital letter without destroying internal capitalization.
+    
+    Unlike .capitalize() which lowercases everything except the first letter,
+    this preserves the original casing and only uppercases the first letter if needed.
+    
+    Args:
+        text: The text to adjust
+        
+    Returns:
+        str: Text with first letter capitalized, rest preserved
+    """
+    if not text:
+        return text
+    return text[0].upper() + text[1:] if len(text) > 1 else text.upper()
+
+
 def fix_speech_grammar(text):
     """
     Fix common speech grammar issues:
@@ -197,7 +215,12 @@ class CmdEmote(DefaultCmdPose):
             speech = match.group(2)
             
             # Check if it's actually a language or just a word before quotes
-            from world.language.constants import LANGUAGES
+            from world.language.constants import LANGUAGES, LANGUAGE_ALIASES
+            
+            # Apply language aliases (e.g., dwarven -> dwarvish)
+            if language in LANGUAGE_ALIASES:
+                language = LANGUAGE_ALIASES[language]
+            
             if language not in LANGUAGES:
                 # Not a valid language, treat as regular quote
                 return match.group(0)
@@ -275,8 +298,8 @@ class CmdEmote(DefaultCmdPose):
         pose_template = f"{{caller}} {emote_text}"
         
         # Send to the caller (ungarbled, personalized)
-        # For self, capitalize the sdesc for sentence start
-        caller_pose = pose_template.replace("{caller}", caller_sdesc.capitalize() if caller_sdesc else caller.key)
+        # For self, capitalize the sdesc for sentence start (preserving internal caps)
+        caller_pose = pose_template.replace("{caller}", ensure_sentence_case(caller_sdesc) if caller_sdesc else caller.key)
         caller_pose = personalize_text(caller_pose, char_targets, obj_targets, caller, caller)
         caller.msg(caller_pose)
         
@@ -292,7 +315,7 @@ class CmdEmote(DefaultCmdPose):
                 viewer_sees_caller = get_sdesc(caller, char)
                 
                 # Create perspective-adjusted message for this character
-                message = pose_template.replace("{caller}", viewer_sees_caller.capitalize() if viewer_sees_caller else caller.key)
+                message = pose_template.replace("{caller}", ensure_sentence_case(viewer_sees_caller) if viewer_sees_caller else caller.key)
                 message = personalize_text(message, char_targets, obj_targets, char, caller)
                 
                 # Apply language garbling to speech if present

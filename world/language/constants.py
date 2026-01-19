@@ -59,6 +59,12 @@ COMMON_LANGUAGES = [code for code, info in LANGUAGES.items() if info.get('common
 # All languages available only to Builder+ users
 ALL_LANGUAGES = list(LANGUAGES.keys())
 
+# Language aliases (alternate spellings)
+LANGUAGE_ALIASES = {
+    'dwarven': 'dwarvish',  # Common alternate spelling
+    'elf': 'elvish',        # Common alternate spelling
+}
+
 # Race-based language bonuses
 RACE_LANGUAGES = {
     'human': ['common'],  # Humans know Common, can pick one additional
