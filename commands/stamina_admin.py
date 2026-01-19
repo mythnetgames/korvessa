@@ -32,9 +32,11 @@ class CmdStaminaStart(Command):
         
         # Create new ticker
         ticker = StaminaTicker.create(key="stamina_ticker")
-        ticker.start()
-        
-        self.caller.msg(f"Stamina ticker started: {ticker.key}")
+        if ticker:
+            ticker.start()
+            self.caller.msg(f"Stamina ticker started: {ticker.key}")
+        else:
+            self.caller.msg("Failed to create stamina ticker.")
 
 
 class CmdStaminaStatus(Command):

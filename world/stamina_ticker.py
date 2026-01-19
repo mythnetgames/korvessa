@@ -20,7 +20,7 @@ class StaminaTicker(DefaultScript):
         self.desc = "Updates character stamina every tick"
         self.interval = 1  # Run every 1 second
         self.persistent = True  # Survive server restart
-        self.start_delay = True  # Wait one interval before first tick
+        self.start_delay = False  # Start immediately on first tick
     
     def at_repeat(self):
         """Called every interval (1 second)."""
@@ -82,6 +82,8 @@ def start_stamina_ticker():
     ticker = ScriptDB.objects.filter(db_key="stamina_ticker").first()
     if not ticker:
         ticker = StaminaTicker.create(key="stamina_ticker")
+        if ticker and not ticker.is_active:
+            ticker.start()
         return ticker
     elif not ticker.is_active:
         ticker.start()
