@@ -59,8 +59,15 @@ class Character(ObjectParent, DefaultCharacter):
         """
         from django.utils.translation import gettext as _
         
+        # Get sdesc for display (or fall back to key)
+        sdesc = getattr(self.db, 'sdesc', self.key)
+        if sdesc:
+            sdesc = sdesc.capitalize()
+        else:
+            sdesc = self.key
+        
         # Show the account link message
-        self.msg(_("\nYou become |c{name}|n.\n").format(name=self.key))
+        self.msg(_("\nYou become |c{name}|n.\n").format(name=sdesc))
         self.msg((self.at_look(self.location), {"type": "look"}), options=None)
 
         # Check if the controlling account is an admin

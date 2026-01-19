@@ -189,6 +189,9 @@ class CmdSay(DefaultCmdSay):
         
         # Get language name
         from world.language.constants import LANGUAGES
+        if primary_language not in LANGUAGES:
+            caller.msg(f"|rUnknown language: {primary_language}|n")
+            return
         language_name = LANGUAGES[primary_language]['name']
         
         # Check if character has a voice set

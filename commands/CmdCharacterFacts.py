@@ -116,12 +116,22 @@ class CmdFacts(Command):
         p = PERSONALITIES.get(personality, {})
         personality_name = p.get('name', personality.title()) if p else personality.title()
         
+        # Get sdesc for display, fallback to key if not set
+        sdesc = getattr(target.db, 'sdesc', target.key)
+        if sdesc:
+            sdesc = sdesc.capitalize()
+        else:
+            sdesc = target.key
+        
+        # Get name_as_known from facts, fallback to sdesc
+        name_as_known = facts.get('name_as_known', sdesc)
+        
         msg = f"""
-|w=== About {target.key} ===|n
+|w=== About {sdesc} ===|n
 
 |wPersonality:|n |c{personality_name}|n
 
-|wName as Known:|n |c{facts.get('name_as_known', target.key)}|n
+|wName as Known:|n |c{name_as_known}|n
 |wApparent Age:|n |c{facts.get('apparent_age', 'Unknown')}|n
 |wAppearance:|n |c{facts.get('appearance_notes', 'Nothing remarkable')}|n
 |wRumors:|n |c{facts.get('common_rumors', 'None you know of')}|n
