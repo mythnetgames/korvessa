@@ -1159,50 +1159,42 @@ They define |ywho you are|n, not what you do for a living.
 Your personality grants |y+1|n to one of the following stats:
 
 """
-    
-    stat_names = {
-        'str': ('Strength', 'Physical power and melee damage'),
-        'dex': ('Dexterity', 'Agility, reflexes, and finesse'),
-        'con': ('Constitution', 'Health and endurance'),
-        'int': ('Intelligence', 'Reasoning and memory'),
-        'wis': ('Wisdom', 'Perception and insight'),
-        'cha': ('Charisma', 'Presence and persuasion')
-    }
-    
-    for i, stat in enumerate(stat_options, 1):
-        name, desc = stat_names.get(stat, (stat.upper(), ''))
-        text += f"|w[{i}]|n |c{name}|n - {desc}\n"
-    
-    text += "\n|wEnter choice:|n "
-            # Handle input
-            if raw_string and raw_string.strip():
-                choice = raw_string.strip()
-            race_map = {'1': 'human', '2': 'elf', '3': 'dwarf'}
-            options = (
-                {"key": "_default",
-                 "goto": "first_char_race"},
-            )
-            if choice in race_map:
-                selected_race = race_map[choice]
-                caller.ndb.charcreate_data['race'] = selected_race
-                # Set racial languages automatically
-                racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
-                caller.ndb.charcreate_data['languages'] = racial_langs.copy()
-                caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
-                # Go to personality selection next
-                return first_char_personality(caller, "", **kwargs)
-            elif choice is not None:
-                caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
-                return text, options
-            return text, options
-        except Exception as e:
-            caller.msg(f"|rAn error occurred in race selection: {e}|n")
-            text = "|rA system error occurred. Please try again or contact staff.|n\n|wSelect your race:|n\n|w[1]|n Human\n|w[2]|n Elf\n|w[3]|n Dwarf\n|w>|n"
-            options = (
-                {"key": "_default",
-                 "goto": "first_char_race"},
-            )
-            return text, options
+
+stat_names = {
+    'str': ('Strength', 'Physical power and melee damage'),
+    'dex': ('Dexterity', 'Agility, reflexes, and finesse'),
+    'con': ('Constitution', 'Health and endurance'),
+    'int': ('Intelligence', 'Reasoning and memory'),
+    'wis': ('Wisdom', 'Perception and insight'),
+    'cha': ('Charisma', 'Presence and persuasion')
+}
+
+for i, stat in enumerate(stat_options, 1):
+    name, desc = stat_names.get(stat, (stat.upper(), ''))
+    text += f"|w[{i}]|n |c{name}|n - {desc}\n"
+
+text += "\n|wEnter choice:|n "
+# Handle input
+if raw_string and raw_string.strip():
+    choice = raw_string.strip()
+race_map = {'1': 'human', '2': 'elf', '3': 'dwarf'}
+options = (
+    {"key": "_default",
+     "goto": "first_char_race"},
+)
+if choice in race_map:
+    selected_race = race_map[choice]
+    caller.ndb.charcreate_data['race'] = selected_race
+    # Set racial languages automatically
+    racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
+    caller.ndb.charcreate_data['languages'] = racial_langs.copy()
+    caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
+    # Go to personality selection next
+    return first_char_personality(caller, "", **kwargs)
+elif choice is not None:
+    caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
+    return text, options
+return text, options
     
     options = (
         {"key": "_default",
