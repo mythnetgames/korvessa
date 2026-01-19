@@ -369,7 +369,7 @@ class Character(ObjectParent, DefaultCharacter):
     # Death/unconsciousness determined by organ functionality and medical conditions
 
     # Character Placement Descriptions
-    look_place = AttributeProperty("standing here.", category='description', autocreate=True)
+    look_place = AttributeProperty("is standing here.", category='description', autocreate=True)
     temp_place = AttributeProperty("", category='description', autocreate=True)
     override_place = AttributeProperty("", category='description', autocreate=True)
     

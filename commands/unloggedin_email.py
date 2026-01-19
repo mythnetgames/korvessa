@@ -139,12 +139,29 @@ class CmdEmailCreate(MuxCommand):
 
         # Create account
         Account = class_from_module(settings.BASE_ACCOUNT_TYPECLASS)
-        account, errors = Account.create(
-            username=username,  # Public account name
-            email=email,        # Private email
-            password=password, 
-            ip=address
-        )
+        try:
+            account, errors = Account.create(
+                username=username,  # Public account name
+                email=email,        # Private email
+                password=password, 
+                ip=address
+            )
+        except Exception as e:
+            # Catch any exception during account creation
+            import traceback
+            error_msg = str(e)
+            traceback.print_exc()
+            session.msg(f"|rAccount creation failed:|n {error_msg}")
+            
+            # Also log to Splattercast for debugging
+            try:
+                from evennia.comms.models import ChannelDB
+                splattercast = ChannelDB.objects.get_channel("Splattercast")
+                if splattercast:
+                    splattercast.msg(f"ACCOUNT_CREATION_ERROR: {username} - {error_msg}")
+            except Exception:
+                pass
+            return
         
         if account:
             session.msg(f"|gAccount created successfully!|n")
