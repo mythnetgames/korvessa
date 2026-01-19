@@ -333,10 +333,8 @@ def get_language_proficiency(character, language_code):
     if can_read_any_language(character):
         return 100.0
     
-    # Builder+ accounts understand all languages
-    if hasattr(character, 'account') and character.account:
-        if character.account.check_permstring("Builder"):
-            return 100.0
+    # NOTE: Builder bypass removed - builders should test language system realistically
+    # To test with all languages, use @py or admin commands to set proficiency
     
     # Use character.db directly, not attributes API
     proficiency_dict = character.db.language_proficiency or {}
