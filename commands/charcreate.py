@@ -454,7 +454,7 @@ def create_flash_clone(account, old_character):
     # The old character's death_count was already incremented at death (at_death())
     # The new clone inherits this value to continue the progression
     # Use AttributeProperty directly, not db.death_count
-    char.death_count = old_death_count
+    char.death_count = old_character.death_count
     
     # Link to previous incarnation
     char.db.previous_clone_dbref = old_character.dbref
@@ -1028,20 +1028,18 @@ def first_char_race(caller, raw_string, **kwargs):
     
     # Build race descriptions with language info
     race_info = {
-'human': {
-    'desc': 'Brief-lived and ever-changing, humans survive by adapting when things go wrong. They stumble, recover, and try again, often succeeding not through perfection, but persistence.',
-    'bonus': 'Humans are known for recovering quickly from missteps and adjusting their approach without drawing attention. Their shared tongue is spoken almost everywhere.'
-},
-
-'elf': {
-    'desc': 'Deliberate and restrained, elves prefer quiet paths and indirect solutions. They act with patience, favoring misdirection and subtle influence over force or haste.',
-    'bonus': 'Elves excel when working unseen or unheard, relying on subtlety and careful intent. They speak both the common trade tongue and the speech of their own people.'
-},
-
-'dwarf': {
-    'desc': 'Stone-bred and enduring, dwarves are shaped by long labor and scarce provision. They move steadily through hardship, sustained by habit and discipline.',
-    'bonus': 'Dwarves are slow to feel the pull of hunger, thirst, or drink, enduring conditions that would wear others down. Their voices carry both the common tongue and the deep speech of their halls.'
-}
+        'human': {
+            'desc': 'Brief-lived and ever-changing, humans survive by adapting when things go wrong. They stumble, recover, and try again, often succeeding not through perfection, but persistence.',
+            'bonus': 'Humans are known for recovering quickly from missteps and adjusting their approach without drawing attention. Their shared tongue is spoken almost everywhere.'
+        },
+        'elf': {
+            'desc': 'Deliberate and restrained, elves prefer quiet paths and indirect solutions. They act with patience, favoring misdirection and subtle influence over force or haste.',
+            'bonus': 'Elves excel when working unseen or unheard, relying on subtlety and careful intent. They speak both the common trade tongue and the speech of their own people.'
+        },
+        'dwarf': {
+            'desc': 'Stone-bred and enduring, dwarves are shaped by long labor and scarce provision. They move steadily through hardship, sustained by habit and discipline.',
+            'bonus': 'Dwarves are slow to feel the pull of hunger, thirst, or drink, enduring conditions that would wear others down. Their voices carry both the common tongue and the deep speech of their halls.'
+        }
     }
     
     text = f"""
@@ -1064,30 +1062,30 @@ Sdesc: |c{sdesc}|n
 
 |wEnter choice:|n """
 
+    options = (
+        {"key": "_default",
+         "goto": "first_char_race"},
+    )
+
     # Handle input
     if raw_string and raw_string.strip():
         choice = raw_string.strip()
         race_map = {'1': 'human', '2': 'elf', '3': 'dwarf'}
         
-    options = (
-        {"key": "_default",
-         "goto": "first_char_race"},
-    )
-    
-    if choice in race_map:
-        selected_race = race_map[choice]
-        caller.ndb.charcreate_data['race'] = selected_race
-        
-        # Set racial languages automatically
-        racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
-        caller.ndb.charcreate_data['languages'] = racial_langs.copy()
-        
-        caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
-        # Go to personality selection next
-        return first_char_personality(caller, "", **kwargs)
-    else:
-        caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
-        return text, options
+        if choice in race_map:
+            selected_race = race_map[choice]
+            caller.ndb.charcreate_data['race'] = selected_race
+            
+            # Set racial languages automatically
+            racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
+            caller.ndb.charcreate_data['languages'] = racial_langs.copy()
+            
+            caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
+            # Go to personality selection next
+            return first_char_personality(caller, "", **kwargs)
+        else:
+            caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
+            return text, options
     
     return text, options
 
@@ -1117,6 +1115,22 @@ They define |ywho you are|n, not what you do for a living.
     # List all personalities
     personality_keys = list(PERSONALITIES.keys())
     for i, key in enumerate(personality_keys, 1):
+        p = PERSONALITIES[key]
+        text += f"|w[{i}]|n |c{p['name']}|n\n"
+        text += f"    {p['description']}\n"
+        text += f"    |ySkills:|n {p['primary_skill'].replace('_', ' ').title()} +10%, {p['secondary_skill'].replace('_', ' ').title()} +5%\n"
+        text += f"    |yPassive:|n {p['passive_desc']}\n\n"
+    
+    text += "|wEnter choice:|n "
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality"},
+    )
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip()
         try:
             choice_num = int(choice)
             if 1 <= choice_num <= len(personality_keys):
@@ -1134,73 +1148,27 @@ They define |ywho you are|n, not what you do for a living.
                     caller.ndb.charcreate_data['personality_stat'] = p['stat_options'][0]
                     # Freehands needs secondary skill selection
                     if selected_personality == 'freehands':
-                        pass
-            choice = None  # Always define choice
-            from world.language.constants import RACE_LANGUAGES, LANGUAGES
-            first_name = caller.ndb.charcreate_data.get('first_name', '')
-            last_name = caller.ndb.charcreate_data.get('last_name', '')
-            sdesc = caller.ndb.charcreate_data.get('sdesc', '')
-            # Build race descriptions with language info
-            race_info = {
-                'human': {
-                    'desc': 'Brief-lived and ever-changing, humans survive by adapting when things go wrong. They stumble, recover, and try again, often succeeding not through perfection, but persistence.',
-                    'bonus': 'Humans are known for recovering quickly from missteps and adjusting their approach without drawing attention. Their shared tongue is spoken almost everywhere.'
-                },
-                'elf': {
-                    'desc': 'Deliberate and restrained, elves prefer quiet paths and indirect solutions. They act with patience, favoring misdirection and subtle influence over force or haste.',
-                    'bonus': 'Elves excel when working unseen or unheard, relying on subtlety and careful intent. They speak both the common trade tongue and the speech of their own people.'
-                },
-                'dwarf': {
-                    'desc': 'Stone-bred and enduring, dwarves are shaped by long labor and scarce provision. They move steadily through hardship, sustained by habit and discipline.',
-                    'bonus': 'Dwarves are slow to feel the pull of hunger, thirst, or drink, enduring conditions that would wear others down. Their voices carry both the common tongue and the deep speech of their halls.'
-                }
-            }
-            text = f"""
-Your personality grants |y+1|n to one of the following stats:
-
-"""
-
-stat_names = {
-    'str': ('Strength', 'Physical power and melee damage'),
-    'dex': ('Dexterity', 'Agility, reflexes, and finesse'),
-    'con': ('Constitution', 'Health and endurance'),
-    'int': ('Intelligence', 'Reasoning and memory'),
-    'wis': ('Wisdom', 'Perception and insight'),
-    'cha': ('Charisma', 'Presence and persuasion')
-}
-
-for i, stat in enumerate(stat_options, 1):
-    name, desc = stat_names.get(stat, (stat.upper(), ''))
-    text += f"|w[{i}]|n |c{name}|n - {desc}\n"
-
-text += "\n|wEnter choice:|n "
-# Handle input
-if raw_string and raw_string.strip():
-    choice = raw_string.strip()
-race_map = {'1': 'human', '2': 'elf', '3': 'dwarf'}
-options = (
-    {"key": "_default",
-     "goto": "first_char_race"},
-)
-if choice in race_map:
-    selected_race = race_map[choice]
-    caller.ndb.charcreate_data['race'] = selected_race
-    # Set racial languages automatically
-    racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
-    caller.ndb.charcreate_data['languages'] = racial_langs.copy()
-    caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
-    # Go to personality selection next
-    return first_char_personality(caller, "", **kwargs)
-elif choice is not None:
-    caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
-    return text, options
-return text, options
+                        return first_char_personality_skill(caller, "", **kwargs)
+                    # Otherwise, proceed to sex selection
+                    return first_char_sex(caller, "", **kwargs)
+            else:
+                caller.msg(f"|rInvalid choice. Please enter a number 1-{len(personality_keys)}.|n")
+                return text, options
+        except ValueError:
+            caller.msg(f"|rInvalid choice. Please enter a number 1-{len(personality_keys)}.|n")
+            return text, options
     
-    options = (
-        {"key": "_default",
-         "goto": "first_char_personality_stat"},
-    )
+    return text, options
 
+
+def first_char_personality_stat(caller, raw_string, **kwargs):
+    """Choose which stat to boost from personality options."""
+    from world.personality_system import PERSONALITIES
+    
+    personality = caller.ndb.charcreate_data.get('personality', 'stalwart')
+    p = PERSONALITIES.get(personality, PERSONALITIES['stalwart'])
+    stat_options = p['stat_options']
+    
     stat_names = {
         'str': ('Strength', 'Physical power and melee damage'),
         'dex': ('Dexterity', 'Agility, reflexes, and finesse'),
@@ -1209,13 +1177,18 @@ return text, options
         'wis': ('Wisdom', 'Perception and insight'),
         'cha': ('Charisma', 'Presence and persuasion')
     }
-
+    
     text = f"Your personality grants |y+1|n to one of the following stats:\n\n"
     for i, stat in enumerate(stat_options, 1):
         name, desc = stat_names.get(stat, (stat.upper(), ''))
         text += f"|w[{i}]|n |c{name}|n - {desc}\n"
     text += "\n|wEnter choice:|n "
-
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality_stat"},
+    )
+    
     # Handle input
     if raw_string and raw_string.strip():
         choice = raw_string.strip()
@@ -1236,6 +1209,7 @@ return text, options
         except ValueError:
             caller.msg(f"|rInvalid choice. Please enter a number 1-{len(stat_options)}.|n")
             return text, options
+    
     return text, options
 
 
@@ -1244,11 +1218,44 @@ def first_char_personality_skill(caller, raw_string, **kwargs):
     from world.personality_system import ALL_SKILLS
     
     sdesc = caller.ndb.charcreate_data.get('sdesc', '')
-                    # Freehands needs secondary skill selection
-                    if selected_personality == 'freehands':
-                        return first_char_personality_skill(caller, "", **kwargs)
-                    # Otherwise, proceed to race selection
-                    return first_char_race(caller, "", **kwargs)
+    
+    # Freehands lets you pick any skill as secondary
+    skill_list = sorted(ALL_SKILLS.keys())
+    
+    text = f"""
+|w=== Freehands Secondary Skill ===|n
+
+As a Freehands personality, you may choose any skill as your secondary bonus.
+
+"""
+    for i, skill in enumerate(skill_list, 1):
+        text += f"|w[{i:2d}]|n {skill.replace('_', ' ').title()}\n"
+    
+    text += "\n|wEnter choice:|n "
+    
+    options = (
+        {"key": "_default",
+         "goto": "first_char_personality_skill"},
+    )
+    
+    # Handle input
+    if raw_string and raw_string.strip():
+        choice = raw_string.strip()
+        try:
+            choice_num = int(choice)
+            if 1 <= choice_num <= len(skill_list):
+                selected_skill = skill_list[choice_num - 1]
+                caller.ndb.charcreate_data['personality_secondary_skill'] = selected_skill
+                caller.msg(f"|gSecondary skill set to |c{selected_skill.replace('_', ' ').title()}|g.|n")
+                return first_char_sex(caller, "", **kwargs)
+            else:
+                caller.msg(f"|rInvalid choice. Please enter a number 1-{len(skill_list)}.|n")
+                return text, options
+        except ValueError:
+            caller.msg(f"|rInvalid choice. Please enter a number 1-{len(skill_list)}.|n")
+            return text, options
+    
+    return text, options
 
 
 def first_char_stat_assign(caller, raw_string, **kwargs):
@@ -1551,45 +1558,64 @@ Create this character?
 
 def first_char_select_language(caller, raw_string, **kwargs):
     """Select additional language during character creation (for humans)."""
+    from world.language.constants import RACE_LANGUAGES, LANGUAGES
+    
+    race = caller.ndb.charcreate_data.get('race', 'human')
+    current_languages = caller.ndb.charcreate_data.get('languages', ['common'])
+    
+    # Humans get to pick an extra language
+    if race != 'human':
+        # Non-humans skip this step
+        return first_char_facts_name(caller, "", **kwargs)
+    
+    # Get available languages (exclude ones they already know)
+    available_langs = [code for code in LANGUAGES.keys() if code not in current_languages]
+    
+    text = """
+|w=== Select Additional Language ===|n
+
+As a human, you may learn one additional language.
+Choose from the available languages below:
+
+"""
+    
+    lang_list = []
+    sorted_langs = sorted(available_langs)
+    for i, code in enumerate(sorted_langs, 1):
         info = LANGUAGES[code]
         lang_list.append(f"|w[{i}]|n |c{info['name']}|n - {info['description']}")
     
     text += "\n".join(lang_list)
+    text += "\n\n|w[S]|n Skip - Keep only Common\n"
+    text += "\n|wEnter choice:|n "
     
-    # Handle input
     options = (
         {"key": "_default", "goto": "first_char_select_language"},
     )
     
     if raw_string and raw_string.strip():
-        args = raw_string.strip().lower().split()
-        if not args:
+        choice = raw_string.strip().lower()
+        
+        if choice in ['s', 'skip']:
+            caller.msg("|gSkipping additional language.|n")
+            return first_char_facts_name(caller, "", **kwargs)
+        
+        try:
+            choice_num = int(choice)
+            if 1 <= choice_num <= len(sorted_langs):
+                selected_lang = sorted_langs[choice_num - 1]
+                caller.ndb.charcreate_data['languages'].append(selected_lang)
+                lang_name = LANGUAGES[selected_lang]['name']
+                caller.msg(f"|gAdded |c{lang_name}|g to your languages.|n")
+                return first_char_facts_name(caller, "", **kwargs)
+            else:
+                caller.msg(f"|rInvalid choice. Please enter a number 1-{len(sorted_langs)} or S to skip.|n")
+                return text, options
+        except ValueError:
+            caller.msg(f"|rInvalid choice. Please enter a number 1-{len(sorted_langs)} or S to skip.|n")
             return text, options
-        
-        command = args[0]
-        sorted_langs = sorted(available_langs)
-        
-    try:
-        from world.language.constants import RACE_LANGUAGES, LANGUAGES
-        first_name = caller.ndb.charcreate_data.get('first_name', '')
-        last_name = caller.ndb.charcreate_data.get('last_name', '')
-        sdesc = caller.ndb.charcreate_data.get('sdesc', '')
-        # Build race descriptions with language info
-        race_info = {
-            'human': {
-                'desc': 'Brief-lived and ever-changing, humans survive by adapting when things go wrong. They stumble, recover, and try again, often succeeding not through perfection, but persistence.',
-                'bonus': 'Humans are known for recovering quickly from missteps and adjusting their approach without drawing attention. Their shared tongue is spoken almost everywhere.'
-            },
-            'elf': {
-                'desc': 'Deliberate and restrained, elves prefer quiet paths and indirect solutions. They act with patience, favoring misdirection and subtle influence over force or haste.',
-                'bonus': 'Elves excel when working unseen or unheard, relying on subtlety and careful intent. They speak both the common trade tongue and the speech of their own people.'
-            },
-            'dwarf': {
-                'desc': 'Stone-bred and enduring, dwarves are shaped by long labor and scarce provision. They move steadily through hardship, sustained by habit and discipline.',
-                'bonus': 'Dwarves are slow to feel the pull of hunger, thirst, or drink, enduring conditions that would wear others down. Their voices carry both the common tongue and the deep speech of their halls.'
-            }
-        }
-        text = f"""
+    
+    return text, options
 
 
 # =============================================================================
@@ -1608,37 +1634,6 @@ These facts represent what others may know about your character.
 They create RP hooks and can be discovered through skill rolls.
 
 |cThink about what a stranger might learn through gossip or observation.|n
-        # Handle input
-        if raw_string and raw_string.strip():
-            choice = raw_string.strip()
-            race_map = {'1': 'human', '2': 'elf', '3': 'dwarf'}
-        else:
-            choice = None
-        options = (
-            {"key": "_default",
-             "goto": "first_char_race"},
-        )
-        if choice in race_map:
-            selected_race = race_map[choice]
-            caller.ndb.charcreate_data['race'] = selected_race
-            # Set racial languages automatically
-            racial_langs = RACE_LANGUAGES.get(selected_race, ['common'])
-            caller.ndb.charcreate_data['languages'] = racial_langs.copy()
-            caller.msg(f"|gRace set to |c{selected_race.capitalize()}|g.|n")
-            # Go to personality selection next
-            return first_char_personality(caller, "", **kwargs)
-        elif choice is not None:
-            caller.msg("|rInvalid choice. Please enter 1, 2, or 3.|n")
-            return text, options
-        return text, options
-    except Exception as e:
-        caller.msg(f"|rAn error occurred in race selection: {e}|n")
-        text = "|rA system error occurred. Please try again or contact staff.|n\n|wSelect your race:|n\n|w[1]|n Human\n|w[2]|n Elf\n|w[3]|n Dwarf\n|w>|n"
-        options = (
-            {"key": "_default",
-             "goto": "first_char_race"},
-        )
-        return text, options
 
 |b----------------------------------------------------------------------|n
 
