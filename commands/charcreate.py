@@ -1096,12 +1096,14 @@ Sdesc: |c{sdesc}|n
 
 def first_char_personality(caller, raw_string, **kwargs):
     """Select character personality (class-like choice at chargen)."""
-    from world.personality_system import PERSONALITIES, get_personality_display
+    from world.personality_system import PERSONALITIES
+    from evennia import logger
     
-    sdesc = caller.ndb.charcreate_data.get('sdesc', '')
-    race = caller.ndb.charcreate_data.get('race', 'human')
-    
-    text = f"""
+    try:
+        sdesc = caller.ndb.charcreate_data.get('sdesc', '')
+        race = caller.ndb.charcreate_data.get('race', 'human')
+        
+        text = f"""
 Sdesc: |c{sdesc}|n
 Race: |c{race.capitalize()}|n
 
@@ -1111,54 +1113,65 @@ Personalities shape your starting abilities and social standing.
 They define |ywho you are|n, not what you do for a living.
 
 """
-    
-    # List all personalities
-    personality_keys = list(PERSONALITIES.keys())
-    for i, key in enumerate(personality_keys, 1):
-        p = PERSONALITIES[key]
-        text += f"|w[{i}]|n |c{p['name']}|n\n"
-        text += f"    {p['description']}\n"
-        text += f"    |ySkills:|n {p['primary_skill'].replace('_', ' ').title()} +10%, {p['secondary_skill'].replace('_', ' ').title()} +5%\n"
-        text += f"    |yPassive:|n {p['passive_desc']}\n\n"
-    
-    text += "|wEnter choice:|n "
-    
-    options = (
-        {"key": "_default",
-         "goto": "first_char_personality"},
-    )
-    
-    # Handle input
-    if raw_string and raw_string.strip():
-        choice = raw_string.strip()
-        try:
-            choice_num = int(choice)
-            if 1 <= choice_num <= len(personality_keys):
-                selected_personality = personality_keys[choice_num - 1]
-                caller.ndb.charcreate_data['personality'] = selected_personality
-                
-                p = PERSONALITIES[selected_personality]
-                caller.msg(f"|gPersonality set to |c{p['name']}|g.|n")
-                
-                # If personality has multiple stat options, go to stat choice
-                if len(p['stat_options']) > 1:
-                    return first_char_personality_stat(caller, "", **kwargs)
+        
+        # List all personalities
+        personality_keys = list(PERSONALITIES.keys())
+        for i, key in enumerate(personality_keys, 1):
+            p = PERSONALITIES[key]
+            text += f"|w[{i}]|n |c{p['name']}|n\n"
+            text += f"    {p.get('desc', 'No description')}\n"
+            primary_skill = p.get('skills', {}).get('primary', {}).get('skill', 'unknown').replace('_', ' ').title()
+            secondary_skill = p.get('skills', {}).get('secondary', {}).get('skill', 'unknown').replace('_', ' ').title()
+            text += f"    |ySkills:|n {primary_skill} +10%, {secondary_skill} +5%\n"
+            passive_desc = p.get('passive', {}).get('desc', 'No passive')
+            text += f"    |yPassive:|n {passive_desc}\n\n"
+        
+        text += "|wEnter choice:|n "
+        
+        options = (
+            {"key": "_default",
+             "goto": "first_char_personality"},
+        )
+        
+        # Handle input
+        if raw_string and raw_string.strip():
+            choice = raw_string.strip()
+            try:
+                choice_num = int(choice)
+                if 1 <= choice_num <= len(personality_keys):
+                    selected_personality = personality_keys[choice_num - 1]
+                    caller.ndb.charcreate_data['personality'] = selected_personality
+                    
+                    p = PERSONALITIES[selected_personality]
+                    caller.msg(f"|gPersonality set to |c{p['name']}|g.|n")
+                    
+                    # If personality has multiple stat options, go to stat choice
+                    stat_options = p.get('stat_options', ['wis'])
+                    if len(stat_options) > 1:
+                        return first_char_personality_stat(caller, "", **kwargs)
+                    else:
+                        # Single stat option - auto-select it
+                        caller.ndb.charcreate_data['personality_stat'] = stat_options[0]
+                        # Freehands needs secondary skill selection
+                        if selected_personality == 'freehands':
+                            return first_char_personality_skill(caller, "", **kwargs)
+                        # Otherwise, proceed to sex selection
+                        return first_char_sex(caller, "", **kwargs)
                 else:
-                    # Single stat option - auto-select it
-                    caller.ndb.charcreate_data['personality_stat'] = p['stat_options'][0]
-                    # Freehands needs secondary skill selection
-                    if selected_personality == 'freehands':
-                        return first_char_personality_skill(caller, "", **kwargs)
-                    # Otherwise, proceed to sex selection
-                    return first_char_sex(caller, "", **kwargs)
-            else:
+                    caller.msg(f"|rInvalid choice. Please enter a number 1-{len(personality_keys)}.|n")
+                    return text, options
+            except ValueError:
                 caller.msg(f"|rInvalid choice. Please enter a number 1-{len(personality_keys)}.|n")
                 return text, options
-        except ValueError:
-            caller.msg(f"|rInvalid choice. Please enter a number 1-{len(personality_keys)}.|n")
-            return text, options
+        
+        return text, options
     
-    return text, options
+    except Exception as e:
+        logger.log_err(f"Error in first_char_personality: {e}")
+        caller.msg(f"|rError loading personalities: {e}|n")
+        import traceback
+        caller.msg(f"|r{traceback.format_exc()}|n")
+        return "first_char_race"
 
 
 def first_char_personality_stat(caller, raw_string, **kwargs):
@@ -1524,8 +1537,8 @@ def first_char_confirm(caller, raw_string, **kwargs):
     |mWIS:|n {final_stats['wis']:2d} ({calc_mod(final_stats['wis']):+d}){'  |y<-- Boosted Range|n' if personality_stat == 'wis' else ''}
     |cCHA:|n {final_stats['cha']:2d} ({calc_mod(final_stats['cha']):+d}){'  |y<-- Boosted Range|n' if personality_stat == 'cha' else ''}
 
-|wSkill Bonuses:|n {p['primary_skill'].replace('_', ' ').title()} |g+10%|n, {p['secondary_skill'].replace('_', ' ').title()} |g+5%|n
-|wPassive:|n {p['passive_desc']}
+|wSkill Bonuses:|n {p.get('skills', {}).get('primary', {}).get('skill', 'unknown').replace('_', ' ').title()} |g+10%|n, {p.get('skills', {}).get('secondary', {}).get('skill', 'unknown').replace('_', ' ').title()} |g+5%|n
+|wPassive:|n {p.get('passive', {}).get('desc', 'Unknown passive ability')}
 |wLanguages:|n {', '.join(lang_names)}
 
 |y----------------------------------------------------------------------|n
@@ -2253,13 +2266,16 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.msg(f"|wLanguages:|n |c{', '.join(lang_names)}|n")
         char.msg("")
         char.msg(f"|wSkill Bonuses:|n")
-        char.msg(f"  |c{p['primary_skill'].replace('_', ' ').title()}|n |g+10%|n")
+        primary_skill_name = p.get('skills', {}).get('primary', {}).get('skill', 'unknown').replace('_', ' ').title()
+        char.msg(f"  |c{primary_skill_name}|n |g+10%|n")
         if personality == 'freehands' and personality_secondary_skill:
             char.msg(f"  |c{personality_secondary_skill.replace('_', ' ').title()}|n |g+5%|n")
         else:
-            char.msg(f"  |c{p['secondary_skill'].replace('_', ' ').title()}|n |g+5%|n")
+            secondary_skill_name = p.get('skills', {}).get('secondary', {}).get('skill', 'unknown').replace('_', ' ').title()
+            char.msg(f"  |c{secondary_skill_name}|n |g+5%|n")
         char.msg("")
-        char.msg(f"|wPassive Ability:|n {p['passive_desc']}")
+        passive_ability = p.get('passive', {}).get('desc', 'Unknown passive ability')
+        char.msg(f"|wPassive Ability:|n {passive_ability}")
         char.msg("")
         if standing_info:
             char.msg(f"|wStarting Faction Standing:|n")
