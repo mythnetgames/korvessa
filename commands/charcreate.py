@@ -2227,7 +2227,7 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.db.personality_stat = personality_stat
         
         # Apply personality skill bonuses and standing
-        apply_personality_to_character(char, personality, personality_secondary_skill)
+        apply_personality_to_character(char, personality, personality_stat, personality_secondary_skill)
         
         # Apply character facts
         apply_character_facts(char, character_facts)
