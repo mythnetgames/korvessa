@@ -2361,8 +2361,12 @@ def first_char_finalize(caller, raw_string, **kwargs):
         char.db.birthday_day = caller.ndb.charcreate_data.get('birthday_day', 1)
         
         # Set languages
-        char.db.languages = languages
+        char.db.known_languages = set(languages)
         char.db.primary_language = languages[0] if languages else 'common'
+        
+        # Initialize language proficiency (sets all known languages to 100%)
+        from world.language.utils import initialize_language_proficiency
+        initialize_language_proficiency(char)
         
         # Award starting IP
         char.db.ip = char.db.ip if hasattr(char.db, 'ip') and char.db.ip else 0

@@ -229,16 +229,35 @@ class CmdSay(DefaultCmdSay):
                     observer_sdesc = observer_sdesc.capitalize()
                 else:
                     observer_sdesc = caller.key
-                if voice:
-                    observer_msg = f'{observer_sdesc} says, "*speaking {language_name} in a {voice}* {garbled_speech}"|n'
-                else:
-                    observer_msg = f'{observer_sdesc} says, "*speaking {language_name}* {garbled_speech}"|n'
-                observer.msg(observer_msg)
                 
-                # Send passive learning notification after the speech
+                # Check if observer understands this language
                 from world.language.utils import get_language_proficiency
                 from world.language.constants import LANGUAGES
                 proficiency = get_language_proficiency(observer, primary_language)
+                
+                # Build message based on whether observer understands the language
+                if proficiency >= 100.0:
+                    # Observer knows the language - show language name
+                    if voice:
+                        observer_msg = f'{observer_sdesc} says, "*speaking {language_name} in a {voice}* {garbled_speech}"|n'
+                    else:
+                        observer_msg = f'{observer_sdesc} says, "*speaking {language_name}* {garbled_speech}"|n'
+                elif proficiency > 0:
+                    # Observer partially understands - show garbled with language hint
+                    if voice:
+                        observer_msg = f'{observer_sdesc} says, "*in {language_name}, in a {voice}* {garbled_speech}"|n'
+                    else:
+                        observer_msg = f'{observer_sdesc} says, "*in {language_name}* {garbled_speech}"|n'
+                else:
+                    # Observer doesn't understand - just show garbled speech, no language
+                    if voice:
+                        observer_msg = f'{observer_sdesc} says, "*in a {voice}* {garbled_speech}"|n'
+                    else:
+                        observer_msg = f'{observer_sdesc} says, "{garbled_speech}"|n'
+                
+                observer.msg(observer_msg)
+                
+                # Send passive learning notification after the speech
                 if proficiency < 100.0 and primary_language not in ['cantonese', 'english']:  # Don't notify for common starting languages
                     lang_name = LANGUAGES[primary_language]['name']
                     if proficiency > 0:

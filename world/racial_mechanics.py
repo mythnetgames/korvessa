@@ -162,23 +162,22 @@ def initialize_race_languages(character):
     """
     Initialize character's known languages based on race.
     Called during character creation.
+    
+    NOTE: This function is now superseded by the main language system.
+    Languages are set in chargen via RACE_LANGUAGES and initialized
+    with initialize_language_proficiency() during character finalization.
+    This function is kept for backward compatibility but now just validates
+    that the language system is properly initialized.
     """
     try:
-        from world.language.constants import LANGUAGES
-        
-        race_langs = get_race_languages(character)
+        from world.language.utils import initialize_language_proficiency
         
         if not hasattr(character, 'db'):
             return
         
-        # Initialize known languages
-        if not character.db.known_languages:
-            character.db.known_languages = {}
-        
-        for lang in race_langs:
-            if lang.lower() in LANGUAGES:
-                # Set to 100 (fluent) for native languages
-                character.db.known_languages[lang.lower()] = 100
+        # Ensure language proficiency is initialized
+        if not hasattr(character.db, 'language_proficiency') or character.db.language_proficiency is None:
+            initialize_language_proficiency(character)
     except Exception:
         pass  # Language system not critical
 

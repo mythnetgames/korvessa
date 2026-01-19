@@ -448,9 +448,15 @@ def apply_passive_language_learning(character, heard_language_code):
     """
     Apply passive learning when hearing a language.
     
-    Requires Smarts 4 or higher to passively learn languages.
-    Hearing a language you don't know increases proficiency by 0.04 per event.
-    Daily cap: 5 events = 0.2 proficiency per day.
+    Learning speed is scaled by Intelligence modifier:
+    - INT 8 (mod -1): 0.03 per event
+    - INT 10 (mod 0): 0.04 per event
+    - INT 12 (mod +1): 0.05 per event
+    - INT 14 (mod +2): 0.06 per event
+    - INT 16+ (mod +3): 0.07 per event+
+    
+    Hearing a language you don't know increases proficiency based on INT.
+    Daily cap: 5 events per language per day.
     
     Args:
         character: The character object
@@ -459,12 +465,16 @@ def apply_passive_language_learning(character, heard_language_code):
     if heard_language_code not in LANGUAGES:
         return
     
-    # Must have Smarts 4 or higher to passively learn languages
-    smarts = getattr(character, 'smrt', 1)
-    if not isinstance(smarts, (int, float)) or smarts is None:
-        smarts = 1
-    if smarts < 4:
-        return
+    # Get Intelligence modifier to scale learning speed
+    int_stat = getattr(character, 'int', 10)
+    if not isinstance(int_stat, (int, float)) or int_stat is None:
+        int_stat = 10
+    int_mod = (int_stat - 10) // 2
+    
+    # Calculate learning rate based on INT modifier
+    # Base rate: 0.04 per event, scaled by INT modifier
+    base_rate = 0.04
+    learning_rate = base_rate * max(0.5, 1 + int_mod * 0.25)
     
     # Only passive learning for languages not already at 100%
     current_proficiency = get_language_proficiency(character, heard_language_code)
@@ -472,7 +482,7 @@ def apply_passive_language_learning(character, heard_language_code):
     if current_proficiency >= 100.0:
         return
     
-    # Check daily passive learning cap (max 5 events = 0.2 proficiency per day)
+    # Check daily passive learning cap (max 5 events per language per day)
     if not hasattr(character.ndb, 'daily_passive_learning'):
         character.ndb.daily_passive_learning = {}
     
@@ -489,7 +499,7 @@ def apply_passive_language_learning(character, heard_language_code):
     count = character.ndb.daily_passive_learning.get(heard_language_code, 0)
     
     if count < 5:  # Max 5 passive learning events per language per day
-        increase_language_proficiency(character, heard_language_code, 0.04)
+        increase_language_proficiency(character, heard_language_code, learning_rate)
         character.ndb.daily_passive_learning[heard_language_code] = count + 1
 
 
