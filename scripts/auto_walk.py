@@ -239,6 +239,9 @@ def _check_auto_walk_interrupts(character):
                 # This is a PC - check if they are visible to us (not hidden)
                 if hasattr(obj, 'is_hidden') and obj.is_hidden():
                     continue  # Skip hidden characters
+                # Check if this character is following the player - if so, allow them through
+                if hasattr(obj.ndb, 'following') and obj.ndb.following == character:
+                    continue  # Allow followers to pass through
                 # Visible PC found - stop pathing
                 return f"|#5fafff[!] You see {obj.key} in the room.|n\n|#5fafff    Hint: Walk past them manually or ask them to move?|n"
     
