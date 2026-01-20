@@ -6,6 +6,7 @@ and Cloudflare Turnstile verification.
 """
 
 from django import forms
+from django.conf import settings
 from evennia.web.website.forms import (
     CharacterForm as EvenniaCharacterForm,
     AccountForm as EvenniaAccountForm
@@ -267,9 +268,10 @@ class TurnstileAccountForm(EvenniaAccountForm):
     
     # Hidden field to store Turnstile response token
     # This is populated by the Turnstile JavaScript widget
+    # Set required=False here - will be conditionally required in __init__
     cf_turnstile_response = forms.CharField(
         widget=forms.HiddenInput(),
-        required=True,
+        required=False,
         error_messages={
             'required': 'CAPTCHA verification is required. Please complete the verification.'
         }
@@ -278,6 +280,11 @@ class TurnstileAccountForm(EvenniaAccountForm):
     def __init__(self, *args, **kwargs):
         """Override username and email fields with clearer labels and help text."""
         super().__init__(*args, **kwargs)
+        
+        # Make Turnstile field required only if configured
+        turnstile_secret = getattr(settings, 'TURNSTILE_SECRET_KEY', None)
+        if turnstile_secret:
+            self.fields['cf_turnstile_response'].required = True
         
         # Update username field
         self.fields['username'].label = "Account Name"
