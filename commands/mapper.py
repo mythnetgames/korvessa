@@ -325,6 +325,71 @@ class CmdMap(Command):
             padding = max(0, target_width - vis_len_val)
             return s + " " * padding
         
+        def wrap_with_ansi(text, width):
+            """
+            Wrap text that contains Evennia color codes.
+            Wraps based on visual width, preserving color codes.
+            """
+            import re
+            if not text:
+                return []
+            
+            # Remove color codes to get plain text for wrapping
+            def strip_ansi(s):
+                temp = s.replace('||', '\x00')
+                stripped = re.sub(r'\|(?:\[)?(?:#[0-9a-fA-F]{6}|[a-zA-Z])', '', temp)
+                stripped = stripped.replace('\x00', '|')
+                return stripped
+            
+            plain_text = strip_ansi(text)
+            
+            # If the plain text fits, return as-is
+            if len(plain_text) <= width:
+                return [text]
+            
+            # Otherwise, wrap using textwrap on the plain text
+            wrapped_plain = textwrap.wrap(plain_text, width=width, break_long_words=True, break_on_hyphens=False)
+            
+            # Now we need to map the wrapped plain text back to the original with color codes
+            result = []
+            pos = 0
+            original_text = text
+            
+            for wrapped_line in wrapped_plain:
+                # Find this chunk in the original text, accounting for color codes
+                line_with_codes = ""
+                chars_found = 0
+                i = 0
+                
+                while i < len(original_text) and chars_found < len(wrapped_line):
+                    if original_text[i:i+2] == '||':
+                        # Escaped pipe
+                        line_with_codes += '||'
+                        chars_found += 1
+                        i += 2
+                    elif original_text[i] == '|':
+                        # Check if this is a color code
+                        code_match = re.match(r'\|(?:\[)?(?:#[0-9a-fA-F]{6}|[a-zA-Z])', original_text[i:])
+                        if code_match:
+                            # This is a color code, include it but don't count it
+                            line_with_codes += code_match.group(0)
+                            i += len(code_match.group(0))
+                        else:
+                            # Regular pipe
+                            line_with_codes += original_text[i]
+                            chars_found += 1
+                            i += 1
+                    else:
+                        # Regular character
+                        line_with_codes += original_text[i]
+                        chars_found += 1
+                        i += 1
+                
+                result.append(line_with_codes)
+                original_text = original_text[i:].lstrip()
+            
+            return result
+        
         if appearance:
             lines = appearance.split('\n')
             exit_line = None
@@ -346,13 +411,13 @@ class CmdMap(Command):
                     padding = max(0, (column_width - vis_len) // 2)
                     wrapped_lines.append(" " * padding + line.strip())
                 else:
-                    # Wrap to column width
-                    wrapped = textwrap.fill(line.strip(), width=column_width)
-                    wrapped_lines.extend(wrapped.split('\n'))
+                    # Wrap to column width using ANSI-aware wrapper
+                    wrapped = wrap_with_ansi(line.strip(), column_width)
+                    wrapped_lines.extend(wrapped)
             desc_lines = wrapped_lines
             if exit_line:
-                wrapped = textwrap.fill(exit_line.strip(), width=column_width)
-                desc_lines.extend(wrapped.split('\n'))
+                wrapped = wrap_with_ansi(exit_line.strip(), column_width)
+                desc_lines.extend(wrapped)
         else:
             desc_lines = []
 
