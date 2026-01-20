@@ -140,27 +140,31 @@ class CmdEmailCreate(MuxCommand):
         # Create account
         Account = class_from_module(settings.BASE_ACCOUNT_TYPECLASS)
         try:
+            # Note: Account.create() only accepts username, email, and password
+            # The 'ip' parameter is not a valid argument for Account.create()
+            # IP tracking is handled by Evennia's session management
             account, errors = Account.create(
                 username=username,  # Public account name
                 email=email,        # Private email
-                password=password, 
-                ip=address
+                password=password
             )
         except Exception as e:
             # Catch any exception during account creation
             import traceback
             error_msg = str(e)
-            traceback.print_exc()
-            session.msg(f"|rAccount creation failed:|n {error_msg}")
+            full_traceback = traceback.format_exc()
+            session.msg(f"|rAccount creation failed: {error_msg}|n")
             
-            # Also log to Splattercast for debugging
+            # Log full details to Splattercast for debugging
             try:
                 from evennia.comms.models import ChannelDB
                 splattercast = ChannelDB.objects.get_channel("Splattercast")
                 if splattercast:
-                    splattercast.msg(f"ACCOUNT_CREATION_ERROR: {username} - {error_msg}")
-            except Exception:
-                pass
+                    splattercast.msg(f"ACCOUNT_CREATION_ERROR: {username} - {error_msg}\n{full_traceback}")
+            except Exception as debug_err:
+                # If Splattercast fails, try printing to console
+                print(f"Failed to log to Splattercast: {debug_err}")
+                print(f"Original error: {full_traceback}")
             return
         
         if account:
@@ -168,7 +172,7 @@ class CmdEmailCreate(MuxCommand):
             session.msg(f"You can now connect with: |wconnect {username} <password>|n")
             session.msg("Character creation will happen after you log in.")
         else:
-            session.msg(f"|rAccount creation failed:|n {'; '.join(errors)}")
+            session.msg(f"|rAccount creation failed: {'; '.join(errors)}|n")
 
 
 # Command set to replace the default unloggedin commands
