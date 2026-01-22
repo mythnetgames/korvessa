@@ -340,7 +340,7 @@ def format_date_short(date=None):
     day = date['day']
     suffix = get_ordinal_suffix(day)
     
-    return f"the {day}{suffix} of {date['month_name']}, Year {date['year']} AH (After Herding)"
+    return f"the {day}{suffix} of {date['month_name']}, Year {date['year']} AH"
 
 
 def format_date_full(date=None):
@@ -359,7 +359,7 @@ def format_date_full(date=None):
     day = date['day']
     suffix = get_ordinal_suffix(day)
     
-    return f"{date['weekday_name']}, the {day}{suffix} of {date['month_name']}, Year {date['year']} AH (After Herding)"
+    return f"{date['weekday_name']}, the {day}{suffix} of {date['month_name']}, Year {date['year']} AH"
 
 
 def format_time(date=None):
