@@ -102,9 +102,9 @@ class CmdTime(Command):
             caller.msg(f"{COLORS['cyan']}It is the holiday of {COLORS['cyan']}{holiday['name']}{COLORS['reset']}.|n")
             caller.msg(f"({holiday['tradition']})")
         else:
-            caller.msg(f"A nearby sundial and calendar mark:")
+            pass  # No sundial/calendar line
         
-        caller.msg(f"{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}")
+        # Removed top border
         caller.msg(f"  Date: {COLORS['cyan']}{full_date}{COLORS['reset']}")
         caller.msg(f"  Time: {COLORS['cyan']}{time_str}{COLORS['reset']}")
         caller.msg(f"{COLORS['dark_blue']}{'-' * 60}{COLORS['reset']}")
